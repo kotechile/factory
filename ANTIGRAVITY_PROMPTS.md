@@ -42,7 +42,7 @@ Hard rules (from AGENTS.md): all secrets env-only — add a .env.example with th
 VARIABLE NAMES only (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
 STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY) and NEVER hardcode values
 (this org has push protection that rejects committed secrets). No silent fallbacks.
-Reuse primitives. Stage the work; do not push.
+Reuse primitives. After `scripts/verify-build.sh` passes, commit and push to main.
 ```
 
 ## 2. Per-product build (Phase 4 — run for each approved PRD)
@@ -67,7 +67,8 @@ Deliverables:
 6. Make scripts/verify-build.sh pass.
 
 Hard rules: env-only secrets (values never committed), no silent fallbacks,
-deterministic core only, stay within the 4-hour build budget. Stage; do not push.
+deterministic core only, stay within the 4-hour build budget. After
+`scripts/verify-build.sh` passes, commit and push to main.
 ```
 
 ## Gotchas
