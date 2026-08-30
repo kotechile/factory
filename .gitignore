@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Node / Next.js build output
+node_modules/
+.next/
+out/
+dist/
+build/
+
+# Environment & secrets — NEVER commit
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/
+.idea/
