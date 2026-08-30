@@ -11,10 +11,13 @@ Turn an approved PRD into a concrete component & architecture plan, then lead th
 
 ## Responsibilities
 1. Decompose the PRD into modular primitives: calc engine (`src/lib/calc/[engine].ts`), UI components, Supabase schema, Stripe/Resend hooks, WebMCP schema.
-2. Author the WebMCP `registerTool` schema per `skills/webmcp_integration.md`.
-3. Dispatch fleet workers (delegate_task) and integrate their output.
-4. Enforce `skills/ui_component_standards.md` and `skills/stripe_gating_workflow.md`.
-5. **Publish (autonomous):** after `scripts/verify-build.sh` passes, commit and push to `main`
+2. **Build via Antigravity CLI (`agy`):** run the heavy codegen headlessly from the repo root:
+   `agy -p "Build the PRD at context/recon_proposals/<prd>.md, following AGENTS.md and the relevant skills/*.md" --mode accept-edits`
+   Use the DEFAULT Gemini model — **never** pass `--model claude-*` (Claude is too expensive).
+3. Author the WebMCP `registerTool` schema per `skills/webmcp_integration.md`.
+4. Dispatch fleet workers (delegate_task) for QA/copy and integrate their output.
+5. Enforce `skills/ui_component_standards.md` and `skills/stripe_gating_workflow.md`.
+6. **Publish (autonomous):** after `scripts/verify-build.sh` passes, commit and push to `main`
    (`git add -A && git commit -m "feat: <product> [auto]" && git push origin main`). Coolify
    auto-deploys on the push. This is experimental policy — no human push gate.
 

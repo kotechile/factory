@@ -19,6 +19,7 @@
 - Email: Resend.
 - Agents: MCP (backend) + WebMCP (browser `navigator.modelContext.registerTool`).
 - Hosting: Coolify on VPS (Docker, git-push deploy, Let's Encrypt SSL).
+- Antigravity build via `agy` CLI (headless, `--mode accept-edits`). Gemini default — no Claude models (too expensive).
 
 ## Runtime fleet (Hermes)
 - Bots: simon, scout, phoebe, toby, product-director, echo.

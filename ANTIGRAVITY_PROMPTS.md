@@ -7,6 +7,14 @@ Reusable prompts for driving the Google Antigravity build line against this repo
 `context/company_goals.md`. Both prompts below also tell it to read them
 explicitly, so they work even if auto-loading is off.
 
+## Running via the CLI (recommended for automation)
+Instead of pasting into the IDE, run either prompt headlessly from the repo:
+```bash
+cd ~/Documents/software-factory-core
+agy -p "<paste prompt #1 or #2 here>" --mode accept-edits
+```
+Use the default **Gemini** model — do NOT add `--model claude-*` (Claude is too expensive for routine builds).
+
 ---
 
 ## 1. Baseline scaffold (Phase 1 — run once, now)
