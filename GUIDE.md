@@ -80,7 +80,7 @@ hermes cron incidents     # durable failure incidents (ack them here)
 
 ## 1.4 Running a full cycle manually (end-to-end)
 
-Until Slack is connected (§2.3), drive the cycle by talking to Simon directly:
+Slack is live, but you can also drive the cycle by talking to Simon directly (either path works):
 
 ```bash
 # 1. Recon (Simon runs the sweep; Scout is his search engine)
@@ -298,6 +298,52 @@ hermes -p product-director chat -q "Decompose this PRD into tasks and delegate: 
 
 Inside a session, this is the `delegate_task` tool (bounded, parallel, isolated-context). The
 persona contract for each worker lives in the Product Director's instructions rather than a profile.
+
+---
+
+## Part 3 — Deploying & Publishing (Coolify)
+
+Self-hosted PaaS on a VPS, git-push-to-deploy. One-time setup; after that **push to `main` = publish**.
+
+### One-time setup
+1. **VPS** — any provider, Ubuntu 22.04+, ≥2 GB RAM. Open ports 80/443 (8000 for the Coolify UI during install).
+2. **Install Coolify** — `curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash`, then open the dashboard URL it prints.
+3. **Add application** — Projects → Add → **Application** → Source = **GitHub** → connect your account → repo `kotechile/factory`, branch `main`, build pack = **Dockerfile**.
+4. **Dockerfile** — Antigravity's baseline prompt generates it (needs `output: 'standalone'` in `next.config.mjs`). Reference below.
+5. **Environment variables** — app → Environment Variables: add the names from `.env.example` (Supabase URL + service_role, Stripe secret + webhook secret, Resend key). Values live ONLY here, injected at runtime — never in the repo.
+6. **Domain + SSL** — app → Domains → add your domain; Coolify auto-issues Let's Encrypt. (Or use the generated `*.coolify.io` URL for testing.)
+
+### Ongoing — publishing a product
+- **Publish** = `git push origin main`. Coolify detects the push and deploys. Nothing else to click.
+- **Rollback** = app → Deployments → pick an earlier build → **Rollback** (instant).
+- **Watch** = Coolify → Notifications → add **Slack** → `#loop-ai`; deploy success/failure posts there natively.
+- **Rotate secrets** = edit in Coolify → **Restart** to apply.
+
+### Feedback loop (Toby)
+- **Code audit (always on):** Toby's daily 10:00 watchdog runs `scripts/verify-build.sh` on any new commit locally, patches SOPs on failure — independent of Coolify.
+- **Deploy audit (optional):** Coolify → Webhooks → POST to a Hermes webhook so Toby inspects real build logs:
+  `hermes webhook subscribe coolify-build --prompt "You are Toby, audit this deploy {payload}" --deliver bot-chat:toby`
+  Needs your Mac reachable from the VPS (Tailscale is easiest). Otherwise Slack notifications + Toby's cron already give visibility + self-healing.
+
+### Reference Dockerfile (Next.js standalone)
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
 
 ---
 
