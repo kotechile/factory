@@ -37,3 +37,15 @@ Standardize every UI surface so products ship accessible, responsive, and consis
 
 ## 7. Failure handling
 - Toby flags contrast violations and non-reusable components in `self_improvement_eval.md`.
+
+## 8. Automated enforcement (the quality gate)
+Standards are enforced by `scripts/verify-build.sh`, which must pass before any push:
+- `tsc --noEmit` — strict type checking.
+- `eslint` — lint.
+- `check:tokens` — design-token lint: raw Tailwind palette colors (e.g. `bg-blue-500`) are rejected; use tokens (`primary`, `accent`, `muted`, `border`, `card`, `destructive`, `success`, `warning`, `foreground`, `background`).
+- `test` (vitest) — deterministic calc engines must ship known-answer test vectors in `src/lib/calc/*.test.ts`.
+- `build` — production build.
+- `test:e2e` (Playwright) — visual regression (`toHaveScreenshot`) + WCAG 2.1 AA accessibility (`@axe-core/playwright`).
+
+### Design tokens
+Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.

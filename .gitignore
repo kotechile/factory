@@ -7,6 +7,8 @@ node_modules/
 out/
 dist/
 build/
+test-results/
+playwright-report/
 
 # Environment & secrets — NEVER commit
 .env
