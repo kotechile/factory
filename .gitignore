@@ -18,6 +18,7 @@ playwright-report/
 # Logs
 *.log
 npm-debug.log*
+*.tsbuildinfo
 
 # Editor / OS
 .vscode/
