@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Autonomous Product & Software Factory",
-  description: "The assembly line is live.",
+  title: "QuarterLine — 2026 Self-Employment Tax Calculator",
+  description:
+    "Deterministic 2026 self-employment tax, QBI deduction, and estimated-payment calculator.",
 };
 
 export default function RootLayout({

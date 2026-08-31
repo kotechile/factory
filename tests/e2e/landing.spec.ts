@@ -1,12 +1,10 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-test("landing renders the factory branding", async ({ page }) => {
+test("landing renders the QuarterLine product", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle("Autonomous Product & Software Factory");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Autonomous Product",
-  );
+  await expect(page).toHaveTitle(/QuarterLine/);
+  await expect(page.getByText("QuarterLine").first()).toBeVisible();
 });
 
 test("landing passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {

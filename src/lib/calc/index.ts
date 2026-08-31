@@ -112,3 +112,4 @@ export function executeCalculation<TInput, TOutput>(
 
 // Re-export specific engines
 export * from "./loan";
+export * from "./selfEmployment2026";
