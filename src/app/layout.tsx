@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { WebMCPProvider } from "@/components/webmcp-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,10 +18,16 @@ export const metadata: Metadata = {
   description: "The assembly line is live.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <WebMCPProvider>{children}</WebMCPProvider>
+      </body>
     </html>
   );
 }
