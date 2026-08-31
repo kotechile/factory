@@ -16,6 +16,8 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 ### Failure log
 | Date | Product | Phase | Error class | Root cause | Patched SOP |
 |---|---|---|---|---|---|
+| 2026-08-31 | QuarterLine | Build | build | TS literal type from `as const` data (`bracket.rate` inferred `0.1`, can't assign `0.12`) — annotate the accumulator `: number` | ui_component_standards.md |
+| 2026-08-31 | QuarterLine | Build | context | `agy` headless timed out on a full-scaffold/product prompt; work completes but the final verify/stage step doesn't run | ANTIGRAVITY_PROMPTS.md |
 
 ### Recon zero-result log
 | Date | Query syntax | Vertical | Correction |

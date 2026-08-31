@@ -15,6 +15,12 @@ agy -p "<paste prompt #1 or #2 here>" --mode accept-edits
 ```
 Use the default **Gemini** model — do NOT add `--model claude-*` (Claude is too expensive for routine builds).
 
+**Large builds time out.** A single headless run of a full scaffold/product prompt can hit
+`Error: timeout waiting for response` — the work still lands on disk, but the final
+`verify-build.sh` + stage step won't run. Mitigation: break the build into smaller prompts
+(primitives → calc engine → UI), and always run `scripts/verify-build.sh` after `agy` exits
+rather than relying on it to self-verify.
+
 ---
 
 ## 1. Baseline scaffold (Phase 1 — run once, now)
