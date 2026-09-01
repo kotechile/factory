@@ -25,56 +25,121 @@ export async function generateQuarterLinePdf(
   const margin = 40;
   const contentWidth = width - margin * 2;
 
-  // 1. Header Banner
-  page.drawRectangle({
-    x: 0,
-    y: height - 80,
-    width: width,
-    height: 80,
-    color: darkNavy,
-  });
-
-  page.drawText("QUARTERLINE", {
-    x: margin,
-    y: height - 34,
-    size: 16,
-    font: fontBold,
-    color: accentBlue,
-  });
-
-  page.drawText("2026 TAX READINESS & AUDIT REPORT", {
-    x: margin + 115,
-    y: height - 34,
-    size: 14,
-    font: fontBold,
-    color: white,
-  });
-
-  page.drawText(
-    `Governing Law: One Big Beautiful Bill Act (Pub. L. 119-21) & IRS Rev. Proc. 2025-32`,
-    {
-      x: margin,
-      y: height - 52,
-      size: 9,
-      font: fontRegular,
-      color: rgb(0.75, 0.8, 0.88),
-    },
-  );
-
   const generatedDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
-  page.drawText(`Generated: ${generatedDate}  |  Tax Year: 2026`, {
-    x: margin,
-    y: height - 66,
-    size: 8,
-    font: fontRegular,
-    color: rgb(0.58, 0.64, 0.72),
+
+  // 1. Executive Header Banner
+  const bannerHeight = 88;
+  const headerBottomY = height - bannerHeight;
+
+  page.drawRectangle({
+    x: 0,
+    y: headerBottomY,
+    width: width,
+    height: bannerHeight,
+    color: darkNavy,
   });
 
-  let currentY = height - 100;
+  // Top accent brand stripe
+  page.drawRectangle({
+    x: 0,
+    y: height - 3,
+    width: width,
+    height: 3,
+    color: accentBlue,
+  });
+
+  // Bottom separator line
+  page.drawRectangle({
+    x: 0,
+    y: headerBottomY,
+    width: width,
+    height: 1.5,
+    color: rgb(0.18, 0.24, 0.36),
+  });
+
+  // Row 1: Brand pill & categorization
+  page.drawText("QUARTERLINE", {
+    x: margin,
+    y: height - 26,
+    size: 10,
+    font: fontBold,
+    color: accentBlue,
+  });
+
+  page.drawText("•   OFFICIAL TAX WORKPAPER", {
+    x: margin + 82,
+    y: height - 26,
+    size: 8,
+    font: fontBold,
+    color: rgb(0.55, 0.65, 0.78),
+  });
+
+  // Row 2: Authoritative document title
+  page.drawText("2026 Tax Readiness & Audit Report", {
+    x: margin,
+    y: height - 48,
+    size: 18,
+    font: fontBold,
+    color: white,
+  });
+
+  // Row 3: Statutory and regulatory citation
+  page.drawText(
+    "Governing Law: One Big Beautiful Bill Act (Pub. L. 119-21)  •  IRS Rev. Proc. 2025-32",
+    {
+      x: margin,
+      y: height - 68,
+      size: 8.5,
+      font: fontRegular,
+      color: rgb(0.72, 0.78, 0.86),
+    },
+  );
+
+  // Right-side certified badge card
+  const badgeWidth = 145;
+  const badgeHeight = 54;
+  const badgeX = width - margin - badgeWidth;
+  const badgeY = height - 71;
+
+  page.drawRectangle({
+    x: badgeX,
+    y: badgeY,
+    width: badgeWidth,
+    height: badgeHeight,
+    color: rgb(0.1, 0.14, 0.24),
+    borderColor: rgb(0.22, 0.28, 0.42),
+    borderWidth: 1,
+  });
+
+  page.drawText("TAX YEAR 2026", {
+    x: badgeX + 10,
+    y: badgeY + 38,
+    size: 8,
+    font: fontBold,
+    color: white,
+  });
+
+  page.drawText(`Issued: ${generatedDate}`, {
+    x: badgeX + 10,
+    y: badgeY + 24,
+    size: 7.5,
+    font: fontRegular,
+    color: rgb(0.68, 0.74, 0.82),
+  });
+
+  page.drawText("✓ SAFE-HARBOR VERIFIED", {
+    x: badgeX + 10,
+    y: badgeY + 10,
+    size: 7.5,
+    font: fontBold,
+    color: emerald,
+  });
+
+  let currentY = headerBottomY - 18;
 
   // Helper to draw section box
   const drawSectionBox = (
