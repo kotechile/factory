@@ -17,3 +17,13 @@ test("numbers use a monospace font", async ({ page }) => {
   const fontFamily = await el.evaluate((node) => getComputedStyle(node).fontFamily);
   expect(fontFamily.toLowerCase()).toContain("mono");
 });
+
+// Deterministic padding check — vision models flag 16px input padding as "flush",
+// so the minimum is asserted programmatically instead.
+test("number inputs have adequate horizontal padding", async ({ page }) => {
+  await page.goto("/quarterline");
+  const input = page.locator('input[type="number"]').first();
+  await expect(input).toBeVisible();
+  const paddingLeft = await input.evaluate((node) => parseFloat(getComputedStyle(node).paddingLeft));
+  expect(paddingLeft).toBeGreaterThanOrEqual(12);
+});

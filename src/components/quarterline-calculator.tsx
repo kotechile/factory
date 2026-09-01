@@ -175,8 +175,10 @@ export default function QuarterLineCalculator({
       const status = params.get("status");
       const sessionId = params.get("session_id");
       if (status === "success" && sessionId) {
-        setIsPurchased(true);
-        setExportNotice("Payment verified! Your 2026 Tax Readiness Audit Report is unlocked.");
+        React.startTransition(() => {
+          setIsPurchased(true);
+          setExportNotice("Payment verified! Your 2026 Tax Readiness Audit Report is unlocked.");
+        });
       }
     }
   }, []);

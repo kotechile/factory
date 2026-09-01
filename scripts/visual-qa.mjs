@@ -37,7 +37,7 @@ const BACKLOG = "context/design_backlog.md";
 const GATE_PROMPT = `You are reviewing a screenshot of a tax-calculator web app UI.
 
 Check for SIGNIFICANT issues only (minor polish does NOT fail):
-1. Spacing: content flush against container borders; text overlapping or colliding.
+1. Spacing: text OVERLAPPING or COLLIDING, or elements with ZERO padding (content literally touching a border). Input field padding is verified programmatically — ignore it.
 2. Layout: broken or misaligned grid; elements overlapping.
 3. Color: unreadable text (poor contrast); clashing/neon colors.
 4. Typography: broken hierarchy (everything the same size; no visual distinction between title/header/body).

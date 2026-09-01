@@ -1,4 +1,4 @@
-import { PDFDocument, rgb, StandardFonts, PDFPage, PDFFont } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import type { SelfEmployment2026Output } from "@/lib/calc/selfEmployment2026";
 
 export async function generateQuarterLinePdf(
@@ -131,8 +131,22 @@ export async function generateQuarterLinePdf(
     color: rgb(0.68, 0.74, 0.82),
   });
 
-  page.drawText("✓ SAFE-HARBOR VERIFIED", {
-    x: badgeX + 10,
+  // Native vector checkmark icon
+  page.drawLine({
+    start: { x: badgeX + 10, y: badgeY + 13 },
+    end: { x: badgeX + 13, y: badgeY + 10 },
+    thickness: 1.5,
+    color: emerald,
+  });
+  page.drawLine({
+    start: { x: badgeX + 13, y: badgeY + 10 },
+    end: { x: badgeX + 18, y: badgeY + 16 },
+    thickness: 1.5,
+    color: emerald,
+  });
+
+  page.drawText("SAFE-HARBOR VERIFIED", {
+    x: badgeX + 22,
     y: badgeY + 10,
     size: 7.5,
     font: fontBold,
