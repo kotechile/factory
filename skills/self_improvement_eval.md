@@ -18,6 +18,7 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 |---|---|---|---|---|---|
 | 2026-08-31 | QuarterLine | Build | build | TS literal type from `as const` data (`bracket.rate` inferred `0.1`, can't assign `0.12`) — annotate the accumulator `: number` | ui_component_standards.md |
 | 2026-08-31 | QuarterLine | Build | context | `agy` headless timed out on a full-scaffold/product prompt; work completes but the final verify/stage step doesn't run | ANTIGRAVITY_PROMPTS.md |
+| 2026-09-01 | QuarterLine | Verify (visual-qa) | endpoint | Transient network timeout to Gemini API — single `fetch`, 10s timeout, no retry; unreachable round-robin IP `172.217.115.4:443` → `UND_ERR_CONNECT_TIMEOUT`. All deterministic checks passed; re-run passed. | ui_component_standards.md |
 
 ### Recon zero-result log
 | Date | Query syntax | Vertical | Correction |

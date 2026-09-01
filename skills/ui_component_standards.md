@@ -48,5 +48,8 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
 - **`test:e2e` (Playwright)** — visual regression (`toHaveScreenshot`) + WCAG 2.1 AA accessibility (`@axe-core/playwright`).
 - **`visual-qa` (Gemini vision)** — sends a rendered screenshot to Gemini for a style-guide review. The Gemini key/model/prompt live in Supabase `factory_config` (`supabase/schema.sql`), so they can be tuned without a redeploy.
 
+### Resolved edge-cases
+- **2026-09-01 — `visual-qa` transient network timeout (endpoint).** The `visual-qa` gate makes a single `fetch` to `generativelanguage.googleapis.com` with a 10s timeout and no retry/backoff. A transient round-robin IP (`172.217.115.4:443`) was unreachable, surfacing `UND_ERR_CONNECT_TIMEOUT` and failing the entire gate even though every deterministic check (tsc / lint / tokens / test / build / e2e) had already passed. Re-run passed with model `gemini-3.1-pro-preview`. Lesson: distinguish a *network* failure (`fetch failed` / `UND_ERR_CONNECT_TIMEOUT`) from a *verdict* FAIL — retry with backoff before treating a timeout as a real style-guide failure.
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
