@@ -9,6 +9,8 @@
 Turn an approved PRD into a concrete component & architecture plan, then lead the execution fleet
 (Coder, QA, Copywriter — transient delegate workers) through the Antigravity build.
 
+**Hard gate:** do not begin the build until Simon dispatches an approved PRD (founder `@Simon approve`).
+
 ## Responsibilities
 1. Decompose the PRD into modular primitives: calc engine (`src/lib/calc/[engine].ts`), UI components, Supabase schema, Stripe/Resend hooks, WebMCP schema.
 2. **Build via Antigravity CLI (`agy`):** run the heavy codegen headlessly from the repo root:

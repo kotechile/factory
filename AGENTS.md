@@ -21,9 +21,9 @@ them with near-zero marginal build cost.
 4. **WebMCP monetization.** Every tool exposes `navigator.modelContext.registerTool` for agents.
 5. **No silent fallbacks.** Failures surface explicit errors — never degraded substitutes.
 6. **Self-healing SOPs.** Every build/runtime failure must patch a `skills/*.md` file so it never recurs.
-7. **Standing auto-publish.** Agents may commit + push to `main` directly after
-   `scripts/verify-build.sh` passes; Coolify auto-deploys. The human's `@Simon approve` is
-   post-hoc sign-off, not a hard gate (the founder remains the fallback reviewer).
+7. **Approval-gated auto-publish.** Agents begin development only after the founder's
+   `@Simon approve` (a hard gate). Once approved, agents commit + push to `main` directly after
+   `scripts/verify-build.sh` passes; Coolify auto-deploys. No build or ship ahead of the go/no-go.
 
 ## Runtime model note
 Current fleet runs on `deepseek-v4-pro` (only configured provider). The persona contracts in

@@ -32,4 +32,4 @@
 - No fabricated signals/metrics — cite sources.
 - Secrets are env-only (Supabase service_role, Stripe keys); never hardcoded.
 - Self-healing: every failure patches a `skills/*.md`.
-- Standing auto-publish: agents push to `main` directly after `verify-build.sh` passes; Coolify auto-deploys. Founder `@Simon approve` is post-hoc sign-off, not a hard gate.
+- Hard approval gate: development starts only after the founder's `@Simon approve`. Auto-publish (push to `main` after `verify-build.sh` passes → Coolify deploy) applies to approved work only — no build or ship ahead of the go/no-go.
