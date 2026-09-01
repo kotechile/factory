@@ -8,6 +8,7 @@ import {
   type SelfEmployment2026Output,
 } from "@/lib/calc/selfEmployment2026";
 import { Button } from "@/components/ui/button";
+import { generateQuarterLinePdf } from "@/lib/pdf/quarterline-report";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -121,6 +122,7 @@ export default function QuarterLineCalculator({
   const [isExportModalOpen, setIsExportModalOpen] = React.useState<boolean>(false);
   const [isPurchased, setIsPurchased] = React.useState<boolean>(false);
   const [checkingOutPlan, setCheckingOutPlan] = React.useState<"pdf_audit_export" | "cpa_monthly" | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = React.useState<boolean>(false);
   const [exportNotice, setExportNotice] = React.useState<string | null>(null);
 
   const toggleSection = (key: SectionKey) =>
@@ -202,59 +204,26 @@ export default function QuarterLineCalculator({
     }
   };
 
-  const handleDownloadReport = () => {
+  const handleDownloadReport = async () => {
     trackEvent("export_click");
-    const reportText = `QUARTERLINE 2026 TAX READINESS AUDIT REPORT
-Governing Law: ${calcResult.governingLaw}
-Tax Year: 2026
-Generated: ${new Date().toLocaleDateString()}
-
-1. BUSINESS SUMMARY (SCHEDULE C)
-Gross 1099/Business Revenue: $${calcResult.grossIncome.toLocaleString()}
-Business Expenses: $${calcResult.businessExpenses.toLocaleString()}
-Net Schedule C Profit: $${calcResult.netBusinessProfit.toLocaleString()}
-
-2. SELF-EMPLOYMENT TAX (SCHEDULE SE)
-Net SE Earnings (92.35%): $${Math.round(calcResult.seEarningsSubjectToTax).toLocaleString()}
-Social Security Tax (12.4% up to $184,500): $${Math.round(calcResult.socialSecurityTax).toLocaleString()}
-Medicare Tax (2.9%): $${Math.round(calcResult.medicareTax).toLocaleString()}
-Additional Medicare Tax (0.9%): $${Math.round(calcResult.additionalMedicareTax).toLocaleString()}
-Total Self-Employment Tax: $${Math.round(calcResult.totalSelfEmploymentTax).toLocaleString()}
-Half-SE Above-the-Line Deduction: $${Math.round(calcResult.halfSeTaxDeduction).toLocaleString()}
-
-3. SECTION 199A QBI DEDUCTION (STATUTORY 20.0% RATE)
-Qualified Business Income (QBI): $${Math.round(calcResult.qualifiedBusinessIncome).toLocaleString()}
-Statutory QBI Rate: 20.0% (OBBBA Pub. L. 119-21 Enacted Law)
-Allowable QBI Deduction: $${Math.round(calcResult.qbiDeduction).toLocaleString()}
-Estimated Tax Savings: $${Math.round(calcResult.qbiTaxSavings).toLocaleString()}
-
-4. FEDERAL INCOME TAX & TOTAL LIABILITY
-Taxable Income Before QBI: $${Math.round(calcResult.taxableIncomeBeforeQbi).toLocaleString()}
-Final Taxable Income: $${Math.round(calcResult.finalTaxableIncome).toLocaleString()}
-Federal Income Tax: $${Math.round(calcResult.federalIncomeTax).toLocaleString()}
-Total Annual Tax Liability: $${Math.round(calcResult.totalTaxLiability).toLocaleString()}
-Effective Tax Rate: ${(calcResult.overallEffectiveRate * 100).toFixed(1)}%
-
-5. ESTIMATED QUARTERLY INSTALLMENTS (SAFE HARBOR)
-Safe Harbor Applied: ${calcResult.estimatedPayments.safeHarborApplied ? "Yes" : "No"} (${methodLabel(calcResult.estimatedPayments.methodUsed)})
-Required Annual Payment: $${Math.round(calcResult.estimatedPayments.requiredAnnualPayment).toLocaleString()}
-${calcResult.estimatedPayments.quarterlyInstallments.map((q) => `${q.quarter} (Due ${q.dueDate}): $${q.amount.toLocaleString()}`).join("\n")}
-
-6. TAX READINESS SCORECARD
-Overall Score: ${calcResult.scorecard.totalScore}/100 (${calcResult.scorecard.rating})
-Action Items:
-${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
-`;
-
-    const blob = new Blob([reportText], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `QuarterLine-2026-Tax-Audit-${Date.now()}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setIsGeneratingPdf(true);
+    try {
+      const pdfBytes = await generateQuarterLinePdf(calcResult);
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `QuarterLine-2026-Tax-Audit-${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to generate PDF report:", err);
+      alert("Error generating PDF workpaper. Please try again.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
   };
 
   const handleSimulateUnlock = () => {
@@ -297,9 +266,9 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
             </Badge>
 
             {isPurchased ? (
-              <Button size="sm" variant="default" onClick={handleDownloadReport} className="gap-1.5">
+              <Button size="sm" variant="default" onClick={handleDownloadReport} disabled={isGeneratingPdf} className="gap-1.5">
                 <Download className="h-4 w-4" />
-                <span>Download Report</span>
+                <span>{isGeneratingPdf ? "Generating PDF..." : "Download Audit PDF"}</span>
               </Button>
             ) : (
               <Button
@@ -309,7 +278,7 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                 className="gap-1.5"
               >
                 <FileText className="h-4 w-4" />
-                <span>Export Report</span>
+                <span>Export Report ($9)</span>
               </Button>
             )}
           </div>
@@ -364,8 +333,8 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
               <CheckCircle2 className="h-4 w-4 text-success" />
               <span>{exportNotice}</span>
             </div>
-            <Button size="sm" variant="default" onClick={handleDownloadReport} className="h-7 text-xs">
-              Download File
+            <Button size="sm" variant="default" onClick={handleDownloadReport} disabled={isGeneratingPdf} className="h-7 text-xs">
+              {isGeneratingPdf ? "Generating..." : "Download PDF"}
             </Button>
           </div>
         )}
@@ -953,9 +922,9 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   </p>
                 </div>
                 {isPurchased ? (
-                  <Button variant="default" onClick={handleDownloadReport} className="shrink-0 gap-1.5">
+                  <Button variant="default" onClick={handleDownloadReport} disabled={isGeneratingPdf} className="shrink-0 gap-1.5">
                     <Download className="h-4 w-4" />
-                    <span>Download Report</span>
+                    <span>{isGeneratingPdf ? "Generating PDF..." : "Download Official PDF"}</span>
                   </Button>
                 ) : (
                   <Button
