@@ -1,12 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe/checkout";
 
+function getOrigin(req: NextRequest): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  }
+  if (process.env.APP_URL) {
+    return process.env.APP_URL.replace(/\/$/, "");
+  }
+
+  const forwardedHost = req.headers.get("x-forwarded-host");
+  const forwardedProto = req.headers.get("x-forwarded-proto") || "https";
+  if (forwardedHost && !forwardedHost.includes("0.0.0.0") && !forwardedHost.includes("127.0.0.1")) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  const host = req.headers.get("host");
+  if (host && !host.includes("0.0.0.0")) {
+    const proto = host.includes("localhost") ? "http" : "https";
+    return `${proto}://${host}`;
+  }
+
+  const reqOrigin = req.nextUrl.origin;
+  if (reqOrigin && !reqOrigin.includes("0.0.0.0")) {
+    return reqOrigin;
+  }
+
+  return "https://factory.aichieve.net";
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { plan = "pdf_audit_export", userId = "guest_user", email } = body;
 
-    const origin = req.nextUrl.origin || "http://localhost:3000";
+    const origin = getOrigin(req);
 
     const isSubscription = plan === "cpa_monthly";
     const mode = isSubscription ? "subscription" : "payment";
