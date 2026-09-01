@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: preset.title,
     description: preset.description,
-    alternates: { canonical: `/calc/${slug}` },
+    alternates: { canonical: `/quarterline/calc/${slug}` },
   };
 }
 

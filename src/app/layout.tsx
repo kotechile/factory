@@ -14,9 +14,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QuarterLine — 2026 Self-Employment Tax Calculator",
+  title: "Factory — Micro-Tool Showcase",
   description:
-    "Deterministic 2026 self-employment tax, QBI deduction, and estimated-payment calculator.",
+    "Live micro-tools built by the Autonomous Product & Software Factory.",
 };
 
 export default function RootLayout({

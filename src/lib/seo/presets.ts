@@ -9,7 +9,7 @@ export interface SeoPreset {
   defaults: Partial<SelfEmployment2026Input>;
 }
 
-// Programmatic-SEO presets. Each slug is a pre-rendered /calc/<slug> landing page
+// Programmatic-SEO presets. Each slug is a pre-rendered /quarterline/calc/<slug> landing page
 // that ranks for a hyper-specific long-tail query and pre-fills the calculator with
 // realistic scenario defaults (marketing_engineering_playbook.md — Tactic B1).
 export const presets: SeoPreset[] = [

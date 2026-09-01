@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase";
 
-const PRODUCT = "quarterline";
+const DEFAULT_PRODUCT = "quarterline";
 
 /**
  * Records a growth/analytics event to Supabase `events` for the kill/scale gates.
@@ -10,12 +10,13 @@ const PRODUCT = "quarterline";
 export async function track(
   event: string,
   payload: Record<string, unknown> = {},
+  product: string = DEFAULT_PRODUCT,
 ): Promise<void> {
   try {
     const supabase = createAdminClient();
     const { error } = await supabase
       .from("events")
-      .insert({ event, product: PRODUCT, payload });
+      .insert({ event, product, payload });
     if (error) {
       console.error(`[telemetry] insert failed for "${event}":`, error.message);
     }

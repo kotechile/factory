@@ -13,7 +13,11 @@ export async function POST(req: NextRequest) {
     if (!event) {
       return NextResponse.json({ error: "Missing event name" }, { status: 400 });
     }
-    await track(event, body?.payload ?? {});
+    await track(
+      event,
+      body?.payload ?? {},
+      typeof body?.product === "string" ? body.product : undefined,
+    );
     return NextResponse.json({ ok: true });
   } catch (err) {
     const message =
