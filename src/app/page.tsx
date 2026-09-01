@@ -24,8 +24,55 @@ import {
   Info,
   Download,
   ChevronRight,
+  ChevronDown,
   Sparkles,
 } from "lucide-react";
+
+type SectionKey = "revenue" | "safeHarbor" | "obbba";
+
+function SectionCard({
+  title,
+  subtitle,
+  icon,
+  open,
+  onToggle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition-colors hover:bg-background/60"
+      >
+        <span className="flex items-center gap-2.5">
+          {icon}
+          <span className="flex flex-col gap-0.5">
+            <span className="text-base font-semibold text-foreground">{title}</span>
+            {subtitle && <span className="text-xs text-subtle">{subtitle}</span>}
+          </span>
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-subtle transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden="true"
+        />
+      </button>
+      {open && <div className="space-y-5 px-6 pb-6 pt-1">{children}</div>}
+    </section>
+  );
+}
+
+const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 export default function QuarterLinePage() {
   // Input States
@@ -47,10 +94,18 @@ export default function QuarterLinePage() {
 
   // UI States
   const [activeTab, setActiveTab] = React.useState<"estimate" | "qbi" | "trap_check" | "scorecard">("estimate");
+  const [openSections, setOpenSections] = React.useState<Record<SectionKey, boolean>>({
+    revenue: true,
+    safeHarbor: false,
+    obbba: false,
+  });
   const [isExportModalOpen, setIsExportModalOpen] = React.useState<boolean>(false);
   const [isPurchased, setIsPurchased] = React.useState<boolean>(false);
   const [isCheckingOut, setIsCheckingOut] = React.useState<boolean>(false);
   const [exportNotice, setExportNotice] = React.useState<string | null>(null);
+
+  const toggleSection = (key: SectionKey) =>
+    setOpenSections((s) => ({ ...s, [key]: !s[key] }));
 
   // Compute live deterministic calculation
   const calcResult: SelfEmployment2026Output = React.useMemo(() => {
@@ -172,20 +227,21 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-primary selection:text-card">
+    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground">
       {/* Top Banner: Urgent Q3 Estimated Tax Deadline */}
-      <div className="bg-warning/10 border-b border-warning/20 px-4 py-2.5 text-center text-xs sm:text-sm font-medium text-foreground flex items-center justify-center gap-2">
-        <Calendar className="h-4 w-4 text-warning inline-block shrink-0" aria-hidden="true" />
+      <div className="flex items-center justify-center gap-2 border-b border-warning/20 bg-warning/10 px-4 py-2.5 text-center text-xs font-medium sm:text-sm">
+        <Calendar className="inline-block h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
         <span>
-          <strong>Q3 2026 Estimated-Tax Deadline: September 15, 2026</strong> — Lock in your safe-harbor payment to avoid IRS underpayment penalties.
+          <strong>Q3 2026 Estimated-Tax Deadline: September 15, 2026</strong> — lock in your
+          safe-harbor payment to avoid IRS underpayment penalties.
         </span>
       </div>
 
       {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded bg-primary flex items-center justify-center text-card font-black tracking-tight text-lg shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-lg font-bold tracking-tight text-card shadow-sm">
               Q
             </div>
             <div>
@@ -193,12 +249,12 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                 <span className="text-lg font-bold tracking-tight text-foreground">QuarterLine</span>
                 <Badge variant="accent">2026 OBBBA</Badge>
               </div>
-              <p className="text-xs text-muted">2026 Self-Employment &amp; QBI Tax Engine</p>
+              <p className="text-xs text-subtle">2026 Self-Employment &amp; QBI Tax Engine</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <Badge variant="success" className="hidden md:inline-flex gap-1">
+            <Badge variant="success" className="hidden gap-1 md:inline-flex">
               <CheckCircle2 className="h-3.5 w-3.5" />
               <span>20% QBI Pinned (Enacted Law)</span>
             </Badge>
@@ -206,17 +262,17 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
             {isPurchased ? (
               <Button size="sm" variant="default" onClick={handleDownloadReport} className="gap-1.5">
                 <Download className="h-4 w-4" />
-                <span>Download PDF Report</span>
+                <span>Download Report</span>
               </Button>
             ) : (
               <Button
                 size="sm"
                 variant="default"
                 onClick={() => setIsExportModalOpen(true)}
-                className="gap-1.5 shadow-sm"
+                className="gap-1.5"
               >
                 <FileText className="h-4 w-4" />
-                <span>Export Audit Report</span>
+                <span>Export Report</span>
               </Button>
             )}
           </div>
@@ -224,29 +280,34 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
-        {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded border border-border bg-card text-xs text-muted">
+      <main className="mx-auto w-full max-w-7xl flex-1 space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+        {/* Hero */}
+        <div className="mx-auto max-w-3xl space-y-3 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs text-muted">
             <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             <span>Autonomous Product &amp; Software Factory • Pub. L. 119-21 &amp; Rev. Proc. 2025-32</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-[28px]">
             2026 Self-Employment Tax &amp; QBI Deduction Calculator
           </h1>
-          <p className="text-sm sm:text-base text-muted">
-            Free real-time calculation engine with OBBBA permanent Section 199A QBI deduction (pinned to the enacted 20% rate), safe-harbor quarterly payment planning, and accuracy verification.
+          <p className="text-sm text-muted sm:text-base">
+            Free real-time calculation engine with OBBBA permanent Section 199A QBI deduction
+            (pinned to the enacted 20% rate), safe-harbor quarterly payment planning, and accuracy
+            verification.
           </p>
         </div>
 
         {/* 23% vs 20% Accuracy Warning Bar */}
-        <div className="rounded border border-warning/30 bg-warning/10 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm">
+        <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm sm:flex-row sm:items-center">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-warning shrink-0 mt-0.5" aria-hidden="true" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warning" aria-hidden="true" />
             <div>
-              <strong className="text-foreground font-semibold">2026 Law Alert: Section 199A QBI Rate is 20.0%, NOT 23.0%</strong>
-              <p className="text-xs text-muted mt-0.5">
-                The House 23% proposal never made it into enacted law. Using 23% creates an IRS underpayment subject to a 20% penalty. QuarterLine pins the exact 20% statutory rate.
+              <strong className="font-semibold text-foreground">
+                2026 Law Alert: Section 199A QBI Rate is 20.0%, NOT 23.0%
+              </strong>
+              <p className="mt-0.5 text-xs text-muted">
+                The House 23% proposal never made it into enacted law. Using 23% creates an IRS
+                underpayment subject to a 20% penalty. QuarterLine pins the exact 20% statutory rate.
               </p>
             </div>
           </div>
@@ -261,7 +322,7 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
         </div>
 
         {exportNotice && (
-          <div className="rounded border border-success/30 bg-success/10 p-3.5 text-xs sm:text-sm text-foreground flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-lg border border-success/30 bg-success/10 p-3.5 text-xs sm:text-sm">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-success" />
               <span>{exportNotice}</span>
@@ -272,320 +333,287 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
           </div>
         )}
 
-        {/* Two-Column Grid: Form Inputs (Left) + Interactive Preview (Right) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Interactive Parameters Form */}
-          <div className="lg:col-span-5 space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-primary" />
-                    <span>Taxpayer Parameters</span>
-                  </CardTitle>
-                  <span className="text-xs text-muted">2026 Tax Year</span>
-                </div>
-                <CardDescription>
-                  Enter your business revenue, expenses, and filing details.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Gross Revenue & Expenses */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Gross 1099/Revenue ($)"
-                    type="number"
-                    min="0"
-                    step="1000"
-                    value={grossIncome || ""}
-                    onChange={(e) => setGrossIncome(Math.max(0, Number(e.target.value)))}
-                    helperText="Schedule C Gross Income"
+        {/* Two-column grid: Form inputs (7) + Sticky summary (5) */}
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
+          {/* LEFT — Inputs */}
+          <div className="space-y-4 lg:col-span-7">
+            {/* Filing status (always visible) */}
+            <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+              <label
+                htmlFor="filing-status-select"
+                className="text-[13px] font-medium leading-none text-muted"
+              >
+                Filing Status
+              </label>
+              <select
+                id="filing-status-select"
+                value={filingStatus}
+                onChange={(e) => setFilingStatus(e.target.value as FilingStatus)}
+                className="mt-2 h-10 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <option value="single">Single ($201,750 QBI Threshold)</option>
+                <option value="married_filing_jointly">Married Filing Jointly ($403,500 Threshold)</option>
+                <option value="head_of_household">Head of Household ($201,750 Threshold)</option>
+                <option value="married_filing_separately">Married Filing Separately ($201,750 Threshold)</option>
+              </select>
+            </div>
+
+            {/* Section 1 — Business Revenue & Expenses */}
+            <SectionCard
+              title="Business Revenue & Expenses"
+              subtitle="Schedule C gross income and deductible expenses"
+              icon={<DollarSign className="h-4 w-4 text-primary" aria-hidden="true" />}
+              open={openSections.revenue}
+              onToggle={() => toggleSection("revenue")}
+            >
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Input
+                  label="Gross 1099/Revenue ($)"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={grossIncome || ""}
+                  onChange={(e) => setGrossIncome(Math.max(0, Number(e.target.value)))}
+                  helperText="Schedule C gross income"
+                />
+                <Input
+                  label="Business Expenses ($)"
+                  type="number"
+                  min="0"
+                  step="500"
+                  value={businessExpenses || ""}
+                  onChange={(e) => setBusinessExpenses(Math.max(0, Number(e.target.value)))}
+                  helperText="Deductible expenses"
+                />
+              </div>
+            </SectionCard>
+
+            {/* Section 2 — Safe Harbor & Prior Year Taxes */}
+            <SectionCard
+              title="Safe Harbor & Prior Year Taxes"
+              subtitle="2025 baseline shields you from underpayment penalties"
+              icon={<ShieldCheck className="h-4 w-4 text-primary" aria-hidden="true" />}
+              open={openSections.safeHarbor}
+              onToggle={() => toggleSection("safeHarbor")}
+            >
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Input
+                  label="2025 Prior-Year AGI ($)"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={priorYearAgi || ""}
+                  onChange={(e) => setPriorYearAgi(Math.max(0, Number(e.target.value)))}
+                  helperText="110% safe harbor if AGI > $150k"
+                />
+                <Input
+                  label="2025 Total Tax Paid ($)"
+                  type="number"
+                  min="0"
+                  step="500"
+                  value={priorYearTax || ""}
+                  onChange={(e) => setPriorYearTax(Math.max(0, Number(e.target.value)))}
+                  helperText="Prior-year total tax"
+                />
+              </div>
+            </SectionCard>
+
+            {/* Section 3 — OBBBA & Section 199A Adjustments */}
+            <SectionCard
+              title="OBBBA & Section 199A Adjustments"
+              subtitle="Deductions, wage base, and QBI phase-out inputs"
+              icon={<Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />}
+              open={openSections.obbba}
+              onToggle={() => toggleSection("obbba")}
+            >
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Input
+                  label="Outside W-2 Wages ($)"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={w2Wages || ""}
+                  onChange={(e) => setW2Wages(Math.max(0, Number(e.target.value)))}
+                  helperText="Reduces $184,500 SS cap"
+                />
+                <Input
+                  label="Filer Age"
+                  type="number"
+                  min="18"
+                  max="100"
+                  value={age || ""}
+                  onChange={(e) => setAge(Math.max(18, Number(e.target.value)))}
+                  helperText="65+ qualifies for $6k senior deduction"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="flex cursor-pointer items-start gap-2.5 text-xs text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={isSstb}
+                    onChange={(e) => setIsSstb(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
                   />
-                  <Input
-                    label="Business Expenses ($)"
-                    type="number"
-                    min="0"
-                    step="500"
-                    value={businessExpenses || ""}
-                    onChange={(e) => setBusinessExpenses(Math.max(0, Number(e.target.value)))}
-                    helperText="Deductible expenses"
+                  <span>Specified Service Trade or Business (SSTB: law, health, consulting, finance)</span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-2.5 text-xs text-foreground">
+                  <input
+                    type="checkbox"
+                    checked={isTippedOccupation}
+                    onChange={(e) => setIsTippedOccupation(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-border text-primary focus:ring-primary"
                   />
-                </div>
+                  <span>Tipped occupation (OBBBA &ldquo;No Tax on Tips&rdquo; up to $25k)</span>
+                </label>
+              </div>
 
-                {/* Filing Status */}
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="filing-status-select" className="text-xs font-medium text-foreground">
-                    Filing Status
-                  </label>
-                  <select
-                    id="filing-status-select"
-                    value={filingStatus}
-                    onChange={(e) => setFilingStatus(e.target.value as FilingStatus)}
-                    className="h-10 w-full rounded border border-border bg-background px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                  >
-                    <option value="single">Single ($201,750 QBI Threshold)</option>
-                    <option value="married_filing_jointly">Married Filing Jointly ($403,500 Threshold)</option>
-                    <option value="head_of_household">Head of Household ($201,750 Threshold)</option>
-                    <option value="married_filing_separately">Married Filing Separately ($201,750 Threshold)</option>
-                  </select>
-                </div>
+              {isTippedOccupation && (
+                <Input
+                  label="Qualified Tips ($)"
+                  type="number"
+                  min="0"
+                  step="500"
+                  value={qualifiedTips || ""}
+                  onChange={(e) => setQualifiedTips(Math.max(0, Number(e.target.value)))}
+                  helperText="Deduction applies to income tax only"
+                />
+              )}
 
-                {/* Prior Year Safe Harbor */}
-                <div className="pt-2 border-t border-border space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                      <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                      Safe Harbor Baseline (2025)
-                    </span>
-                    <span className="text-xs text-muted">Eliminates Penalties</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="2025 Prior-Year AGI ($)"
-                      type="number"
-                      min="0"
-                      step="1000"
-                      value={priorYearAgi || ""}
-                      onChange={(e) => setPriorYearAgi(Math.max(0, Number(e.target.value)))}
-                      helperText="110% safe harbor if &gt;$150k"
-                    />
-                    <Input
-                      label="2025 Total Tax Paid ($)"
-                      type="number"
-                      min="0"
-                      step="500"
-                      value={priorYearTax || ""}
-                      onChange={(e) => setPriorYearTax(Math.max(0, Number(e.target.value)))}
-                      helperText="Prior year total tax"
-                    />
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Input
+                  label="Solo 401(k) / SEP-IRA ($)"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={retirementContributions || ""}
+                  onChange={(e) => setRetirementContributions(Math.max(0, Number(e.target.value)))}
+                  helperText="Pre-tax retirement"
+                />
+                <Input
+                  label="SEHI Health Insurance ($)"
+                  type="number"
+                  min="0"
+                  step="500"
+                  value={sehi || ""}
+                  onChange={(e) => setSehi(Math.max(0, Number(e.target.value)))}
+                  helperText="Above-the-line deduction"
+                />
+              </div>
 
-                {/* Outside Wages & OBBBA Deductions */}
-                <div className="pt-2 border-t border-border space-y-3">
-                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-accent" />
-                    OBBBA &amp; Section 199A Adjustments
-                  </span>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <Input
+                  label="W-2 Paid to Employees ($)"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={w2WagesPaidByBusiness || ""}
+                  onChange={(e) => setW2WagesPaidByBusiness(Math.max(0, Number(e.target.value)))}
+                  helperText="For high-earner QBI limit"
+                />
+                <Input
+                  label="UBIA Property Basis ($)"
+                  type="number"
+                  min="0"
+                  step="5000"
+                  value={ubia || ""}
+                  onChange={(e) => setUbia(Math.max(0, Number(e.target.value)))}
+                  helperText="2.5% UBIA calculation"
+                />
+              </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="Outside W-2 Wages ($)"
-                      type="number"
-                      min="0"
-                      step="1000"
-                      value={w2Wages || ""}
-                      onChange={(e) => setW2Wages(Math.max(0, Number(e.target.value)))}
-                      helperText="Reduces $184,500 SS cap"
-                    />
-                    <Input
-                      label="Filer Age"
-                      type="number"
-                      min="18"
-                      max="100"
-                      value={age || ""}
-                      onChange={(e) => setAge(Math.max(18, Number(e.target.value)))}
-                      helperText="65+ qualifies for $6k senior deduction"
-                    />
-                  </div>
-
-                  {/* Toggles */}
-                  <div className="space-y-2 pt-1">
-                    <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={isSstb}
-                        onChange={(e) => setIsSstb(e.target.checked)}
-                        className="rounded border-border text-primary focus:ring-primary h-4 w-4"
-                      />
-                      <span>Specified Service Trade or Business (SSTB: Law, Health, Consulting, Finance)</span>
-                    </label>
-
-                    <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={isTippedOccupation}
-                        onChange={(e) => setIsTippedOccupation(e.target.checked)}
-                        className="rounded border-border text-primary focus:ring-primary h-4 w-4"
-                      />
-                      <span>Tipped Occupation (OBBBA &ldquo;No Tax on Tips&rdquo; up to $25k)</span>
-                    </label>
-                  </div>
-
-                  {isTippedOccupation && (
-                    <Input
-                      label="Qualified Tips ($)"
-                      type="number"
-                      min="0"
-                      step="500"
-                      value={qualifiedTips || ""}
-                      onChange={(e) => setQualifiedTips(Math.max(0, Number(e.target.value)))}
-                      helperText="Deduction applies to income tax only"
-                    />
-                  )}
-
-                  {/* Advanced QBI Inputs */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <Input
-                      label="Solo 401(k) / SEP-IRA ($)"
-                      type="number"
-                      min="0"
-                      step="1000"
-                      value={retirementContributions || ""}
-                      onChange={(e) => setRetirementContributions(Math.max(0, Number(e.target.value)))}
-                      helperText="Pre-tax retirement"
-                    />
-                    <Input
-                      label="SEHI Health Insurance ($)"
-                      type="number"
-                      min="0"
-                      step="500"
-                      value={sehi || ""}
-                      onChange={(e) => setSehi(Math.max(0, Number(e.target.value)))}
-                      helperText="Above-the-line deduction"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="W-2 Paid to Employees ($)"
-                      type="number"
-                      min="0"
-                      step="1000"
-                      value={w2WagesPaidByBusiness || ""}
-                      onChange={(e) => setW2WagesPaidByBusiness(Math.max(0, Number(e.target.value)))}
-                      helperText="For high earner QBI limit"
-                    />
-                    <Input
-                      label="UBIA Property Basis ($)"
-                      type="number"
-                      min="0"
-                      step="5000"
-                      value={ubia || ""}
-                      onChange={(e) => setUbia(Math.max(0, Number(e.target.value)))}
-                      helperText="2.5% UBIA calculation"
-                    />
-                  </div>
-
-                  <div className="pt-2">
-                    <Input
-                      label="State & Local Tax Paid (SALT) ($)"
-                      type="number"
-                      min="0"
-                      step="1000"
-                      value={stateLocalTaxPaid || ""}
-                      onChange={(e) => setStateLocalTaxPaid(Math.max(0, Number(e.target.value)))}
-                      helperText="OBBBA SALT cap at $40,400"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <Input
+                label="State & Local Tax Paid (SALT) ($)"
+                type="number"
+                min="0"
+                step="1000"
+                value={stateLocalTaxPaid || ""}
+                onChange={(e) => setStateLocalTaxPaid(Math.max(0, Number(e.target.value)))}
+                helperText="OBBBA SALT cap at $40,400"
+              />
+            </SectionCard>
           </div>
 
-          {/* Right Column: Free Live Preview Dashboard */}
-          <div className="lg:col-span-7 space-y-6">
-            {/* Top Metric Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Card className="bg-card border-border">
+          {/* RIGHT — Sticky summary */}
+          <div className="space-y-6 lg:sticky lg:top-20 lg:col-span-5">
+            {/* KPI cards */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+              <Card className="border-border">
                 <CardHeader className="pb-2">
                   <CardDescription className="text-xs">Schedule C Net Profit</CardDescription>
-                  <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
-                    ${calcResult.netBusinessProfit.toLocaleString()}
+                  <CardTitle className="font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+                    {money(calcResult.netBusinessProfit)}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-xs text-muted">
-                  Gross ${calcResult.grossIncome.toLocaleString()} - ${calcResult.businessExpenses.toLocaleString()} Exp
+                <CardContent className="text-xs text-subtle">
+                  Gross {money(calcResult.grossIncome)} − {money(calcResult.businessExpenses)} exp.
                 </CardContent>
               </Card>
 
-              <Card className="bg-card border-border">
+              <Card className="border-border">
                 <CardHeader className="pb-2">
                   <CardDescription className="text-xs">QBI Section 199A Deduction</CardDescription>
-                  <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
-                    ${Math.round(calcResult.qbiDeduction).toLocaleString()}
+                  <CardTitle className="font-mono text-xl font-bold tabular-nums text-primary sm:text-2xl">
+                    {money(calcResult.qbiDeduction)}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-xs text-success flex items-center gap-1 font-medium">
+                <CardContent className="flex items-center gap-1 text-xs font-medium text-success">
                   <TrendingDown className="h-3.5 w-3.5" />
-                  <span>Saves ~${Math.round(calcResult.qbiTaxSavings).toLocaleString()} in taxes</span>
+                  <span>Saves ~{money(calcResult.qbiTaxSavings)} in taxes</span>
                 </CardContent>
               </Card>
 
-              <Card className="bg-card border-border">
+              <Card className="border-border">
                 <CardHeader className="pb-2">
                   <CardDescription className="text-xs">Total 2026 Tax Liability</CardDescription>
-                  <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
-                    ${Math.round(calcResult.totalTaxLiability).toLocaleString()}
+                  <CardTitle className="font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+                    {money(calcResult.totalTaxLiability)}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-xs text-muted">
-                  {(calcResult.overallEffectiveRate * 100).toFixed(1)}% Effective Rate
+                <CardContent className="text-xs text-subtle">
+                  {(calcResult.overallEffectiveRate * 100).toFixed(1)}% effective rate
                 </CardContent>
               </Card>
             </div>
 
-            {/* Navigation Tabs for Views */}
-            <div className="flex border-b border-border space-x-1 sm:space-x-2">
-              <button
-                type="button"
-                onClick={() => setActiveTab("estimate")}
-                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "estimate"
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted hover:text-foreground"
-                }`}
-              >
-                Quarterly Estimates
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("qbi")}
-                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "qbi"
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted hover:text-foreground"
-                }`}
-              >
-                SE &amp; QBI Breakdown
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("trap_check")}
-                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "trap_check"
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted hover:text-foreground"
-                }`}
-              >
-                23% Trap Checker
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("scorecard")}
-                className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
-                  activeTab === "scorecard"
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted hover:text-foreground"
-                }`}
-              >
-                Readiness Scorecard ({calcResult.scorecard.totalScore}/100)
-              </button>
+            {/* Navigation tabs */}
+            <div className="flex gap-1 overflow-x-auto border-b border-border">
+              {(
+                [
+                  ["estimate", "Quarterly Estimates"],
+                  ["qbi", "SE & QBI Breakdown"],
+                  ["trap_check", "23% Trap Checker"],
+                  ["scorecard", `Scorecard (${calcResult.scorecard.totalScore}/100)`],
+                ] as const
+              ).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setActiveTab(key)}
+                  className={`-mb-px whitespace-nowrap border-b-2 px-4 py-2.5 text-xs font-medium transition-colors sm:text-sm ${
+                    activeTab === key
+                      ? "border-primary text-foreground"
+                      : "border-transparent text-muted hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
             {/* Tab 1: Estimated Quarterly Installments & Safe Harbor */}
             {activeTab === "estimate" && (
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="flex items-center gap-2 text-base">
                       <Calendar className="h-4 w-4 text-primary" />
                       <span>2026 Estimated Tax Installments</span>
                     </CardTitle>
-                    <Badge variant={calcResult.estimatedPayments.safeHarborApplied ? "success" : "default"}>
+                    <Badge variant={calcResult.estimatedPayments.safeHarborApplied ? "success" : "accent"}>
                       {calcResult.estimatedPayments.safeHarborApplied
                         ? `Safe Harbor Active (${calcResult.estimatedPayments.methodUsed})`
-                        : "90% Current Year Rule"}
+                        : "90% Current-Year Rule"}
                     </Badge>
                   </div>
                   <CardDescription>
@@ -593,39 +621,41 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {calcResult.estimatedPayments.quarterlyInstallments.map((q) => (
                       <div
                         key={q.quarter}
-                        className={`rounded border p-3.5 flex flex-col justify-between ${
-                          q.isUrgent
-                            ? "border-warning/50 bg-warning/10"
-                            : "border-border bg-card"
+                        className={`flex flex-col justify-between rounded-lg border p-4 ${
+                          q.isUrgent ? "border-warning/40 bg-card" : "border-border bg-card"
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-sm text-foreground">{q.quarter} Installment</span>
-                          {q.isUrgent && <Badge variant="warning">URGENT</Badge>}
+                          <span className="text-sm font-semibold text-foreground">
+                            {q.quarter} Installment
+                          </span>
+                          {q.isUrgent && <Badge variant="warning">Urgent</Badge>}
                         </div>
-                        <div className="mt-2 flex items-baseline justify-between">
-                          <span className="text-xs text-muted">Due: {q.dueDate}</span>
-                          <span className="text-lg font-bold text-foreground">
-                            ${q.amount.toLocaleString()}
+                        <div className="mt-3 flex items-baseline justify-between gap-2">
+                          <span className="text-xs text-subtle">Due {q.dueDate}</span>
+                          <span className="font-mono text-lg font-bold tabular-nums text-foreground">
+                            {money(q.amount)}
                           </span>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="rounded border border-border bg-background p-3.5 text-xs space-y-1.5 text-muted">
-                    <div className="flex justify-between text-foreground font-medium">
-                      <span>Total Required Annual Estimated Payment:</span>
-                      <span>${Math.round(calcResult.estimatedPayments.requiredAnnualPayment).toLocaleString()}</span>
+                  <div className="space-y-1.5 rounded-lg border border-border bg-background p-4 text-xs text-muted">
+                    <div className="flex justify-between font-medium text-foreground">
+                      <span>Total Required Annual Estimated Payment</span>
+                      <span className="font-mono tabular-nums">
+                        {money(calcResult.estimatedPayments.requiredAnnualPayment)}
+                      </span>
                     </div>
                     <p>
                       {calcResult.estimatedPayments.safeHarborApplied
-                        ? `Safe Harbor Applied: Paying based on 2025 prior-year tax ($${priorYearTax.toLocaleString()}) shields you from underpayment penalties regardless of 2026 earnings growth.`
-                        : "Based on 90% of your projected 2026 tax liability. Enter prior-year tax on the left to activate 100%/110% safe harbor protection."}
+                        ? `Safe Harbor Applied: paying based on 2025 prior-year tax (${money(priorYearTax)}) shields you from underpayment penalties regardless of 2026 earnings growth.`
+                        : "Based on 90% of your projected 2026 tax liability. Enter prior-year tax on the left to activate 100%/110% safe-harbor protection."}
                     </p>
                   </div>
                 </CardContent>
@@ -636,75 +666,96 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
             {activeTab === "qbi" && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
                     <Zap className="h-4 w-4 text-primary" />
                     <span>Detailed Tax Computation &amp; QBI Engine</span>
                   </CardTitle>
-                  <CardDescription>
-                    Deterministic calculation breakdown under OBBBA rules.
-                  </CardDescription>
+                  <CardDescription>Deterministic calculation breakdown under OBBBA rules.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Table of values */}
-                  <div className="rounded border border-border overflow-hidden text-xs">
-                    <div className="bg-background px-3 py-2 font-semibold text-foreground border-b border-border flex justify-between">
+                <CardContent>
+                  <div className="overflow-hidden rounded-lg border border-border text-xs">
+                    <div className="flex justify-between border-b border-border bg-background px-4 py-2.5 font-semibold text-foreground">
                       <span>Line Item</span>
                       <span>Amount</span>
                     </div>
                     <div className="divide-y divide-border">
-                      <div className="px-3 py-2 flex justify-between">
+                      <div className="flex justify-between px-4 py-2.5">
                         <span className="text-muted">Net Schedule C Profit</span>
-                        <span className="font-medium text-foreground">${calcResult.netBusinessProfit.toLocaleString()}</span>
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {money(calcResult.netBusinessProfit)}
+                        </span>
                       </div>
-                      <div className="px-3 py-2 flex justify-between">
+                      <div className="flex justify-between px-4 py-2.5">
                         <span className="text-muted">Social Security Tax (12.4% on first $184.5k)</span>
-                        <span className="font-medium text-foreground">${Math.round(calcResult.socialSecurityTax).toLocaleString()}</span>
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {money(calcResult.socialSecurityTax)}
+                        </span>
                       </div>
-                      <div className="px-3 py-2 flex justify-between">
+                      <div className="flex justify-between px-4 py-2.5">
                         <span className="text-muted">Medicare Tax (2.9% uncapped)</span>
-                        <span className="font-medium text-foreground">${Math.round(calcResult.medicareTax).toLocaleString()}</span>
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {money(calcResult.medicareTax)}
+                        </span>
                       </div>
                       {calcResult.additionalMedicareTax > 0 && (
-                        <div className="px-3 py-2 flex justify-between">
+                        <div className="flex justify-between px-4 py-2.5">
                           <span className="text-muted">Additional Medicare Tax (0.9% over threshold)</span>
-                          <span className="font-medium text-foreground">${Math.round(calcResult.additionalMedicareTax).toLocaleString()}</span>
+                          <span className="font-mono font-medium tabular-nums text-foreground">
+                            {money(calcResult.additionalMedicareTax)}
+                          </span>
                         </div>
                       )}
-                      <div className="px-3 py-2 flex justify-between bg-card font-semibold">
+                      <div className="flex justify-between bg-card px-4 py-2.5 font-semibold">
                         <span className="text-foreground">Total Self-Employment Tax</span>
-                        <span className="text-foreground">${Math.round(calcResult.totalSelfEmploymentTax).toLocaleString()}</span>
+                        <span className="font-mono tabular-nums text-foreground">
+                          {money(calcResult.totalSelfEmploymentTax)}
+                        </span>
                       </div>
-                      <div className="px-3 py-2 flex justify-between">
+                      <div className="flex justify-between px-4 py-2.5">
                         <span className="text-muted">Half-SE Tax Deduction (Above-the-Line)</span>
-                        <span className="font-medium text-success">-${Math.round(calcResult.halfSeTaxDeduction).toLocaleString()}</span>
+                        <span className="font-mono font-medium tabular-nums text-success">
+                          −{money(calcResult.halfSeTaxDeduction)}
+                        </span>
                       </div>
                       {calcResult.seniorDeduction > 0 && (
-                        <div className="px-3 py-2 flex justify-between">
+                        <div className="flex justify-between px-4 py-2.5">
                           <span className="text-muted">OBBBA Senior Deduction (65+)</span>
-                          <span className="font-medium text-success">-${Math.round(calcResult.seniorDeduction).toLocaleString()}</span>
+                          <span className="font-mono font-medium tabular-nums text-success">
+                            −{money(calcResult.seniorDeduction)}
+                          </span>
                         </div>
                       )}
                       {calcResult.tipDeduction > 0 && (
-                        <div className="px-3 py-2 flex justify-between">
+                        <div className="flex justify-between px-4 py-2.5">
                           <span className="text-muted">OBBBA &ldquo;No Tax on Tips&rdquo; Deduction</span>
-                          <span className="font-medium text-success">-${Math.round(calcResult.tipDeduction).toLocaleString()}</span>
+                          <span className="font-mono font-medium tabular-nums text-success">
+                            −{money(calcResult.tipDeduction)}
+                          </span>
                         </div>
                       )}
-                      <div className="px-3 py-2 flex justify-between">
+                      <div className="flex justify-between px-4 py-2.5">
                         <span className="text-muted">Standard / Claimed Deduction</span>
-                        <span className="font-medium text-success">-${Math.round(calcResult.claimedDeduction).toLocaleString()}</span>
+                        <span className="font-mono font-medium tabular-nums text-success">
+                          −{money(calcResult.claimedDeduction)}
+                        </span>
                       </div>
-                      <div className="px-3 py-2 flex justify-between font-semibold">
+                      <div className="flex justify-between px-4 py-2.5 font-semibold">
                         <span className="text-foreground">Taxable Income Before QBI</span>
-                        <span className="text-foreground">${Math.round(calcResult.taxableIncomeBeforeQbi).toLocaleString()}</span>
+                        <span className="font-mono tabular-nums text-foreground">
+                          {money(calcResult.taxableIncomeBeforeQbi)}
+                        </span>
                       </div>
-                      <div className="px-3 py-2 flex justify-between bg-primary/10 font-bold">
+                      <div className="flex justify-between bg-primary/10 px-4 py-2.5 font-bold">
                         <span className="text-primary">Section 199A QBI Deduction (20%)</span>
-                        <span className="text-primary">-${Math.round(calcResult.qbiDeduction).toLocaleString()}</span>
+                        <span className="font-mono tabular-nums text-primary">
+                          −{money(calcResult.qbiDeduction)}
+                        </span>
                       </div>
-                      <div className="px-3 py-2 flex justify-between font-semibold">
+                      <div className="flex justify-between px-4 py-2.5 font-semibold">
                         <span className="text-foreground">Federal Income Tax</span>
-                        <span className="text-foreground">${Math.round(calcResult.federalIncomeTax).toLocaleString()}</span>
+                        <span className="font-mono tabular-nums text-foreground">
+                          {money(calcResult.federalIncomeTax)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -716,7 +767,7 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
             {activeTab === "trap_check" && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-base flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
                     <AlertTriangle className="h-4 w-4 text-warning" />
                     <span>23% vs 20% QBI Trap Diagnostic</span>
                   </CardTitle>
@@ -725,43 +776,50 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="rounded border border-success/30 bg-success/10 p-4 space-y-1">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5 rounded-lg border border-success/40 bg-card p-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-foreground">Enacted 2026 Law (OBBBA)</span>
+                        <span className="text-xs font-semibold text-foreground">
+                          Enacted 2026 Law (OBBBA)
+                        </span>
                         <Badge variant="success">20.0% Rate</Badge>
                       </div>
-                      <div className="text-xl font-bold text-foreground">
-                        ${Math.round(calcResult.qbiDeduction).toLocaleString()}
-                      </div>
-                      <p className="text-xs text-muted">Compliant with Public Law 119-21. Safe from audit penalties.</p>
-                    </div>
-
-                    <div className="rounded border border-destructive/30 bg-destructive/10 p-4 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-destructive">Erroneous House Proposal</span>
-                        <Badge variant="destructive">23.0% Rate</Badge>
-                      </div>
-                      <div className="text-xl font-bold text-destructive">
-                        ${Math.round(calcResult.trapCheck.erroneous23PercentDeduction).toLocaleString()}
+                      <div className="font-mono text-xl font-bold tabular-nums text-foreground">
+                        {money(calcResult.qbiDeduction)}
                       </div>
                       <p className="text-xs text-muted">
-                        Overstates deduction by ${Math.round(calcResult.trapCheck.overstatementAmount).toLocaleString()}.
+                        Compliant with Public Law 119-21. Safe from audit penalties.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5 rounded-lg border border-destructive/40 bg-card p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-destructive">
+                          Erroneous House Proposal
+                        </span>
+                        <Badge variant="destructive">23.0% Rate</Badge>
+                      </div>
+                      <div className="font-mono text-xl font-bold tabular-nums text-destructive">
+                        {money(calcResult.trapCheck.erroneous23PercentDeduction)}
+                      </div>
+                      <p className="text-xs text-muted">
+                        Overstates deduction by{" "}
+                        {money(calcResult.trapCheck.overstatementAmount)}.
                       </p>
                     </div>
                   </div>
 
-                  <div className="rounded border border-border bg-card p-4 space-y-2 text-xs">
-                    <h3 className="font-semibold text-foreground flex items-center gap-1.5">
+                  <div className="space-y-2 rounded-lg border border-border bg-card p-4 text-xs">
+                    <h3 className="flex items-center gap-1.5 font-semibold text-foreground">
                       <Info className="h-4 w-4 text-primary" />
                       Why is there confusion?
                     </h3>
-                    <p className="text-muted">
-                      {calcResult.trapCheck.explanation}
-                    </p>
-                    <div className="pt-2 border-t border-border flex items-center justify-between text-destructive font-medium">
-                      <span>Potential IRS Section 6662 Accuracy Penalty Risk:</span>
-                      <span>${Math.round(calcResult.trapCheck.potentialPenaltyRisk).toLocaleString()}</span>
+                    <p className="text-muted">{calcResult.trapCheck.explanation}</p>
+                    <div className="flex items-center justify-between border-t border-border pt-3 font-medium text-destructive">
+                      <span>Potential IRS Section 6662 Accuracy Penalty Risk</span>
+                      <span className="font-mono tabular-nums">
+                        {money(calcResult.trapCheck.potentialPenaltyRisk)}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -772,8 +830,8 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
             {activeTab === "scorecard" && (
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base flex items-center gap-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="flex items-center gap-2 text-base">
                       <ShieldCheck className="h-4 w-4 text-primary" />
                       <span>2026 Tax Readiness Scorecard</span>
                     </CardTitle>
@@ -786,35 +844,43 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
-                  {/* Score Meter */}
-                  <div className="rounded border border-border bg-background p-4 flex items-center justify-between">
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-background p-4">
                     <div>
-                      <span className="text-xs text-muted uppercase font-semibold tracking-wider">Overall Score</span>
-                      <div className="text-3xl font-extrabold text-foreground">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted">
+                        Overall Score
+                      </span>
+                      <div className="font-mono text-3xl font-bold tabular-nums text-foreground">
                         {calcResult.scorecard.totalScore}
-                        <span className="text-sm font-normal text-muted"> / 100</span>
+                        <span className="text-sm font-normal text-subtle"> / 100</span>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                      <div>QBI Optimization: <strong>{calcResult.scorecard.qbiOptimizationScore}/25</strong></div>
-                      <div>Safe Harbor Status: <strong>{calcResult.scorecard.safeHarborComplianceScore}/25</strong></div>
-                      <div>Underpayment Risk: <strong>{calcResult.scorecard.underpaymentRiskScore}/25</strong></div>
-                      <div>Deduction Capture: <strong>{calcResult.scorecard.deductionCaptureScore}/25</strong></div>
+                      <div>
+                        QBI Optimization: <strong>{calcResult.scorecard.qbiOptimizationScore}/25</strong>
+                      </div>
+                      <div>
+                        Safe Harbor: <strong>{calcResult.scorecard.safeHarborComplianceScore}/25</strong>
+                      </div>
+                      <div>
+                        Underpayment: <strong>{calcResult.scorecard.underpaymentRiskScore}/25</strong>
+                      </div>
+                      <div>
+                        Deduction: <strong>{calcResult.scorecard.deductionCaptureScore}/25</strong>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Action items */}
                   <div className="space-y-2">
-                    <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
                       Recommended Action Items
                     </h3>
                     <ul className="space-y-2">
                       {calcResult.scorecard.keyActionItems.map((item, idx) => (
                         <li
                           key={idx}
-                          className="text-xs p-2.5 rounded border border-border bg-card flex items-start gap-2 text-foreground"
+                          className="flex items-start gap-2 rounded-lg border border-border bg-card p-3 text-xs text-foreground"
                         >
-                          <ChevronRight className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                          <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -826,18 +892,19 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
 
             {/* Export Callout Card */}
             <Card className="border-primary/30 bg-primary/5">
-              <CardContent className="p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <CardContent className="flex flex-col items-center justify-between gap-4 p-5 sm:flex-row">
                 <div className="space-y-1 text-center sm:text-left">
-                  <h2 className="font-semibold text-sm text-foreground flex items-center gap-1.5 justify-center sm:justify-start">
+                  <h2 className="flex items-center justify-center gap-1.5 text-sm font-semibold text-foreground sm:justify-start">
                     <FileText className="h-4 w-4 text-primary" />
                     Official 2026 Audit Report &amp; CPA Workpapers
                   </h2>
                   <p className="text-xs text-muted">
-                    Generate an audit-proof branded report with statutory citations, safe-harbor calculations, and Schedule C reconciliation.
+                    Generate an audit-proof branded report with statutory citations, safe-harbor
+                    calculations, and Schedule C reconciliation.
                   </p>
                 </div>
                 {isPurchased ? (
-                  <Button variant="default" onClick={handleDownloadReport} className="shrink-0 gap-1.5 shadow-sm">
+                  <Button variant="default" onClick={handleDownloadReport} className="shrink-0 gap-1.5">
                     <Download className="h-4 w-4" />
                     <span>Download Report</span>
                   </Button>
@@ -845,7 +912,7 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   <Button
                     variant="default"
                     onClick={() => setIsExportModalOpen(true)}
-                    className="shrink-0 gap-1.5 shadow-sm"
+                    className="shrink-0 gap-1.5"
                   >
                     <span>Export Report ($9)</span>
                   </Button>
@@ -857,9 +924,12 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card py-6 text-center text-xs text-muted space-y-1">
+      <footer className="space-y-1 border-t border-border bg-card py-6 text-center text-xs text-subtle">
         <p>QuarterLine • Autonomous Product &amp; Software Factory</p>
-        <p>Governed by One Big Beautiful Bill Act (Pub. L. 119-21) &amp; Rev. Proc. 2025-32. Not formal legal advice.</p>
+        <p>
+          Governed by One Big Beautiful Bill Act (Pub. L. 119-21) &amp; Rev. Proc. 2025-32. Not
+          formal legal advice.
+        </p>
       </footer>
 
       {/* Stripe Checkout & Export Modal */}
@@ -870,55 +940,55 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
         description="Choose your export package to download the full certified PDF workpaper."
       >
         <div className="space-y-4 text-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* $9 Option */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div
               onClick={() => handleCheckout("pdf_audit_export")}
-              className="rounded border border-border p-4 hover:border-primary cursor-pointer transition-all bg-card flex flex-col justify-between"
+              className="flex cursor-pointer flex-col justify-between rounded-lg border border-border bg-card p-4 transition-all hover:border-primary"
             >
               <div>
-                <Badge variant="outline" className="mb-2">One-off</Badge>
-                <div className="text-lg font-bold text-foreground">$9.00</div>
-                <div className="font-semibold text-xs text-foreground mt-1">Single PDF Audit Export</div>
-                <p className="text-xs text-muted mt-1.5">
-                  Complete 2026 tax readiness report with Rev. Proc. 2025-32 citations and safe-harbor backup.
+                <Badge variant="outline" className="mb-2">
+                  One-off
+                </Badge>
+                <div className="font-mono text-lg font-bold text-foreground">$9.00</div>
+                <div className="mt-1 text-xs font-semibold text-foreground">
+                  Single PDF Audit Export
+                </div>
+                <p className="mt-1.5 text-xs text-muted">
+                  Complete 2026 tax readiness report with Rev. Proc. 2025-32 citations and
+                  safe-harbor backup.
                 </p>
               </div>
-              <Button
-                size="sm"
-                variant="default"
-                disabled={isCheckingOut}
-                className="mt-4 w-full text-xs"
-              >
-                {isCheckingOut ? "Loading..." : "Get $9 PDF"}
+              <Button size="sm" variant="default" disabled={isCheckingOut} className="mt-4 w-full text-xs">
+                {isCheckingOut ? "Loading…" : "Get $9 PDF"}
               </Button>
             </div>
 
-            {/* $29/mo Option */}
             <div
               onClick={() => handleCheckout("cpa_monthly")}
-              className="rounded border border-primary/40 bg-primary/5 p-4 hover:border-primary cursor-pointer transition-all flex flex-col justify-between"
+              className="flex cursor-pointer flex-col justify-between rounded-lg border border-primary/40 bg-primary/5 p-4 transition-all hover:border-primary"
             >
               <div>
-                <Badge variant="default" className="mb-2">Pro / CPA</Badge>
-                <div className="text-lg font-bold text-foreground">$29.00<span className="text-xs font-normal text-muted">/mo</span></div>
-                <div className="font-semibold text-xs text-foreground mt-1">Accountant Multi-Client Roster</div>
-                <p className="text-xs text-muted mt-1.5">
-                  Unlimited multi-client PDF exports, WebMCP API integration, and batch calculation tools.
+                <Badge variant="accent" className="mb-2">
+                  Pro / CPA
+                </Badge>
+                <div className="font-mono text-lg font-bold text-foreground">
+                  $29.00<span className="text-xs font-normal text-subtle">/mo</span>
+                </div>
+                <div className="mt-1 text-xs font-semibold text-foreground">
+                  Accountant Multi-Client Roster
+                </div>
+                <p className="mt-1.5 text-xs text-muted">
+                  Unlimited multi-client PDF exports, WebMCP API integration, and batch calculation
+                  tools.
                 </p>
               </div>
-              <Button
-                size="sm"
-                variant="accent"
-                disabled={isCheckingOut}
-                className="mt-4 w-full text-xs"
-              >
-                {isCheckingOut ? "Loading..." : "Start Pro ($29/mo)"}
+              <Button size="sm" variant="accent" disabled={isCheckingOut} className="mt-4 w-full text-xs">
+                {isCheckingOut ? "Loading…" : "Start Pro ($29/mo)"}
               </Button>
             </div>
           </div>
 
-          <div className="pt-2 border-t border-border flex items-center justify-between text-xs text-muted">
+          <div className="flex items-center justify-between border-t border-border pt-2 text-xs text-muted">
             <span className="flex items-center gap-1">
               <ShieldCheck className="h-3.5 w-3.5 text-success" />
               Secured by Stripe Checkout

@@ -17,7 +17,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-xs font-medium text-foreground"
+            className="text-[13px] font-medium leading-none text-muted"
           >
             {label}
           </label>
@@ -50,7 +50,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {error}
           </p>
         ) : helperText ? (
-          <p id={`${inputId}-helper`} className="text-xs text-muted">
+          <p id={`${inputId}-helper`} className="text-xs text-subtle">
             {helperText}
           </p>
         ) : null}
