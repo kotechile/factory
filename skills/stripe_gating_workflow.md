@@ -35,3 +35,12 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
 
 ## 7. Failure handling
 - Unhandled webhook event types → Toby patches this skill with the new event's handling pattern.
+
+## 8. Entitlement-gate invariants (from the 2026-09-01 review)
+- **Never grant entitlement on a client-passed token prefix** (`cs_`, `test_`, `simulated_`).
+  The gate MUST verify against `subscriptions`/`purchases` rows server-side. A `cs_`-prefixed
+  Stripe session ID must be confirmed in `purchases`, never trusted implicitly.
+- **Dev/test bypasses must be gated behind `NODE_ENV !== "production"`.**
+- **On a DB/entitlement-check error, return an explicit 500** — never silently deny (402) or
+  silently allow. A paying user must never be denied because of a transient DB failure
+  (rule #5: no silent fallbacks).

@@ -27,41 +27,49 @@ export async function POST(req: NextRequest) {
 
     let isEntitled = false;
 
-    // 1. Check server-side Supabase purchase / subscription entitlement if credentials available
+    // 1. Check server-side Supabase purchase / subscription entitlement.
     if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      try {
-        const supabase = createAdminClient();
+      const supabase = createAdminClient();
 
+      try {
         if (userId) {
-          const { data: sub } = await supabase
+          const { data: sub, error: subErr } = await supabase
             .from("subscriptions")
             .select("status, plan")
             .eq("user_id", userId)
             .eq("status", "active")
             .single();
+          // PGRST116 = "no row found" (normal) — any other code is a real failure.
+          if (subErr && subErr.code !== "PGRST116") throw subErr;
           if (sub) isEntitled = true;
         }
 
         if (!isEntitled && sessionId) {
-          const { data: purchase } = await supabase
+          const { data: purchase, error: purchaseErr } = await supabase
             .from("purchases")
             .select("status")
             .eq("id", sessionId)
             .eq("status", "completed")
             .single();
+          if (purchaseErr && purchaseErr.code !== "PGRST116") throw purchaseErr;
           if (purchase) isEntitled = true;
         }
       } catch (dbErr) {
-        console.warn("Supabase entitlement check bypassed:", dbErr);
+        const message = dbErr instanceof Error ? dbErr.message : "unknown database error";
+        console.error("Entitlement check failed:", dbErr);
+        // No silent fallback: surface the failure instead of denying a paying user.
+        return NextResponse.json(
+          { error: `Entitlement verification failed — please retry. (${message})` },
+          { status: 500 },
+        );
       }
     }
 
-    // 2. Allow simulated / verified session tokens in development / test environments
+    // 2. Dev/test-only bypass — never in production, and never for real Stripe IDs.
     if (
+      process.env.NODE_ENV !== "production" &&
       sessionId &&
-      (sessionId.startsWith("simulated_") ||
-        sessionId.startsWith("cs_") ||
-        sessionId.startsWith("test_"))
+      (sessionId.startsWith("simulated_") || sessionId.startsWith("test_"))
     ) {
       isEntitled = true;
     }
