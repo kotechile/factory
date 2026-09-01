@@ -120,7 +120,7 @@ export default function QuarterLineCalculator({
   });
   const [isExportModalOpen, setIsExportModalOpen] = React.useState<boolean>(false);
   const [isPurchased, setIsPurchased] = React.useState<boolean>(false);
-  const [isCheckingOut, setIsCheckingOut] = React.useState<boolean>(false);
+  const [checkingOutPlan, setCheckingOutPlan] = React.useState<"pdf_audit_export" | "cpa_monthly" | null>(null);
   const [exportNotice, setExportNotice] = React.useState<string | null>(null);
 
   const toggleSection = (key: SectionKey) =>
@@ -180,8 +180,9 @@ export default function QuarterLineCalculator({
   }, []);
 
   const handleCheckout = async (plan: "pdf_audit_export" | "cpa_monthly") => {
+    if (checkingOutPlan) return;
     trackEvent("checkout_click", { plan });
-    setIsCheckingOut(true);
+    setCheckingOutPlan(plan);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -197,7 +198,7 @@ export default function QuarterLineCalculator({
     } catch {
       alert("Network error during checkout initiation");
     } finally {
-      setIsCheckingOut(false);
+      setCheckingOutPlan(null);
     }
   };
 
@@ -1006,8 +1007,8 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   safe-harbor backup.
                 </p>
               </div>
-              <Button size="sm" variant="default" disabled={isCheckingOut} className="mt-4 w-full text-xs">
-                {isCheckingOut ? "Loading…" : "Get $9 PDF"}
+              <Button size="sm" variant="default" disabled={checkingOutPlan !== null} className="mt-4 w-full text-xs">
+                {checkingOutPlan === "pdf_audit_export" ? "Loading…" : "Get $9 PDF"}
               </Button>
             </div>
 
@@ -1030,8 +1031,8 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   tools.
                 </p>
               </div>
-              <Button size="sm" variant="accent" disabled={isCheckingOut} className="mt-4 w-full text-xs">
-                {isCheckingOut ? "Loading…" : "Start Pro ($29/mo)"}
+              <Button size="sm" variant="accent" disabled={checkingOutPlan !== null} className="mt-4 w-full text-xs">
+                {checkingOutPlan === "cpa_monthly" ? "Loading…" : "Start Pro ($29/mo)"}
               </Button>
             </div>
           </div>

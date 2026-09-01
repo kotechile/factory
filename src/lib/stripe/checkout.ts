@@ -62,7 +62,6 @@ export async function createCheckoutSession({
 
   const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode,
-    payment_method_types: ["card"],
     line_items: finalLineItems,
     success_url: successUrl,
     cancel_url: cancelUrl,
