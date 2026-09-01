@@ -176,7 +176,7 @@ To execute this playbook without manual founder overhead, the factory deploys th
     the watchdog proposes to #loop-ai and waits for `@Simon` sign-off before stopping the Coolify app.
 *   **Quantitative Gates:**
     *   **Day 7 Gate:** $\ge 50$ unique visitors, $\ge 1$ paid or agent event. If unmet $\rightarrow$ trigger pSEO expansion.
-    *   **Day 21 Gate:** $\ge \$50$ gross revenue or $\ge 100$ agent queries. If unmet $\rightarrow$ run A/B copy test.
+    *   **Day 14 Gate:** $\ge \$50$ gross revenue or $\ge 100$ agent queries. If unmet $\rightarrow$ run A/B copy test.
     *   **Day 30 Gate:** Break-even vs server cost. If failed $\rightarrow$ hibernate product and log learnings to `skills/self_improvement_eval.md`.
 
 ---

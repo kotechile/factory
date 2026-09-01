@@ -28,6 +28,14 @@ import {
   Sparkles,
 } from "lucide-react";
 
+const trackEvent = (event: string, payload?: Record<string, unknown>) => {
+  fetch("/api/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ event, payload }),
+  }).catch((err) => console.error("[telemetry] client track failed:", err));
+};
+
 type SectionKey = "revenue" | "safeHarbor" | "obbba";
 
 function SectionCard({
@@ -152,7 +160,13 @@ export default function QuarterLinePage() {
     stateLocalTaxPaid,
   ]);
 
+  // Fire page_view once on mount (growth kill/scale telemetry).
+  React.useEffect(() => {
+    trackEvent("page_view");
+  }, []);
+
   const handleCheckout = async (plan: "pdf_audit_export" | "cpa_monthly") => {
+    trackEvent("checkout_click", { plan });
     setIsCheckingOut(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -174,6 +188,7 @@ export default function QuarterLinePage() {
   };
 
   const handleDownloadReport = () => {
+    trackEvent("export_click");
     const reportText = `QUARTERLINE 2026 TAX READINESS AUDIT REPORT
 Governing Law: ${calcResult.governingLaw}
 Tax Year: 2026
