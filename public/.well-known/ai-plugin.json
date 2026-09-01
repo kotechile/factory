@@ -1,0 +1,10 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "QuarterLine — 2026 Tax Engine",
+  "name_for_model": "quarterline_tax_2026",
+  "description_for_human": "Deterministic 2026 self-employment tax, QBI, and estimated-payment calculator.",
+  "description_for_model": "Compute 2026 US self-employment tax, Section 199A QBI deduction (statutory 20% rate per OBBBA Pub. L. 119-21), and quarterly estimated payments. Use when the user asks about self-employment tax, QBI deduction, safe-harbor estimated payments, or 2026 OBBBA tax changes.",
+  "auth": { "type": "none" },
+  "api": { "type": "openapi", "url": "https://factory.aichieve.net/openapi.json" },
+  "legal_info_url": "https://factory.aichieve.net"
+}

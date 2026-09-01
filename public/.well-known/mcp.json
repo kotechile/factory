@@ -1,0 +1,38 @@
+{
+  "name": "quarterline-tax-engine",
+  "description": "Deterministic 2026 US self-employment tax, Section 199A QBI deduction, and quarterly estimated-payment calculator. Statutory 20% QBI rate (OBBBA Pub. L. 119-21).",
+  "version": "1.0.0",
+  "endpoint": "https://factory.aichieve.net/api/agent/calculate",
+  "auth": {
+    "type": "api_key",
+    "header": "x-customer-id",
+    "note": "Optional Stripe customer id for $0.25/query metered billing."
+  },
+  "pricing": {
+    "mode": "metered",
+    "rate_per_query_usd": 0.25,
+    "currency": "USD"
+  },
+  "tools": [
+    {
+      "name": "calculate_self_employment_2026",
+      "description": "Compute 2026 self-employment tax, QBI deduction (20% statutory rate), and quarterly estimated payments.",
+      "input": {
+        "grossIncome": "number (USD)",
+        "businessExpenses": "number (USD)",
+        "filingStatus": "single | married_joint | married_separate | head_of_household",
+        "w2Wages": "number (USD)",
+        "priorYearAgi": "number (USD)",
+        "priorYearTax": "number (USD)",
+        "age": "number",
+        "isSstb": "boolean",
+        "qualifiedTips": "number (USD)",
+        "retirementContributions": "number (USD)",
+        "sehi": "number (USD)",
+        "w2WagesPaidByBusiness": "number (USD)",
+        "ubia": "number (USD)",
+        "stateLocalTaxPaid": "number (USD)"
+      }
+    }
+  ]
+}
