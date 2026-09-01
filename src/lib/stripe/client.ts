@@ -19,7 +19,6 @@ export function getStripe(): Stripe {
   }
 
   stripeInstance = new Stripe(apiKey, {
-    apiVersion: "2026-03-25.acacia" as unknown as Stripe.LatestApiVersion,
     appInfo: {
       name: "software-factory-core",
       version: "0.1.0",

@@ -164,9 +164,19 @@ export default function QuarterLineCalculator({
     stateLocalTaxPaid,
   ]);
 
-  // Fire page_view once on mount (growth kill/scale telemetry).
+  // Fire page_view once on mount (growth kill/scale telemetry) and check for Stripe redirect.
   React.useEffect(() => {
     trackEvent("page_view");
+
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const status = params.get("status");
+      const sessionId = params.get("session_id");
+      if (status === "success" && sessionId) {
+        setIsPurchased(true);
+        setExportNotice("Payment verified! Your 2026 Tax Readiness Audit Report is unlocked.");
+      }
+    }
   }, []);
 
   const handleCheckout = async (plan: "pdf_audit_export" | "cpa_monthly") => {

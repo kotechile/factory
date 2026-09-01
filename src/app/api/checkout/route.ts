@@ -49,8 +49,8 @@ export async function POST(req: NextRequest) {
         userEmail: email,
         mode,
         lineItems,
-        successUrl: `${origin}/?session_id={CHECKOUT_SESSION_ID}&plan=${plan}&status=success`,
-        cancelUrl: `${origin}/?canceled=true`,
+        successUrl: `${origin}/quarterline?session_id={CHECKOUT_SESSION_ID}&plan=${plan}&status=success`,
+        cancelUrl: `${origin}/quarterline?canceled=true`,
         metadata: {
           plan,
           app: "quarterline",
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     // In local dev without live Stripe key, provide immediate simulated checkout link
     return NextResponse.json({
-      url: `${origin}/?session_id=simulated_${plan}_${Date.now()}&plan=${plan}&status=success`,
+      url: `${origin}/quarterline?session_id=simulated_${plan}_${Date.now()}&plan=${plan}&status=success`,
       sessionId: `simulated_${plan}_${Date.now()}`,
       simulated: true,
     });
