@@ -74,6 +74,13 @@ function SectionCard({
 
 const money = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
+const METHOD_LABEL: Record<string, string> = {
+  "90_percent_current_year": "90% current-year rule",
+  "100_percent_prior_year": "100% prior-year safe harbor",
+  "110_percent_prior_year": "110% prior-year safe harbor",
+};
+const methodLabel = (m: string) => METHOD_LABEL[m] ?? m;
+
 export default function QuarterLinePage() {
   // Input States
   const [grossIncome, setGrossIncome] = React.useState<number>(130000);
@@ -199,7 +206,7 @@ Total Annual Tax Liability: $${Math.round(calcResult.totalTaxLiability).toLocale
 Effective Tax Rate: ${(calcResult.overallEffectiveRate * 100).toFixed(1)}%
 
 5. ESTIMATED QUARTERLY INSTALLMENTS (SAFE HARBOR)
-Safe Harbor Applied: ${calcResult.estimatedPayments.safeHarborApplied ? "Yes" : "No"} (${calcResult.estimatedPayments.methodUsed})
+Safe Harbor Applied: ${calcResult.estimatedPayments.safeHarborApplied ? "Yes" : "No"} (${methodLabel(calcResult.estimatedPayments.methodUsed)})
 Required Annual Payment: $${Math.round(calcResult.estimatedPayments.requiredAnnualPayment).toLocaleString()}
 ${calcResult.estimatedPayments.quarterlyInstallments.map((q) => `${q.quarter} (Due ${q.dueDate}): $${q.amount.toLocaleString()}`).join("\n")}
 
@@ -546,7 +553,8 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-subtle">
-                  Gross {money(calcResult.grossIncome)} − {money(calcResult.businessExpenses)} exp.
+                  Gross <span className="font-mono tabular-nums">{money(calcResult.grossIncome)}</span> −{" "}
+                  <span className="font-mono tabular-nums">{money(calcResult.businessExpenses)}</span> exp.
                 </CardContent>
               </Card>
 
@@ -559,7 +567,9 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                 </CardHeader>
                 <CardContent className="flex items-center gap-1 text-xs font-medium text-success">
                   <TrendingDown className="h-3.5 w-3.5" />
-                  <span>Saves ~{money(calcResult.qbiTaxSavings)} in taxes</span>
+                  <span>
+                    Saves ~<span className="font-mono tabular-nums">{money(calcResult.qbiTaxSavings)}</span> in taxes
+                  </span>
                 </CardContent>
               </Card>
 
@@ -571,7 +581,10 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-xs text-subtle">
-                  {(calcResult.overallEffectiveRate * 100).toFixed(1)}% effective rate
+                  <span className="font-mono tabular-nums">
+                    {(calcResult.overallEffectiveRate * 100).toFixed(1)}%
+                  </span>{" "}
+                  effective rate
                 </CardContent>
               </Card>
             </div>
@@ -612,7 +625,7 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                     </CardTitle>
                     <Badge variant={calcResult.estimatedPayments.safeHarborApplied ? "success" : "accent"}>
                       {calcResult.estimatedPayments.safeHarborApplied
-                        ? `Safe Harbor Active (${calcResult.estimatedPayments.methodUsed})`
+                        ? `Safe Harbor Active (${methodLabel(calcResult.estimatedPayments.methodUsed)})`
                         : "90% Current-Year Rule"}
                     </Badge>
                   </div>
@@ -653,9 +666,15 @@ ${calcResult.scorecard.keyActionItems.map((a) => `- ${a}`).join("\n")}
                       </span>
                     </div>
                     <p>
-                      {calcResult.estimatedPayments.safeHarborApplied
-                        ? `Safe Harbor Applied: paying based on 2025 prior-year tax (${money(priorYearTax)}) shields you from underpayment penalties regardless of 2026 earnings growth.`
-                        : "Based on 90% of your projected 2026 tax liability. Enter prior-year tax on the left to activate 100%/110% safe-harbor protection."}
+                      {calcResult.estimatedPayments.safeHarborApplied ? (
+                        <>
+                          Safe Harbor Applied: paying based on 2025 prior-year tax (
+                          <span className="font-mono tabular-nums">{money(priorYearTax)}</span>) shields
+                          you from underpayment penalties regardless of 2026 earnings growth.
+                        </>
+                      ) : (
+                        "Based on 90% of your projected 2026 tax liability. Enter prior-year tax on the left to activate 100%/110% safe-harbor protection."
+                      )}
                     </p>
                   </div>
                 </CardContent>

@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "check:tokens": "node scripts/check-design-tokens.mjs",
-    "visual-qa": "node scripts/visual-qa.mjs"
+    "visual-qa": "node scripts/visual-qa.mjs",
+    "visual-qa:suggest": "node scripts/visual-qa.mjs --suggest"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
