@@ -68,7 +68,7 @@ When generating paid audit workpapers, certificates, or executive exports:
   2. **Brand Category Row**: Brand name (`QUARTERLINE`) in electric blue + `• OFFICIAL WORKPAPER` in muted slate.
   3. **Authoritative Title**: 18pt bold white with comfortable vertical breathing room (never horizontally squished with the brand name).
   4. **Statutory Subtitle**: 8.5pt regular font citing the exact governing legislation or regulatory authority.
-  5. **Right-Side Certified Metadata Badge**: Boxed card on the top right displaying Period/Year, Issue Date, and a verified seal (`✓ SAFE-HARBOR VERIFIED`).
+  5. **Right-Side Certified Metadata Badge**: Boxed card on the top right displaying Period/Year, Issue Date, and a verified seal. *Important:* StandardFonts (Helvetica) in `pdf-lib` use WinAnsiEncoding and reject non-WinAnsi unicode symbols like `✓` (`0x2713`). Always draw icons via `page.drawLine()` vector strokes or use standard characters.
   6. **Bottom Separator Line**: 1.5pt dark stroke cleanly transitioning from the banner into the body.
 - **Section Layout**:
   - Shaded section headers with dark navy title text.
