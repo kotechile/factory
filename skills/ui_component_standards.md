@@ -53,3 +53,26 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
 
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
+
+## 9. Executive PDF Document & Workpaper Standards (pdf-lib)
+When generating paid audit workpapers, certificates, or executive exports:
+- **Format**: Standard US Letter (612 × 792 pt).
+- **Core Palette**:
+  - Banner background: Dark navy (`#0f172a`, `rgb(0.06, 0.09, 0.16)`)
+  - Accent color: Brand royal blue (`#2563eb`, `rgb(0.15, 0.39, 0.92)`)
+  - Card background: Neutral light slate (`#f8fafc`, `rgb(0.96, 0.97, 0.98)`)
+  - Borders: Clean subtle gray (`#e2e8f0`, `rgb(0.89, 0.91, 0.94)`)
+  - Verified badges: Emerald green (`#059669`, `rgb(0.02, 0.59, 0.41)`)
+- **Executive Header Visual Pattern**:
+  1. **Top Accent Stripe**: 2.5–3pt brand accent line along the very top edge.
+  2. **Brand Category Row**: Brand name (`QUARTERLINE`) in electric blue + `• OFFICIAL WORKPAPER` in muted slate.
+  3. **Authoritative Title**: 18pt bold white with comfortable vertical breathing room (never horizontally squished with the brand name).
+  4. **Statutory Subtitle**: 8.5pt regular font citing the exact governing legislation or regulatory authority.
+  5. **Right-Side Certified Metadata Badge**: Boxed card on the top right displaying Period/Year, Issue Date, and a verified seal (`✓ SAFE-HARBOR VERIFIED`).
+  6. **Bottom Separator Line**: 1.5pt dark stroke cleanly transitioning from the banner into the body.
+- **Section Layout**:
+  - Shaded section headers with dark navy title text.
+  - Tabular key-value rows with subtle 0.5pt divider lines.
+  - Prominent scorecard seal banner with penalty risk metrics.
+- **Footer**:
+  - Statutory disclaimer, generator attribution, and dynamic page numbering (`Page 1 of X`).

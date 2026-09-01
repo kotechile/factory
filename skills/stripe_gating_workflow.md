@@ -44,3 +44,10 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
 - **On a DB/entitlement-check error, return an explicit 500** — never silently deny (402) or
   silently allow. A paying user must never be denied because of a transient DB failure
   (rule #5: no silent fallbacks).
+
+## 9. Checkout & PDF export invariants (2026-09-01 learnings)
+- **Stripe API Version**: Never hardcode fictitious dates or versions (`2026-03-25.acacia`). Use the Stripe Node SDK default.
+- **Reverse-Proxy Public Origin**: Never rely on `req.nextUrl.origin` inside Docker containers (it resolves to `0.0.0.0:3000`, which browsers block). Always resolve the origin via `x-forwarded-host` + `x-forwarded-proto` or fall back to the production domain.
+- **Managed Payments & Product Tax Codes**: Stripe accounts with Managed Payments reject products without a tax code. Always set `tax_code` on `product_data` (`txcd_10000000` for digital reports/exports, `txcd_10202000` for SaaS). Explicitly pass `managed_payments: { enabled: false }` on checkout sessions to prevent MoR onboarding blocks.
+- **Independent Plan Loading**: In checkout modals, track loading by specific plan (`checkingOutPlan: string | null`) instead of a generic boolean so multiple checkout buttons don't enter loading state simultaneously.
+- **True Binary PDF Delivery**: Never substitute `.txt` text blobs for advertised PDF exports. Build official documents with `pdf-lib`. TypeScript 5.5+ invariant: cast `pdfBytes as unknown as BlobPart` when creating the browser `Blob`.
