@@ -45,7 +45,8 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
 - `check:tokens` — design-token lint: raw Tailwind palette colors (e.g. `bg-blue-500`) are rejected; use tokens (`primary`, `accent`, `muted`, `border`, `card`, `destructive`, `success`, `warning`, `foreground`, `background`).
 - `test` (vitest) — deterministic calc engines must ship known-answer test vectors in `src/lib/calc/*.test.ts`.
 - `build` — production build.
-- `test:e2e` (Playwright) — visual regression (`toHaveScreenshot`) + WCAG 2.1 AA accessibility (`@axe-core/playwright`).
+- **`test:e2e` (Playwright)** — visual regression (`toHaveScreenshot`) + WCAG 2.1 AA accessibility (`@axe-core/playwright`).
+- **`visual-qa` (Gemini vision)** — sends a rendered screenshot to Gemini for a style-guide review. The Gemini key/model/prompt live in Supabase `factory_config` (`supabase/schema.sql`), so they can be tuned without a redeploy.
 
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.

@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "check:tokens": "node scripts/check-design-tokens.mjs"
+    "check:tokens": "node scripts/check-design-tokens.mjs",
+    "visual-qa": "node scripts/visual-qa.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
