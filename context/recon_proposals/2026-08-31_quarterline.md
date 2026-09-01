@@ -74,3 +74,11 @@ their deduction and under-paying their Q3 estimate **right now**, with the Sept 
   product as the "correct 2026 law" source, not another content lead-gen calculator.
 - **Scope guard:** all three vectors reuse the single engine — no new build beyond the PDF/scorecard
   renderer and the registerTool handler; ≤4-hour budget holds.
+
+---
+
+## Approval
+
+- **Decision:** APPROVED — Jorge Fernandez (founder), 2026-09-01.
+- **Dispatch:** Product Director + execution fleet (Antigravity `agy` build) and Echo (GTM blueprint), in parallel per `chief_of_staff.md` §6.
+- **Status at approval:** build had already shipped via the experimental auto-publish policy and is live at `https://factory.aichieve.net/quarterline` (root `/quarterline` HTTP 200, `/.well-known/mcp.json` HTTP 200, `/embed/countdown` HTTP 200). GTM blueprint on file at `context/growth_blueprints/2026-08-31_quarterline.md`. Flag: auto-publish landed ahead of the explicit go/no-go — gate tightening recommended.
