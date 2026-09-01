@@ -38,6 +38,7 @@ export async function createCheckoutSession({
                   product_data: {
                     name: "Factory Pro Subscription",
                     description: "Full access to deterministic tools and export capabilities",
+                    tax_code: "txcd_10202000",
                   },
                   unit_amount: 2900, // $29.00 / month
                   recurring: {
@@ -52,6 +53,7 @@ export async function createCheckoutSession({
                   product_data: {
                     name: "One-off Export & Report",
                     description: "Single export of branded report / CSV",
+                    tax_code: "txcd_10000000",
                   },
                   unit_amount: 900, // $9.00 one-off
                 },
@@ -71,6 +73,11 @@ export async function createCheckoutSession({
       userId,
       ...metadata,
     },
+    ...({
+      managed_payments: {
+        enabled: false,
+      },
+    } as unknown as Record<string, unknown>),
   };
 
   if (mode === "subscription") {

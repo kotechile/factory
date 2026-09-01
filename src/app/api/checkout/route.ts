@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
               product_data: {
                 name: "QuarterLine Pro — CPA & Accountant Roster",
                 description: "Multi-client 2026 OBBBA tax readiness engine & unlimited PDF exports",
+                tax_code: "txcd_10202000",
               },
               unit_amount: 2900, // $29/month
               recurring: {
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
               product_data: {
                 name: "QuarterLine 2026 Tax Readiness Audit Report (PDF)",
                 description: "Official Section 199A QBI (20% rate) & Safe-Harbor Certified Audit Export",
+                tax_code: "txcd_10000000",
               },
               unit_amount: 900, // $9 one-off
             },
