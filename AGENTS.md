@@ -29,6 +29,26 @@ Current fleet runs on `deepseek-v4-pro` (only configured provider). The persona 
 `.agents/` record target model tiers (Claude 3.7/Opus, Sonnet/Flash, etc.) to pin once those
 providers' keys are added.
 
+## Product structure — subpaths under one deploy
+
+Every product ships to a subpath of the single Coolify app (`factory.aichieve.net`):
+
+- `/` — Factory Showcase (directory: search, status, WebMCP catalog) rendered from `src/products/registry.ts`.
+- `/<slug>/` — a product's UI (e.g. `/quarterline/`).
+- `/<slug>/calc/*` — a product's programmatic-SEO pages.
+- `/api/*`, `/embed/*`, `/.well-known/*` — SHARED across all products.
+
+### Adding a product (mechanical checklist)
+
+1. **Build** the deterministic engine in `src/lib/calc/<slug>/` (with known-answer test vectors).
+2. **Scaffold** the UI in `src/app/<slug>/page.tsx` (reuse `src/components/ui/*` primitives).
+3. **pSEO presets** (optional) in `src/lib/seo/<slug>/` + a `src/app/<slug>/calc/[slug]/page.tsx` route.
+4. **Register** the product in `src/products/registry.ts` (slug, name, status, description, route, webmcpTools, launchedAt, category).
+5. **WebMCP** — expose the tool via `navigator.modelContext.registerTool` (see `skills/webmcp_integration.md`).
+6. **Telemetry** — pass the product slug to `track(event, payload, "<slug>")`.
+7. **Gate** — `scripts/verify-build.sh` must pass (tsc → lint → tokens → vitest → build → Playwright → Gemini visual-QA).
+8. **Push** — commit + push to `main`; Coolify auto-deploys; the product appears on the directory automatically.
+
 ## Build verification
 `scripts/verify-build.sh` — strict typecheck, lint, production build. Runs on every build and is
 invoked by Toby before signoff.

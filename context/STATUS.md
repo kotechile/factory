@@ -39,11 +39,17 @@ Scout (Mon) → Simon PRD → [@Simon approve] ─┬─ Product Director (agy, 
    pSEO / embed / .well-known → traffic ──────┘
 ```
 
+## Architecture — subpaths under one deploy
+
+- `/` — Factory Showcase (directory: search, status badges, WebMCP agent catalog).
+- `/<slug>/` — each product's UI; `/quarterline/` is the only live product.
+- `/<slug>/calc/*` — per-product pSEO; `/api/*`, `/embed/*`, `/.well-known/*` are shared.
+
 ## Live product — QuarterLine
 
-`https://factory.aichieve.net` — 2026 self-employment tax + QBI + estimated-payment
-calculator. Live surfaces (all HTTP 200): main app, `/calc/*` pSEO (9 presets),
-`/embed/countdown`, `/.well-known/mcp.json`.
+`https://factory.aichieve.net/quarterline` — 2026 self-employment tax + QBI + estimated-payment
+calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/calc/*` pSEO
+(9 presets, 308-redirected from the old `/calc/*`), `/embed/countdown`, `/.well-known/mcp.json`.
 
 ## Infrastructure
 
