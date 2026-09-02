@@ -87,16 +87,25 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         };
 
-        let updated = false;
-        if (userId) {
-          const { data } = await supabase.from("subscriptions").update(updateData).eq("user_id", userId).select();
-          if (data && data.length > 0) updated = true;
+        // Match by exact subscription ID first
+        let { data } = await supabase
+          .from("subscriptions")
+          .update(updateData)
+          .eq("stripe_subscription_id", subscription.id)
+          .select();
+
+        // Fall back to customer ID or user ID
+        if ((!data || data.length === 0) && customerId) {
+          const res = await supabase.from("subscriptions").update(updateData).eq("stripe_customer_id", customerId).select();
+          data = res.data;
         }
-        if (!updated && customerId) {
-          const { data } = await supabase.from("subscriptions").update(updateData).eq("stripe_customer_id", customerId).select();
-          if (data && data.length > 0) updated = true;
+        if ((!data || data.length === 0) && userId) {
+          const res = await supabase.from("subscriptions").update(updateData).eq("user_id", userId).select();
+          data = res.data;
         }
-        if (!updated) {
+
+        // If no row exists yet, insert it
+        if (!data || data.length === 0) {
           await supabase.from("subscriptions").upsert({
             user_id: userId || customerId || `sub_${subscription.id}`,
             stripe_customer_id: customerId || "unknown",
@@ -121,16 +130,25 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         };
 
-        let updated = false;
-        if (userId) {
-          const { data } = await supabase.from("subscriptions").update(updateData).eq("user_id", userId).select();
-          if (data && data.length > 0) updated = true;
+        // Match by exact subscription ID first
+        let { data } = await supabase
+          .from("subscriptions")
+          .update(updateData)
+          .eq("stripe_subscription_id", subscription.id)
+          .select();
+
+        // Fall back to customer ID or user ID
+        if ((!data || data.length === 0) && customerId) {
+          const res = await supabase.from("subscriptions").update(updateData).eq("stripe_customer_id", customerId).select();
+          data = res.data;
         }
-        if (!updated && customerId) {
-          const { data } = await supabase.from("subscriptions").update(updateData).eq("stripe_customer_id", customerId).select();
-          if (data && data.length > 0) updated = true;
+        if ((!data || data.length === 0) && userId) {
+          const res = await supabase.from("subscriptions").update(updateData).eq("user_id", userId).select();
+          data = res.data;
         }
-        if (!updated) {
+
+        // If no row exists yet, insert it as canceled
+        if (!data || data.length === 0) {
           await supabase.from("subscriptions").upsert({
             user_id: userId || customerId || `sub_${subscription.id}`,
             stripe_customer_id: customerId || "unknown",
