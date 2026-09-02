@@ -39,36 +39,35 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.client_reference_id || session.metadata?.userId;
         const customerId = typeof session.customer === "string" ? session.customer : session.customer?.id;
         const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
+        const userEmail = session.customer_details?.email || session.customer_email;
+        const userId = session.client_reference_id || session.metadata?.userId || userEmail || customerId || "guest_user";
 
-        if (userId && customerId) {
-          if (session.mode === "subscription") {
-            await supabase.from("subscriptions").upsert({
-              user_id: userId,
-              stripe_customer_id: customerId,
-              stripe_subscription_id: subscriptionId,
-              status: "active",
-              plan: session.metadata?.plan || "pro_monthly",
-              updated_at: new Date().toISOString(),
-            }, {
-              onConflict: "user_id",
-            });
-          } else if (session.mode === "payment") {
-            // Record one-off unlocked purchase idempotently
-            await supabase.from("purchases").upsert({
-              id: session.id,
-              user_id: userId,
-              stripe_customer_id: customerId,
-              amount: session.amount_total,
-              currency: session.currency,
-              status: "completed",
-              created_at: new Date().toISOString(),
-            }, {
-              onConflict: "id",
-            });
-          }
+        if (session.mode === "subscription") {
+          await supabase.from("subscriptions").upsert({
+            user_id: userId,
+            stripe_customer_id: customerId || "unknown",
+            stripe_subscription_id: subscriptionId,
+            status: "active",
+            plan: session.metadata?.plan || "cpa_monthly",
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: "user_id",
+          });
+        } else if (session.mode === "payment") {
+          // Record one-off unlocked purchase idempotently
+          await supabase.from("purchases").upsert({
+            id: session.id,
+            user_id: userId,
+            stripe_customer_id: customerId || null,
+            amount: session.amount_total,
+            currency: session.currency,
+            status: "completed",
+            created_at: new Date().toISOString(),
+          }, {
+            onConflict: "id",
+          });
         }
         break;
       }
@@ -84,16 +83,26 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         };
 
+        let updated = false;
         if (userId) {
-          await supabase
-            .from("subscriptions")
-            .update(updateData)
-            .eq("user_id", userId);
-        } else if (customerId) {
-          await supabase
-            .from("subscriptions")
-            .update(updateData)
-            .eq("stripe_customer_id", customerId);
+          const { data } = await supabase.from("subscriptions").update(updateData).eq("user_id", userId).select();
+          if (data && data.length > 0) updated = true;
+        }
+        if (!updated && customerId) {
+          const { data } = await supabase.from("subscriptions").update(updateData).eq("stripe_customer_id", customerId).select();
+          if (data && data.length > 0) updated = true;
+        }
+        if (!updated) {
+          await supabase.from("subscriptions").upsert({
+            user_id: userId || customerId || `sub_${subscription.id}`,
+            stripe_customer_id: customerId || "unknown",
+            stripe_subscription_id: subscription.id,
+            status: subscription.status,
+            plan: subscription.metadata?.plan || "cpa_monthly",
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: "user_id",
+          });
         }
         break;
       }
@@ -108,16 +117,26 @@ export async function POST(req: NextRequest) {
           updated_at: new Date().toISOString(),
         };
 
+        let updated = false;
         if (userId) {
-          await supabase
-            .from("subscriptions")
-            .update(updateData)
-            .eq("user_id", userId);
-        } else if (customerId) {
-          await supabase
-            .from("subscriptions")
-            .update(updateData)
-            .eq("stripe_customer_id", customerId);
+          const { data } = await supabase.from("subscriptions").update(updateData).eq("user_id", userId).select();
+          if (data && data.length > 0) updated = true;
+        }
+        if (!updated && customerId) {
+          const { data } = await supabase.from("subscriptions").update(updateData).eq("stripe_customer_id", customerId).select();
+          if (data && data.length > 0) updated = true;
+        }
+        if (!updated) {
+          await supabase.from("subscriptions").upsert({
+            user_id: userId || customerId || `sub_${subscription.id}`,
+            stripe_customer_id: customerId || "unknown",
+            stripe_subscription_id: subscription.id,
+            status: "canceled",
+            plan: subscription.metadata?.plan || "cpa_monthly",
+            updated_at: new Date().toISOString(),
+          }, {
+            onConflict: "user_id",
+          });
         }
         break;
       }
