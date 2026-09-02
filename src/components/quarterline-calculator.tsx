@@ -268,10 +268,19 @@ export default function QuarterLineCalculator({
             </Badge>
 
             {isPurchased ? (
-              <Button size="sm" variant="default" onClick={handleDownloadReport} disabled={isGeneratingPdf} className="gap-1.5">
-                <Download className="h-4 w-4" />
-                <span>{isGeneratingPdf ? "Generating PDF..." : "Download Audit PDF"}</span>
-              </Button>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <Button size="sm" variant="default" onClick={handleDownloadReport} disabled={isGeneratingPdf} className="gap-1.5">
+                  <Download className="h-4 w-4" />
+                  <span>{isGeneratingPdf ? "Generating PDF..." : "Download Audit PDF"}</span>
+                </Button>
+                <a
+                  href="/api/portal"
+                  className="text-xs text-muted hover:text-foreground underline transition-colors"
+                  title="Manage subscription or cancel anytime"
+                >
+                  Manage Billing
+                </a>
+              </div>
             ) : (
               <Button
                 size="sm"
@@ -944,11 +953,16 @@ export default function QuarterLineCalculator({
       </main>
 
       {/* Footer */}
-      <footer className="space-y-1 border-t border-border bg-card py-6 text-center text-xs text-subtle">
+      <footer className="space-y-1.5 border-t border-border bg-card py-6 text-center text-xs text-subtle">
         <p>QuarterLine • Autonomous Product &amp; Software Factory</p>
         <p>
           Governed by One Big Beautiful Bill Act (Pub. L. 119-21) &amp; Rev. Proc. 2025-32. Not
           formal legal advice.
+        </p>
+        <p className="pt-1">
+          <a href="/api/portal" className="text-muted hover:text-foreground underline transition-colors">
+            Manage Subscription / Billing Portal
+          </a>
         </p>
       </footer>
 

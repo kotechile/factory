@@ -18,7 +18,7 @@ export async function sendEmail({
   subject,
   html,
   text,
-  from = "noreply@factory.local",
+  from = process.env.RESEND_FROM_EMAIL || "QuarterLine <onboarding@resend.dev>",
   replyTo,
 }: SendEmailOptions) {
   const resend = getResend();

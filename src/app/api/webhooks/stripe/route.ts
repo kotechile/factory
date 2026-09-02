@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/client";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/resend/email";
 import type Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
@@ -72,6 +73,78 @@ export async function POST(req: NextRequest) {
           }, {
             onConflict: "id",
           });
+        }
+
+        // Send transactional email with self-service cancellation / access instructions
+        if (userEmail) {
+          const isSub = session.mode === "subscription";
+          const subject = isSub
+            ? "Your QuarterLine Pro CPA Subscription & Access"
+            : "Your QuarterLine 2026 Tax Readiness Audit Report";
+
+          const portalUrl = customerId
+            ? `https://factory.aichieve.net/api/portal?customer_id=${customerId}`
+            : `https://factory.aichieve.net/api/portal?session_id=${session.id}`;
+
+          const appUrl = `https://factory.aichieve.net/quarterline?session_id=${session.id}&status=success`;
+
+          const html = isSub
+            ? `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.5;">
+              <h2 style="color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">Welcome to QuarterLine Pro</h2>
+              <p>Thank you for subscribing to the <strong>QuarterLine Pro CPA Roster</strong> ($29/month).</p>
+              <p>Your subscription unlocks unlimited multi-client calculations and certified 2026 tax readiness audit workpapers.</p>
+              
+              <div style="margin: 24px 0;">
+                <a href="${appUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                  Access QuarterLine Pro Workspace
+                </a>
+              </div>
+
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-top: 24px; font-size: 13px; color: #64748b;">
+                <strong style="color: #0f172a;">Subscription & Billing Management:</strong>
+                <p style="margin: 6px 0;">You have full control over your subscription. To cancel or update your payment method with 1 click, visit your self-service billing portal:</p>
+                <p style="margin: 10px 0;"><a href="${portalUrl}" style="color: #2563eb; font-weight: bold; text-decoration: underline;">Manage or Cancel Subscription</a></p>
+                <p style="margin-top: 12px; font-size: 12px;">Need help? You can also reply directly to this email and our support team will handle it immediately.</p>
+              </div>
+            </div>
+            `
+            : `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.5;">
+              <h2 style="color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">Your 2026 Tax Audit Report is Ready</h2>
+              <p>Thank you for purchasing the <strong>QuarterLine 2026 Tax Readiness Audit Report</strong> ($9.00).</p>
+              
+              <div style="margin: 24px 0;">
+                <a href="${appUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                  Download Official Audit Report (PDF)
+                </a>
+              </div>
+
+              <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
+                Governed by One Big Beautiful Bill Act (Pub. L. 119-21) & IRS Rev. Proc. 2025-32.
+              </p>
+            </div>
+            `;
+
+          try {
+            await sendEmail({
+              to: userEmail,
+              subject,
+              html,
+            });
+          } catch (emailErr) {
+            console.warn("Could not send customer confirmation email (possibly unverified domain in Resend):", emailErr);
+            // In testing mode, also forward to registered account email so founder receives every alert
+            try {
+              await sendEmail({
+                to: "kotechile@gmail.com",
+                subject: `[Order Alert - ${isSub ? "Subscription" : "Sale"}] ${subject}`,
+                html: `<p><strong>Order placed by:</strong> ${userEmail}</p>${html}`,
+              });
+            } catch {
+              // Ignore fallback errors
+            }
+          }
         }
         break;
       }
