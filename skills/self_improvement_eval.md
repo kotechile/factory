@@ -30,6 +30,11 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 | Date | Query syntax | Vertical | Correction |
 |---|---|---|---|
 
+### Growth gate log (audit trail for `scripts/growth-check.mjs`)
+| Date | Product | Days since launch | Gate state | Metrics (from growth-check.mjs) | Action taken |
+|---|---|---|---|---|---|
+| 2026-09-02 | quarterline | 2 | Day 7/14/30 not yet due | page_view=20, checkout_click=3, export_click=2; charge_count=9, gross_revenue=$161; agent queries not tracked (no event type) | none — re-evaluate Day 7 gate 2026-09-07 |
+
 ## 3. Error classes
 - `build` — type/lint/compile
 - `dependency` — missing/version
