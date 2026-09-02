@@ -24,6 +24,7 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 | 2026-09-01 | Fleet | Deploy | context | Container 0.0.0.0:3000 internal host passed as Stripe return URL — resolve public origin via x-forwarded-host | stripe_gating_workflow.md |
 | 2026-09-01 | Fleet | Build | context | Paid report delivered plaintext .txt blob; header lacked hierarchy — standardized on pdf-lib executive workpaper layout | ui_component_standards.md |
 | 2026-09-01 | Fleet | Build | build | TypeScript 5.5+ Uint8Array ArrayBufferLike rejected by BlobPart — cast pdfBytes as unknown as BlobPart | stripe_gating_workflow.md |
+| 2026-09-02 | QuarterLine | Verify (lint) | build | `let { customerId, sessionId } = body` in portal route — `sessionId` never reassigned → ESLint `prefer-const` (line 72). Split destructure: `let` for reassigned bindings, `const` for read-only | ui_component_standards.md |
 
 ### Recon zero-result log
 | Date | Query syntax | Vertical | Correction |
