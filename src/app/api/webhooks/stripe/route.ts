@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import type Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
   if (!webhookSecret) {
     return NextResponse.json(
       { error: "STRIPE_WEBHOOK_SECRET is not configured on the server." },
@@ -27,8 +27,12 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Invalid webhook signature";
+    console.error(`Webhook signature verification failed: ${message} (using secret starting with ${webhookSecret.slice(0, 8)}...)`);
     return NextResponse.json(
-      { error: `Webhook signature verification failed: ${message}` },
+      {
+        error: `Webhook signature verification failed: ${message}`,
+        usingSecretPrefix: webhookSecret.slice(0, 8) + "...",
+      },
       { status: 400 },
     );
   }
