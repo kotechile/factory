@@ -6,12 +6,12 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
  * Throws explicit error if environment variables are not configured.
  */
 export function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!supabaseUrl) {
     throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Ensure it is set in your environment.",
+      "Missing NEXT_PUBLIC_SUPABASE_URL (or SUPABASE_URL) environment variable. Ensure it is set in your environment.",
     );
   }
 
