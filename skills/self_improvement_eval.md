@@ -25,6 +25,7 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 | 2026-09-01 | Fleet | Build | context | Paid report delivered plaintext .txt blob; header lacked hierarchy — standardized on pdf-lib executive workpaper layout | ui_component_standards.md |
 | 2026-09-01 | Fleet | Build | build | TypeScript 5.5+ Uint8Array ArrayBufferLike rejected by BlobPart — cast pdfBytes as unknown as BlobPart | stripe_gating_workflow.md |
 | 2026-09-02 | QuarterLine | Verify (lint) | build | `let { customerId, sessionId } = body` in portal route — `sessionId` never reassigned → ESLint `prefer-const` (line 72). Split destructure: `let` for reassigned bindings, `const` for read-only | ui_component_standards.md |
+| 2026-09-04 | QuarterLine | Verify (visual-qa) | build | Tab bar `overflow-x-auto` in the 5-col results column clipped the last tab ("Scorecard") — Gemini flagged "tab text is cut off" (reported as "23% Trap Checker tab text"). Fix: `flex-wrap` on the tab row so tabs wrap instead of clipping at the edge. | ui_component_standards.md |
 
 ### Recon zero-result log
 | Date | Query syntax | Vertical | Correction |
@@ -33,7 +34,7 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 ### Growth gate log (audit trail for `scripts/growth-check.mjs`)
 | Date | Product | Days since launch | Gate state | Metrics (from growth-check.mjs) | Action taken |
 |---|---|---|---|---|---|
-| 2026-09-02 | quarterline | 2 | Day 7/14/30 not yet due | page_view=20, checkout_click=3, export_click=2; charge_count=9, gross_revenue=$161; agent queries not tracked (no event type) | none — re-evaluate Day 7 gate 2026-09-07 |
+| 2026-09-02 | quarterline | 2 | Day 7/14/30 not yet due | page_view=20, checkout_click=3, export_click=2, agent_query=0; charge_count=9, gross_revenue=$161. Correction (2026-09-03): agent_query emission IS wired — `track("agent_query", …)` in `/api/agent/calculate/route.ts`. But the browser WebMCP tools (`calculate_qbi_deduction`, `calculate_quarterly_estimate`) compute client-side and bypass `track()` + Stripe metering; `registry.ts` advertises `calculate_self_employment_2026`, which does not match the registered tool names. Zero agent_query rows = no agent traffic yet, not "no event type". | none — re-evaluate Day 7 gate 2026-09-07 |
 
 ## 3. Error classes
 - `build` — type/lint/compile

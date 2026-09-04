@@ -600,7 +600,7 @@ export default function QuarterLineCalculator({
             </div>
 
             {/* Navigation tabs */}
-            <div className="flex gap-1 overflow-x-auto border-b border-border">
+            <div className="flex flex-wrap gap-1 border-b border-border">
               {(
                 [
                   ["estimate", "Quarterly Estimates"],
