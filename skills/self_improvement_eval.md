@@ -35,6 +35,7 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 | Date | Product | Days since launch | Gate state | Metrics (from growth-check.mjs) | Action taken |
 |---|---|---|---|---|---|
 | 2026-09-02 | quarterline | 2 | Day 7/14/30 not yet due | page_view=20, checkout_click=3, export_click=2, agent_query=0; charge_count=9, gross_revenue=$161. Correction (2026-09-03): agent_query emission IS wired — `track("agent_query", …)` in `/api/agent/calculate/route.ts`. But the browser WebMCP tools (`calculate_qbi_deduction`, `calculate_quarterly_estimate`) compute client-side and bypass `track()` + Stripe metering; `registry.ts` advertises `calculate_self_employment_2026`, which does not match the registered tool names. Zero agent_query rows = no agent traffic yet, not "no event type". | none — re-evaluate Day 7 gate 2026-09-07 |
+| 2026-09-04 | quarterline | 4 (launch 08-31) / 3 (first event) | Day 7/14/30 not yet due — Day 7 due 2026-09-07 | page_view=61 (+41 vs 09-02), checkout_click=3, export_click=2, agent_query=0; charge_count=9, gross_revenue=$161 (unchanged since 09-02 — no new charges in 48h). Note: script reports page_view event count, not unique visitors, so the Day 7 "≥50 unique visitors" criterion can't be strictly verified from this metric alone. | none — re-evaluate Day 7 gate 2026-09-07 |
 
 ## 3. Error classes
 - `build` — type/lint/compile
