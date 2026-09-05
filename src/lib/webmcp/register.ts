@@ -3,7 +3,13 @@ import {
   type SelfEmployment2026Input,
   type SelfEmployment2026Output,
 } from "@/lib/calc/selfEmployment2026";
+import {
+  formatArticleForDistribution,
+  type FormatArticleInput,
+  type DistributionAnalysis,
+} from "@/lib/calc/content-distributor/engine";
 import type { WebMCPToolDefinition } from "./types";
+
 
 /**
  * WebMCP tool: calculate_qbi_deduction
@@ -196,10 +202,53 @@ export function registerWebMCPTool<
   }
 }
 
+
+
+/**
+ * WebMCP tool: format_article_for_linkedin
+ * Deterministically formats articles into 3 viral LinkedIn post variants with exact limits and hooks.
+ */
+export const formatArticleForLinkedInTool: WebMCPToolDefinition<
+  FormatArticleInput,
+  DistributionAnalysis
+> = {
+  name: "format_article_for_linkedin",
+  description:
+    "Deterministically formats raw articles or notes into 3 optimized LinkedIn post variants (Contrarian Hook, 3-Bullet Framework, Story Lesson) with character limits, preview hooks, and hashtags.",
+  parameters: {
+    type: "object",
+    properties: {
+      title: {
+        type: "string",
+        description: "Title of the article or main concept.",
+      },
+      content: {
+        type: "string",
+        description: "Full text content or notes of the article.",
+      },
+      sourceUrl: {
+        type: "string",
+        description: "Optional URL linking back to the full article or tool.",
+      },
+      tags: {
+        type: "array",
+        items: { type: "string" },
+        description: "Optional topic tags for hashtag generation.",
+      },
+    },
+    required: ["title", "content"],
+  },
+  handler: (params: FormatArticleInput) => {
+    return formatArticleForDistribution(params);
+  },
+};
+
 /**
  * Registers all factory WebMCP tools in the current browser session.
  */
 export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(calculateQbiDeductionTool);
   registerWebMCPTool(calculateQuarterlyEstimateTool);
+  registerWebMCPTool(formatArticleForLinkedInTool);
 }
+

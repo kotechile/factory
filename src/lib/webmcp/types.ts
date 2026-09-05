@@ -2,7 +2,9 @@ export interface WebMCPToolProperty {
   type: string;
   description: string;
   enum?: string[];
+  items?: { type: string };
 }
+
 
 export interface WebMCPToolParameters {
   type: "object";
