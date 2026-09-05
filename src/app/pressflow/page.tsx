@@ -9,7 +9,6 @@ import {
 import { buildLinkedInShareUrl } from "@/lib/articles/linkedin";
 import type { Article, LinkedInPost } from "@/lib/articles/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { Input } from "@/components/ui/input";
@@ -38,20 +37,159 @@ import {
   Lock,
   LogOut,
   ShieldCheck,
+  Eye,
+  Edit3,
+  Bookmark,
 } from "lucide-react";
 
 const SAMPLE_ARTICLE = {
   title: "The 2026 QBI Tax Misconception: Why 23% Underfunds Your Estimated Tax",
   sourceUrl: "https://factory.aichieve.net/quarterline",
-  tags: "Tax, SmallBusiness, Freelance, Accounting",
-  content: `Several high-ranking tax guides and freelance accounting blogs are currently instructing filers to calculate Section 199A QBI deductions at 23% under OBBBA.
+  tags: "Tax, SmallBusiness, Freelance, Accounting, OBBBA",
+  content: `# The 2026 QBI Tax Misconception: Why 23% Underfunds Your Estimated Tax
 
-While a 23% statutory rate appeared in an earlier House legislative draft, the final enacted OBBBA legislation (Pub. L. 119-21) kept the rate strictly at 20%.
+For U.S. freelancers, single-member LLCs, and Schedule C filers, the 2026 tax year marks a historic shift in federal tax accounting under the One Big Beautiful Bill Act (OBBBA, Pub. L. 119-21).
 
-If you calculate your Q3 estimated tax payment using 23%, your deduction is overstated by 15% and your quarterly installment is underfunded. For single filers near the Rev. Proc. 2025-32 threshold ($201,750), the shortfall can trigger Section 6654 underpayment penalties.
+However, widespread misinformation across published guides has introduced an acute financial trap ahead of quarterly estimated tax deadlines: the misconception that the Section 199A Qualified Business Income (QBI) deduction rate was increased to 23%.
 
-Deterministic tax calculators that reference the statutory text and official revenue procedures eliminate these widespread rule-of-thumb errors completely.`,
+---
+
+## 1. The Statutory 20% QBI Deduction (Debunking the 23% House Draft Myth)
+
+During legislative drafting, an initial House proposal floated an increase of the Section 199A deduction from 20% to 23%. Several tax blogs rushed to publish guidance advising filers to recalculate their estimates.
+
+**The Reality:** The enacted statute (Pub. L. 119-21) permanently locked Section 199A at the statutory **20% rate**.
+
+### The Underpayment Trap:
+If a sole proprietor netting $150,000 calculates their estimated payment assuming a 23% deduction ($34,500) rather than the enacted 20% deduction ($30,000), their estimated tax liability is underfunded by thousands of dollars, triggering IRS Section 6654 underpayment interest penalties.
+
+---
+
+## 2. Updated 2026 Thresholds (Rev. Proc. 2025-32)
+
+Under 2026 statutory inflation adjustments:
+* **Single Filers:** Threshold begins at **$201,750**, with a phase-in band widened to **$75,000** (fully phased out at $276,750 for SSTBs).
+* **Married Filing Jointly:** Threshold begins at **$403,500**, with a phase-in band widened to **$150,000** (fully phased out at $553,500 for SSTBs).
+
+---
+
+## 3. Safe Harbor Rules for Estimated Payments
+
+To avoid penalties on quarterly estimated installments, filers must satisfy one of the two statutory Safe Harbor benchmarks:
+* **100% Rule:** Pay 100% of the prior year's (2025) total tax liability in 4 equal quarterly installments.
+* **110% High-Income Rule:** If prior-year AGI exceeded $150,000, safe-harbor increases to **110%** of prior-year tax.
+
+---
+
+## Summary & Verification
+Deterministic verification beats guesswork. Verify your exact 2026 self-employment tax and Section 199A deductions with the open engine at factory.aichieve.net/quarterline.`,
 };
+
+/**
+ * Lightweight markdown renderer for crisp typography in the Rendered View
+ */
+function MarkdownReader({ content }: { content: string }) {
+  if (!content) return <p className="text-muted italic">No content to preview.</p>;
+
+  const elements: React.ReactNode[] = [];
+  const lines = content.split("\n");
+  let currentList: string[] = [];
+  let inList = false;
+
+  function flushList() {
+    if (currentList.length > 0) {
+      elements.push(
+        <ul key={`list-${elements.length}`} className="my-3 list-disc space-y-1.5 pl-6 text-muted">
+          {currentList.map((item, idx) => (
+            <li key={idx} className="leading-relaxed">
+              {renderInline(item)}
+            </li>
+          ))}
+        </ul>,
+      );
+      currentList = [];
+      inList = false;
+    }
+  }
+
+  function renderInline(text: string): React.ReactNode {
+    // Basic bold parsing: **text**
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return (
+          <strong key={i} className="font-semibold text-foreground">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  }
+
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
+      inList = true;
+      currentList.push(trimmed.slice(2));
+      return;
+    } else if (inList) {
+      flushList();
+    }
+
+    if (!trimmed) {
+      return;
+    }
+
+    if (trimmed.startsWith("# ")) {
+      elements.push(
+        <h1
+          key={index}
+          className="mt-6 mb-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl first:mt-0"
+        >
+          {renderInline(trimmed.slice(2))}
+        </h1>,
+      );
+    } else if (trimmed.startsWith("## ")) {
+      elements.push(
+        <h2
+          key={index}
+          className="mt-6 mb-2 text-xl font-bold tracking-tight text-foreground border-b border-border/60 pb-1.5"
+        >
+          {renderInline(trimmed.slice(3))}
+        </h2>,
+      );
+    } else if (trimmed.startsWith("### ")) {
+      elements.push(
+        <h3 key={index} className="mt-4 mb-1.5 text-base font-semibold text-foreground">
+          {renderInline(trimmed.slice(4))}
+        </h3>,
+      );
+    } else if (trimmed === "---") {
+      elements.push(<hr key={index} className="my-6 border-border" />);
+    } else if (trimmed.startsWith("> ")) {
+      elements.push(
+        <blockquote
+          key={index}
+          className="my-3 border-l-4 border-primary pl-4 py-1 italic text-muted bg-primary/5 rounded-r"
+        >
+          {renderInline(trimmed.slice(2))}
+        </blockquote>,
+      );
+    } else {
+      elements.push(
+        <p key={index} className="my-3 leading-relaxed text-muted">
+          {renderInline(trimmed)}
+        </p>,
+      );
+    }
+  });
+
+  flushList();
+
+  return <div className="space-y-1">{elements}</div>;
+}
 
 export default function PressFlowPage() {
   // Auth state
@@ -67,6 +205,7 @@ export default function PressFlowPage() {
   const [sourceUrl, setSourceUrl] = React.useState(SAMPLE_ARTICLE.sourceUrl);
   const [tagsInput, setTagsInput] = React.useState(SAMPLE_ARTICLE.tags);
   const [currentArticleId, setCurrentArticleId] = React.useState<string | null>(null);
+  const [articleViewMode, setArticleViewMode] = React.useState<"rendered" | "edit">("rendered");
 
   // Formatted post state
   const [selectedVariant, setSelectedVariant] = React.useState<PostFormatVariant>("bullet_takeaways");
@@ -122,7 +261,6 @@ export default function PressFlowPage() {
     }
     checkAuthStatus();
   }, []);
-
 
   async function handleUnlock(e: React.FormEvent) {
     e.preventDefault();
@@ -448,6 +586,8 @@ export default function PressFlowPage() {
   const charCount = activePostText.length;
   const isOverLimit = charCount > 3000;
   const charPercent = Math.min(100, Math.round((charCount / 3000) * 100));
+  const wordCount = content.split(/\s+/).filter(Boolean).length;
+  const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
 
   // If loading authentication state
   if (isCheckingAuth) {
@@ -464,17 +604,17 @@ export default function PressFlowPage() {
   // Locked Login Screen if not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm space-y-6">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 font-sans">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 shadow-sm space-y-6">
           <div className="text-center space-y-2">
-            <div className="h-12 w-12 rounded-full bg-primary/10 text-primary mx-auto flex items-center justify-center">
+            <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary mx-auto flex items-center justify-center shadow-xs">
               <Lock className="h-6 w-6" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Editorial Factory
             </h1>
-            <p className="text-xs text-muted">
-              Restricted workspace for internal article management &amp; distribution.
+            <p className="text-xs uppercase tracking-wider font-semibold text-subtle">
+              Restricted Founder &amp; Agent Workspace
             </p>
           </div>
 
@@ -497,7 +637,7 @@ export default function PressFlowPage() {
               variant="default"
               size="md"
               disabled={isSubmittingAuth || !enteredPasscode.trim()}
-              className="w-full gap-2"
+              className="w-full gap-2 rounded-xl"
             >
               {isSubmittingAuth ? (
                 <>
@@ -522,8 +662,8 @@ export default function PressFlowPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
-      {/* Top Banner / Notification */}
+    <div className="min-h-screen bg-background text-foreground pb-20 font-sans">
+      {/* Top Banner / Toast */}
       {notification && (
         <div
           role="status"
@@ -552,24 +692,27 @@ export default function PressFlowPage() {
       )}
 
       {/* Main Container */}
-      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
         {/* Header Bar */}
-        <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-6">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/80 pb-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl flex items-center gap-2">
-                <Share2 className="h-7 w-7 text-primary" />
-                PressFlow
-              </h1>
-              <Badge variant="accent">Editorial Factory (Private)</Badge>
-              <Badge variant={isSupabaseConnected ? "success" : "warning"}>
-                <Database className="mr-1 h-3 w-3 inline" />
-                {isSupabaseConnected ? "Supabase Connected" : "Supabase Offline"}
-              </Badge>
+              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shadow-xs">
+                <Share2 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-subtle">
+                  Editorial Factory Suite
+                </p>
+                <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                  PressFlow
+                </h1>
+              </div>
+              <div className="ml-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 text-success border border-success/20 text-xs font-medium">
+                <Database className="h-3 w-3" />
+                <span>{isSupabaseConnected ? "Supabase Connected" : "Supabase Offline"}</span>
+              </div>
             </div>
-            <p className="text-sm text-muted">
-              Private editorial suite for generating pillar articles, formatting companion LinkedIn posts, and automated publishing.
-            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -577,7 +720,7 @@ export default function PressFlowPage() {
               variant="default"
               size="sm"
               onClick={() => setShowGenerateModal(true)}
-              className="gap-1.5"
+              className="gap-1.5 rounded-xl shadow-xs"
             >
               <Wand2 className="h-4 w-4" />
               Generate Suite
@@ -586,7 +729,7 @@ export default function PressFlowPage() {
               variant="outline"
               size="sm"
               onClick={() => setShowHistoryModal(true)}
-              className="gap-1.5"
+              className="gap-1.5 rounded-xl"
             >
               <BookOpen className="h-4 w-4 text-primary" />
               Library ({articles.length})
@@ -595,7 +738,7 @@ export default function PressFlowPage() {
               variant="outline"
               size="sm"
               onClick={loadSampleData}
-              className="gap-1.5"
+              className="gap-1.5 rounded-xl"
             >
               <Sparkles className="h-4 w-4 text-primary" />
               Load Sample
@@ -604,7 +747,7 @@ export default function PressFlowPage() {
               variant="outline"
               size="sm"
               onClick={() => setShowSettingsModal(true)}
-              className="gap-1.5"
+              className="gap-1.5 rounded-xl"
             >
               <Settings className="h-4 w-4 text-muted" />
               Settings
@@ -613,7 +756,7 @@ export default function PressFlowPage() {
               variant="ghost"
               size="sm"
               onClick={handleLock}
-              className="gap-1.5 text-muted hover:text-destructive"
+              className="gap-1.5 text-muted hover:text-destructive rounded-xl"
               title="Lock session"
             >
               <LogOut className="h-4 w-4" />
@@ -622,442 +765,487 @@ export default function PressFlowPage() {
           </div>
         </header>
 
-        {/* Workbench Grid */}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-          {/* Left Column: Article Input & Manager (5 cols) */}
-          <section className="lg:col-span-5 space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <CardTitle>Article Source (Long-Form)</CardTitle>
-                  </div>
-                  {currentArticleId && (
-                    <Badge variant="muted" className="text-[10px]">
-                      Saved ID: {currentArticleId.slice(0, 8)}...
-                    </Badge>
-                  )}
+        {/* SECTION 1: Source Article Workspace (Full-Width Top Card) */}
+        <section className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8 space-y-6">
+          {/* Card Header & Controls */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-5">
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-subtle flex items-center gap-1.5">
+                <FileText className="h-4 w-4 text-primary" />
+                Source Article Workspace
+              </span>
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
+                {title || "Untitled Pillar Article"}
+              </h2>
+            </div>
+
+            {/* macOS-style Segmented Control Toggle: Rendered View vs Edit Markdown */}
+            <div className="bg-muted/10 p-1 rounded-xl flex items-center gap-1 border border-border/50 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setArticleViewMode("rendered")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  articleViewMode === "rendered"
+                    ? "bg-card shadow-xs text-foreground font-semibold"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                <Eye className="h-3.5 w-3.5 text-primary" />
+                Rendered View
+              </button>
+              <button
+                type="button"
+                onClick={() => setArticleViewMode("edit")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  articleViewMode === "edit"
+                    ? "bg-card shadow-xs text-foreground font-semibold"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                <Edit3 className="h-3.5 w-3.5 text-primary" />
+                Edit Markdown
+              </button>
+            </div>
+          </div>
+
+          {/* Tidy Meta Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-background/60 rounded-xl p-3 border border-border/60">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-semibold text-foreground flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5 text-subtle" />
+                {wordCount} words (~{readingTimeMinutes} min read)
+              </span>
+
+              {sourceUrl && (
+                <a
+                  href={sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary hover:underline"
+                >
+                  <Globe className="h-3 w-3" />
+                  <span className="max-w-[200px] truncate">{sourceUrl}</span>
+                  <ExternalLink className="h-2.5 w-2.5" />
+                </a>
+              )}
+
+              {tagsInput && (
+                <div className="flex flex-wrap gap-1">
+                  {tagsInput.split(",").map((t, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded-md bg-muted/10 text-muted text-[11px] font-mono"
+                    >
+                      #{t.trim()}
+                    </span>
+                  ))}
                 </div>
-                <CardDescription>
-                  Full-length article, technical guide, or raw notes. PressFlow extracts hooks and formats them for LinkedIn distribution.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              )}
+            </div>
+
+            {currentArticleId && (
+              <Badge variant="muted" className="text-[10px] font-mono">
+                Saved ID: {currentArticleId.slice(0, 8)}...
+              </Badge>
+            )}
+          </div>
+
+          {/* Content Area */}
+          {articleViewMode === "rendered" ? (
+            <div className="max-w-3xl mx-auto py-2 px-1">
+              <MarkdownReader content={content} />
+            </div>
+          ) : (
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
-                  label="Article Title / Core Topic"
-                  placeholder="e.g. 2026 Self-Employment Tax & QBI Traps"
+                  label="Article Title"
+                  placeholder="e.g. 2026 Tax Strategy"
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
                     setIsCustomEdited(false);
                   }}
                 />
-
                 <Input
-                  label="Source URL / Product Link"
+                  label="Source URL"
                   placeholder="https://factory.aichieve.net/quarterline"
                   value={sourceUrl}
                   onChange={(e) => {
                     setSourceUrl(e.target.value);
                     setIsCustomEdited(false);
                   }}
-                  helperText="Optional link included at the bottom of the LinkedIn post & card."
                 />
-
                 <Input
                   label="Topic Tags (comma-separated)"
-                  placeholder="Tax, Accounting, SaaS, AI"
+                  placeholder="Tax, Accounting, SaaS"
                   value={tagsInput}
                   onChange={(e) => {
                     setTagsInput(e.target.value);
                     setIsCustomEdited(false);
                   }}
-                  helperText="Automatically converted into normalized LinkedIn hashtags."
                 />
+              </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="article-content"
-                      className="text-[13px] font-medium leading-none text-muted"
-                    >
-                      Article Content / Body (Markdown supported)
-                    </label>
-                    <span className="text-xs text-subtle">
-                      {content.split(/\s+/).filter(Boolean).length} words
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="markdown-editor"
+                  className="text-xs font-semibold uppercase tracking-wider text-subtle"
+                >
+                  Markdown Content
+                </label>
+                <textarea
+                  id="markdown-editor"
+                  rows={14}
+                  value={content}
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    setIsCustomEdited(false);
+                  }}
+                  className="w-full rounded-xl border border-border bg-background/50 p-4 text-sm font-mono leading-relaxed text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  placeholder="Paste or write full markdown article here..."
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Workspace Footer Action Bar */}
+          <div className="flex items-center justify-between pt-4 border-t border-border/80">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setTitle("");
+                setContent("");
+                setSourceUrl("");
+                setTagsInput("");
+                setCurrentArticleId(null);
+                setIsCustomEdited(false);
+                setCustomText("");
+              }}
+              className="rounded-xl"
+            >
+              Clear Workspace
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleSaveArticle}
+              disabled={isSavingArticle || !title || !content}
+              className="gap-1.5 rounded-xl shadow-xs"
+            >
+              {isSavingArticle ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Database className="h-4 w-4" />
+              )}
+              Save Article to Supabase
+            </Button>
+          </div>
+        </section>
+
+        {/* SECTION 2: Companion Social Suite (Full-Width Bottom Card) */}
+        <section className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8 space-y-6">
+          {/* Card Header & Segmented Variant Control */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-5">
+            <div className="space-y-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-subtle flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Companion Social Distribution Suite
+              </span>
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
+                LinkedIn Format Generator &amp; Publisher
+              </h2>
+            </div>
+
+            {/* Segmented Variant Controls */}
+            <div className="bg-muted/10 p-1 rounded-xl flex flex-wrap items-center gap-1 border border-border/50">
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedVariant("bullet_takeaways");
+                  setIsCustomEdited(false);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  selectedVariant === "bullet_takeaways" && !isCustomEdited
+                    ? "bg-card shadow-xs text-foreground font-semibold"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                📌 3-Bullet Framework
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedVariant("hook_and_punchline");
+                  setIsCustomEdited(false);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  selectedVariant === "hook_and_punchline" && !isCustomEdited
+                    ? "bg-card shadow-xs text-foreground font-semibold"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                ⚡ Contrarian Hook
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedVariant("story_lesson");
+                  setIsCustomEdited(false);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  selectedVariant === "story_lesson" && !isCustomEdited
+                    ? "bg-card shadow-xs text-foreground font-semibold"
+                    : "text-muted hover:text-foreground"
+                }`}
+              >
+                📖 Story &amp; Lessons
+              </button>
+            </div>
+          </div>
+
+          {/* Two Equal Columns: Left = Editable Draft, Right = Live Preview */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {/* Left Column: Editable Draft */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-subtle">
+                    Post Draft &amp; Composition
+                  </span>
+                  {isCustomEdited && (
+                    <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">
+                      Custom edited
                     </span>
-                  </div>
-                  <textarea
-                    id="article-content"
-                    rows={12}
-                    value={content}
-                    onChange={(e) => {
-                      setContent(e.target.value);
-                      setIsCustomEdited(false);
-                    }}
-                    placeholder="Paste article body or notes here..."
-                    className="w-full rounded border border-border bg-background p-3 text-sm text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                  />
+                  )}
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-border">
-                  <Button
-                    variant="outline"
-                    size="sm"
+                {/* Character Counter Progress */}
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`text-xs font-mono font-medium ${
+                      isOverLimit ? "text-destructive" : "text-subtle"
+                    }`}
+                  >
+                    {charCount} / 3,000
+                  </span>
+                  <div className="w-16 h-1.5 bg-border rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all ${
+                        isOverLimit
+                          ? "bg-destructive"
+                          : charPercent > 85
+                          ? "bg-warning"
+                          : "bg-primary"
+                      }`}
+                      style={{ width: `${charPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <textarea
+                id="linkedin-post-draft"
+                rows={14}
+                value={activePostText}
+                onChange={(e) => {
+                  setIsCustomEdited(true);
+                  setCustomText(e.target.value);
+                }}
+                className="w-full rounded-xl border border-border bg-background/50 p-4 text-sm leading-relaxed text-foreground placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                placeholder="Formatted post text will appear here..."
+              />
+
+              <div className="flex items-center justify-between text-xs text-subtle pt-1">
+                <span>Formatted with normalized hashtags and line breaks</span>
+                {isCustomEdited && (
+                  <button
+                    type="button"
                     onClick={() => {
-                      setTitle("");
-                      setContent("");
-                      setSourceUrl("");
-                      setTagsInput("");
-                      setCurrentArticleId(null);
                       setIsCustomEdited(false);
                       setCustomText("");
                     }}
+                    className="text-primary hover:underline font-medium"
                   >
-                    Clear
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={handleSaveArticle}
-                    disabled={isSavingArticle || !title || !content}
-                    className="gap-1.5"
-                  >
-                    {isSavingArticle ? (
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Database className="h-4 w-4" />
-                    )}
-                    Save to Supabase
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    Reset to Generated
+                  </button>
+                )}
+              </div>
+            </div>
 
-            {/* Extracted Key Insights Box */}
-            {analysis.keyPoints.length > 0 && (
-              <Card className="bg-card/50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-1.5">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                    Deterministic Extraction Breakdown
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-xs text-muted">
-                  <div className="space-y-1">
-                    <p className="font-medium text-foreground">Extracted Key Points:</p>
-                    <ul className="list-disc pl-4 space-y-1 text-muted">
-                      {analysis.keyPoints.map((point, i) => (
-                        <li key={i}>{point}</li>
-                      ))}
-                    </ul>
+            {/* Right Column: Realistic LinkedIn Feed Preview Card */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-subtle">
+                  LinkedIn Feed Live Preview
+                </span>
+                <span className="text-[11px] text-subtle flex items-center gap-1">
+                  <Globe className="h-3 w-3" /> Public Member Visibility
+                </span>
+              </div>
+
+              {/* Feed Card */}
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-xs space-y-4">
+                {/* Author Bar */}
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-full bg-primary flex items-center justify-center text-card font-bold text-sm shadow-xs">
+                    SF
                   </div>
-                  <div className="pt-2 flex flex-wrap gap-1">
-                    {analysis.extractedHashtags.map((ht) => (
-                      <span
-                        key={ht}
-                        className="rounded bg-primary/10 px-2 py-0.5 text-primary text-[11px] font-mono"
-                      >
-                        {ht}
+                  <div className="leading-tight">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-bold text-foreground">
+                        Software Factory
                       </span>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </section>
-
-          {/* Right Column: LinkedIn Post Engine & Preview (7 cols) */}
-          <section className="lg:col-span-7 space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-primary" />
-                      Companion LinkedIn Post Formatter
-                    </CardTitle>
-                    <CardDescription>
-                      Choose a proven viral format variant or customize your post before pushing.
-                    </CardDescription>
-                  </div>
-
-                  {/* Character Counter Badge */}
-                  <div className="flex items-center gap-2">
-                    <div className="text-right">
-                      <p
-                        className={`text-xs font-mono font-medium ${
-                          isOverLimit ? "text-destructive" : "text-muted"
-                        }`}
-                      >
-                        {charCount} / 3,000 chars
-                      </p>
-                      <div className="w-24 h-1.5 bg-border rounded-full overflow-hidden mt-0.5">
-                        <div
-                          className={`h-full transition-all ${
-                            isOverLimit
-                              ? "bg-destructive"
-                              : charPercent > 85
-                              ? "bg-warning"
-                              : "bg-primary"
-                          }`}
-                          style={{ width: `${charPercent}%` }}
-                        />
-                      </div>
+                      <span className="text-[11px] text-subtle">• 1st</span>
                     </div>
-                  </div>
-                </div>
-
-                {/* Format Variant Selector Pills */}
-                <div className="flex flex-wrap gap-2 pt-3 border-t border-border mt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedVariant("bullet_takeaways");
-                      setIsCustomEdited(false);
-                    }}
-                    className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
-                      selectedVariant === "bullet_takeaways" && !isCustomEdited
-                        ? "bg-primary text-card shadow-sm"
-                        : "bg-background border border-border text-muted hover:text-foreground"
-                    }`}
-                  >
-                    📌 3-Bullet Framework
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedVariant("hook_and_punchline");
-                      setIsCustomEdited(false);
-                    }}
-                    className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
-                      selectedVariant === "hook_and_punchline" && !isCustomEdited
-                        ? "bg-primary text-card shadow-sm"
-                        : "bg-background border border-border text-muted hover:text-foreground"
-                    }`}
-                  >
-                    ⚡ Contrarian Hook & Breakdown
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedVariant("story_lesson");
-                      setIsCustomEdited(false);
-                    }}
-                    className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
-                      selectedVariant === "story_lesson" && !isCustomEdited
-                        ? "bg-primary text-card shadow-sm"
-                        : "bg-background border border-border text-muted hover:text-foreground"
-                    }`}
-                  >
-                    📖 Story & Lessons
-                  </button>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Editable Post Textarea */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="linkedin-post-content"
-                      className="text-xs font-medium text-muted"
-                    >
-                      Post Draft Content
-                    </label>
-                    {isCustomEdited && (
-                      <span className="text-[11px] text-primary font-medium">
-                        (Custom edited)
-                      </span>
-                    )}
-                  </div>
-                  <textarea
-                    id="linkedin-post-content"
-                    rows={8}
-                    value={activePostText}
-                    onChange={(e) => {
-                      setIsCustomEdited(true);
-                      setCustomText(e.target.value);
-                    }}
-                    className="w-full rounded border border-border bg-background p-3 text-sm text-foreground font-sans placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                  />
-                </div>
-
-                {/* Live LinkedIn Feed Preview Card */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-muted">
-                      LinkedIn Feed Appearance
+                    <p className="text-xs text-muted">
+                      Autonomous Product &amp; Engineering Engine
                     </p>
-                    <span className="text-[11px] text-subtle flex items-center gap-1">
-                      <Globe className="h-3 w-3" /> Public Member Visibility
-                    </span>
-                  </div>
-
-                  <div className="rounded-lg border border-border bg-card p-4 shadow-sm space-y-3">
-                    {/* Feed Post Header */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-card font-bold text-sm">
-                          SF
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-sm font-semibold text-foreground">
-                              Software Factory
-                            </span>
-                            <span className="text-[10px] text-muted">• 1st</span>
-                          </div>
-                          <p className="text-[11px] text-muted">
-                            Autonomous Product &amp; Engineering Engine
-                          </p>
-                          <div className="flex items-center gap-1 text-[10px] text-subtle">
-                            <span>Just now</span>
-                            <span>•</span>
-                            <Globe className="h-2.5 w-2.5 inline" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Feed Post Body */}
-                    <div className="text-sm text-foreground whitespace-pre-line leading-relaxed font-sans">
-                      {activePostText}
-                    </div>
-
-                    {/* Optional URL Card Preview */}
-                    {sourceUrl && (
-                      <div className="rounded border border-border bg-background/50 p-3 space-y-1">
-                        <p className="text-xs font-semibold text-foreground truncate">
-                          {title || "Verified Calculation Engine"}
-                        </p>
-                        <p className="text-[11px] text-muted truncate">{sourceUrl}</p>
-                      </div>
-                    )}
-
-                    {/* LinkedIn Feed Engagement Bar */}
-                    <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted">
-                      <button
-                        type="button"
-                        className="flex items-center gap-1.5 hover:text-foreground"
-                      >
-                        <ThumbsUp className="h-4 w-4" />
-                        <span>Like</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="flex items-center gap-1.5 hover:text-foreground"
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        <span>Comment</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="flex items-center gap-1.5 hover:text-foreground"
-                      >
-                        <Repeat className="h-4 w-4" />
-                        <span>Repost</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="flex items-center gap-1.5 hover:text-foreground"
-                      >
-                        <Send className="h-4 w-4" />
-                        <span>Send</span>
-                      </button>
+                    <div className="flex items-center gap-1 text-[11px] text-subtle mt-0.5">
+                      <span>Just now</span>
+                      <span>•</span>
+                      <Globe className="h-2.5 w-2.5 inline" />
                     </div>
                   </div>
                 </div>
 
-                {/* Primary Action Buttons */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleCopy}
-                      className="gap-1.5 flex-1 sm:flex-initial"
-                    >
-                      {copied ? (
-                        <>
-                          <Check className="h-4 w-4 text-success" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4" />
-                          Copy Text
-                        </>
-                      )}
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleOpenInLinkedIn}
-                      className="gap-1.5 flex-1 sm:flex-initial"
-                      title="Open LinkedIn Composer in a new tab"
-                    >
-                      <ExternalLink className="h-4 w-4 text-primary" />
-                      Open in LinkedIn
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSaveDraftPost}
-                      className="gap-1.5 flex-1 sm:flex-initial"
-                    >
-                      <Database className="h-4 w-4" />
-                      Queue Draft
-                    </Button>
-
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={handlePushToLinkedIn}
-                      disabled={isPublishing || !activePostText || isOverLimit}
-                      className="gap-1.5 flex-1 sm:flex-initial"
-                    >
-                      {isPublishing ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 animate-spin" />
-                          Pushing...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4" />
-                          Push to LinkedIn
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                {/* Post Body */}
+                <div className="text-sm text-foreground whitespace-pre-line leading-relaxed font-sans">
+                  {activePostText}
                 </div>
-              </CardContent>
-            </Card>
-          </section>
-        </div>
 
-        {/* Supabase Post Queue / History Strip */}
-        <section className="mt-12 space-y-4">
-          <div className="flex items-center justify-between border-b border-border pb-3">
+                {/* Embedded URL Preview */}
+                {sourceUrl && (
+                  <div className="rounded-xl border border-border bg-background/50 p-3 space-y-1">
+                    <p className="text-xs font-semibold text-foreground truncate">
+                      {title || "Verified Calculation Engine"}
+                    </p>
+                    <p className="text-[11px] text-subtle truncate">{sourceUrl}</p>
+                  </div>
+                )}
+
+                {/* Action Bar */}
+                <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted font-medium">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 hover:text-foreground transition-colors p-1"
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                    <span>Like</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 hover:text-foreground transition-colors p-1"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    <span>Comment</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 hover:text-foreground transition-colors p-1"
+                  >
+                    <Repeat className="h-4 w-4" />
+                    <span>Repost</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="flex items-center gap-1.5 hover:text-foreground transition-colors p-1"
+                  >
+                    <Send className="h-4 w-4" />
+                    <span>Send</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Social Suite Footer Toolbar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-border/80">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                className="gap-1.5 rounded-xl flex-1 sm:flex-initial"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-4 w-4 text-success" />
+                    Copied to Clipboard!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copy to Clipboard
+                  </>
+                )}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleOpenInLinkedIn}
+                className="gap-1.5 rounded-xl flex-1 sm:flex-initial"
+                title="Open in LinkedIn Composer"
+              >
+                <ExternalLink className="h-4 w-4 text-primary" />
+                Open in LinkedIn
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSaveDraftPost}
+                className="gap-1.5 rounded-xl flex-1 sm:flex-initial"
+              >
+                <Bookmark className="h-4 w-4 text-subtle" />
+                Queue Draft
+              </Button>
+
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handlePushToLinkedIn}
+                disabled={isPublishing || !activePostText || isOverLimit}
+                className="gap-1.5 rounded-xl shadow-xs flex-1 sm:flex-initial"
+              >
+                {isPublishing ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Push to LinkedIn Now
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3: Supabase Queue & Distribution History */}
+        <section className="bg-card rounded-2xl border border-border shadow-sm p-6 sm:p-8 space-y-4">
+          <div className="flex items-center justify-between border-b border-border/60 pb-3">
             <div>
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <Database className="h-5 w-5 text-primary" />
+              <span className="text-xs font-bold uppercase tracking-wider text-subtle flex items-center gap-1.5">
+                <Database className="h-4 w-4 text-primary" />
                 Supabase Distribution Queue &amp; History
-              </h2>
-              <p className="text-xs text-muted">
-                Persistent log of posts stored and published in Supabase.
-              </p>
+              </span>
+              <h3 className="text-lg font-bold text-foreground">
+                Persistent Distribution Log
+              </h3>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={loadPosts}
-              className="gap-1 text-xs"
+              className="gap-1 text-xs rounded-xl"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               Refresh
@@ -1065,8 +1253,8 @@ export default function PressFlowPage() {
           </div>
 
           {posts.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted text-sm">
-              <Database className="h-8 w-8 mx-auto text-muted/50 mb-2" />
+            <div className="rounded-xl border border-dashed border-border p-8 text-center text-muted text-sm">
+              <Database className="h-8 w-8 mx-auto text-subtle/50 mb-2" />
               No posts stored in Supabase yet. Click &quot;Queue Draft&quot; or &quot;Push to LinkedIn&quot; to save records.
             </div>
           ) : (
@@ -1074,34 +1262,34 @@ export default function PressFlowPage() {
               {posts.map((p) => (
                 <div
                   key={p.id}
-                  className="rounded-lg border border-border bg-card p-4 space-y-3 shadow-sm flex flex-col justify-between"
+                  className="rounded-xl border border-border bg-background/50 p-4 space-y-3 shadow-xs flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Badge
-                        variant={
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
                           p.status === "published"
-                            ? "success"
+                            ? "bg-success/10 text-success border border-success/20"
                             : p.status === "failed"
-                            ? "destructive"
+                            ? "bg-destructive/10 text-destructive border border-destructive/20"
                             : p.status === "publishing"
-                            ? "accent"
-                            : "muted"
-                        }
+                            ? "bg-primary/10 text-primary border border-primary/20"
+                            : "bg-muted/10 text-muted border border-border"
+                        }`}
                       >
                         {p.status.toUpperCase()}
-                      </Badge>
-                      <span className="text-[10px] text-muted flex items-center gap-1 font-mono">
+                      </span>
+                      <span className="text-[10px] text-subtle flex items-center gap-1 font-mono">
                         <Clock className="h-3 w-3" />
                         {new Date(p.created_at).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-xs text-foreground line-clamp-4 whitespace-pre-line font-sans">
+                    <p className="text-xs text-foreground line-clamp-4 whitespace-pre-line font-sans leading-relaxed">
                       {p.content}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-border flex items-center justify-between text-[11px] text-muted">
+                  <div className="pt-2 border-t border-border flex items-center justify-between text-[11px] text-subtle">
                     <span className="truncate max-w-[150px]">
                       {p.linkedin_post_urn || p.format_variant}
                     </span>
@@ -1132,7 +1320,7 @@ export default function PressFlowPage() {
         description="Automatically create a comprehensive technical pillar article and companion LinkedIn posts."
       >
         <div className="space-y-4">
-          <div className="rounded border border-border bg-background p-3 text-xs space-y-1 text-muted">
+          <div className="rounded-xl border border-border bg-background p-4 text-xs space-y-1 text-muted">
             <p className="font-semibold text-foreground flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-primary" />
               Automated Synthesis Engine
@@ -1143,11 +1331,13 @@ export default function PressFlowPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-medium text-muted">Select Product / Model</label>
+            <label className="text-xs font-semibold uppercase tracking-wider text-subtle">
+              Select Product / Model
+            </label>
             <select
               value={generateProduct}
               onChange={(e) => setGenerateProduct(e.target.value)}
-              className="h-10 w-full rounded border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <option value="quarterline">QuarterLine (2026 Tax &amp; QBI Blueprint)</option>
               <option value="custom">Custom Topic / PRD</option>
@@ -1164,11 +1354,12 @@ export default function PressFlowPage() {
             />
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowGenerateModal(false)}
+              className="rounded-xl"
             >
               Cancel
             </Button>
@@ -1177,7 +1368,7 @@ export default function PressFlowPage() {
               size="sm"
               onClick={handleGenerateContentSuite}
               disabled={isGeneratingSuite}
-              className="gap-1.5"
+              className="gap-1.5 rounded-xl shadow-xs"
             >
               {isGeneratingSuite ? (
                 <>
@@ -1206,7 +1397,7 @@ export default function PressFlowPage() {
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
           {isLoadingArticles ? (
             <div className="py-8 text-center text-sm text-muted">
-              <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2" />
+              <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />
               Loading articles from Supabase...
             </div>
           ) : articles.length === 0 ? (
@@ -1218,7 +1409,7 @@ export default function PressFlowPage() {
               <div
                 key={art.id}
                 onClick={() => handleSelectArticle(art)}
-                className="rounded border border-border bg-background p-4 hover:border-primary/50 cursor-pointer transition-colors space-y-2"
+                className="rounded-xl border border-border bg-background p-4 hover:border-primary/50 cursor-pointer transition-colors space-y-2"
               >
                 <div className="flex items-start justify-between gap-2">
                   <h4 className="text-sm font-semibold text-foreground hover:text-primary">
@@ -1256,7 +1447,7 @@ export default function PressFlowPage() {
         description="Manage API credentials for pushing directly to LinkedIn."
       >
         <div className="space-y-4">
-          <div className="rounded border border-border bg-background p-3 text-xs space-y-1 text-muted">
+          <div className="rounded-xl border border-border bg-background p-4 text-xs space-y-1 text-muted">
             <p className="font-semibold text-foreground flex items-center gap-1.5">
               <CheckCircle2 className="h-4 w-4 text-success" />
               Supabase Status: Active
@@ -1287,18 +1478,19 @@ export default function PressFlowPage() {
             }
           />
 
-          <div className="rounded bg-primary/10 p-3 text-xs text-muted space-y-1">
+          <div className="rounded-xl bg-primary/10 p-3.5 text-xs text-muted space-y-1">
             <p className="font-semibold text-primary">No API token handy?</p>
             <p>
               You can still use the <strong>&quot;Open in LinkedIn&quot;</strong> and <strong>&quot;Copy Text&quot;</strong> buttons to push instantly with zero setup.
             </p>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowSettingsModal(false)}
+              className="rounded-xl"
             >
               Cancel
             </Button>
@@ -1307,6 +1499,7 @@ export default function PressFlowPage() {
               size="sm"
               onClick={handleSaveSettings}
               disabled={isSavingSettings}
+              className="rounded-xl shadow-xs"
             >
               {isSavingSettings ? (
                 <RefreshCw className="h-4 w-4 animate-spin" />
