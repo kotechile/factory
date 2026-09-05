@@ -14,7 +14,12 @@ const STATUS_VARIANT: Record<ProductStatus, "success" | "accent" | "destructive"
 export default function DirectoryList() {
   const [query, setQuery] = React.useState("");
   const q = query.trim().toLowerCase();
-  const filtered = products.filter(
+  const publicProducts = React.useMemo(
+    () => products.filter((p) => p.visibility !== "internal"),
+    [],
+  );
+
+  const filtered = publicProducts.filter(
     (p) =>
       !q ||
       p.name.toLowerCase().includes(q) ||
@@ -23,7 +28,8 @@ export default function DirectoryList() {
       p.webmcpTools.some((t) => t.toLowerCase().includes(q)),
   );
 
-  const catalog = products.flatMap((p) => p.webmcpTools.map((tool) => ({ tool, product: p.name })));
+  const catalog = publicProducts.flatMap((p) => p.webmcpTools.map((tool) => ({ tool, product: p.name })));
+
 
   React.useEffect(() => {
     fetch("/api/events", {

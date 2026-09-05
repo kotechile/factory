@@ -35,6 +35,9 @@ import {
   ArrowRight,
   BookOpen,
   Wand2,
+  Lock,
+  LogOut,
+  ShieldCheck,
 } from "lucide-react";
 
 const SAMPLE_ARTICLE = {
@@ -51,6 +54,13 @@ Deterministic tax calculators that reference the statutory text and official rev
 };
 
 export default function PressFlowPage() {
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState<boolean>(true);
+  const [enteredPasscode, setEnteredPasscode] = React.useState<string>("");
+  const [authError, setAuthError] = React.useState<string>("");
+  const [isSubmittingAuth, setIsSubmittingAuth] = React.useState<boolean>(false);
+
   // Article form state
   const [title, setTitle] = React.useState(SAMPLE_ARTICLE.title);
   const [content, setContent] = React.useState(SAMPLE_ARTICLE.content);
@@ -89,6 +99,72 @@ export default function PressFlowPage() {
   const [hasConfiguredCredentials, setHasConfiguredCredentials] = React.useState<boolean>(false);
   const [isSavingSettings, setIsSavingSettings] = React.useState<boolean>(false);
 
+  // Check authentication session on mount
+  React.useEffect(() => {
+    async function checkAuthStatus() {
+      setIsCheckingAuth(true);
+      try {
+        const res = await fetch("/api/auth/editorial");
+        const data = await res.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+          loadArticles();
+          loadPosts();
+          loadLinkedInConfig();
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    }
+    checkAuthStatus();
+  }, []);
+
+
+  async function handleUnlock(e: React.FormEvent) {
+    e.preventDefault();
+    if (!enteredPasscode.trim()) return;
+    setIsSubmittingAuth(true);
+    setAuthError("");
+
+    try {
+      const res = await fetch("/api/auth/editorial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ passcode: enteredPasscode }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setIsAuthenticated(true);
+        setNotification({ type: "success", message: "Welcome to Editorial Factory!" });
+        loadArticles();
+        loadPosts();
+        loadLinkedInConfig();
+      } else {
+        setAuthError(data.error || "Incorrect passcode.");
+      }
+    } catch {
+      setAuthError("Network error attempting to unlock.");
+    } finally {
+      setIsSubmittingAuth(false);
+    }
+  }
+
+  async function handleLock() {
+    try {
+      await fetch("/api/auth/editorial", { method: "DELETE" });
+      setIsAuthenticated(false);
+      setEnteredPasscode("");
+      setNotification({ type: "success", message: "Editorial session locked." });
+    } catch {
+      setIsAuthenticated(false);
+    }
+  }
+
   // Deterministic analysis derived from inputs
   const analysis: DistributionAnalysis = React.useMemo(() => {
     const tags = tagsInput
@@ -111,13 +187,6 @@ export default function PressFlowPage() {
     }
     return analysis.variants[selectedVariant]?.postText || "";
   }, [isCustomEdited, customText, analysis, selectedVariant]);
-
-  // Load articles and settings on mount
-  React.useEffect(() => {
-    loadArticles();
-    loadPosts();
-    loadLinkedInConfig();
-  }, []);
 
   // Show notification auto-dismiss
   React.useEffect(() => {
@@ -380,6 +449,78 @@ export default function PressFlowPage() {
   const isOverLimit = charCount > 3000;
   const charPercent = Math.min(100, Math.round((charCount / 3000) * 100));
 
+  // If loading authentication state
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+        <div className="text-center space-y-3">
+          <RefreshCw className="h-6 w-6 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted">Checking security authorization...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Locked Login Screen if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-sm space-y-6">
+          <div className="text-center space-y-2">
+            <div className="h-12 w-12 rounded-full bg-primary/10 text-primary mx-auto flex items-center justify-center">
+              <Lock className="h-6 w-6" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              Editorial Factory
+            </h1>
+            <p className="text-xs text-muted">
+              Restricted workspace for internal article management &amp; distribution.
+            </p>
+          </div>
+
+          <form onSubmit={handleUnlock} className="space-y-4">
+            <Input
+              label="Editorial Passcode"
+              type="password"
+              placeholder="Enter access passcode"
+              value={enteredPasscode}
+              onChange={(e) => {
+                setEnteredPasscode(e.target.value);
+                setAuthError("");
+              }}
+              error={authError}
+              helperText="Configured in EDITORIAL_SECRET environment variable."
+            />
+
+            <Button
+              type="submit"
+              variant="default"
+              size="md"
+              disabled={isSubmittingAuth || !enteredPasscode.trim()}
+              className="w-full gap-2"
+            >
+              {isSubmittingAuth ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck className="h-4 w-4" />
+                  Unlock Workbench
+                </>
+              )}
+            </Button>
+          </form>
+
+          <div className="pt-2 text-center text-[11px] text-subtle border-t border-border">
+            <span>editorial-factory.aichieve.net • 30-Day Session Protected</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground pb-20">
       {/* Top Banner / Notification */}
@@ -420,14 +561,14 @@ export default function PressFlowPage() {
                 <Share2 className="h-7 w-7 text-primary" />
                 PressFlow
               </h1>
-              <Badge variant="accent">Supabase + LinkedIn Engine</Badge>
+              <Badge variant="accent">Editorial Factory (Private)</Badge>
               <Badge variant={isSupabaseConnected ? "success" : "warning"}>
                 <Database className="mr-1 h-3 w-3 inline" />
                 {isSupabaseConnected ? "Supabase Connected" : "Supabase Offline"}
               </Badge>
             </div>
             <p className="text-sm text-muted">
-              Generate full pillar articles, format viral LinkedIn variants with deterministic engines, manage queues in Supabase, and push directly to LinkedIn.
+              Private editorial suite for generating pillar articles, formatting companion LinkedIn posts, and automated publishing.
             </p>
           </div>
 
@@ -467,6 +608,16 @@ export default function PressFlowPage() {
             >
               <Settings className="h-4 w-4 text-muted" />
               Settings
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLock}
+              className="gap-1.5 text-muted hover:text-destructive"
+              title="Lock session"
+            >
+              <LogOut className="h-4 w-4" />
+              Lock
             </Button>
           </div>
         </header>

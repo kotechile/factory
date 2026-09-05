@@ -10,6 +10,7 @@ export interface Product {
   webmcpTools: string[];
   launchedAt: string;
   category: string;
+  visibility?: "public" | "internal";
 }
 
 // Single source of truth for every product the factory has shipped.
@@ -27,6 +28,7 @@ export const products: Product[] = [
     webmcpTools: ["calculate_self_employment_2026"],
     launchedAt: "2026-08-31",
     category: "Finance",
+    visibility: "public",
   },
   {
     slug: "pressflow",
@@ -39,6 +41,8 @@ export const products: Product[] = [
     webmcpTools: ["format_article_for_linkedin"],
     launchedAt: "2026-09-05",
     category: "Distribution",
+    visibility: "internal",
   },
 ];
+
 
