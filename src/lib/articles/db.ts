@@ -1,6 +1,32 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Article, LinkedInPost, LinkedInConfig, CreateArticlePayload, CreatePostPayload, PostStatus } from "./types";
 
+function normalizeArticleRow(row: Record<string, unknown>): Article {
+  const title = (row.title as string) || (row.headline as string) || "Untitled Article";
+  const content = (row.content as string) || (row.body_md as string) || "";
+  const sourceUrl = (row.source_url as string) || (Array.isArray(row.sources) && row.sources[0]?.url ? row.sources[0].url : null);
+  const tags = Array.isArray(row.tags) && row.tags.length > 0 
+    ? (row.tags as string[]) 
+    : (row.vertical ? [row.vertical as string] : []);
+
+  return {
+    id: String(row.id || ""),
+    title,
+    headline: row.headline ? String(row.headline) : undefined,
+    content,
+    body_md: row.body_md ? String(row.body_md) : undefined,
+    slug: row.slug ? String(row.slug) : undefined,
+    vertical: row.vertical ? String(row.vertical) : undefined,
+    source_url: sourceUrl,
+    sources: (row.sources as Array<{ url?: string; title?: string }>) || null,
+    tags,
+    status: row.status ? String(row.status) : "draft",
+    metadata: (row.metadata as Record<string, unknown>) || {},
+    created_at: String(row.created_at || new Date().toISOString()),
+    updated_at: String(row.updated_at || row.created_at || new Date().toISOString()),
+  };
+}
+
 /**
  * Retrieves all articles from Supabase ordered by creation date.
  */
@@ -16,7 +42,7 @@ export async function getArticles(): Promise<Article[]> {
       console.warn("Supabase getArticles query error:", error.message);
       return [];
     }
-    return (data || []) as Article[];
+    return (data || []).map((row) => normalizeArticleRow(row as Record<string, unknown>));
   } catch (err) {
     console.error("Failed to connect to Supabase for getArticles:", err);
     return [];
@@ -35,8 +61,8 @@ export async function getArticleById(id: string): Promise<Article | null> {
       .eq("id", id)
       .single();
 
-    if (error) return null;
-    return data as Article;
+    if (error || !data) return null;
+    return normalizeArticleRow(data as Record<string, unknown>);
   } catch {
     return null;
   }
@@ -48,18 +74,29 @@ export async function getArticleById(id: string): Promise<Article | null> {
 export async function saveArticle(payload: CreateArticlePayload & { id?: string }): Promise<Article> {
   const supabase = createAdminClient();
   const now = new Date().toISOString();
+  const title = payload.title || payload.headline || "Untitled Article";
+  const content = payload.content || payload.body_md || "";
+  const tags = payload.tags || (payload.vertical ? [payload.vertical] : []);
 
   if (payload.id) {
+    const updatePayload: Record<string, unknown> = {
+      title,
+      content,
+      source_url: payload.source_url || null,
+      tags,
+      metadata: payload.metadata || {},
+      updated_at: now,
+    };
+    if (payload.headline) updatePayload.headline = payload.headline;
+    if (payload.body_md) updatePayload.body_md = payload.body_md;
+    if (payload.slug) updatePayload.slug = payload.slug;
+    if (payload.vertical) updatePayload.vertical = payload.vertical;
+    if (payload.status) updatePayload.status = payload.status;
+    if (payload.sources) updatePayload.sources = payload.sources;
+
     const { data, error } = await supabase
       .from("articles")
-      .update({
-        title: payload.title,
-        content: payload.content,
-        source_url: payload.source_url || null,
-        tags: payload.tags || [],
-        metadata: payload.metadata || {},
-        updated_at: now,
-      })
+      .update(updatePayload)
       .eq("id", payload.id)
       .select()
       .single();
@@ -67,29 +104,35 @@ export async function saveArticle(payload: CreateArticlePayload & { id?: string 
     if (error) {
       throw new Error(`Failed to update article in Supabase: ${error.message}`);
     }
-    return data as Article;
+    return normalizeArticleRow(data as Record<string, unknown>);
   }
+
+  const insertPayload: Record<string, unknown> = {
+    title,
+    content,
+    source_url: payload.source_url || null,
+    tags,
+    metadata: payload.metadata || {},
+    created_at: now,
+    updated_at: now,
+  };
+  if (payload.headline) insertPayload.headline = payload.headline;
+  if (payload.body_md) insertPayload.body_md = payload.body_md;
+  if (payload.slug) insertPayload.slug = payload.slug;
+  if (payload.vertical) insertPayload.vertical = payload.vertical;
+  if (payload.status) insertPayload.status = payload.status;
+  if (payload.sources) insertPayload.sources = payload.sources;
 
   const { data, error } = await supabase
     .from("articles")
-    .insert([
-      {
-        title: payload.title,
-        content: payload.content,
-        source_url: payload.source_url || null,
-        tags: payload.tags || [],
-        metadata: payload.metadata || {},
-        created_at: now,
-        updated_at: now,
-      },
-    ])
+    .insert([insertPayload])
     .select()
     .single();
 
   if (error) {
     throw new Error(`Failed to insert article into Supabase: ${error.message}`);
   }
-  return data as Article;
+  return normalizeArticleRow(data as Record<string, unknown>);
 }
 
 /**

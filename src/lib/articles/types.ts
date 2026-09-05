@@ -3,9 +3,15 @@ export type PostStatus = "draft" | "queued" | "publishing" | "published" | "fail
 export interface Article {
   id: string;
   title: string;
+  headline?: string;
   content: string;
+  body_md?: string;
+  slug?: string;
+  vertical?: string;
   source_url?: string | null;
+  sources?: Array<{ url?: string; title?: string }> | null;
   tags: string[];
+  status?: string;
   metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -37,10 +43,16 @@ export interface LinkedInConfig {
 }
 
 export interface CreateArticlePayload {
-  title: string;
-  content: string;
+  title?: string;
+  headline?: string;
+  content?: string;
+  body_md?: string;
+  slug?: string;
+  vertical?: string;
   source_url?: string;
+  sources?: Array<{ url?: string; title?: string }>;
   tags?: string[];
+  status?: string;
   metadata?: Record<string, unknown>;
 }
 
