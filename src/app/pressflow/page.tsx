@@ -34,6 +34,7 @@ import {
   Repeat,
   ArrowRight,
   BookOpen,
+  Wand2,
 } from "lucide-react";
 
 const SAMPLE_ARTICLE = {
@@ -75,6 +76,12 @@ export default function PressFlowPage() {
   const [notification, setNotification] = React.useState<{ type: "success" | "error"; message: string } | null>(null);
   const [showHistoryModal, setShowHistoryModal] = React.useState<boolean>(false);
   const [showSettingsModal, setShowSettingsModal] = React.useState<boolean>(false);
+  const [showGenerateModal, setShowGenerateModal] = React.useState<boolean>(false);
+
+  // Generate Suite state
+  const [generateProduct, setGenerateProduct] = React.useState<string>("quarterline");
+  const [generateCustomTopic, setGenerateCustomTopic] = React.useState<string>("");
+  const [isGeneratingSuite, setIsGeneratingSuite] = React.useState<boolean>(false);
 
   // Settings & Credentials state
   const [authorUrn, setAuthorUrn] = React.useState<string>("");
@@ -249,7 +256,6 @@ export default function PressFlowPage() {
         });
         loadPosts();
       } else {
-        // Offer quick fallback to open in web intent
         setNotification({
           type: "error",
           message: `${data.error || "Publish failed"}. You can use "Open in LinkedIn" as instant fallback.`,
@@ -260,6 +266,39 @@ export default function PressFlowPage() {
       setNotification({ type: "error", message: msg });
     } finally {
       setIsPublishing(false);
+    }
+  }
+
+  async function handleGenerateContentSuite() {
+    setIsGeneratingSuite(true);
+    try {
+      const res = await fetch("/api/articles/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productSlug: generateProduct,
+          topic: generateCustomTopic,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.article) {
+        handleSelectArticle(data.article);
+        loadArticles();
+        loadPosts();
+        setShowGenerateModal(false);
+        setNotification({
+          type: "success",
+          message: "🎉 Long-form pillar article & companion LinkedIn posts generated and stored in Supabase!",
+        });
+      } else {
+        throw new Error(data.error || "Generation failed");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to generate suite";
+      setNotification({ type: "error", message: msg });
+    } finally {
+      setIsGeneratingSuite(false);
     }
   }
 
@@ -388,11 +427,20 @@ export default function PressFlowPage() {
               </Badge>
             </div>
             <p className="text-sm text-muted">
-              Paste articles, generate high-converting viral LinkedIn variants with deterministic formatting, manage queues in Supabase, and push directly to LinkedIn.
+              Generate full pillar articles, format viral LinkedIn variants with deterministic engines, manage queues in Supabase, and push directly to LinkedIn.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setShowGenerateModal(true)}
+              className="gap-1.5"
+            >
+              <Wand2 className="h-4 w-4" />
+              Generate Suite
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -432,7 +480,7 @@ export default function PressFlowPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText className="h-5 w-5 text-primary" />
-                    <CardTitle>Article Source</CardTitle>
+                    <CardTitle>Article Source (Long-Form)</CardTitle>
                   </div>
                   {currentArticleId && (
                     <Badge variant="muted" className="text-[10px]">
@@ -441,7 +489,7 @@ export default function PressFlowPage() {
                   )}
                 </div>
                 <CardDescription>
-                  Copy-paste your article, memo, or raw notes. PressFlow extracts hooks and formats them for LinkedIn distribution.
+                  Full-length article, technical guide, or raw notes. PressFlow extracts hooks and formats them for LinkedIn distribution.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -483,7 +531,7 @@ export default function PressFlowPage() {
                       htmlFor="article-content"
                       className="text-[13px] font-medium leading-none text-muted"
                     >
-                      Article Content / Body
+                      Article Content / Body (Markdown supported)
                     </label>
                     <span className="text-xs text-subtle">
                       {content.split(/\s+/).filter(Boolean).length} words
@@ -577,7 +625,7 @@ export default function PressFlowPage() {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-primary" />
-                      LinkedIn Post Formatter
+                      Companion LinkedIn Post Formatter
                     </CardTitle>
                     <CardDescription>
                       Choose a proven viral format variant or customize your post before pushing.
@@ -924,6 +972,77 @@ export default function PressFlowPage() {
           )}
         </section>
       </main>
+
+      {/* Generate Suite Modal */}
+      <Modal
+        isOpen={showGenerateModal}
+        onClose={() => setShowGenerateModal(false)}
+        title="Generate Long-Form Article & Post Suite"
+        description="Automatically create a comprehensive technical pillar article and companion LinkedIn posts."
+      >
+        <div className="space-y-4">
+          <div className="rounded border border-border bg-background p-3 text-xs space-y-1 text-muted">
+            <p className="font-semibold text-foreground flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Automated Synthesis Engine
+            </p>
+            <p>
+              Generates a full 1,000+ word structured markdown article with citations, plus 3 optimized LinkedIn post variants stored directly in Supabase.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted">Select Product / Model</label>
+            <select
+              value={generateProduct}
+              onChange={(e) => setGenerateProduct(e.target.value)}
+              className="h-10 w-full rounded border border-border bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              <option value="quarterline">QuarterLine (2026 Tax &amp; QBI Blueprint)</option>
+              <option value="custom">Custom Topic / PRD</option>
+            </select>
+          </div>
+
+          {generateProduct === "custom" && (
+            <Input
+              label="Custom Topic / Prompt"
+              placeholder="e.g. AI-driven financial modeling for solo founders"
+              value={generateCustomTopic}
+              onChange={(e) => setGenerateCustomTopic(e.target.value)}
+              helperText="Brief summary or topic for the long-form pillar article."
+            />
+          )}
+
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowGenerateModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleGenerateContentSuite}
+              disabled={isGeneratingSuite}
+              className="gap-1.5"
+            >
+              {isGeneratingSuite ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Generating Suite...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-4 w-4" />
+                  Generate &amp; Save
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       {/* Library Drawer Modal */}
       <Modal
