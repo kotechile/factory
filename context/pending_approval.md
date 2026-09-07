@@ -63,6 +63,15 @@ From `context/design_backlog.md` (2026-09-01, `visual-qa --suggest`):
   free OAI guide; no deterministic engine; fails filter 3). Google Content API→Merchant API (deadline
   08-18 passed; incumbent feed-network moat). Both logged in `context/audience_pain_points.md`.
 
+**Simon recommendation (2026-09-07):**
+- **LedgerLink — APPROVE (primary).** Score 76, real recurring pain, WTP 90, sound `Σnet ==
+  payout.amount` invariant. One scope note before build: "reads Stripe via the factory's existing
+  Stripe key" is imprecise — that key reads the factory's own account, not a customer's payouts.
+  MVP should accept a customer read-only Stripe restricted key OR a pasted/uploaded Stripe JSON
+  export; the deterministic engine is fixture-testable either way.
+- **MCPV2 — DEFER.** Score 62 barely clears the bar; WTP 40 (one-time migration, narrow dev
+  segment) and a fast-decaying urgency window = weak recurring moat. Not worth a build slot now.
+
 ## Resolved (no action)
 
 - Fleet provider outage (09-06 → 09-07) — DeepSeek 402 → global config drift → unpinned jobs
