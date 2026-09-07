@@ -4,7 +4,7 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-05_
+_Last updated: 2026-09-07_
 
 ---
 
@@ -53,5 +53,9 @@ From `context/design_backlog.md` (2026-09-01, `visual-qa --suggest`):
 
 ## Resolved (no action)
 
+- Fleet provider outage (09-06 → 09-07) — DeepSeek 402 → global config drift → unpinned jobs
+  skipped. Founder pinned sweep + weekly recon to `deepseek-v4-flash-vision-exp`; both running
+  again. Remaining gaps: Build Watchdog still paused, Growth Watchdog still unpinned (re-pin
+  before Fri 09-11 or it will skip).
 - Approval-gate tightening — DONE 2026-09-01 (commit `1a60b9f`); gate is already hard.
 - Stranded 09-03 lint fix + SOP note — landed in commits `48486f0` / `64796ee`; tree clean.
