@@ -51,6 +51,18 @@ From `context/design_backlog.md` (2026-09-01, `visual-qa --suggest`):
 3. Emphasize "Total 2026 Tax Liability" card as the primary focal point.
 4. Fix Alert-banner button contrast (currently fails WCAG 2.1 AA 3:1).
 
+## Recon 2026-09-07 — weekly sweep → Proposals queued for @Simon approve
+
+- **LedgerLink** — Stripe payout → GL reconciliation engine (Vector B). Score 76.
+  `context/recon_proposals/2026-09-07_ledgerlink.md`. B2B bookkeeper WTP high; deterministic
+  `Σnet == payout.amount` invariant; WebMCP `reconcile_stripe_payout`. No code built — awaits gate.
+- **MCPV2** — 2026-07-28 stateless migration scanner (Vector A×D). Score 62 (barely over the 60 bar).
+  `context/recon_proposals/2026-09-07_mcpv2.md`. Timely but WTP moderate; flag for Toby to vet the
+  score before dispatch, since it just clears 60 and repeats a one-time (fast-decaying) urgency window.
+- **Rejected in sweep:** OpenAI Assistants→Responses wire-compatible bridge (incumbent Ragwalla +
+  free OAI guide; no deterministic engine; fails filter 3). Google Content API→Merchant API (deadline
+  08-18 passed; incumbent feed-network moat). Both logged in `context/audience_pain_points.md`.
+
 ## Resolved (no action)
 
 - Fleet provider outage (09-06 → 09-07) — DeepSeek 402 → global config drift → unpinned jobs
