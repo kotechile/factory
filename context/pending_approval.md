@@ -74,9 +74,10 @@ From `context/design_backlog.md` (2026-09-01, `visual-qa --suggest`):
 
 ## Resolved (no action)
 
-- Fleet provider outage (09-06 → 09-07) — DeepSeek 402 → global config drift → unpinned jobs
-  skipped. Founder pinned sweep + weekly recon to `deepseek-v4-flash-vision-exp`; both running
-  again. Remaining gaps: Build Watchdog still paused, Growth Watchdog still unpinned (re-pin
-  before Fri 09-11 or it will skip).
+- Fleet provider outage (09-06 → 09-07) — RESOLVED. DeepSeek 402 → global config drift → unpinned
+  jobs skipped. Founder pinned all jobs; sweep + weekly recon + editorial now `ok`.
+  Follow-up: Build Watchdog (`3157deecdeb5`) failing 5× with "Interrupted by shutdown before
+  terminal completion" (long verify-build.sh exceeds the run/fire-claim limit) — Toby's quality
+  gate is down; triage + raise the run limit.
 - Approval-gate tightening — DONE 2026-09-01 (commit `1a60b9f`); gate is already hard.
 - Stranded 09-03 lint fix + SOP note — landed in commits `48486f0` / `64796ee`; tree clean.
