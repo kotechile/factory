@@ -33,15 +33,17 @@ _Last updated: 2026-09-07_
   Zero execution record to date; this cannot be done "after."
 - **Effort:** distribution only, no code.
 
-## P1 — Day-7 gate fallback prep (code, due 2026-09-07)
+## P1 — Day-7 gate (PAST DUE — was 09-07, no verdict logged)
 
-- **What:** Day-7 gate is ≥50 unique sessions + ≥1 export. Current: ~61 page_view events, 2
-  export clicks, 9 charges / $161 (revenue flat 48h). If unmet, playbook says "deploy 20
-  additional pSEO routes" — but only 9 presets exist in `src/lib/seo/presets.ts`. Author the 20
-  now so the fallback ships instantly if the gate misses.
+- **What:** Day-7 gate is ≥50 unique sessions + ≥1 export. Latest (09-09): page_view=134,
+  export_click=2, checkout_click=3, charge_count=9 / $161 (flat 7 days). Export criterion likely
+  met (2 clicks + 9 charges); sessions criterion unverifiable (see gap). If judged missed, the
+  playbook says "deploy 20 pSEO routes" — only ~11 presets exist (`src/lib/seo/presets.ts`),
+  ~9 short. Author the remainder now.
 - **Measurement gap (fix needed for honest gate):** `scripts/growth-check.mjs` counts raw
   `page_view` events, not unique sessions/visitors, so "≥50 unique sessions" cannot be honestly
-  evaluated. Add unique-visitor/session instrumentation.
+  evaluated. Add unique-visitor/session instrumentation. Growth Watchdog (next run Fri 09-11)
+  should log the verdict — the growth-gate audit log currently ends 09-04.
 
 ## P2 — Design backlog (code, batch into any approval)
 
