@@ -29,6 +29,7 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 | 2026-09-04 | QuarterLine | Verify (visual-qa) | build | Tab bar `overflow-x-auto` in the 5-col results column clipped the last tab ("Scorecard") — Gemini flagged "tab text is cut off" (reported as "23% Trap Checker tab text"). Fix: `flex-wrap` on the tab row so tabs wrap instead of clipping at the edge. | ui_component_standards.md |
 | 2026-09-07 | PressFlow | Verify (e2e) | test | Commit `a608eef` added a passcode gate to `/pressflow` but the E2E spec wasn't updated, so Playwright hit the locked "Editorial Factory" screen (heading "PressFlow" / "Load Sample" never appear). Stale assertions also failed after `717eb78` relabeled variant buttons. Fix: authenticate in `test.beforeEach` via `context.addCookies({ name: "pressflow_auth", value: EDITORIAL_SECRET, ... })` and align assertions with rendered copy. | ui_component_standards.md |
 | 2026-09-07 | Fleet | Verify (visual-qa) | endpoint | Gemini (temp 0) deterministically false-flagged "zero padding" on the Urgent badge (then tab rows, then $ amounts) — badge actually has ~6px padding per side; independent vision review confirmed no defect. Fix: drop the padding sub-criterion from the gate prompt (padding already enforced by tokens + asserted in `qa-screenshot.spec.ts`) and add retry-with-backoff (3×) on a FAIL verdict in `scripts/visual-qa.mjs`. | ui_component_standards.md |
+| 2026-09-09 | Fleet | Verify (e2e) | environment | Stale `node site/server.mjs` from sibling `/root/editorial-factory` squatting on port 3000; `playwright.config.ts` `reuseExistingServer: !CI` silently reused the wrong server → 8/10 e2e failures (wrong titles, `{"error":"Not found"}`, snapshot mismatch). Killed the squatter; re-run passed 10/10. | ui_component_standards.md |
 
 ### Recon zero-result log
 | Date | Query syntax | Vertical | Correction |
@@ -48,6 +49,7 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 - `context` — missing/gap in an SOP
 - `monetization` — stripe/webmcp pricing
 - `provider/account` — inference provider unavailable / balance exhausted
+- `environment` — stale process/port collision, dirty workspace, or wrong-server reuse (e.g. Playwright reusing a sibling repo's server on port 3000)
 
 ## 4. Protocol
 1. Toby classifies the failure and isolates root cause.
