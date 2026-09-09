@@ -7,6 +7,10 @@ import {
   type FormatArticleInput,
   type DistributionAnalysis,
 } from "@/lib/calc/content-distributor/engine";
+import type {
+  ReconcileStripePayoutInput,
+  StripeReconOutput,
+} from "@/lib/calc/stripeRecon";
 import type { WebMCPToolDefinition } from "./types";
 
 
@@ -277,11 +281,84 @@ export const formatArticleForLinkedInTool: WebMCPToolDefinition<
 };
 
 /**
+ * LedgerLink WebMCP tool: reconcile_stripe_payout
+ * Decomposes a netted Stripe payout into GL journal lines that sum to the payout
+ * net exactly. Routes through the metered /api/agent/calculate path.
+ */
+async function runLedgerlinkAgentCalculation(
+  params: ReconcileStripePayoutInput,
+): Promise<StripeReconOutput> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": "reconcile_stripe_payout",
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent calculation failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: StripeReconOutput;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent calculation failed: invalid response");
+  }
+  return json.data;
+}
+
+export const reconcileStripePayoutTool: WebMCPToolDefinition<
+  ReconcileStripePayoutInput,
+  StripeReconOutput
+> = {
+  name: "reconcile_stripe_payout",
+  description:
+    "Reconciles a netted Stripe payout into categorized GL journal lines that sum to the payout net exactly (Σ net == payout.amount). Accepts a customer read-only Stripe restricted key or a pasted Stripe JSON export; never uses the factory account.",
+  parameters: {
+    type: "object",
+    properties: {
+      account_id: {
+        type: "string",
+        description: "Stripe account id whose payout is being reconciled.",
+      },
+      period: {
+        type: "string",
+        description:
+          "Payout period, e.g. '2026-08' or a Stripe created range 'start:end'.",
+      },
+      payout_id: {
+        type: "string",
+        description: "Optional specific Stripe payout id to reconcile.",
+      },
+      stripe_restricted_key: {
+        type: "string",
+        description:
+          "Customer read-only Stripe restricted key (rk_…). Required unless export_json is supplied.",
+      },
+      export_json: {
+        type: "string",
+        description:
+          "Pasted/uploaded Stripe JSON export (payout + balance_transactions). Required unless stripe_restricted_key is supplied.",
+      },
+    },
+    required: ["account_id", "period"],
+  },
+  handler: async (params: ReconcileStripePayoutInput) => {
+    return await runLedgerlinkAgentCalculation(params);
+  },
+};
+
+/**
  * Registers all factory WebMCP tools in the current browser session.
  */
 export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(calculateQbiDeductionTool);
   registerWebMCPTool(calculateQuarterlyEstimateTool);
   registerWebMCPTool(formatArticleForLinkedInTool);
+  registerWebMCPTool(reconcileStripePayoutTool);
 }
 

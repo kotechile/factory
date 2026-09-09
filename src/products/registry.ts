@@ -43,6 +43,19 @@ export const products: Product[] = [
     category: "Distribution",
     visibility: "internal",
   },
+  {
+    slug: "ledgerlink",
+    name: "LedgerLink",
+    tagline: "Stripe Payout → GL Reconciliation Engine",
+    status: "live",
+    description:
+      "Decomposes a netted Stripe payout (charges, refunds, chargebacks, fees, Connect transfers, FX) into categorized GL journal lines that sum to the payout net exactly. Xero/QuickBooks-ready CSV. Accepts a customer read-only Stripe restricted key or a pasted JSON export — never the factory account.",
+    route: "/ledgerlink",
+    webmcpTools: ["reconcile_stripe_payout"],
+    launchedAt: "2026-09-09",
+    category: "Finance",
+    visibility: "public",
+  },
 ];
 
 

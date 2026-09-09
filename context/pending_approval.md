@@ -4,7 +4,20 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-07_
+_Last updated: 2026-09-09_
+
+---
+
+## DECISION — Approval granted by @Simon approve (2026-09-09)
+
+ALL software next steps APPROVED. Gate lifted; proceed to build/ship.
+
+- **P0 WebMCP metering fix — APPROVED**
+- **P1 Echo outreach — APPROVED**
+- **P1 Day-7 gate (unique-session instrumentation) — APPROVED**
+- **P2 Design backlog — APPROVED**
+- **LedgerLink — APPROVED** (keep scope note: customer Stripe key / JSON export, not the factory's own account)
+- **MCPV2 — DEFER** (unchanged; weak moat, no build)
 
 ---
 
