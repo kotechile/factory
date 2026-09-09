@@ -21,8 +21,12 @@ export async function POST(req: NextRequest) {
 
     const result = calculateSelfEmployment2026(input);
 
-    // Record the agent query for the growth kill/scale gates (best-effort).
-    await track("agent_query", { tool: "calculate_self_employment_2026" });
+    // Record the agent query for the growth kill/scale gates (best-effort). The exact
+    // browser WebMCP tool is surfaced via the x-webmcp-tool header so telemetry records a
+    // REAL registered tool name (calculate_qbi_deduction | calculate_quarterly_estimate),
+    // not the legacy calculate_self_employment_2026 placeholder that matched nothing.
+    const toolName = req.headers.get("x-webmcp-tool") || "calculate_qbi_deduction";
+    await track("agent_query", { tool: toolName });
 
     // If request contains Stripe Customer ID for agent billing, report $0.25 metered usage
     const customerId =

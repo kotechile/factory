@@ -19,10 +19,11 @@ test("numbers use a monospace font", async ({ page }) => {
 });
 
 // Deterministic padding check — vision models flag 16px input padding as "flush",
-// so the minimum is asserted programmatically instead.
-test("number inputs have adequate horizontal padding", async ({ page }) => {
+// so the minimum is asserted programmatically instead. Currency inputs use a "$"
+// prefix + comma mask (type="text", inputMode="decimal") with pl-8.
+test("currency inputs have adequate horizontal padding", async ({ page }) => {
   await page.goto("/quarterline");
-  const input = page.locator('input[type="number"]').first();
+  const input = page.locator('input[inputmode="decimal"]').first();
   await expect(input).toBeVisible();
   const paddingLeft = await input.evaluate((node) => parseFloat(getComputedStyle(node).paddingLeft));
   expect(paddingLeft).toBeGreaterThanOrEqual(12);

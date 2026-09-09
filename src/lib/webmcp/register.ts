@@ -1,5 +1,4 @@
 import {
-  calculateSelfEmployment2026,
   type SelfEmployment2026Input,
   type SelfEmployment2026Output,
 } from "@/lib/calc/selfEmployment2026";
@@ -9,6 +8,40 @@ import {
   type DistributionAnalysis,
 } from "@/lib/calc/content-distributor/engine";
 import type { WebMCPToolDefinition } from "./types";
+
+
+/**
+ * Routes a browser WebMCP tax tool through the metered /api/agent/calculate path so the
+ * agent tier is metered (track("agent_query") + Stripe metered usage) instead of computing
+ * purely client-side. This is a server-backed call: a failure surfaces an explicit error
+ * (no silent client-side fallback).
+ */
+async function runMeteredAgentCalculation(
+  toolName: string,
+  params: SelfEmployment2026Input,
+): Promise<SelfEmployment2026Output> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent calculation failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: SelfEmployment2026Output;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent calculation failed: invalid response");
+  }
+  return json.data;
+}
 
 
 /**
@@ -80,8 +113,8 @@ export const calculateQbiDeductionTool: WebMCPToolDefinition<
     },
     required: ["grossIncome"],
   },
-  handler: (params: SelfEmployment2026Input) => {
-    const result = calculateSelfEmployment2026(params);
+  handler: async (params: SelfEmployment2026Input) => {
+    const result = await runMeteredAgentCalculation("calculate_qbi_deduction", params);
     return {
       qualifiedBusinessIncome: result.qualifiedBusinessIncome,
       qbiRate: result.qbiRate,
@@ -160,8 +193,8 @@ export const calculateQuarterlyEstimateTool: WebMCPToolDefinition<
     },
     required: ["grossIncome"],
   },
-  handler: (params: SelfEmployment2026Input) => {
-    const result = calculateSelfEmployment2026(params);
+  handler: async (params: SelfEmployment2026Input) => {
+    const result = await runMeteredAgentCalculation("calculate_quarterly_estimate", params);
     return {
       netBusinessProfit: result.netBusinessProfit,
       totalSelfEmploymentTax: result.totalSelfEmploymentTax,

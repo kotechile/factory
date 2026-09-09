@@ -90,6 +90,73 @@ const METHOD_LABEL: Record<string, string> = {
 };
 const methodLabel = (m: string) => METHOD_LABEL[m] ?? m;
 
+function CurrencyInput({
+  label,
+  value,
+  onValueChange,
+  helperText,
+  id,
+  min = 0,
+}: {
+  label: string;
+  value: number;
+  onValueChange: (n: number) => void;
+  helperText?: string;
+  id?: string;
+  min?: number;
+}) {
+  const [focused, setFocused] = React.useState(false);
+  const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, "-") : undefined);
+  // Persistent left-edge "$" prefix + comma-grouped display (mask). While focused we show
+  // the raw number so editing is predictable; on blur we reformat with thousands commas.
+  const display = !focused
+    ? value === 0
+      ? ""
+      : value.toLocaleString("en-US")
+    : value === 0
+      ? ""
+      : String(value);
+
+  return (
+    <div className="flex w-full flex-col gap-1.5">
+      {label && (
+        <label htmlFor={inputId} className="text-[13px] font-medium leading-none text-muted">
+          {label}
+        </label>
+      )}
+      <div className="relative">
+        <span
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted"
+          aria-hidden="true"
+        >
+          $
+        </span>
+        <input
+          id={inputId}
+          type="text"
+          inputMode="decimal"
+          aria-label={label}
+          aria-describedby={helperText ? `${inputId}-helper` : undefined}
+          value={display}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/[^0-9.]/g, "");
+            const parsed = raw === "" || raw === "." ? 0 : Number(raw);
+            onValueChange(Number.isNaN(parsed) ? min : Math.max(min, parsed));
+          }}
+          className="h-10 w-full rounded border border-border bg-background py-2 pl-8 pr-4 text-sm text-foreground font-mono tabular-nums placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        />
+      </div>
+      {helperText && (
+        <p id={`${inputId}-helper`} className="text-xs text-subtle">
+          {helperText}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function QuarterLineCalculator({
   initial,
 }: {
@@ -332,7 +399,7 @@ export default function QuarterLineCalculator({
             size="sm"
             variant="outline"
             onClick={() => setActiveTab("trap_check")}
-            className="shrink-0 text-xs"
+            className="shrink-0 border-foreground/50 text-xs"
           >
             Check Trap Impact
           </Button>
@@ -384,22 +451,16 @@ export default function QuarterLineCalculator({
               onToggle={() => toggleSection("revenue")}
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Input
+                <CurrencyInput
                   label="Gross 1099/Revenue ($)"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={grossIncome || ""}
-                  onChange={(e) => setGrossIncome(Math.max(0, Number(e.target.value)))}
+                  value={grossIncome}
+                  onValueChange={setGrossIncome}
                   helperText="Schedule C gross income"
                 />
-                <Input
+                <CurrencyInput
                   label="Business Expenses ($)"
-                  type="number"
-                  min="0"
-                  step="500"
-                  value={businessExpenses || ""}
-                  onChange={(e) => setBusinessExpenses(Math.max(0, Number(e.target.value)))}
+                  value={businessExpenses}
+                  onValueChange={setBusinessExpenses}
                   helperText="Deductible expenses"
                 />
               </div>
@@ -414,22 +475,16 @@ export default function QuarterLineCalculator({
               onToggle={() => toggleSection("safeHarbor")}
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Input
+                <CurrencyInput
                   label="2025 Prior-Year AGI ($)"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={priorYearAgi || ""}
-                  onChange={(e) => setPriorYearAgi(Math.max(0, Number(e.target.value)))}
+                  value={priorYearAgi}
+                  onValueChange={setPriorYearAgi}
                   helperText="110% safe harbor if AGI > $150k"
                 />
-                <Input
+                <CurrencyInput
                   label="2025 Total Tax Paid ($)"
-                  type="number"
-                  min="0"
-                  step="500"
-                  value={priorYearTax || ""}
-                  onChange={(e) => setPriorYearTax(Math.max(0, Number(e.target.value)))}
+                  value={priorYearTax}
+                  onValueChange={setPriorYearTax}
                   helperText="Prior-year total tax"
                 />
               </div>
@@ -444,13 +499,10 @@ export default function QuarterLineCalculator({
               onToggle={() => toggleSection("obbba")}
             >
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Input
+                <CurrencyInput
                   label="Outside W-2 Wages ($)"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={w2Wages || ""}
-                  onChange={(e) => setW2Wages(Math.max(0, Number(e.target.value)))}
+                  value={w2Wages}
+                  onValueChange={setW2Wages}
                   helperText="Reduces $184,500 SS cap"
                 />
                 <Input
@@ -486,66 +538,48 @@ export default function QuarterLineCalculator({
               </div>
 
               {isTippedOccupation && (
-                <Input
+                <CurrencyInput
                   label="Qualified Tips ($)"
-                  type="number"
-                  min="0"
-                  step="500"
-                  value={qualifiedTips || ""}
-                  onChange={(e) => setQualifiedTips(Math.max(0, Number(e.target.value)))}
+                  value={qualifiedTips}
+                  onValueChange={setQualifiedTips}
                   helperText="Deduction applies to income tax only"
                 />
               )}
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Input
+                <CurrencyInput
                   label="Solo 401(k) / SEP-IRA ($)"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={retirementContributions || ""}
-                  onChange={(e) => setRetirementContributions(Math.max(0, Number(e.target.value)))}
+                  value={retirementContributions}
+                  onValueChange={setRetirementContributions}
                   helperText="Pre-tax retirement"
                 />
-                <Input
+                <CurrencyInput
                   label="SEHI Health Insurance ($)"
-                  type="number"
-                  min="0"
-                  step="500"
-                  value={sehi || ""}
-                  onChange={(e) => setSehi(Math.max(0, Number(e.target.value)))}
+                  value={sehi}
+                  onValueChange={setSehi}
                   helperText="Above-the-line deduction"
                 />
               </div>
 
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Input
+                <CurrencyInput
                   label="W-2 Paid to Employees ($)"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={w2WagesPaidByBusiness || ""}
-                  onChange={(e) => setW2WagesPaidByBusiness(Math.max(0, Number(e.target.value)))}
+                  value={w2WagesPaidByBusiness}
+                  onValueChange={setW2WagesPaidByBusiness}
                   helperText="For high-earner QBI limit"
                 />
-                <Input
+                <CurrencyInput
                   label="UBIA Property Basis ($)"
-                  type="number"
-                  min="0"
-                  step="5000"
-                  value={ubia || ""}
-                  onChange={(e) => setUbia(Math.max(0, Number(e.target.value)))}
+                  value={ubia}
+                  onValueChange={setUbia}
                   helperText="2.5% UBIA calculation"
                 />
               </div>
 
-              <Input
+              <CurrencyInput
                 label="State & Local Tax Paid (SALT) ($)"
-                type="number"
-                min="0"
-                step="1000"
-                value={stateLocalTaxPaid || ""}
-                onChange={(e) => setStateLocalTaxPaid(Math.max(0, Number(e.target.value)))}
+                value={stateLocalTaxPaid}
+                onValueChange={setStateLocalTaxPaid}
                 helperText="OBBBA SALT cap at $40,400"
               />
             </SectionCard>
@@ -583,14 +617,14 @@ export default function QuarterLineCalculator({
                 </CardContent>
               </Card>
 
-              <Card className="border-border">
+              <Card className="border-primary/50 bg-primary/5 shadow-md">
                 <CardHeader className="pb-2">
                   <CardDescription className="text-xs">Total 2026 Tax Liability</CardDescription>
-                  <CardTitle className="font-mono text-xl font-bold tabular-nums text-foreground sm:text-2xl">
+                  <CardTitle className="font-mono text-2xl font-bold tabular-nums text-primary sm:text-3xl">
                     {money(calcResult.totalTaxLiability)}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-xs text-subtle">
+                <CardContent className="text-xs font-medium text-foreground">
                   <span className="font-mono tabular-nums">
                     {(calcResult.overallEffectiveRate * 100).toFixed(1)}%
                   </span>{" "}

@@ -25,7 +25,7 @@ export const products: Product[] = [
     description:
       "Deterministic 2026 self-employment tax, Section 199A QBI deduction (statutory 20% rate), and safe-harbor estimated-payment calculator. Catches the 23%-vs-20% QBI trap.",
     route: "/quarterline",
-    webmcpTools: ["calculate_self_employment_2026"],
+    webmcpTools: ["calculate_qbi_deduction", "calculate_quarterly_estimate"],
     launchedAt: "2026-08-31",
     category: "Finance",
     visibility: "public",
