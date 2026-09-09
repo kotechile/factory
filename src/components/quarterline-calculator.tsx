@@ -9,6 +9,7 @@ import {
 } from "@/lib/calc/selfEmployment2026";
 import { Button } from "@/components/ui/button";
 import { generateQuarterLinePdf } from "@/lib/pdf/quarterline-report";
+import { trackEvent } from "@/lib/telemetry-client";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -28,14 +29,6 @@ import {
   ChevronDown,
   Sparkles,
 } from "lucide-react";
-
-const trackEvent = (event: string, payload?: Record<string, unknown>) => {
-  fetch("/api/events", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ event, payload }),
-  }).catch((err) => console.error("[telemetry] client track failed:", err));
-};
 
 type SectionKey = "revenue" | "safeHarbor" | "obbba";
 

@@ -9,6 +9,7 @@ import {
   type StripeReconInput,
 } from "@/lib/calc/stripeRecon";
 import { workedExampleFixture, smallSampleFixture } from "@/lib/calc/stripeRecon.fixtures";
+import { trackEvent } from "@/lib/telemetry-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,14 +27,6 @@ import {
   Upload,
   Calendar,
 } from "lucide-react";
-
-const trackEvent = (event: string, payload?: Record<string, unknown>) => {
-  fetch("/api/events", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ event, payload: payload ?? {}, product: "ledgerlink" }),
-  }).catch((err) => console.error("[ledgerlink] telemetry failed:", err));
-};
 
 function formatMoney(minor: number, currency: string): string {
   const code = (currency || "gbp").toUpperCase();
@@ -73,7 +66,7 @@ export default function LedgerLinkCalculator() {
   const [result, setResult] = React.useState<StripeReconOutput | null>(null);
 
   React.useEffect(() => {
-    trackEvent("page_view");
+    trackEvent("page_view", undefined, "ledgerlink");
   }, []);
 
   const runJson = (text: string) => {
@@ -90,7 +83,7 @@ export default function LedgerLinkCalculator() {
   };
 
   const handleJson = () => {
-    trackEvent("reconcile_click", { source: "json" });
+    trackEvent("reconcile_click", { source: "json" }, "ledgerlink");
     if (!jsonText.trim()) {
       setError("Paste a Stripe JSON export first (payout + balance_transactions).");
       return;
@@ -104,7 +97,7 @@ export default function LedgerLinkCalculator() {
   };
 
   const handleKey = async () => {
-    trackEvent("reconcile_click", { source: "stripe_key" });
+    trackEvent("reconcile_click", { source: "stripe_key" }, "ledgerlink");
     setBusy(true);
     setError(null);
     try {
@@ -160,7 +153,7 @@ export default function LedgerLinkCalculator() {
 
   const handleExportCsv = () => {
     if (!result) return;
-    trackEvent("export_csv_click", { lines: result.journalLines.length });
+    trackEvent("export_csv_click", { lines: result.journalLines.length }, "ledgerlink");
     const csv = journalToCsv(result.journalLines);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);

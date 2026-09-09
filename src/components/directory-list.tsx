@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { products, type ProductStatus } from "@/products/registry";
+import { trackEvent } from "@/lib/telemetry-client";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
@@ -32,11 +33,7 @@ export default function DirectoryList() {
 
 
   React.useEffect(() => {
-    fetch("/api/events", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event: "page_view", product: "factory" }),
-    }).catch((err) => console.error("[telemetry] directory page_view failed:", err));
+    trackEvent("page_view", undefined, "factory");
   }, []);
 
   return (

@@ -14,11 +14,30 @@ export async function track(
 ): Promise<void> {
   try {
     const supabase = createAdminClient();
-    const { error } = await supabase
-      .from("events")
-      .insert({ event, product, payload });
+    // Unique-visitor instrumentation: the client attaches a `session_id` to every event's
+    // payload (see src/lib/telemetry-client.ts) so the Day-7/14/30 gates can count DISTINCT
+    // sessions rather than raw page_view rows. We promote it to the dedicated `session_id`
+    // column (added by supabase/migrations/0002_events_session_id.sql); if that migration has
+    // NOT been applied yet, we degrade to payload-only so telemetry never breaks.
+    const sessionId = typeof payload?.session_id === "string" ? payload.session_id : null;
+    const row: Record<string, unknown> = { event, product, payload };
+    if (sessionId) row.session_id = sessionId;
+
+    const { error } = await supabase.from("events").insert(row);
     if (error) {
-      console.error(`[telemetry] insert failed for "${event}":`, error.message);
+      const msg = error.message ?? "";
+      if (
+        sessionId &&
+        /session_id|column .*(does not exist|not exist)|undefined column/i.test(msg)
+      ) {
+        // session_id column absent (migration 0002 pending) — retry payload-only insert.
+        const retry = await supabase.from("events").insert({ event, product, payload });
+        if (retry.error) {
+          console.error(`[telemetry] insert failed for "${event}" (column fallback):`, retry.error.message);
+        }
+      } else {
+        console.error(`[telemetry] insert failed for "${event}":`, error.message);
+      }
     }
   } catch (err) {
     console.error(`[telemetry] track failed for "${event}":`, err);

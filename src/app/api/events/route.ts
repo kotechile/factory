@@ -3,8 +3,10 @@ import { track } from "@/lib/telemetry";
 
 /**
  * Client-side telemetry endpoint. The browser posts lightweight events
- * (page_view, export_click, checkout_click); they are persisted to Supabase
- * `events` so the growth-watchdog can evaluate the Day 7/14/30 gates.
+ * (page_view, export_click, checkout_click) with an optional `payload` that now
+ * always carries a `session_id` (from src/lib/telemetry-client.ts) so the
+ * growth-watchdog can evaluate the Day 7/14/30 gates on DISTINCT sessions/visitors
+ * rather than raw event counts. Events are persisted to Supabase `events`.
  */
 export async function POST(req: NextRequest) {
   try {
