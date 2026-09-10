@@ -36,6 +36,18 @@ Expose every tool's deterministic core to in-browser AI agents via `navigator.mo
 ## 5. Discovery
 - Ship an agent-discovery listing so consumer/enterprise agents can find the tool.
 - Echo publishes the listing post-launch.
+- **The published listing must be derived from `src/products/registry.ts`, never hand-written.**
+  Registered tool name, schema, and pricing all live there; a static copy under
+  `public/.well-known/` silently drifts.
+
+### Resolved edge-case (2026-09-10)
+`public/.well-known/mcp.json` was written by hand in Phase 3 and never regenerated, so after the
+P0 tool-name fix (`05ac8ae`) it still advertised `calculate_self_employment_2026` — a name no
+browser tool registers — while omitting `calculate_quarterly_estimate` and
+`reconcile_stripe_payout`. GTM Vector 4 would have published that dead name to Smithery/Glama.
+Fix + guard: (a) regenerate the manifest from `registry.ts` (or a route handler that renders it),
+(b) add a unit test asserting every `webmcpTools` name in the registry has a matching
+`WebMCPToolDefinition.name` and appears in the manifest. Registry = single source of truth.
 
 ## 6. Failure handling
 - Broken MCP/WebMCP endpoints → Toby logs and patches this skill.

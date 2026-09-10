@@ -4,9 +4,57 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-09_
+_Last updated: 2026-09-10_
 
 ---
+
+## SHIPPED + VERIFIED (2026-09-10 sweep)
+
+All items approved on 09-09 have landed on `main` and are deployed. Nothing here is open.
+
+- **P0 WebMCP metering + tool-name fix — SHIPPED** (`05ac8ae`). Verified live:
+  `POST /api/agent/calculate` + `x-webmcp-tool: calculate_qbi_deduction` → 200, writes
+  `agent_query` with `payload.tool = "calculate_qbi_deduction"` (probe row deleted; metric stays
+  honest at 0 real agent queries). `reconcile_stripe_payout` without a customer key → HTTP 500 with
+  an explicit error (no factory-key fallback). All 4 tools registered via `WebMCPProvider`.
+  ⚠️ One leg left open — see "NEW/OPEN" item 1 (stale published manifest).
+- **LedgerLink — SHIPPED** (`967a1f2`): engine + fixtures/tests + `/ledgerlink` UI + WebMCP tool,
+  registered in `registry.ts` (status `live`). 200 on `https://factory.aichieve.net/ledgerlink`.
+- **Day-7 instrumentation — SHIPPED** (`36ea75c`): `ql_session_id` cookie → `payload.session_id`,
+  present in the deployed bundle; `growth-check.mjs` reports `unique_sessions`. Migration itself
+  still unapplied — see item 2.
+- **Design backlog P2 — SHIPPED** (`05ac8ae`): CTA copy unified to "Export Report ($9)" top+bottom,
+  currency formatting with commas, "Total 2026 Tax Liability" card promoted (`border-primary/50
+  bg-primary/5 shadow-md`), alert-banner button border raised to `border-foreground/50`.
+- **Build Watchdog — RECOVERED**: last run 09-09 10:13 `ok` (had failed 5× on fire-claim TTL).
+
+## NEW / OPEN (2026-09-10)
+
+1. **[P0] `public/.well-known/mcp.json` is stale — the published agent manifest advertises a dead
+   tool name.** Live at `https://factory.aichieve.net/.well-known/mcp.json` (verified 200): lists
+   `calculate_self_employment_2026` (registered nowhere), omits `calculate_quarterly_estimate`,
+   `format_article_for_linkedin`, `reconcile_stripe_payout`. File unchanged since `4b3abfd`; no
+   producer script → silent drift from `registry.ts`. This is the exact failure the P0 fix was meant
+   to kill, and GTM Vector 4 (Smithery/Glama listing) would publish it. **Fix:** generate the manifest
+   from `registry.ts` (route handler or build step) + a test asserting registry ↔ registered tool
+   names ↔ manifest agree. SOP edge-case recorded in `skills/webmcp_integration.md`.
+2. **[P0] Apply `supabase/migrations/0002_events_session_id.sql` — before the 09-11 Growth Watchdog
+   run (Fri 17:00).** Live probe: `column events.session_id does not exist` (42703),
+   `session_id_column: false`. `telemetry.ts` degrades to payload-only so writes are safe, but the
+   indexed column the Day-7 gate was built on is missing. No `psql` and no DB password in `.env` →
+   apply in the **Supabase SQL editor** (migration is idempotent).
+3. **[P1] Day-7 gate verdict — MISSED on honest measurement, must be logged.**
+   `growth-check.mjs` (09-10): `unique_sessions: 4` (7-day window; all 4 are 09-09 deploy smoke
+   traffic) vs the ≥50 criterion; export criterion met (2 `export_click`, 9 charges, $161 — flat
+   since 09-02). Fallback per playbook = deploy 20 pSEO routes; `src/lib/seo/presets.ts` holds 11 →
+   **9 short**. Also re-base the gate window to instrumentation start (09-09 20:52): pre-instrumentation
+   rows cannot answer "unique sessions", so the original Day-7 window is permanently unverifiable.
+4. **[P1] Echo outreach — still ZERO execution record, 5 days to the Sept 15 deadline.**
+   Approved 09-09; only the blueprint exists (`context/growth_blueprints/2026-08-31_quarterline.md`,
+   Vectors 1 & 5, copy "ready now"). Distribution only, no code.
+5. **[P2] `context/design_backlog.md` still shows the 2026-09-01 items as untriaged** — they shipped
+   in `05ac8ae`; mark them ✅ accepted so the next `visual-qa --suggest` pass doesn't re-flag them.
+
 
 ## DECISION — Approval granted by @Simon approve (2026-09-09)
 
