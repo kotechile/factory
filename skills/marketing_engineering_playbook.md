@@ -175,9 +175,14 @@ To execute this playbook without manual founder overhead, the factory deploys th
     autonomously. Destructive actions (product hibernation/archive) require Slack human confirmation —
     the watchdog proposes to #loop-ai and waits for `@Simon` sign-off before stopping the Coolify app.
 *   **Quantitative Gates:**
-    *   **Day 7 Gate:** $\ge 50$ unique visitors, $\ge 1$ paid or agent event. If unmet $\rightarrow$ trigger pSEO expansion.
+    *   **Day 7 Gate:** $\ge 50$ unique visitors, $\ge 1$ paid or agent event. If unmet $\rightarrow$ trigger pSEO expansion
+        (author to the 20-route target recorded in the journal — reconcile with the 50-page figure in §4
+        before dispatching, and only count sessions that are **not** factory-generated; see edge-case 2026-09-11).
     *   **Day 14 Gate:** $\ge \$50$ gross revenue or $\ge 100$ agent queries. If unmet $\rightarrow$ run A/B copy test.
     *   **Day 30 Gate:** Break-even vs server cost. If failed $\rightarrow$ hibernate product and log learnings to `skills/self_improvement_eval.md`.
+    *   **Measurement rule (all gates):** a gate may only be evaluated over a window that starts when the
+        measuring instrumentation went live, and never over sessions produced by the factory's own CI,
+        deploy smoke, or QA runs. Verify provenance from raw rows before scoring a gate.
 
 ---
 
@@ -191,3 +196,25 @@ For every product shipped by the factory, the human founder is presented with a 
 | **SEO & Discoverability** | Deploy 50 programmatic SEO landing pages via Next.js dynamic routes. | Submit custom URL to Google Search Console / Bing Webmaster. |
 | **Direct Outreach** | Expose embeddable iframe widget and `.well-known/ai-plugin.json`. | Send Echo's 3-sentence email draft to 10 targeted newsletter authors or CPAs. |
 | **Conversion Optimization** | Enable dynamic countdown timer & statutory citation badges. | Pin personal endorsement or thread on personal X/LinkedIn profile. |
+
+---
+
+## 5. Resolved edge-cases
+
+### Resolved edge-case (2026-09-11) — self-generated gate metrics
+The Day-7 gate scored `unique_sessions=8` from `scripts/growth-check.mjs`, and every one of those
+sessions was created by the factory itself: 4 from the 09-09 deploy smoke (20:52:00–20:52:04) and 4
+from the 09-10 10:01 Build Watchdog Playwright run. No external visitor has ever been instrumented
+(`agent_query` is 0 all-time; the only `checkout_click`/`export_click` rows in the table are a
+single 42-minute window on 09-02). A gate fed by our own test runs is unfalsifiable and can be
+"passed" by CI, which would fire or suppress the pSEO fallback for the wrong reason.
+
+Rules:
+1. Before scoring any gate, read the raw rows and attribute each session (`created_at` clustering at
+   a deploy/verify timestamp + a repeating session id = internal). Exclude internal sessions.
+2. Tag internal traffic at source (build/QA/health probes should carry an explicit internal marker)
+   so the gate query can filter it without human judgement.
+3. Re-base each gate window to the moment its instrumentation went live; pre-instrumentation rows
+   can never answer a per-session criterion.
+4. Verdicts are only valid if the metric they rest on is produced by the system under test, not by
+   the factory operating it.

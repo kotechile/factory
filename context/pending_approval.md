@@ -4,7 +4,7 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-10_
+_Last updated: 2026-09-11 (Daily Proactive Sweep)_
 
 ---
 
@@ -28,32 +28,45 @@ All items approved on 09-09 have landed on `main` and are deployed. Nothing here
   bg-primary/5 shadow-md`), alert-banner button border raised to `border-foreground/50`.
 - **Build Watchdog — RECOVERED**: last run 09-09 10:13 `ok` (had failed 5× on fire-claim TTL).
 
-## NEW / OPEN (2026-09-10)
+## OPEN (2026-09-11 sweep — live-verified)
 
-1. **[P0] `public/.well-known/mcp.json` is stale — the published agent manifest advertises a dead
-   tool name.** Live at `https://factory.aichieve.net/.well-known/mcp.json` (verified 200): lists
-   `calculate_self_employment_2026` (registered nowhere), omits `calculate_quarterly_estimate`,
-   `format_article_for_linkedin`, `reconcile_stripe_payout`. File unchanged since `4b3abfd`; no
-   producer script → silent drift from `registry.ts`. This is the exact failure the P0 fix was meant
-   to kill, and GTM Vector 4 (Smithery/Glama listing) would publish it. **Fix:** generate the manifest
-   from `registry.ts` (route handler or build step) + a test asserting registry ↔ registered tool
-   names ↔ manifest agree. SOP edge-case recorded in `skills/webmcp_integration.md`.
-2. **[P0] Apply `supabase/migrations/0002_events_session_id.sql` — before the 09-11 Growth Watchdog
-   run (Fri 17:00).** Live probe: `column events.session_id does not exist` (42703),
-   `session_id_column: false`. `telemetry.ts` degrades to payload-only so writes are safe, but the
-   indexed column the Day-7 gate was built on is missing. No `psql` and no DB password in `.env` →
-   apply in the **Supabase SQL editor** (migration is idempotent).
-3. **[P1] Day-7 gate verdict — MISSED on honest measurement, must be logged.**
-   `growth-check.mjs` (09-10): `unique_sessions: 4` (7-day window; all 4 are 09-09 deploy smoke
-   traffic) vs the ≥50 criterion; export criterion met (2 `export_click`, 9 charges, $161 — flat
-   since 09-02). Fallback per playbook = deploy 20 pSEO routes; `src/lib/seo/presets.ts` holds 11 →
-   **9 short**. Also re-base the gate window to instrumentation start (09-09 20:52): pre-instrumentation
-   rows cannot answer "unique sessions", so the original Day-7 window is permanently unverifiable.
-4. **[P1] Echo outreach — still ZERO execution record, 5 days to the Sept 15 deadline.**
-   Approved 09-09; only the blueprint exists (`context/growth_blueprints/2026-08-31_quarterline.md`,
-   Vectors 1 & 5, copy "ready now"). Distribution only, no code.
-5. **[P2] `context/design_backlog.md` still shows the 2026-09-01 items as untriaged** — they shipped
-   in `05ac8ae`; mark them ✅ accepted so the next `visual-qa --suggest` pass doesn't re-flag them.
+1. **[P0 — verdict is in: MISSED, and the metric is self-generated]** Day-7 gate scored
+   `unique_sessions=8` vs the ≥50 criterion, and **every one of the 8 sessions was produced by the
+   factory itself**: 4 from the 09-09 deploy smoke (20:52:00–20:52:04) and 4 from the 09-10 10:01
+   Build Watchdog Playwright run (raw `events` provenance read this sweep; 214 rows total, nothing
+   written since 09-10 12:04). `agent_query` = 0 all-time; the only `checkout_click` (3) and
+   `export_click` (2) rows in the table are a single 42-minute window on 09-02. **Implication: the
+   gate cannot be honestly scored until internal traffic is excluded — a CI run can "pass" the gate
+   for the wrong reason.** Verdict logged in `skills/self_improvement_eval.md`; SOP patched
+   (`skills/marketing_engineering_playbook.md` §3 measurement rule + §5 edge-case 2026-09-11).
+   **Two code fixes needed (approval):** (a) tag internal traffic at source (CI/deploy/QA probes)
+   so the gate query can filter it; (b) re-base the gate window to instrumentation start (09-09
+   20:52). Until then the Growth Watchdog (Fri 17:00) is evaluating a number we generate ourselves.
+2. **[P0 — code, approval needed] `public/.well-known/mcp.json` still advertises a dead tool name.**
+   Verified live again this sweep: the working-tree file and `https://factory.aichieve.net/.well-known/mcp.json`
+   are byte-identical, still listing only `calculate_self_employment_2026` (registered nowhere) and
+   omitting `calculate_qbi_deduction`, `calculate_quarterly_estimate`, `format_article_for_linkedin`,
+   `reconcile_stripe_payout`. Unchanged since `4b3abfd`; no producer script. **Fix:** generate the
+   manifest from `src/products/registry.ts` (route handler or build step) + a test asserting
+   registry ↔ registered tool names ↔ manifest agree. GTM Vector 4 would publish the dead name.
+3. **[P0 — founder, ~5 min, manual] Apply `supabase/migrations/0002_events_session_id.sql` in the
+   Supabase SQL editor.** `session_id_column: false` again this sweep. Confirmed this run that it
+   **cannot** be applied with the service-role key: PostgREST exposes no DDL and `rpc/exec_sql`
+   returns 404. Not verdict-blocking (the payload fallback works — 8 sessions were readable), but
+   every gate query is a full-scan jsonb extraction until the indexed column exists.
+4. **[P1 — code, approval needed] Author the pSEO fallback presets — the gap is bigger than
+   recorded.** `src/lib/seo/presets.ts` holds **9** presets, not 11 → **11 short** of the 20-route
+   fallback target (the 09-10 record said 9 short). The route
+   (`src/app/quarterline/calc/[slug]/page.tsx`) is generic, so this is preset data only. Also
+   reconcile the playbook's two different targets (20 routes in the journals vs "50 pages" in §4)
+   before dispatching.
+5. **[P1 — no approval needed, expires Sept 15] Echo outreach still has ZERO execution record.**
+   Approved 09-09; the only artifact remains the blueprint
+   (`context/growth_blueprints/2026-08-31_quarterline.md`, Vectors 1 & 5, copy "ready now").
+   4 days to the Q3 estimated-tax deadline — the product's entire urgency moat. Distribution only.
+6. **[P2 — CLOSED, no action] `context/design_backlog.md` triage.** The 09-10 item claiming the
+   2026-09-01 suggestions are still untriaged is **stale**: the file already marks all four
+   ✅ accepted & implemented in `05ac8ae`. No re-flag risk; item dropped from the queue.
 
 
 ## DECISION — Approval granted by @Simon approve (2026-09-09)
