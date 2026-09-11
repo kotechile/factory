@@ -103,6 +103,116 @@ export const presets: SeoPreset[] = [
       "At $250,000 of business income, the QBI phase-out and the 20% rate interact. Model your exact deduction and tax.",
     defaults: { grossIncome: 250000, businessExpenses: 20000, filingStatus: "single" },
   },
+  {
+    slug: "florida-llc-estimated-tax-2026",
+    title: "Florida LLC Estimated Tax Calculator 2026 — Self-Employment & QBI",
+    description:
+      "Florida LLC owners pay no state income tax — estimate 2026 federal self-employment tax, QBI deduction (20%), and quarterly estimated payments.",
+    heading: "Florida LLC Estimated Tax Calculator 2026",
+    intro:
+      "Florida single-member and multi-member LLCs face no state income tax — but federal SE tax and estimated payments still apply. Plan them here.",
+    defaults: { grossIncome: 160000, businessExpenses: 22000, filingStatus: "single" },
+  },
+  {
+    slug: "washington-1099-contractor-tax-2026",
+    title: "Washington 1099 Contractor Tax Calculator 2026 (No State Income Tax)",
+    description:
+      "Washington has no state income tax — estimate 2026 federal self-employment tax, QBI deduction, and quarterly safe-harbor payments on 1099 income.",
+    heading: "Washington 1099 Contractor Tax Calculator 2026",
+    intro:
+      "Washington 1099 contractors skip state income tax — but federal SE tax and QBI still apply. Model your 2026 liability here.",
+    defaults: { grossIncome: 140000, businessExpenses: 16000, filingStatus: "single" },
+  },
+  {
+    slug: "georgia-freelancer-quarterly-tax-2026",
+    title: "Georgia Freelancer Quarterly Tax Calculator 2026",
+    description:
+      "Georgia freelancers: estimate 2026 federal self-employment tax, QBI deduction, and Q3 estimated payment before the Sept 15 deadline.",
+    heading: "Georgia Freelancer Quarterly Tax Calculator 2026",
+    intro:
+      "Freelancing in Georgia? Estimate your federal self-employment tax, QBI deduction, and Q3 estimated payment.",
+    defaults: { grossIncome: 110000, businessExpenses: 14000, filingStatus: "single" },
+  },
+  {
+    slug: "realtor-qbi-deduction-2026",
+    title: "Realtor QBI Deduction Calculator 2026 — Full 20% (Non-SSTB)",
+    description:
+      "Real-estate agents and brokers qualify for the full 20% QBI deduction as a non-SSTB. Estimate your 2026 deduction and self-employment tax.",
+    heading: "Realtor QBI Deduction Calculator 2026",
+    intro:
+      "Realtors and brokers are generally not a Specified Service Trade or Business — so the full 20% QBI deduction applies. Estimate yours.",
+    defaults: { grossIncome: 175000, businessExpenses: 28000, filingStatus: "single" },
+  },
+  {
+    slug: "author-royalties-schedule-c-2026",
+    title: "Author Book Royalties Schedule C Tax Calculator 2026",
+    description:
+      "Authors earning book royalties on Schedule C: estimate 2026 self-employment tax and QBI deduction on your writing income.",
+    heading: "Author Royalties Schedule C Tax Calculator 2026",
+    intro:
+      "Book royalties reported on Schedule C are subject to self-employment tax — estimate your 2026 liability and QBI deduction.",
+    defaults: { grossIncome: 85000, businessExpenses: 10000, filingStatus: "single" },
+  },
+  {
+    slug: "photographer-schedule-c-tax-2026",
+    title: "Photographer Schedule C Tax Calculator 2026",
+    description:
+      "Self-employed photographers: estimate 2026 self-employment tax, QBI deduction, and gear write-offs on your Schedule C income.",
+    heading: "Photographer Schedule C Tax Calculator 2026",
+    intro:
+      "Photographers with camera, studio, and travel expenses — estimate your 2026 SE tax and QBI deduction after write-offs.",
+    defaults: { grossIncome: 95000, businessExpenses: 18000, filingStatus: "single" },
+  },
+  {
+    slug: "consultant-mfj-qbi-phaseout-2026",
+    title: "Consultant QBI Phase-Out Calculator 2026 — Married Filing Jointly ($403,500)",
+    description:
+      "Married consultants near the $403,500 MFJ QBI threshold: see how the 2026 Section 199A phase-out reduces your deduction.",
+    heading: "Consultant QBI Phase-Out Calculator 2026 (Married)",
+    intro:
+      "Filing jointly? The QBI phase-out starts at $403,500 for consultants. Model exactly how much of your 20% deduction survives.",
+    defaults: { grossIncome: 420000, businessExpenses: 35000, isSstb: true, filingStatus: "married_filing_jointly" },
+  },
+  {
+    slug: "100k-self-employment-tax-2026",
+    title: "How Much Self-Employment Tax on $100,000? (2026)",
+    description:
+      "Estimate 2026 self-employment tax, QBI deduction, and total tax on $100,000 of Schedule C income.",
+    heading: "$100,000 Self-Employment Tax Calculator 2026",
+    intro:
+      "Earning about $100k on Schedule C? See your 2026 SE tax, QBI deduction, and quarterly payments.",
+    defaults: { grossIncome: 100000, businessExpenses: 12000, filingStatus: "single" },
+  },
+  {
+    slug: "300k-schedule-c-taxes-2026",
+    title: "How Much Tax on $300,000 Schedule C Income? (2026)",
+    description:
+      "Estimate 2026 self-employment tax, QBI phase-out impact, and federal income tax on $300,000 of Schedule C income.",
+    heading: "$300,000 Schedule C Tax Calculator 2026",
+    intro:
+      "At $300k of business income the QBI phase-out and additional Medicare tax kick in. Model your full 2026 liability.",
+    defaults: { grossIncome: 300000, businessExpenses: 25000, filingStatus: "single" },
+  },
+  {
+    slug: "500k-qbi-phaseout-2026",
+    title: "$500K QBI Phase-Out Calculator 2026 — Non-SSTB W-2/UBIA Limit",
+    description:
+      "Above the QBI threshold at $500k, non-SSTB owners hit the W-2 wage and UBIA limits. Estimate your reduced 2026 deduction.",
+    heading: "$500K QBI Phase-Out & W-2 Limit Calculator 2026",
+    intro:
+      "At $500k of business income, the QBI deduction is limited by W-2 wages and qualified property. Model your reduced 2026 deduction.",
+    defaults: { grossIncome: 500000, businessExpenses: 40000, isSstb: false, filingStatus: "single" },
+  },
+  {
+    slug: "side-hustle-gig-tax-2026",
+    title: "Side Hustle Gig Tax Calculator 2026 — Uber, DoorDash, 1099",
+    description:
+      "Gig workers with a side hustle (Uber, DoorDash, freelance): estimate 2026 self-employment tax on your 1099 side income.",
+    heading: "Side Hustle Gig Tax Calculator 2026",
+    intro:
+      "Driving for Uber or DoorDash on the side? Estimate the self-employment tax on your gig income before the next quarterly deadline.",
+    defaults: { grossIncome: 26000, businessExpenses: 6500, filingStatus: "single" },
+  },
 ];
 
 export function getPreset(slug: string): SeoPreset | undefined {
