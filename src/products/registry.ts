@@ -31,19 +31,6 @@ export const products: Product[] = [
     visibility: "public",
   },
   {
-    slug: "pressflow",
-    name: "PressFlow",
-    tagline: "Supabase-Powered Article & LinkedIn Distribution Engine",
-    status: "live",
-    description:
-      "Paste articles, generate viral LinkedIn post variations with deterministic formatting, manage queues in Supabase, and push directly to LinkedIn via API or instant web intent.",
-    route: "/pressflow",
-    webmcpTools: ["format_article_for_linkedin"],
-    launchedAt: "2026-09-05",
-    category: "Distribution",
-    visibility: "internal",
-  },
-  {
     slug: "ledgerlink",
     name: "LedgerLink",
     tagline: "Stripe Payout → GL Reconciliation Engine",
@@ -57,5 +44,3 @@ export const products: Product[] = [
     visibility: "public",
   },
 ];
-
-
