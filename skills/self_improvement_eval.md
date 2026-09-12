@@ -37,6 +37,8 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 | 2026-09-12 | Fleet | Verify (lint gate) | environment | Shared working tree left dirty by a concurrent Antigravity IDE session (workspace `file_root_software_factory_core`, writes 02:20–02:23 UTC): the half-finished PressFlow distribution-queue rewrite fails `npm run lint` (`exit 1`, `react-hooks/set-state-in-effect` at `src/app/pressflow/page.tsx:316`) → `verify-build.sh` (`set -e`) dies at step 2, so the 10:00 Build Watchdog would report a red gate that is **not** a regression from `main`. The same rewrite also drops copy asserted by `tests/e2e/pressflow.spec.ts` ("Editorial Factory Suite", "Load Sample", "LinkedIn Format Generator & Publisher") and its API depends on `public.distribution_tasks`, which does not exist in production (PostgREST `PGRST205`). | ui_component_standards.md |
 | 2026-09-12 | Fleet | Growth gate (fallback authorization) | context | The Growth Watchdog fired the Day-7 pSEO fallback (`dd1251a`, presets 9→20, all new slugs live 200) at 09-11 17:06 — 9 h after the sweep logged two explicit preconditions: "do not fire the fallback until (a) internal sessions are tagged/excluded and (b) the window is re-based to instrumentation start (09-09 20:52)". Neither precondition was implemented, so 20 indexable routes are now justified by a metric that is 100% factory traffic (15/15 sessions internal, 0 external all-time). | marketing_engineering_playbook.md |
 | 2026-09-12 | Fleet | Verify (lint gate) | environment | **Re-run (10:00 Build Watchdog).** The abandoned PressFlow distribution-queue rewrite (IDE writes 02:20–02:23, server idle since) is *still* dirty and *still* fails `npm run lint` (`react-hooks/set-state-in-effect` @ `src/app/pressflow/page.tsx:316`), so `verify-build.sh` aborts at step 2 — 7.5 h after the prior run logged it. Confirmed `HEAD` `8ea7d80` is green via a detached worktree (`git worktree add --detach` + symlinked `node_modules` → `eslint` exit 0), proving the failure is environment-only, not a regression. Block persists across two consecutive runs; needs owner decision (commit / revert / finish the rewrite). | ui_component_standards.md |
+| 2026-09-12 | Fleet | Governance (approval record + queue state) | context | **The factory's own record of truth was false for 5.5 h.** The 08:00 sweep escalated the dirty tree as an open P0 needing a decision "before 10:00 UTC"; the owner then committed it (`791d6cd`, 11:33) and deleted the whole PressFlow app (`65f4042`, 13:22), yet `context/pending_approval.md` still listed it as open when the 13:45 audit read it. No approval record was written for either commit, so the trail cannot distinguish a ship that cleared rule 7 from one that bypassed it, and the removal message claims a move to a repo that never received the code. A downstream reader (human or agent) re-deriving state from this file gets a decision that no longer exists. | self_improvement_eval.md §6 (record hygiene) + `context/pending_approval.md` "DECISION — owner action (2026-09-12)" |
+| 2026-09-12 | Fleet | Cron ledger (incident reconciliation) | context | **The failure ledger read "unhealthy fleet" while every job ran `ok`.** All 9 rows in `cron_incidents` were unacked: 7 config-drift skips cured by pinning on 09-07, 1 HTTP-402 balance outage, 1 post-restart execution. Nothing in the fleet ever acked or closed cured incidents, so an incident's presence carried no information about current health — the same trap as the `drift_skip` stale-error field in `jobs.json`. The two `unknown` executions remain genuinely unresolvable (long-run fire-claim, side effects unknowable). | self_improvement_eval.md §6 (record hygiene); incidents acknowledged 2026-09-12 |
 
 ### Recon zero-result log
 | Date | Query syntax | Vertical | Correction |
@@ -70,3 +72,22 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 
 ## 5. Compounding
 Every future agent invocation reads updated skills — failures must never repeat across builds.
+
+## 6. Record hygiene (added 2026-09-12)
+
+The factory is only as honest as its own records; three rules, each from a measured failure:
+
+1. **Resolve the record in the run that observes the resolution.** If a sweep/watchdog sees an
+   escalated item closed (a commit landed, a migration applied, a feature deleted), it must update
+   `context/pending_approval.md` in that same run. A queue entry that outlives its decision makes the
+   "single source of truth" worse than no record — readers re-derive a state that no longer exists.
+2. **Every ship carries a decision entry.** AGENTS.md rule 7 requires approval *before* development.
+   When the owner acts directly (commit/revert outside the queue), record it as a decision with author,
+   timestamp and commit SHA — as an audit note, never as a retroactive approval. A commit message is
+   not a decision record: it cannot say who approved what, and it can assert side effects (e.g. "moved
+   into <repo>") that nothing verifies. Verify a claimed move actually arrived.
+3. **Reconcile the cron incident ledger every sweep.** Presence of a `cron_incidents` row is not proof
+   of a live failure; a cured incident stays `detected` forever until someone acks it
+   (`hermes cron incidents ack <id>`). Compare each row's `last_seen_at` against that job's later
+   successful executions, ack the cured ones, and report only the unresolvable ones (`unknown`
+   executions whose side effects cannot be proven either way).

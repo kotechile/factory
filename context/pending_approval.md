@@ -4,18 +4,20 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-12 (Daily Proactive Sweep)_
+_Last updated: 2026-09-12 13:45 UTC (integrity audit) — item 1 below is RESOLVED by owner action;
+see "DECISION — owner action (2026-09-12)"._
 
 ---
 
 ## OPEN (2026-09-12 sweep — live-verified)
 
-1. **[P0 — decision needed TODAY before 10:00 UTC] The shared working tree is dirty with an unfinished,
-   unapproved feature and it fails the build gate.** 7 modified files (2,267 insertions / 596 deletions) +
+1. **[RESOLVED 2026-09-12 13:22 UTC — owner decision, no approval record; kept here for the trail]
+   The shared working tree was dirty with an unfinished, unapproved feature and failed the build gate.**
+   Original escalation: 7 modified files (2,267 insertions / 596 deletions) +
    new `src/app/api/distribution/tasks/route.ts` + `supabase/migrations/0003_distribution_tasks.sql`;
-   mtimes 02:20–02:23 UTC today, written while an Antigravity IDE server held this workspace
-   (`file_root_software_factory_core`, started 02:11, still running). Content: a PressFlow "Weekly
-   Multi-Platform Distribution & To-Do Queue". Live measurements this sweep:
+   mtimes 02:20–02:23 UTC 09-12, written while an Antigravity IDE server held this workspace
+   (`file_root_software_factory_core`, started 02:11). Content: a PressFlow "Weekly
+   Multi-Platform Distribution & To-Do Queue". Live measurements at sweep time:
    - `npm run lint` → **exit 1** (1 error `src/app/pressflow/page.tsx:316` `react-hooks/set-state-in-effect`
      + 5 warnings). `verify-build.sh` uses `set -e` → **the 10:00 Build Watchdog fails at step 2**, not a
      regression from `main`.
@@ -25,8 +27,18 @@ _Last updated: 2026-09-12 (Daily Proactive Sweep)_
      "LinkedIn Format Generator & Publisher") → e2e test 1 fails even after the lint fix.
    - `public.distribution_tasks` **absent in production** (PostgREST `PGRST205`) → the new route 500s; the
      UI to-do list cannot load.
-   - No approval record for this feature (AGENTS.md rule 7 / goals rule 5). **Decide:** stash/revert it, or
-     finish it (fix the hook error, restore-or-update the e2e copy, apply migration 0003).
+   - No approval record for this feature (AGENTS.md rule 7 / goals rule 5).
+   **Resolution (measured 2026-09-12 13:45 UTC, independent re-verification):** the dirty tree was
+   committed as `791d6cd` (11:33 UTC, owner) and then removed from this repo with the whole PressFlow
+   app in `65f4042` (13:22 UTC, owner, "remove pressflow from software-factory-core into standalone
+   Editorial-Factory"). Tree is clean; `main` in sync with origin; deployed image is `65f4042` and
+   `/pressflow` now 404s in production. HEAD re-verified green this audit: `tsc --noEmit` 0 errors,
+   `eslint` 0 errors (1 unused-var warning), `check:tokens` clean, vitest 28/28, `next build` OK.
+   **Two caveats that stay open:** (a) no written approval record was ever created — the commit *is*
+   the decision, recorded in "DECISION — owner action (2026-09-12)" below; (b) the commit message
+   claims the code moved "into standalone Editorial-Factory", but no `pressflow` app exists in
+   `kotechile/Editorial-Factory` (verified locally and against origin) — the code was deleted, and the
+   only surviving copies are Docker overlay layers. Treat it as a deletion, not a migration.
 2. **[P0 — founder, ~5 min] Revenue is Stripe test-mode.** `STRIPE_SECRET_KEY=sk_test` in the repo `.env`,
    so `charge_count=9` / `gross_revenue_usd=161` from `growth-check.mjs` are test-mode charges; real
    collected revenue is $0. The Day-14 gate (≥$50 gross, due ~09-14 Mon) is unmeetable as configured, and
@@ -49,9 +61,22 @@ _Last updated: 2026-09-12 (Daily Proactive Sweep)_
    "ready now"). Sept 15 Q3 estimated-tax deadline is the product's entire urgency moat. Distribution only.
 
 ## CLOSED this cycle (found 2026-09-12)
+- **Dirty-tree P0 (item 1) — CLOSED by owner action, 13:22 UTC.** Committed `791d6cd` then removed with
+  the PressFlow app in `65f4042`; tree clean, `main` in sync, deployed `65f4042`, `/pressflow` → 404.
+  HEAD re-verified green (tsc/lint/tokens/vitest 28/28/build). Rule-7 deviation recorded in the
+  "DECISION — owner action (2026-09-12)" section: no approval record was written before the commits.
 - **`0002_events_session_id.sql` — APPLIED** (was 09-11 item 3). Independent probe: `select session_id
   from events limit 1` → HTTP 200 (no more `42703`); `growth-check.mjs` → `session_id_column: true`.
+  Re-confirmed this audit: `session_id_column: true`, 15/15 instrumented rows.
 - **pSEO presets 9 → 20 — DELIVERED** (`dd1251a`, pushed; new slugs verified 200 in production).
+  Re-confirmed this audit: `california-freelancer-tax-2026`, `new-york-schedule-c-qbi`,
+  `texas-1099-estimated-tax` → 200 on `factory.aichieve.net`.
+- **Cron incident ledger — reconciled 2026-09-12.** All 9 open `cron_incidents` rows were stale
+  (7 config-drift skips from 09-06/09-07 that were cured by pinning, 1 HTTP-402 balance outage,
+  1 `unknown` post-restart execution); none were acked or closed by the fleet, so the ledger read
+  "unhealthy" while every job ran `ok`. All 9 acknowledged via `hermes cron incidents ack`; the two
+  `unknown` rows remain the only genuinely unknowable side-effect windows (long-run fire-claim issue,
+  see `skills/self_improvement_eval.md`).
 
 ---
 
@@ -115,6 +140,26 @@ All items approved on 09-09 have landed on `main` and are deployed. Nothing here
    2026-09-01 suggestions are still untriaged is **stale**: the file already marks all four
    ✅ accepted & implemented in `05ac8ae`. No re-flag risk; item dropped from the queue.
 
+
+## DECISION — owner action (2026-09-12)
+
+Recorded during the 2026-09-12 integrity audit. **No `@Simon approve` record was created for either
+action** — this section records what the owner actually did, so the trail stops being ambiguous. It is
+an *audit note*, not a retroactive approval.
+
+1. **PressFlow "Weekly Multi-Platform Distribution & To-Do Queue" — committed then deleted.**
+   `791d6cd` (11:33 UTC) committed the rewrite that the 08:00 sweep had escalated as unapproved and
+   gate-failing; `65f4042` (13:22 UTC) removed the entire PressFlow app from this repo. Both authored by
+   the owner. Outcome: the feature no longer exists here, the tree is clean, and the build gate is green.
+   Deviation: AGENTS.md rule 7 requires the approval *before* development/ship, and neither commit has a
+   corresponding approval entry — the commit is the de-facto decision.
+2. **Consequence to check before re-adding PressFlow anywhere:** the removal commit message says the code
+   moved "into standalone Editorial-Factory", but `kotechile/Editorial-Factory` contains no `pressflow`
+   app (verified locally and against `origin/main`; only `site/server.mjs` + `published/`). If PressFlow is
+   supposed to live there, it was lost in the move and must be restored from git history
+   (`git show 791d6cd:src/app/pressflow/page.tsx`) rather than assumed present.
+
+---
 
 ## DECISION — Approval granted by @Simon approve (2026-09-09)
 
