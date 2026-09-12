@@ -75,6 +75,15 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   `git add -A` another session's in-flight work, and never commit with a broad pathspec in a dirty tree
   (stage explicit paths only). Same discipline applies to concurrent `next dev`/`next build` runs in the
   shared directory: two writers on one node_modules/.next will produce flaky, unexplainable failures.
+  **Follow-up (09-12 10:00 Build Watchdog run):** the same dirty tree was still failing `npm run lint`
+  7.5 h later (IDE writes 02:20–02:23, server idle since) — "record and hand back" alone leaves the gate
+  red indefinitely. Two additions to the rule. (1) To *conclusively* prove a dirty-tree failure is not a
+  regression **without touching the live tree** (stashing is forbidden), verify `HEAD` in a detached
+  worktree: `git worktree add --detach /tmp/sfc-head HEAD && ln -s "$PWD/node_modules" /tmp/sfc-head/node_modules`
+  then `npm run lint` there (exit 0 ⇒ the commit is green and the failure is environment-only). Remove it
+  with `git worktree remove --force`. (2) A dirty-tree blocker that *repeats across consecutive runs with
+  the same paths* is an escalation to the owner (commit / revert / finish), not a fresh regression entry —
+  do not re-log it as a new `build` error; flag it as a blocked `environment` state awaiting owner action.
 
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
