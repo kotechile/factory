@@ -1,5 +1,15 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { Article, LinkedInPost, LinkedInConfig, CreateArticlePayload, CreatePostPayload, PostStatus } from "./types";
+import type {
+  Article,
+  LinkedInPost,
+  LinkedInConfig,
+  CreateArticlePayload,
+  CreatePostPayload,
+  PostStatus,
+  DistributionTask,
+  DistributionTaskStatus,
+  CreateDistributionTaskPayload,
+} from "./types";
 
 function normalizeArticleRow(row: Record<string, unknown>): Article {
   const title = (row.title as string) || (row.headline as string) || "Untitled Article";
@@ -285,4 +295,203 @@ export async function saveLinkedInConfig(config: { author_urn?: string; access_t
     throw new Error(`Failed to save LinkedIn config to Supabase: ${error.message}`);
   }
   return data as LinkedInConfig;
+}
+
+// Fallback in-memory store for resilience if table is pending in remote DB
+const memoryDistributionTasks = new Map<string, DistributionTask>();
+
+/**
+ * Normalizes a raw Supabase database row into a DistributionTask.
+ */
+function normalizeTaskRow(row: Record<string, unknown>): DistributionTask {
+  return {
+    id: String(row.id || ""),
+    source_type: (row.source_type as "software" | "article" | "manual") || "article",
+    source_id: row.source_id ? String(row.source_id) : null,
+    source_title: (row.source_title as string) || "Untitled Source",
+    platform: (row.platform as "reddit" | "linkedin" | "x" | "producthunt") || "reddit",
+    channel: (row.channel as string) || "Feed",
+    post_title: (row.post_title as string) || "",
+    post_content: (row.post_content as string) || "",
+    submit_url: row.submit_url ? String(row.submit_url) : null,
+    status: (row.status as DistributionTaskStatus) || "ready_to_publish",
+    metadata: (row.metadata as Record<string, unknown>) || {},
+    created_at: String(row.created_at || new Date().toISOString()),
+    updated_at: String(row.updated_at || row.created_at || new Date().toISOString()),
+    completed_at: row.completed_at ? String(row.completed_at) : null,
+  };
+}
+
+/**
+ * Retrieves all distribution tasks with optional filtering by status and source_type.
+ */
+export async function getDistributionTasks(filters?: {
+  status?: DistributionTaskStatus;
+  sourceType?: string;
+}): Promise<DistributionTask[]> {
+  try {
+    const supabase = createAdminClient();
+    let query = supabase
+      .from("distribution_tasks")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (filters?.status) {
+      query = query.eq("status", filters.status);
+    }
+    if (filters?.sourceType) {
+      query = query.eq("source_type", filters.sourceType);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.warn("Supabase getDistributionTasks fallback to memory:", error.message);
+      let list = Array.from(memoryDistributionTasks.values());
+      if (filters?.status) {
+        list = list.filter((t) => t.status === filters.status);
+      }
+      if (filters?.sourceType) {
+        list = list.filter((t) => t.source_type === filters.sourceType);
+      }
+      return list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+
+    return (data || []).map((row) => normalizeTaskRow(row as Record<string, unknown>));
+  } catch (err) {
+    console.error("Failed to query distribution tasks:", err);
+    return Array.from(memoryDistributionTasks.values());
+  }
+}
+
+/**
+ * Saves a single distribution task (insert or update).
+ */
+export async function saveDistributionTask(payload: CreateDistributionTaskPayload): Promise<DistributionTask> {
+  const now = new Date().toISOString();
+  const taskId = payload.id || `task-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+  const taskData: DistributionTask = {
+    id: taskId,
+    source_type: payload.source_type || "article",
+    source_id: payload.source_id || null,
+    source_title: payload.source_title || "Untitled",
+    platform: payload.platform || "reddit",
+    channel: payload.channel || "Feed",
+    post_title: payload.post_title || "",
+    post_content: payload.post_content || "",
+    submit_url: payload.submit_url || null,
+    status: payload.status || "ready_to_publish",
+    metadata: payload.metadata || {},
+    created_at: now,
+    updated_at: now,
+    completed_at: payload.status === "done" ? now : null,
+  };
+
+  try {
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from("distribution_tasks")
+      .upsert(
+        {
+          id: taskData.id,
+          source_type: taskData.source_type,
+          source_id: taskData.source_id,
+          source_title: taskData.source_title,
+          platform: taskData.platform,
+          channel: taskData.channel,
+          post_title: taskData.post_title,
+          post_content: taskData.post_content,
+          submit_url: taskData.submit_url,
+          status: taskData.status,
+          metadata: taskData.metadata,
+          updated_at: now,
+          completed_at: taskData.completed_at,
+        },
+        { onConflict: "id" },
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.warn("Supabase saveDistributionTask fallback to memory:", error.message);
+      memoryDistributionTasks.set(taskData.id, taskData);
+      return taskData;
+    }
+
+    return normalizeTaskRow(data as Record<string, unknown>);
+  } catch {
+    memoryDistributionTasks.set(taskData.id, taskData);
+    return taskData;
+  }
+}
+
+/**
+ * Updates the status of a distribution task (e.g. 'ready_to_publish', 'done', 'deleted').
+ */
+export async function updateDistributionTaskStatus(
+  id: string,
+  status: DistributionTaskStatus,
+): Promise<boolean> {
+  const now = new Date().toISOString();
+  const completedAt = status === "done" ? now : null;
+
+  try {
+    const supabase = createAdminClient();
+    const { error } = await supabase
+      .from("distribution_tasks")
+      .update({
+        status,
+        updated_at: now,
+        completed_at: completedAt,
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.warn("Supabase updateDistributionTaskStatus fallback to memory:", error.message);
+    }
+  } catch (err) {
+    console.warn("Error updating task in Supabase:", err);
+  }
+
+  // Update memory cache
+  const existing = memoryDistributionTasks.get(id);
+  if (existing) {
+    existing.status = status;
+    existing.updated_at = now;
+    existing.completed_at = completedAt;
+    memoryDistributionTasks.set(id, existing);
+  }
+
+  return true;
+}
+
+/**
+ * Permanently deletes a task or marks it as deleted.
+ */
+export async function deleteDistributionTask(id: string, permanent = false): Promise<boolean> {
+  if (!permanent) {
+    return updateDistributionTaskStatus(id, "deleted");
+  }
+
+  try {
+    const supabase = createAdminClient();
+    await supabase.from("distribution_tasks").delete().eq("id", id);
+  } catch {
+    // ignore
+  }
+
+  memoryDistributionTasks.delete(id);
+  return true;
+}
+
+/**
+ * Batch saves multiple distribution tasks into the store.
+ */
+export async function batchSaveDistributionTasks(tasks: DistributionTask[]): Promise<DistributionTask[]> {
+  const results: DistributionTask[] = [];
+  for (const task of tasks) {
+    const saved = await saveDistributionTask(task);
+    results.push(saved);
+  }
+  return results;
 }

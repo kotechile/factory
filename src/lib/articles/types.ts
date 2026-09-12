@@ -63,3 +63,40 @@ export interface CreatePostPayload {
   status?: PostStatus;
   scheduled_at?: string;
 }
+
+export type DistributionTaskStatus = "ready_to_publish" | "done" | "deleted";
+export type DistributionSourceType = "software" | "article" | "manual";
+export type DistributionPlatform = "reddit" | "linkedin" | "x" | "producthunt";
+
+export interface DistributionTask {
+  id: string;
+  source_type: DistributionSourceType;
+  source_id?: string | null;
+  source_title: string;
+  platform: DistributionPlatform;
+  channel: string; // e.g. "r/tax", "r/SaaS", "Feed"
+  post_title: string;
+  post_content: string;
+  submit_url?: string | null;
+  status: DistributionTaskStatus;
+  metadata?: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string | null;
+}
+
+export interface CreateDistributionTaskPayload {
+  id?: string;
+  source_type?: DistributionSourceType;
+  source_id?: string | null;
+  source_title: string;
+  platform?: DistributionPlatform;
+  channel: string;
+  post_title: string;
+  post_content: string;
+  submit_url?: string | null;
+  status?: DistributionTaskStatus;
+  metadata?: Record<string, unknown>;
+}
+
+

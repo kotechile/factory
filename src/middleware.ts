@@ -7,8 +7,13 @@ export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const { pathname } = request.nextUrl;
 
-  // Check if request is targeting the editorial subdomain (e.g. editorial-factory.aichieve.net)
-  const isEditorialHost = host.startsWith("editorial-") || host.startsWith("editorial.");
+  // Check if request is targeting the editorial subdomain (e.g. pressflow.aichieve.net or editorial-factory.aichieve.net)
+  const isEditorialHost =
+    host.startsWith("editorial-") ||
+    host.startsWith("editorial.") ||
+    host.startsWith("pressflow.") ||
+    host.startsWith("pressflow-") ||
+    host === "pressflow.aichieve.net";
 
   if (isEditorialHost) {
     // If accessing root of editorial domain, serve the editorial workbench
@@ -18,7 +23,12 @@ export function middleware(request: NextRequest) {
   }
 
   // Protect internal editorial API routes from unauthorized external callers
-  if (pathname.startsWith("/api/articles") || pathname.startsWith("/api/linkedin")) {
+  if (
+    pathname.startsWith("/api/articles") ||
+    pathname.startsWith("/api/linkedin") ||
+    pathname.startsWith("/api/distribution")
+  ) {
+
     const authCookie = request.cookies.get(EDITORIAL_COOKIE_NAME)?.value;
     const authHeader = request.headers.get("x-editorial-secret");
     const expectedSecret = process.env.EDITORIAL_SECRET || "factory_editorial_2026";
