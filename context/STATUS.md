@@ -25,14 +25,22 @@ older `deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. Fron
 `ui_component_standards` · `design_review` · `stripe_gating_workflow` ·
 `webmcp_integration` · `self_improvement_eval`
 
-## Heartbeat — 4 crons (Simon gateway)
+## Heartbeat — 9 crons (Simon gateway)
 
-| Job | Schedule | Deliver |
-|---|---|---|
-| Weekly Market Recon | Mon 06:00 | Slack |
-| Daily Proactive Sweep | daily 08:00 | local |
-| Build Watchdog (Toby) | daily 10:00 | local |
-| Growth Watchdog | Fri 17:00 | Slack |
+All nine deliver to `slack:C0BTPDKQXU2:1788974638.867929`; the flash-tier jobs are pinned to
+`deepseek-flash` and the rest to `deepseek-v4-pro` (see the model note above).
+
+| Job | Schedule | Model | Workdir |
+|---|---|---|---|
+| Weekly Market Recon | Mon 06:00 | deepseek-flash | `software-factory-core` |
+| Full Pipeline: agentic_ai | Mon + Thu 06:00 | deepseek-v4-pro | `editorial-factory` |
+| Full Pipeline: enterprise_tech_leadership | Tue 06:00 | deepseek-v4-pro | `editorial-factory` |
+| Full Pipeline: gpu_hardware | Wed 06:00 | deepseek-v4-pro | `editorial-factory` |
+| Full Pipeline: supply_chain | Thu 06:00 | deepseek-v4-pro | `editorial-factory` |
+| Full Pipeline: home_systems_reno | Fri 06:00 | deepseek-v4-pro | `editorial-factory` |
+| Daily Proactive Sweep | daily 08:00 | deepseek-flash | `software-factory-core` |
+| Build Watchdog (Toby) | daily 10:00 | deepseek-v4-pro | `software-factory-core` |
+| Growth Watchdog | Fri 17:00 | deepseek-v4-pro | `software-factory-core` |
 
 ## Closed loop
 
