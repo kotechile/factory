@@ -60,6 +60,22 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
 
 - **2026-09-09 — E2E suite runs against a stale sibling-repo server on port 3000 (environment).** `scripts/verify-build.sh` failed 8/10 Playwright tests: `/` returned the title "PressFlow — Editorial Factory Studio & Verticals Engine" (not "Factory Showcase"), `/quarterline` returned an empty title, `/pressflow` returned `{"error":"Not found"}`, and the visual snapshot mismatched (1280×824 then 1280×4780 vs expected 1280×720). Root cause: `playwright.config.ts` sets `reuseExistingServer: !process.env.CI`, and a leftover `node site/server.mjs` from the sibling `/root/editorial-factory` project (started hours earlier in an IDE terminal) was squatting on port 3000 — Playwright silently reused *that* server instead of starting the freshly built `software-factory-core` app. Fix: before running verify-build, check `ss -tlnp | grep ':3000'`; if a process is listening, identify it with `ls -l /proc/<pid>/cwd` and kill any server that isn't this repo's own `next start` (especially `node site/server.mjs` from `/root/editorial-factory`). Re-run passed 10/10. Lesson: `reuseExistingServer` trusts *any* process bound to the baseURL port — never treat wrong-title / `{"error":"Not found"}` / snapshot-mismatch E2E failures as code regressions until you've ruled out a port squatter; confirm the listener's cwd belongs to this repo first. **Resolved (2026-09-09):** the e2e server was moved to a dedicated port so it no longer collides with the editorial-factory site — `playwright.config.ts` now uses `baseURL`/`url` = `http://127.0.0.1:3100` and `command` = `npm run start -- -p 3100`. The cross-factory collision is *prevented*, not just detected.
 
+- **2026-09-12 — the gate ran against a workspace another session was still editing (environment).** The
+  shared working tree of `software-factory-core` was left dirty (7 modified files, 2,267 insertions, plus
+  an untracked `src/app/api/distribution/` route and `supabase/migrations/0003_distribution_tasks.sql`)
+  by a concurrent Antigravity IDE session (`workspace_id file_root_software_factory_core`, server started
+  02:11, file writes 02:20–02:23). `npm run lint` returned **exit 1** on that partial work
+  (`react-hooks/set-state-in-effect`, `src/app/pressflow/page.tsx:316`), so `scripts/verify-build.sh`
+  (`set -e`) aborts at step 2 and the Build Watchdog reports a red gate that has nothing to do with
+  `main`. The same rewrite also removed copy that `tests/e2e/pressflow.spec.ts` asserts, and its data
+  layer depends on a table (`public.distribution_tasks`) that does not exist in the deployed database.
+  Rule: before running or interpreting `scripts/verify-build.sh`, **check `git status --short` first**.
+  If the tree is dirty and the changes are not yours, a red gate is not a regression signal — record
+  which paths are dirty and hand the decision back to the owner. Never `git stash`, revert, or
+  `git add -A` another session's in-flight work, and never commit with a broad pathspec in a dirty tree
+  (stage explicit paths only). Same discipline applies to concurrent `next dev`/`next build` runs in the
+  shared directory: two writers on one node_modules/.next will produce flaky, unexplainable failures.
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 

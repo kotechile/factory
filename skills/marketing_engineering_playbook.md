@@ -218,3 +218,25 @@ Rules:
    can never answer a per-session criterion.
 4. Verdicts are only valid if the metric they rest on is produced by the system under test, not by
    the factory operating it.
+
+### Resolved edge-case (2026-09-12) — fallback authorized while its preconditions were still unmet
+The 09-11 08:00 sweep logged the Day-7 verdict (MISSED) together with two explicit preconditions for
+firing the fallback: (a) internal/QA sessions must be tagged or excluded, and (b) the gate window must
+be re-based to instrumentation start (09-09 20:52). Nine hours later the Growth Watchdog executed the
+fallback anyway — `dd1251a` took `src/lib/seo/presets.ts` from 9 → 20 presets and pushed, so 20
+indexable routes are now live and were justified by `unique_sessions` that are 100 % factory-generated
+(15/15 internal, 0 external all-time). A fallback that fires on a pre-condition-violating metric is
+unfalsifiable in both directions: it cannot be proven right, and the next gate inherits the debt.
+
+Rules:
+1. Preconditions are part of the authorization, not advice. If a verdict records "do not fire until X",
+   the fallback action must fail closed until X is implemented — record the precondition as an explicit
+   blocking item, not a sentence in a journal.
+2. When a fallback fires, log the metric it rested on **and** the current exclusion state (how many
+   sessions were internal vs external) in the same audit row. A delivered action without its
+   exclusion state cannot be audited later.
+3. Non-destructive ≠ pre-authorized. "pSEO expansion runs autonomously" means no human confirmation is
+   needed *once the gate is honestly scored*; it does not license firing on a metric the same run
+   declared unmeasurable.
+4. Once a fallback has shipped, re-scoring the original gate does not un-ship it. Treat the affected
+   routes as pending-review artifacts and re-score on the corrected window before the next gate.

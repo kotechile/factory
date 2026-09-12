@@ -4,7 +4,54 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-11 (Daily Proactive Sweep)_
+_Last updated: 2026-09-12 (Daily Proactive Sweep)_
+
+---
+
+## OPEN (2026-09-12 sweep — live-verified)
+
+1. **[P0 — decision needed TODAY before 10:00 UTC] The shared working tree is dirty with an unfinished,
+   unapproved feature and it fails the build gate.** 7 modified files (2,267 insertions / 596 deletions) +
+   new `src/app/api/distribution/tasks/route.ts` + `supabase/migrations/0003_distribution_tasks.sql`;
+   mtimes 02:20–02:23 UTC today, written while an Antigravity IDE server held this workspace
+   (`file_root_software_factory_core`, started 02:11, still running). Content: a PressFlow "Weekly
+   Multi-Platform Distribution & To-Do Queue". Live measurements this sweep:
+   - `npm run lint` → **exit 1** (1 error `src/app/pressflow/page.tsx:316` `react-hooks/set-state-in-effect`
+     + 5 warnings). `verify-build.sh` uses `set -e` → **the 10:00 Build Watchdog fails at step 2**, not a
+     regression from `main`.
+   - `npx tsc --noEmit` clean; `check:tokens` clean; content-distributor vitest 8/8 pass.
+   - `src/app/pressflow/page.tsx` rewrite (1515 → 2359 lines) removed copy asserted by
+     `tests/e2e/pressflow.spec.ts` ("Editorial Factory Suite", "Load Sample",
+     "LinkedIn Format Generator & Publisher") → e2e test 1 fails even after the lint fix.
+   - `public.distribution_tasks` **absent in production** (PostgREST `PGRST205`) → the new route 500s; the
+     UI to-do list cannot load.
+   - No approval record for this feature (AGENTS.md rule 7 / goals rule 5). **Decide:** stash/revert it, or
+     finish it (fix the hook error, restore-or-update the e2e copy, apply migration 0003).
+2. **[P0 — founder, ~5 min] Revenue is Stripe test-mode.** `STRIPE_SECRET_KEY=sk_test` in the repo `.env`,
+   so `charge_count=9` / `gross_revenue_usd=161` from `growth-check.mjs` are test-mode charges; real
+   collected revenue is $0. The Day-14 gate (≥$50 gross, due ~09-14 Mon) is unmeetable as configured, and
+   the Growth Watchdog only runs Fridays (next 09-18) so nothing evaluates it on time. Set a live key in
+   the deploy env, or explicitly record test-mode as intended.
+3. **[P0 — code, approval needed] `public/.well-known/mcp.json` still advertises a dead tool name.**
+   Re-verified live: prod (200) is byte-identical to the working tree, lists only
+   `calculate_self_employment_2026` (registered nowhere), omits `calculate_qbi_deduction`,
+   `calculate_quarterly_estimate`, `format_article_for_linkedin`, `reconcile_stripe_payout`. Unchanged
+   since `4b3abfd`. **Fix:** generate the manifest from `src/products/registry.ts` + a test asserting
+   registry ↔ registered names ↔ manifest agree.
+4. **[P1 — approval needed, and now the fallback has already fired] The Day-7 pSEO fallback shipped ahead
+   of its own preconditions.** `dd1251a` (09-11 17:06) took presets 9 → 20 and all new slugs are live (200).
+   The 09-11 08:00 sweep required two preconditions first — (a) internal sessions tagged/excluded,
+   (b) gate window re-based to instrumentation start (09-09 20:52). Neither exists. 20 indexable routes are
+   now justified by a metric that is 100% factory traffic (15/15 sessions internal, 0 external, all-time).
+   **Need:** an internal-traffic marker on `events` + a re-based window, then a re-scored verdict.
+5. **[P1 — no approval needed, 3 days left] Echo outreach still has ZERO execution record.** Approved
+   09-09; the only artifact is `context/growth_blueprints/2026-08-31_quarterline.md` (Vectors 1 & 5, copy
+   "ready now"). Sept 15 Q3 estimated-tax deadline is the product's entire urgency moat. Distribution only.
+
+## CLOSED this cycle (found 2026-09-12)
+- **`0002_events_session_id.sql` — APPLIED** (was 09-11 item 3). Independent probe: `select session_id
+  from events limit 1` → HTTP 200 (no more `42703`); `growth-check.mjs` → `session_id_column: true`.
+- **pSEO presets 9 → 20 — DELIVERED** (`dd1251a`, pushed; new slugs verified 200 in production).
 
 ---
 
@@ -28,7 +75,7 @@ All items approved on 09-09 have landed on `main` and are deployed. Nothing here
   bg-primary/5 shadow-md`), alert-banner button border raised to `border-foreground/50`.
 - **Build Watchdog — RECOVERED**: last run 09-09 10:13 `ok` (had failed 5× on fire-claim TTL).
 
-## OPEN (2026-09-11 sweep — live-verified)
+## OPEN (2026-09-11 sweep — historical; items 3 & 4 now closed, see above)
 
 1. **[P0 — verdict is in: MISSED, and the metric is self-generated]** Day-7 gate scored
    `unique_sessions=8` vs the ≥50 criterion, and **every one of the 8 sessions was produced by the
@@ -49,12 +96,12 @@ All items approved on 09-09 have landed on `main` and are deployed. Nothing here
    `reconcile_stripe_payout`. Unchanged since `4b3abfd`; no producer script. **Fix:** generate the
    manifest from `src/products/registry.ts` (route handler or build step) + a test asserting
    registry ↔ registered tool names ↔ manifest agree. GTM Vector 4 would publish the dead name.
-3. **[P0 — founder, ~5 min, manual] Apply `supabase/migrations/0002_events_session_id.sql` in the
+3. **[RESOLVED 2026-09-12 — verified applied] Apply `supabase/migrations/0002_events_session_id.sql` in the
    Supabase SQL editor.** `session_id_column: false` again this sweep. Confirmed this run that it
    **cannot** be applied with the service-role key: PostgREST exposes no DDL and `rpc/exec_sql`
    returns 404. Not verdict-blocking (the payload fallback works — 8 sessions were readable), but
    every gate query is a full-scan jsonb extraction until the indexed column exists.
-4. **[P1 — code, approval needed] Author the pSEO fallback presets — the gap is bigger than
+4. **[DELIVERED 2026-09-12 by `dd1251a` — but see 09-12 item 4: it fired ahead of its preconditions] Author the pSEO fallback presets — the gap is bigger than
    recorded.** `src/lib/seo/presets.ts` holds **9** presets, not 11 → **11 short** of the 20-route
    fallback target (the 09-10 record said 9 short). The route
    (`src/app/quarterline/calc/[slug]/page.tsx`) is generic, so this is preset data only. Also
