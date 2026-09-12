@@ -26,7 +26,12 @@ them with near-zero marginal build cost.
    `scripts/verify-build.sh` passes; Coolify auto-deploys. No build or ship ahead of the go/no-go.
 
 ## Runtime model note
-Current fleet runs on `deepseek-v4-pro` (only configured provider). The persona contracts in
+DeepSeek is still the only configured provider; as of 2026-09-12 the fleet runs it on two tiers.
+**Frontier — `deepseek-v4-pro`:** Simon, Phoebe, Product Director. **Non-frontier —
+`deepseek-flash` (DeepSeek V4.1 Flash, 1M context, vision):** Scout, Echo, Toby, Judge, Publisher,
+Radar, plus the default profile and the Weekly Market Recon / Daily Proactive Sweep crons.
+DeepSeek serves exactly two ids — `deepseek-flash` and `deepseek-v4-pro`; the older
+`deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. The persona contracts in
 `.agents/` record target model tiers (Claude 3.7/Opus, Sonnet/Flash, etc.) to pin once those
 providers' keys are added.
 

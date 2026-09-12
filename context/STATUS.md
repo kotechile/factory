@@ -1,18 +1,23 @@
 # Factory Status Map
 
-_Last updated: 2026-09-01 · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-12 · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
 | Bot | Contract | Role | Model |
 |---|---|---|---|
 | `simon` | `chief_of_staff.md` | Orchestrator, go/no-go, PRD merge | deepseek-v4-pro (→ Claude 3.7 target) |
-| `scout` | `market_scout.md` | 30-day signal discovery | deepseek-v4-pro |
+| `scout` | `market_scout.md` | 30-day signal discovery | deepseek-flash (V4.1 Flash) |
 | `phoebe` | `challenger_10x.md` | 10x viral-loop injection | deepseek-v4-pro |
 | `product-director` | `director_product.md` | Builds via `agy` (Gemini-only) | deepseek-v4-pro |
-| `toby` | `meta_auditor.md` + `growth_watchdog.md` | Quality gate + self-healing + growth gates | deepseek-v4-pro |
-| `echo` | `growth_engine.md` | GTM blueprints + distribution | deepseek-v4-pro |
+| `toby` | `meta_auditor.md` + `growth_watchdog.md` | Quality gate + self-healing + growth gates | deepseek-flash (V4.1 Flash) |
+| `echo` | `growth_engine.md` | GTM blueprints + distribution | deepseek-flash (V4.1 Flash) |
 | _(transient)_ | `seeder.md` | Ground-zero payload drafts | `delegate_task` subagent |
+
+Supporting profiles on the non-frontier tier (same `deepseek-flash`): `judge`, `publisher`, `radar`
+and the default profile. DeepSeek serves exactly two ids — `deepseek-flash` and `deepseek-v4-pro`;
+older `deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. Frontier crons
+(Build Watchdog, Growth Watchdog, the 5 Full-Pipeline editors) stay pinned to `deepseek-v4-pro`.
 
 ## Knowledge — 8 SOPs
 

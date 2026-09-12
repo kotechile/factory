@@ -163,8 +163,10 @@ hermes logs errors                      # error log
 
 ## 2.1 Add model providers (Claude tiers) and pin per-bot
 
-Only **DeepSeek** is configured today, so every bot runs `deepseek-v4-pro`. To realize the
-blueprint's tiering (Simon/Phoebe on Claude 3.7/Opus, Scout/Toby/Echo on Sonnet/Flash):
+Only **DeepSeek** is configured today, and since 2026-09-12 the fleet runs it on two tiers:
+`deepseek-v4-pro` for Simon / Phoebe / Product Director and `deepseek-flash` (V4.1 Flash, 1M
+context) for Scout / Toby / Echo / Judge / Publisher / Radar. To realize the blueprint's tiering
+(Simon/Phoebe on Claude 3.7/Opus, Scout/Toby/Echo on Sonnet/Flash):
 
 ```bash
 # 1. Add a key (or OAuth) for each provider you'll use
