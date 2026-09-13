@@ -4,8 +4,9 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-12 13:45 UTC (integrity audit) — item 1 below is RESOLVED by owner action;
-see "DECISION — owner action (2026-09-12)"._
+_Last updated: 2026-09-13 08:00 UTC (daily sweep) — items 2–5 below carry today's live re-verification;
+item 1's caveat (b) is corrected (the PressFlow feature was rebuilt in `editorial-factory`, not lost).
+New today: the Day-14 gate is due 2026-09-14 with nothing scheduled to score it — see item 2._
 
 ---
 
@@ -39,26 +40,53 @@ see "DECISION — owner action (2026-09-12)"._
    claims the code moved "into standalone Editorial-Factory", but no `pressflow` app exists in
    `kotechile/Editorial-Factory` (verified locally and against origin) — the code was deleted, and the
    only surviving copies are Docker overlay layers. Treat it as a deletion, not a migration.
-2. **[P0 — founder, ~5 min] Revenue is Stripe test-mode.** `STRIPE_SECRET_KEY=sk_test` in the repo `.env`,
+   **CORRECTED 2026-09-13:** that reading is right about the *Next.js page* and wrong about the *feature*.
+   `kotechile/Editorial-Factory` landed `a6ff966` + `7651104` (09-12 14:43–14:48) — `site/distribution.mjs`
+   + the dashboard Reddit/LinkedIn publication to-do queue, live behind auth
+   (`pressflow.aichieve.net` `/` → 401, `/healthz` → 200, `/api/articles.json` → 200, 12 published
+   articles) and populating Supabase `factory_config.distribution_queue`. Nothing needs restoring from
+   `git show 791d6cd:…`; the feature exists, it was rebuilt rather than migrated.
+2. **[P0 — founder, ~5 min; NOW GATE-BLOCKING: Day-14 gate due 2026-09-14] Revenue is Stripe test-mode.**
+   `STRIPE_SECRET_KEY=sk_test` in the repo `.env`,
    so `charge_count=9` / `gross_revenue_usd=161` from `growth-check.mjs` are test-mode charges; real
    collected revenue is $0. The Day-14 gate (≥$50 gross, due ~09-14 Mon) is unmeetable as configured, and
    the Growth Watchdog only runs Fridays (next 09-18) so nothing evaluates it on time. Set a live key in
    the deploy env, or explicitly record test-mode as intended.
+   **Re-verified live 2026-09-13 (not inferred from `.env`):** `POST https://factory.aichieve.net/api/checkout`
+   → HTTP 200 with `sessionId: "cs_test_a1NyVAs…"` and `url: checkout.stripe.com/c/pay/cs_test_…`, i.e. the
+   deployed app creates **test-mode** sessions. In the DB, all **4 `purchases` rows are `cs_test_*`**
+   ($9.00, all 2026-09-02) and the only `subscriptions` row is `canceled` (09-02) → $0 real revenue and
+   every monetization signal 11 days stale. Day-14 therefore scores a MISS on both criteria: $0 real
+   revenue **and** 0 `agent_query` rows all-time. The §3 fallback ("run A/B copy test") is also
+   unscoreable without traffic — it must be paired with distribution (item 5), not scheduled instead of it.
 3. **[P0 — code, approval needed] `public/.well-known/mcp.json` still advertises a dead tool name.**
    Re-verified live: prod (200) is byte-identical to the working tree, lists only
    `calculate_self_employment_2026` (registered nowhere), omits `calculate_qbi_deduction`,
    `calculate_quarterly_estimate`, `format_article_for_linkedin`, `reconcile_stripe_payout`. Unchanged
    since `4b3abfd`. **Fix:** generate the manifest from `src/products/registry.ts` + a test asserting
-   registry ↔ registered names ↔ manifest agree.
+   registry ↔ registered names ↔ manifest agree. _Re-verified 2026-09-13: prod 200, still byte-identical to
+   the working tree, still only `calculate_self_employment_2026`; the 20 live pSEO routes are now pushing
+   traffic at it._
 4. **[P1 — approval needed, and now the fallback has already fired] The Day-7 pSEO fallback shipped ahead
    of its own preconditions.** `dd1251a` (09-11 17:06) took presets 9 → 20 and all new slugs are live (200).
    The 09-11 08:00 sweep required two preconditions first — (a) internal sessions tagged/excluded,
    (b) gate window re-based to instrumentation start (09-09 20:52). Neither exists. 20 indexable routes are
    now justified by a metric that is 100% factory traffic (15/15 sessions internal, 0 external, all-time).
    **Need:** an internal-traffic marker on `events` + a re-based window, then a re-scored verdict.
-5. **[P1 — no approval needed, 3 days left] Echo outreach still has ZERO execution record.** Approved
+   _Re-verified 2026-09-13: 20/20 presets HTTP 200 live; `unique_sessions=23` for quarterline and all 23 are
+   factory-generated (deploy smoke + Build/Growth Watchdog Playwright + the 09-12 post-removal
+   verification); external sessions all-time = 0; `agent_query` = 0. 4 rows / 2 sessions on the `factory`
+   directory (09-09 21:22 → 09-10 00:25, 09-10 12:04) sit outside every CI cluster but store no UA, so they
+   remain unattributable — the only candidate external traffic ever recorded._
+5. **[P1 — no approval needed, 2 days left (expires 2026-09-15)] Echo outreach still has ZERO execution
+   record.** Approved
    09-09; the only artifact is `context/growth_blueprints/2026-08-31_quarterline.md` (Vectors 1 & 5, copy
    "ready now"). Sept 15 Q3 estimated-tax deadline is the product's entire urgency moat. Distribution only.
+   _New 2026-09-13: the hand-execution tooling now exists — but in the other repo. `editorial-factory`'s
+   Supabase `factory_config.distribution_queue` holds **36 items, all status `ready`, 0 published,
+   0 deleted** (generated 09-12 14:48, `site/distribution.mjs`, live behind auth at
+   `pressflow.aichieve.net`). So even the content queue has never been worked by hand: the blocker is
+   execution discipline, not tooling._
 
 ## CLOSED this cycle (found 2026-09-12)
 - **Dirty-tree P0 (item 1) — CLOSED by owner action, 13:22 UTC.** Committed `791d6cd` then removed with

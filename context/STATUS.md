@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-12 · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-13 (daily sweep) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -62,7 +62,7 @@ Scout (Mon) → Simon PRD → [@Simon approve] ─┬─ Product Director (agy, 
 
 `https://factory.aichieve.net/quarterline` — 2026 self-employment tax + QBI + estimated-payment
 calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/calc/*` pSEO
-(9 presets, 308-redirected from the old `/calc/*`), `/embed/countdown`, `/.well-known/mcp.json`.
+(20 presets, 308-redirected from the old `/calc/*`), `/embed/countdown`, `/.well-known/mcp.json` (stale — see below).
 
 ## Infrastructure
 
@@ -80,7 +80,7 @@ calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/c
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live (empty — awaiting traffic) |
+| `events` | growth telemetry | ✅ live — 249 rows, all instrumented sessions factory-generated (0 external, 0 `agent_query`) |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -93,8 +93,9 @@ mirrors them.
 
 ## Remaining / dormant
 
-1. `events` table empty — telemetry wired but no traffic yet; first Growth Watchdog run
-   (Fri 2026-09-04) will report ~zero until visitors arrive.
+1. Distribution is the binding constraint — 0 external sessions / 0 agent queries / $0 real revenue in 12
+   days live; production Stripe is still test mode (`cs_test_` checkout sessions). The Day-7 fallback
+   (20 pSEO routes) shipped before its preconditions and is unreviewed.
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.

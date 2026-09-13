@@ -183,6 +183,10 @@ To execute this playbook without manual founder overhead, the factory deploys th
     *   **Measurement rule (all gates):** a gate may only be evaluated over a window that starts when the
         measuring instrumentation went live, and never over sessions produced by the factory's own CI,
         deploy smoke, or QA runs. Verify provenance from raw rows before scoring a gate.
+    *   **Gate-due rule:** a gate is scored on its **due date**, by whoever runs that day. If the due date
+        falls before the next `growth-watchdog` run (it only runs Fridays), the daily 08:00 sweep scores it
+        and logs the verdict — never silently defer it to the next Friday. A verdict that arrives four days
+        late is not a verdict (see edge-case 2026-09-13).
 
 ---
 
@@ -240,3 +244,23 @@ Rules:
    declared unmeasurable.
 4. Once a fallback has shipped, re-scoring the original gate does not un-ship it. Treat the affected
    routes as pending-review artifacts and re-score on the corrected window before the next gate.
+
+### Resolved edge-case (2026-09-13) — a gate nobody is scheduled to score, and a flaky column probe
+
+The Day-14 gate (≥$50 gross revenue **or** ≥100 agent queries) fell due 2026-09-14, a Monday, while the
+only evaluator (`growth-watchdog`) runs Fridays — next run 09-18. Nothing in the fleet was scheduled to
+score it, and both criteria were already impossible by construction: production Stripe is in **test mode**
+(`POST /api/checkout` on prod returns `cs_test_…`; every `purchases` row is `cs_test_*`), so real revenue
+was $0, and `agent_query` was 0 all-time. A gate with no evaluator on its due date decays into an
+unscored verdict, which is indistinguishable from a passed one.
+
+Rules:
+1. Score every gate on its due date. If the weekly watchdog cannot reach it, the daily sweep scores it and
+   records the raw numbers, the window, and the internal/external session split in the same entry.
+2. Before scoring, verify the scoring surface itself. A "failed" measurement can be an infrastructure
+   artifact: on 09-13 `scripts/growth-check.mjs` reported `session_id_column: false` on its first run and
+   `true` on five consecutive re-runs, with a raw REST read confirming the column exists and is populated.
+   Re-run a single inconsistent probe before recording a regression or an outage.
+3. A gate whose fallback action also needs traffic (e.g. "run an A/B copy test") cannot be satisfied by
+   scheduling the fallback — pair it with a distribution action or record it as blocked-on-traffic, not as
+   pending work.
