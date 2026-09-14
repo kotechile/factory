@@ -247,6 +247,51 @@ From `context/design_backlog.md` (2026-09-01, `visual-qa --suggest`):
 3. Emphasize "Total 2026 Tax Liability" card as the primary focal point.
 4. Fix Alert-banner button contrast (currently fails WCAG 2.1 AA 3:1).
 
+## Recon 2026-09-14 — weekly sweep → Proposals queued for @Simon approve
+
+Scan window 2026-08-15 → 2026-09-14. Four vectors searched; two candidates cleared the ≥60 signal
+bar and all four viability filters, three signals rejected with reasons. No code built — awaits gate.
+
+- **FacturGate** — EU e-invoice pre-send compliance gate + format converter (Vector A×B). **Score 83.**
+  `context/recon_proposals/2026-09-14_facturgate.md`. France's B2B mandate went live **2026-09-01**
+  (receive obligation, all VAT businesses; large + mid-size issuing; SMEs 2027-09-01); EN 16931
+  profile minimum + CIUS-FR (SIRET, FR VAT codes); penalty raised €15 → **€50/invoice** on the sender.
+  Deterministic core = measured high-frequency EN 16931 + CIUS-FR rule set over a canonical invoice
+  model, plus Factur-X/CII and UBL 2.1 emitters that *fix* what the existing free validators only
+  diagnose. WebMCP `validate_einvoice` / `convert_invoice_to_facturx` / `check_eu_vat_id`.
+  Honest limits stated in the PRD: v1 covers the high-frequency rule families only (rest reported as
+  `unsupported-rule`), PDF/A-3 hybrid authoring is P1.
+- **ParcelProof** — carrier invoice DIM-weight & surcharge audit engine (Vector C×B). **Score 80.**
+  `context/recon_proposals/2026-09-14_parcelproof.md`. USPS DIM divisor **166 → 139** effective
+  2026-07-12 with fractional dims rounding up (UPS/FedEx already 139); published dim-weight error
+  rates 0.1–0.4% of lines and 2–8% of carrier spend recovered; disputes expire in ~21 (FedEx) /
+  ~30 (UPS) days. Deterministic core = recompute billable weight from declared shipment records
+  against billed invoice lines + accessorial eligibility + dispute clock, with unverifiable lines
+  flagged, never guessed. WebMCP `audit_carrier_invoice` / `compute_billable_weight`.
+- **Rejected in sweep (logged in `context/audience_pain_points.md`):** Shopify Storefront-MCP → UCP
+  conformance checker (free vendor + community tooling already covers it); agent-payment metering /
+  governance bridge (Cloudflare Monetization Gateway + AWS WAF Monetize shipped July 2026; Stripe
+  MPP / Nevermined / Orb / Metronome own the billing layer); Google Ads API v22 sunset migration
+  scanner (third code-migration scanner in three weeks, one-time WTP, free upstream guides —
+  archetype saturation with MCPV2 still unbuilt).
+- **SOP patched (rule 6):** `skills/market_recon_last30days.md` Stage 2 now carries the measured query
+  corrections — the `after:` operator is not honoured by the backend, bare deprecation booleans
+  return consumer-media noise, and the two highest-yield phrasings found are regulation+deadline+pain
+  (A/B) and billable-quantity+dated-rule-change (C). Failed patterns also logged in
+  `skills/self_improvement_eval.md` → "Recon zero-result log".
+
+**Simon recommendation:**
+- **FacturGate — APPROVE (primary).** Score 83 with a live, dated regulatory trigger and a
+  quantified rejection set (ten named rules dominate failures); the differentiator is *conversion +
+  fix*, not another validator, and the agent tier is genuinely metered. Scope note before build:
+  hold the rule set to the measured high-frequency families and emit `unsupported-rule` for the
+  rest — do not imply full EN 16931 (~1,300 rules) coverage.
+- **ParcelProof — SHORTLIST / APPROVE (secondary).** Score 80, recovers cash directly, weakest factor
+  is urgency (evergreen). Would reuse the `ledgerlink` CSV-import + reconciliation shape.
+- Neither proposal is a build instruction; both wait on `@Simon approve`.
+
+---
+
 ## Recon 2026-09-07 — weekly sweep → Proposals queued for @Simon approve
 
 - **LedgerLink** — Stripe payout → GL reconciliation engine (Vector B). Score 76.

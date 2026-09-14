@@ -44,6 +44,10 @@ Persist post-run evaluation and dynamic error reflection so no operational failu
 ### Recon zero-result log
 | Date | Query syntax | Vertical | Correction |
 |---|---|---|---|
+| 2026-09-14 | `after:2026-08-15 API deprecation breaking change migration developers must update` | A (platform churn) | The `after:` operator is not honoured by the backend — the same query without it returned *more* relevant vendor pages (Gravitee/Dapr/LinkedIn/Google Ads changelogs) than with it. Drop `after:` from Stage 2; it silently narrows to nothing useful. |
+| 2026-09-14 | `"breaking change" OR "deprecated" API migration guide September 2026 developers` | A | Broad deprecation booleans without a vendor or regulation name return consumer-media noise (Apple event transcripts, Instagram reels, packing lists) — 0/6 usable. Anchor every Stage 2 query on a named vendor + version (e.g. "Google Ads API v22 sunset") or a named regulation (e.g. "CBAM definitive regime"). |
+| 2026-09-14 | `site:news.ycombinator.com "why is there no simple way to"` | B | `site:` on HN returns only pre-2020 threads, so it cannot satisfy a 30-day window. Use it for pain *shape* only, never as window evidence. Reddit `site:`/plain queries did return in-window threads, contradicting the standing "Reddit is usually blocked" assumption — try it before assuming outage. |
+| 2026-09-14 | `"calculator" OR "estimator" formula benchmark B2B operations 2026` | C | Unsatisfiable as written — returned generic tech-stack videos. Highest-yield C-vector phrasing was a concrete billable quantity + a dated rule change ("parcel audit dimensional weight divisor 2026"), which surfaced 6/6 on-topic shipper/audit sources. |
 
 ### Growth gate log (audit trail for `scripts/growth-check.mjs`)
 | Date | Product | Days since launch | Gate state | Metrics (from growth-check.mjs) | Action taken |

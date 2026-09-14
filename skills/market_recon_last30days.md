@@ -74,6 +74,26 @@ site:apps.shopify.com ("doesn't" OR "missing" OR "broken") ("export" OR "sync" O
 site:stackoverflow.com ("parsing" OR "mapping" OR "transform") ("error" OR "workaround")
 ```
 
+**Query syntax that actually works (measured 2026-09-14):**
+- **`after:` is not honoured** by the backend — it narrows results to nothing useful while looking
+  correct. Do not use it; the 30-day window is enforced by *reading dates in the results*, not by a
+  query operator. Record the publication date of each source you cite.
+- **Never run a bare deprecation boolean.** `"deprecated" OR "breaking change" API …` returns
+  consumer-media noise (event transcripts, social posts). Anchor on a **named vendor + version**
+  (`"Google Ads API v22 sunset"`) or a **named regulation** (`"CBAM definitive regime"`), then read
+  the vendor changelog/sunset table it surfaces.
+- **Regulation + deadline + persona pain is the highest-yield A/B phrasing**
+  (e.g. `e-invoicing mandate 2026 B2B company ERP compliance struggle` → 6/6 on-topic).
+- **Concrete billable quantity + dated rule change is the highest-yield C phrasing**
+  (e.g. `parcel audit dimensional weight divisor 2026` → 6/6 shipper/audit sources); abstract
+  `calculator OR estimator` queries return tech-stack videos and are not usable.
+- `site:news.ycombinator.com` only surfaces pre-2020 threads — use it for pain *shape*, never as
+  in-window evidence. Reddit is **not** reliably blocked: plain and `site:` Reddit queries returned
+  in-window threads in this sweep, so try it before invoking the fallback.
+- Before shortlisting, check for **free incumbent tooling** by searching the exact deliverable
+  (`"<protocol> conformance checker validate"`). Two of this sweep's candidates died there —
+  a validator that already exists free is not a product.
+
 ### Stage 3: Signal Intensity Score
 Quantify demand **before** writing a PRD — prevent chasing one-off complaints. Score each
 candidate 0–100 and log the score in the PRD:
