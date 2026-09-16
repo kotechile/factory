@@ -11,6 +11,12 @@ what a human/agent said that should persist, and any blocker the sweep should su
   never existed. No automated producer currently writes here.
 - `skills/voice_content_engine.md` generates launch copy + social assets, NOT daily journal
   entries. Until a producer is wired, entries are added manually by Simon or the founder.
+- **2026-09-16:** the gap this predicted materialised — the 09-14 and 09-15 sweeps both ran
+  `completed` and delivered full reports to Slack while writing **nothing** here. Both entries were
+  reconstructed from their cron output files (`~/.hermes/cron/output/7804a08125ce/*.md`) and are
+  marked as reconstructions at the top. **Rule:** a sweep that runs must leave a durable record
+  (journal entry + growth-gate row + commit); a delivered report that leaves no artifact is an audit
+  gap, not a success. Until a producer exists, that step is on the sweep.
 
 ## Format
 One file per day: `YYYY-MM-DD.md` (see `_template.md`).

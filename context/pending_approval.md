@@ -4,9 +4,55 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-13 08:00 UTC (daily sweep) — items 2–5 below carry today's live re-verification;
-item 1's caveat (b) is corrected (the PressFlow feature was rebuilt in `editorial-factory`, not lost).
-New today: the Day-14 gate is due 2026-09-14 with nothing scheduled to score it — see item 2._
+_Last updated: 2026-09-16 08:00 UTC (daily sweep) — the whole file was re-read this sweep; the header
+it claimed ("2026-09-13 08:00") was stale because the 09-14 recon appended without bumping it. The
+queue has been untouched since 09-09 and is now five items deep; the build line has been idle since
+`91b6c50` (09-14 06:03) — correctly, per rule 7. New today: the Day-14 verdict is logged (MISS, both
+legs), the durable record was repaired (the 09-14 and 09-15 sweeps wrote nothing), and the recurring
+`Interrupted by shutdown` cron mislabel was root-caused and patched. See the 2026-09-16 section.
+
+---
+
+## OPEN — 2026-09-16 sweep (live-verified this run)
+
+1. **[P0 — founder, ~5 min]** `sk_live` in the deploy env **or** record test-mode as intended.
+   Live today: `POST /api/checkout` → 200, `cs_test_a1UlRlIvfpCJFByrZEUjbNkIuUaYSgDuc3F9IQUziIosJCixXeST38wqhv`;
+   `purchases` = 4 rows, all `cs_test_*`, all 2026-09-02; the only `subscriptions` row is `canceled`.
+   Real collected revenue **$0**. Day-14 already scored an honest MISS (row in
+   `skills/self_improvement_eval.md`); Day-30 (≈09-30) inherits the same $0 unless answered.
+2. **[P0 — no approval needed, expired 09-15]** Echo: post GTM Vectors 1 & 5 / work the queue.
+   `factory_config.distribution_queue` live: **36 items, all `ready`, 0 published, 0 deleted**,
+   `updated_at` still 2026-09-12T14:48:22Z. The Q3 estimated-tax wedge expired with nothing posted;
+   16 days live has produced **0 provably-external sessions** (see item 5's honest form).
+3. **[P0 — @Simon approve, code]** Generate `.well-known/mcp.json` from `src/products/registry.ts` +
+   a registry ↔ registered-names ↔ manifest consistency test. Live: prod 200, 1373 bytes, sha256
+   `3d8596d6…42e839`, byte-identical to the working tree, advertising only the dead
+   `calculate_self_employment_2026`; unchanged since `4b3abfd`. `agent_query` = 0 all-time.
+4. **[P0 — decision]** Answer the FacturGate / ParcelProof pair queued by the 09-14 recon (`91b6c50`).
+   FacturGate (83, France B2B e-invoice mandate live 2026-09-01) recommended APPROVE primary;
+   ParcelProof (80, USPS DIM 166→139) SHORTLIST/APPROVE. Both PRDs are written and scope-noted. The
+   build line is idle pending this.
+5. **[P1 — @Simon approve, code]** Tag internal/QA traffic on `events` at source + re-base the gate
+   window to instrumentation start (09-09 20:52) + extend `scripts/growth-check.mjs` beyond
+   `quarterline` (LedgerLink's 29 rows and the only 3 `reconcile_click` rows are invisible to every
+   gate). Honest traffic form as of today: quarterline 34/34 factory-generated, **2 sessions outside
+   every CI cluster and unattributable** (`30eb9935…` 09-10 12:04 → 09-14 02:33 with 3×
+   `reconcile_click`; `3f26bb8f…` 09-13 20:34:49), 0 provably external.
+6. **[P1 — Simon / SOP]** Make the sweep's durable record non-optional. The 09-14 and 09-15 sweeps both
+   ran `completed`, delivered full reports to Slack, and wrote **nothing** into the repo — the only
+   copies are `/root/.hermes/cron/output/7804a08125ce/2026-09-1{4,5}_*.md`. This sweep reconstructed
+   both entries and the four missing gate rows; the structural fix (a producer for
+   `context/daily_voice_journal/`, or an explicit "write the entry + commit" step in the sweep SOP)
+   is still open.
+7. **[P1 — Hermes fork, DONE this sweep, needs a gateway restart to load]** The recurring
+   `Interrupted by shutdown before terminal completion` label is a **bookkeeping** failure, not a run
+   failure: today's `Full Pipeline: gpu_hardware` logged `completed successfully` (06:11:28) and
+   `delivered to slack` (06:12:25), then `Timed out waiting for local fire fence … failing closed`
+   (06:12:25.613) → recorded `failed`. Cause: `cron/jobs.py::heartbeat_fire_claim` wrapped the claim
+   refresh in `_fire_job_lock`, which delivery holds for the whole network send (30 s timeout).
+   **18 occurrences since 09-03 across 8 days.** Patch re-applied (`cron/jobs.py.bak.20260916`),
+   `pytest tests/cron/` re-run; not restarted mid-run because the cron scheduler is in-process with
+   this sweep. Operator action: restart `hermes-gateway.service` when no run is in flight.
 
 ---
 

@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-13 (daily sweep) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-16 (daily sweep) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -70,7 +70,8 @@ calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/c
   build → Playwright (visual + axe a11y) → Gemini vision-QA (`visual-qa`).
 - **Design flywheel** — `visual-qa --suggest` → `context/design_backlog.md` → Toby triage.
 - **Telemetry** — `src/lib/telemetry.ts` → Supabase `events` (page_view, export_click,
-  checkout_click, agent_query).
+  checkout_click, agent_query, reconcile_click — the last two are not in the growth-check script,
+  which is hard-scoped to `quarterline`).
 - **Growth surfaces** — pSEO routes, embed widget, `.well-known` A2A manifests.
 - **Config-as-data** — Gemini key/model/prompt live in Supabase `factory_config`
   (modifiable without redeploy).
@@ -80,7 +81,7 @@ calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/c
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live — 249 rows, all instrumented sessions factory-generated (0 external, 0 `agent_query`) |
+| `events` | growth telemetry | ✅ live — 281 rows, last write 2026-09-15 10:01:50 (Playwright); 34/34 quarterline sessions factory-generated, 2 sessions outside every CI cluster and unattributable, 0 provably external, 0 `agent_query` |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -93,9 +94,11 @@ mirrors them.
 
 ## Remaining / dormant
 
-1. Distribution is the binding constraint — 0 external sessions / 0 agent queries / $0 real revenue in 12
-   days live; production Stripe is still test mode (`cs_test_` checkout sessions). The Day-7 fallback
-   (20 pSEO routes) shipped before its preconditions and is unreviewed.
+1. Distribution is the binding constraint — **0 provably-external sessions / 0 `agent_query` / $0 real
+   revenue in 16 days live**; production Stripe is still test mode (`cs_test_` checkout sessions, 4
+   `cs_test_*` purchases all 09-02). Two sessions sit outside every CI cluster but carry no UA/referrer,
+   so they are unattributable, not provably external. The Day-7 fallback (20 pSEO routes) shipped
+   before its preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14.
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.
