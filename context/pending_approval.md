@@ -36,10 +36,12 @@ one) and item 1's live Stripe key is a founder credential action, not a build._
    silently running the tax engine (rule 5). Post-deploy probes: prod manifest byte-identical to the
    tree (4 polls, ~60 s); `calculate_self_employment_2026` → 400; `reconcile_stripe_payout` with no
    key/export → explicit 500. Neither probe wrote telemetry, so `agent_query` remains 0 all-time.
-4. **[P0 — decision]** Answer the FacturGate / ParcelProof pair queued by the 09-14 recon (`91b6c50`).
-   FacturGate (83, France B2B e-invoice mandate live 2026-09-01) recommended APPROVE primary;
-   ParcelProof (80, USPS DIM 166→139) SHORTLIST/APPROVE. Both PRDs are written and scope-noted. The
-   build line is idle pending this.
+4. **[APPROVED 2026-09-17 — build dispatched; was P0 — decision]** FacturGate / ParcelProof pair, queued by
+   the 09-14 recon (`91b6c50`). Owner instruction 2026-09-17 ("proceed to implement to deliver solutions")
+   is the go/no-go: **FacturGate (83) APPROVED primary** and dispatched as a build job against
+   `context/recon_proposals/2026-09-14_facturgate.md` (v1 scope guard only, registry status `beta` — the
+   public launch call stays with the founder). **ParcelProof (80) SHORTLISTED**, not started. The build
+   line's 8-day idle ends here (`91b6c50` 09-14 06:03 → first FacturGate commit).
 5. **[P1 — @Simon approve, code]** Tag internal/QA traffic on `events` at source + re-base the gate
    window to instrumentation start (09-09 20:52) + extend `scripts/growth-check.mjs` beyond
    `quarterline` (LedgerLink's 29 rows and the only 3 `reconcile_click` rows are invisible to every
