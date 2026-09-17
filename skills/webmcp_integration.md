@@ -65,5 +65,13 @@ registry entry has no definition, it fails with "has no WebMCPToolSummary". Also
 grows past one tool it must document the `x-webmcp-tool` selector header — an agent cannot choose a
 tool it cannot name.
 
+**Rule for a tool's server branch (2026-09-17, FacturGate):** a name advertised in the registry must
+also be *handled* in `src/app/api/agent/calculate/route.ts`. Registration and the manifest test only
+prove the name exists — not that calling it does the right thing. Before this rule, the route ran
+the QuarterLine engine for any allowlisted name it had no branch for, so a newly advertised tool
+would have returned a tax calculation instead of an error. The route now ends its tool dispatch with
+an explicit `501` for an advertised-but-unimplemented name (factory rule 5: no silent fallback), and
+each new tool gets its own branch + metered event name before `mcp:sync` is run.
+
 ## 6. Failure handling
 - Broken MCP/WebMCP endpoints → Toby logs and patches this skill.

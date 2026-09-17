@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-16 (daily sweep) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-16 (daily sweep) + 2026-09-17 (FacturGate beta build) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -55,7 +55,7 @@ Scout (Mon) → Simon PRD → [@Simon approve] ─┬─ Product Director (agy, 
 ## Architecture — subpaths under one deploy
 
 - `/` — Factory Showcase (directory: search, status badges, WebMCP agent catalog).
-- `/<slug>/` — each product's UI; `/quarterline/` is the only live product.
+- `/<slug>/` — each product's UI; `/quarterline/` and `/ledgerlink/` are live, `/facturgate/` is beta.
 - `/<slug>/calc/*` — per-product pSEO; `/api/*`, `/embed/*`, `/.well-known/*` are shared.
 
 ## Live product — QuarterLine
@@ -64,6 +64,25 @@ Scout (Mon) → Simon PRD → [@Simon approve] ─┬─ Product Director (agy, 
 calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/calc/*` pSEO
 (20 presets, 308-redirected from the old `/calc/*`), `/embed/countdown`, `/.well-known/mcp.json`
 (generated from `registry.ts` since 2026-09-17 — `a57539f`; do not hand-edit).
+
+## Beta product — FacturGate (built 2026-09-17, deliberately not launched)
+
+`https://factory.aichieve.net/facturgate` — EN 16931 / CIUS-FR e-invoice pre-send gate and
+Factur-X (CII) / UBL 2.1 converter, built from queue item 4 (`e77db64`, owner-approved 2026-09-17).
+Registry status is **beta**: the public launch call is the founder's, so nothing here claims traction.
+
+- Engine `src/lib/calc/einvoice/` — 65 implemented rule checks (55 EN 16931 core ids + the 10
+  `BR-FR-*` CIUS-FR overlay ids), totals recomputed from the lines in integer cents with an explicit
+  `delta` and the destination country's VAT rounding policy (PL at the total, EN 16931 core per
+  line). 25 known-answer vitest vectors pin the exact finding list per rule family; an absent or
+  unmappable field throws `EinvoiceFieldError` naming its rule id — no invented defaults.
+- Surfaces: `/facturgate`, 12 `/facturgate/calc/*` presets, and `validate_einvoice`,
+  `convert_invoice_to_facturx`, `check_eu_vat_id` registered via `navigator.modelContext.registerTool`
+  and advertised in the generated `/.well-known/mcp.json` (v1.2.0).
+- Stated v1 limits (published in the product's own coverage panel, not hidden): EN 16931's ~1,300
+  rules are covered by the measured high-frequency families only; PDF/A-3 hybrid authoring,
+  EXTENDED-CTC-FR lifecycle fields, e-reporting/CDAR and national serializations (PL KSeF FA(3) XML)
+  are P1; `check_eu_vat_id` is offline format + checksum — VIES status is not queried.
 
 ## Infrastructure
 
