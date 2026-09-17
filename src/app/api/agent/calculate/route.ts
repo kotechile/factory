@@ -13,6 +13,11 @@ import {
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { reportMeteredUsage } from "@/lib/stripe/meter";
 import { track } from "@/lib/telemetry";
+import {
+  DEFAULT_AGENT_TOOL,
+  SUPPORTED_AGENT_TOOLS,
+  isSupportedAgentTool,
+} from "@/lib/webmcp/agentTools";
 
 interface LedgerlinkAgentInput {
   account_id?: string;
@@ -78,7 +83,24 @@ function stripeReconEngineValidate(input: StripeReconInput) {
 
 export async function POST(req: NextRequest) {
   try {
-    const toolName = req.headers.get("x-webmcp-tool") || "calculate_qbi_deduction";
+    const requestedTool = (req.headers.get("x-webmcp-tool") || DEFAULT_AGENT_TOOL).trim();
+
+    // No silent fallback (factory rule 5): an unadvertised tool name is an explicit 400,
+    // never a quiet run of the default engine. The allowlist and the published listing
+    // (/.well-known/mcp.json) are both generated from src/lib/webmcp/register.ts and are
+    // held in sync by src/lib/webmcp/manifest.test.ts.
+    if (!isSupportedAgentTool(requestedTool)) {
+      return NextResponse.json(
+        {
+          error: `Unsupported tool '${requestedTool}'.`,
+          supportedTools: SUPPORTED_AGENT_TOOLS,
+          manifest: "https://factory.aichieve.net/.well-known/mcp.json",
+        },
+        { status: 400 },
+      );
+    }
+
+    const toolName = requestedTool;
 
     // --- LedgerLink: reconcile_stripe_payout (metered WebMCP tool) ---
     if (toolName === "reconcile_stripe_payout") {

@@ -8,6 +8,12 @@ import type {
 } from "@/lib/calc/stripeRecon";
 import type { WebMCPToolDefinition } from "./types";
 
+/** name/description/JSON-Schema of a tool, without its runtime handler. */
+export type WebMCPToolSummary = Pick<
+  WebMCPToolDefinition,
+  "name" | "description" | "parameters"
+>;
+
 
 
 /**
@@ -308,6 +314,20 @@ export const reconcileStripePayoutTool: WebMCPToolDefinition<
     return await runLedgerlinkAgentCalculation(params);
   },
 };
+
+/**
+ * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
+ *
+ * Single source of truth: the agent allowlist (./agentTools.ts) and the published
+ * agent-discovery listing (./manifest.ts) both read from it, so a tool name can never be
+ * advertised or accepted without a real definition here. Add a tool by adding its
+ * definition above and listing it here + in src/products/registry.ts.
+ */
+export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
+  calculateQbiDeductionTool,
+  calculateQuarterlyEstimateTool,
+  reconcileStripePayoutTool,
+].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
  * Registers all factory WebMCP tools in the current browser session.

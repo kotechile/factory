@@ -1,8 +1,13 @@
 {
-  "name": "quarterline-tax-engine",
-  "description": "Deterministic 2026 US self-employment tax, Section 199A QBI deduction, and quarterly estimated-payment calculator. Statutory 20% QBI rate (OBBBA Pub. L. 119-21).",
-  "version": "1.0.0",
+  "name": "factory-agent-tools",
+  "description": "Deterministic agent tools shipped by the Autonomous Product & Software Factory (factory.aichieve.net): 2026 US self-employment, Section 199A QBI, and quarterly estimated-tax calculations (QuarterLine), and Stripe payout -> GL reconciliation (LedgerLink).",
+  "version": "1.1.0",
   "endpoint": "https://factory.aichieve.net/api/agent/calculate",
+  "tool_selector": {
+    "header": "x-webmcp-tool",
+    "default": "calculate_qbi_deduction",
+    "note": "Name of the tool to invoke; must be one of the tools listed below. Omit for the default."
+  },
   "auth": {
     "type": "api_key",
     "header": "x-customer-id",
@@ -15,23 +20,151 @@
   },
   "tools": [
     {
-      "name": "calculate_self_employment_2026",
-      "description": "Compute 2026 self-employment tax, QBI deduction (20% statutory rate), and quarterly estimated payments.",
-      "input": {
-        "grossIncome": "number (USD)",
-        "businessExpenses": "number (USD)",
-        "filingStatus": "single | married_joint | married_separate | head_of_household",
-        "w2Wages": "number (USD)",
-        "priorYearAgi": "number (USD)",
-        "priorYearTax": "number (USD)",
-        "age": "number",
-        "isSstb": "boolean",
-        "qualifiedTips": "number (USD)",
-        "retirementContributions": "number (USD)",
-        "sehi": "number (USD)",
-        "w2WagesPaidByBusiness": "number (USD)",
-        "ubia": "number (USD)",
-        "stateLocalTaxPaid": "number (USD)"
+      "name": "calculate_qbi_deduction",
+      "description": "Calculates the exact 2026 Section 199A QBI deduction under enacted law (OBBBA Pub. L. 119-21 at 20% rate, Rev. Proc. 2025-32 thresholds $201,750/$403,500, and SSTB/W-2/UBIA limits).",
+      "product": "quarterline",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "grossIncome": {
+            "type": "number",
+            "description": "Gross Schedule C / 1099 revenue."
+          },
+          "businessExpenses": {
+            "type": "number",
+            "description": "Deductible business expenses."
+          },
+          "filingStatus": {
+            "type": "string",
+            "description": "Filing status: 'single', 'married_filing_jointly', 'married_filing_separately', 'head_of_household'.",
+            "enum": [
+              "single",
+              "married_filing_jointly",
+              "married_filing_separately",
+              "head_of_household"
+            ]
+          },
+          "isSstb": {
+            "type": "boolean",
+            "description": "Whether the business is a Specified Service Trade or Business (law, health, consulting, financial services, etc.)."
+          },
+          "w2WagesPaidByBusiness": {
+            "type": "number",
+            "description": "W-2 wages paid by the business to employees for W-2/UBIA limitation."
+          },
+          "ubia": {
+            "type": "number",
+            "description": "Unadjusted basis immediately after acquisition of qualified business property."
+          },
+          "w2Wages": {
+            "type": "number",
+            "description": "Individual's outside W-2 wages."
+          },
+          "retirementContributions": {
+            "type": "number",
+            "description": "Deductible SEP-IRA / Solo 401(k) contributions."
+          },
+          "sehi": {
+            "type": "number",
+            "description": "Self-employed health insurance deduction."
+          },
+          "otherTaxableIncome": {
+            "type": "number",
+            "description": "Other taxable income impacting overall taxable income threshold."
+          }
+        },
+        "required": [
+          "grossIncome"
+        ]
+      }
+    },
+    {
+      "name": "calculate_quarterly_estimate",
+      "description": "Computes 2026 self-employment tax, progressive income tax, and quarterly estimated tax installments with safe-harbor protection (highlighting Q3 Sept 15 deadline).",
+      "product": "quarterline",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "grossIncome": {
+            "type": "number",
+            "description": "Gross Schedule C / 1099 revenue."
+          },
+          "businessExpenses": {
+            "type": "number",
+            "description": "Deductible business expenses."
+          },
+          "filingStatus": {
+            "type": "string",
+            "description": "Filing status: 'single', 'married_filing_jointly', 'married_filing_separately', 'head_of_household'.",
+            "enum": [
+              "single",
+              "married_filing_jointly",
+              "married_filing_separately",
+              "head_of_household"
+            ]
+          },
+          "priorYearAgi": {
+            "type": "number",
+            "description": "2025 Prior-year Adjusted Gross Income (AGI) for safe-harbor calculation."
+          },
+          "priorYearTax": {
+            "type": "number",
+            "description": "2025 Prior-year total tax liability for safe-harbor rule (100% or 110%)."
+          },
+          "w2Wages": {
+            "type": "number",
+            "description": "W-2 wages received (reduces available Social Security $184,500 wage base)."
+          },
+          "age": {
+            "type": "number",
+            "description": "Age of taxpayer (evaluates $6,000 OBBBA senior deduction if 65+)."
+          },
+          "isTippedOccupation": {
+            "type": "boolean",
+            "description": "Flag for tipped occupation under OBBBA 'No Tax on Tips'."
+          },
+          "qualifiedTips": {
+            "type": "number",
+            "description": "Qualified tips eligible for up to $25k deduction."
+          }
+        },
+        "required": [
+          "grossIncome"
+        ]
+      }
+    },
+    {
+      "name": "reconcile_stripe_payout",
+      "description": "Reconciles a netted Stripe payout into categorized GL journal lines that sum to the payout net exactly (Σ net == payout.amount). Accepts a customer read-only Stripe restricted key or a pasted Stripe JSON export; never uses the factory account.",
+      "product": "ledgerlink",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "description": "Stripe account id whose payout is being reconciled."
+          },
+          "period": {
+            "type": "string",
+            "description": "Payout period, e.g. '2026-08' or a Stripe created range 'start:end'."
+          },
+          "payout_id": {
+            "type": "string",
+            "description": "Optional specific Stripe payout id to reconcile."
+          },
+          "stripe_restricted_key": {
+            "type": "string",
+            "description": "Customer read-only Stripe restricted key (rk_…). Required unless export_json is supplied."
+          },
+          "export_json": {
+            "type": "string",
+            "description": "Pasted/uploaded Stripe JSON export (payout + balance_transactions). Required unless stripe_restricted_key is supplied."
+          }
+        },
+        "required": [
+          "account_id",
+          "period"
+        ]
       }
     }
   ]
