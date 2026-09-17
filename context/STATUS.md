@@ -62,7 +62,8 @@ Scout (Mon) → Simon PRD → [@Simon approve] ─┬─ Product Director (agy, 
 
 `https://factory.aichieve.net/quarterline` — 2026 self-employment tax + QBI + estimated-payment
 calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/calc/*` pSEO
-(20 presets, 308-redirected from the old `/calc/*`), `/embed/countdown`, `/.well-known/mcp.json` (stale — see below).
+(20 presets, 308-redirected from the old `/calc/*`), `/embed/countdown`, `/.well-known/mcp.json`
+(generated from `registry.ts` since 2026-09-17 — `a57539f`; do not hand-edit).
 
 ## Infrastructure
 

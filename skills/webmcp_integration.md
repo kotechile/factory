@@ -40,14 +40,30 @@ Expose every tool's deterministic core to in-browser AI agents via `navigator.mo
   Registered tool name, schema, and pricing all live there; a static copy under
   `public/.well-known/` silently drifts.
 
-### Resolved edge-case (2026-09-10)
+### Resolved edge-case (2026-09-10) — CLOSED 2026-09-17
 `public/.well-known/mcp.json` was written by hand in Phase 3 and never regenerated, so after the
 P0 tool-name fix (`05ac8ae`) it still advertised `calculate_self_employment_2026` — a name no
 browser tool registers — while omitting `calculate_quarterly_estimate` and
 `reconcile_stripe_payout`. GTM Vector 4 would have published that dead name to Smithery/Glama.
-Fix + guard: (a) regenerate the manifest from `registry.ts` (or a route handler that renders it),
-(b) add a unit test asserting every `webmcpTools` name in the registry has a matching
-`WebMCPToolDefinition.name` and appears in the manifest. Registry = single source of truth.
+
+**Fix as shipped (`a57539f`):** the listing is generated from the registry, and the guard is a test —
+- `src/lib/webmcp/manifest.ts` — `buildMcpManifest()` / `serializeMcpManifest()`. Single source of
+  truth is `registry.ts` (which product owns which tool) + `WEBMCP_TOOL_SUMMARIES` in `register.ts`
+  (name, description, JSON Schema). Never edit `public/.well-known/mcp.json` by hand.
+- `npm run mcp:sync` — regenerates the published file from the generator.
+- `src/lib/webmcp/manifest.test.ts` — asserts registry ↔ definitions ↔ `SUPPORTED_AGENT_TOOLS` ↔
+  manifest ↔ published file all agree, that every `required` param exists in `properties`, and that
+  no dead name is advertised. It runs in the normal `npm run test` gate.
+- `agentTools.ts` — the API allowlist reads the same summaries, so `/api/agent/calculate` returns 400
+  for a name the listing does not advertise (factory rule 5), including the whole `calculate_*` family
+  if someone renames a tool without updating the registry.
+
+**Rule for the next tool:** add the definition in `register.ts` + the `webmcpTools` entry in
+`registry.ts`, run `npm run mcp:sync`, then `bash scripts/verify-build.sh`. If a tool is added
+without its registry entry, the test fails with "defined but registered under no product"; if a
+registry entry has no definition, it fails with "has no WebMCPToolSummary". Also: when the manifest
+grows past one tool it must document the `x-webmcp-tool` selector header — an agent cannot choose a
+tool it cannot name.
 
 ## 6. Failure handling
 - Broken MCP/WebMCP endpoints → Toby logs and patches this skill.

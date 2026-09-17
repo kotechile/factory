@@ -4,12 +4,12 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-16 08:00 UTC (daily sweep) — the whole file was re-read this sweep; the header
-it claimed ("2026-09-13 08:00") was stale because the 09-14 recon appended without bumping it. The
-queue has been untouched since 09-09 and is now five items deep; the build line has been idle since
-`91b6c50` (09-14 06:03) — correctly, per rule 7. New today: the Day-14 verdict is logged (MISS, both
-legs), the durable record was repaired (the 09-14 and 09-15 sweeps wrote nothing), and the recurring
-`Interrupted by shutdown` cron mislabel was root-caused and patched. See the 2026-09-16 section.
+_Last updated: 2026-09-17 (manifest item closed by hand, not by a sweep) — item 3 is DONE and verified in
+production (`a57539f`); the remaining open items are unchanged from the 2026-09-16 sweep below. Owner
+instruction 2026-09-17: fix the manifest, then proceed to deliver and drain the queue — so items 4 and 5
+(item 5 = the internal-traffic marker, requires a migration on the production Supabase) are the next
+software-factory slots; item 2's distribution queue is editorial-gated (needs the editorial gate, not this
+one) and item 1's live Stripe key is a founder credential action, not a build._
 
 ---
 
@@ -24,10 +24,18 @@ legs), the durable record was repaired (the 09-14 and 09-15 sweeps wrote nothing
    `factory_config.distribution_queue` live: **36 items, all `ready`, 0 published, 0 deleted**,
    `updated_at` still 2026-09-12T14:48:22Z. The Q3 estimated-tax wedge expired with nothing posted;
    16 days live has produced **0 provably-external sessions** (see item 5's honest form).
-3. **[P0 — @Simon approve, code]** Generate `.well-known/mcp.json` from `src/products/registry.ts` +
-   a registry ↔ registered-names ↔ manifest consistency test. Live: prod 200, 1373 bytes, sha256
-   `3d8596d6…42e839`, byte-identical to the working tree, advertising only the dead
-   `calculate_self_employment_2026`; unchanged since `4b3abfd`. `agent_query` = 0 all-time.
+3. **[RESOLVED 2026-09-17 — shipped `a57539f`, live-verified]** `.well-known/mcp.json` is now
+   generated, never hand-written: `src/lib/webmcp/manifest.ts` derives it from `src/products/registry.ts`
+   + `WEBMCP_TOOL_SUMMARIES` (the new canonical surface in `register.ts`). It advertises all three real
+   tools — `calculate_qbi_deduction`, `calculate_quarterly_estimate`, `reconcile_stripe_payout` — with
+   their true JSON Schemas and product attribution, plus the previously undocumented `x-webmcp-tool`
+   selector header (with three tools an agent cannot pick one without it), and no dead name.
+   `manifest.test.ts` (7 assertions: registry ↔ definitions ↔ allowlist ↔ manifest ↔ published file)
+   fails the build on drift — verified by re-injecting the original regression before committing.
+   `/api/agent/calculate` now returns 400 + the supported list for an unadvertised name instead of
+   silently running the tax engine (rule 5). Post-deploy probes: prod manifest byte-identical to the
+   tree (4 polls, ~60 s); `calculate_self_employment_2026` → 400; `reconcile_stripe_payout` with no
+   key/export → explicit 500. Neither probe wrote telemetry, so `agent_query` remains 0 all-time.
 4. **[P0 — decision]** Answer the FacturGate / ParcelProof pair queued by the 09-14 recon (`91b6c50`).
    FacturGate (83, France B2B e-invoice mandate live 2026-09-01) recommended APPROVE primary;
    ParcelProof (80, USPS DIM 166→139) SHORTLIST/APPROVE. Both PRDs are written and scope-noted. The
