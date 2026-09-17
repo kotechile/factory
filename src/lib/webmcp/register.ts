@@ -2,6 +2,7 @@ import {
   type SelfEmployment2026Input,
   type SelfEmployment2026Output,
 } from "@/lib/calc/selfEmployment2026";
+import type { EinvoiceReport, VatIdCheck } from "@/lib/calc/einvoice";
 import type {
   ReconcileStripePayoutInput,
   StripeReconOutput,
@@ -316,6 +317,143 @@ export const reconcileStripePayoutTool: WebMCPToolDefinition<
 };
 
 /**
+ * FacturGate (EU e-invoice) tools. Like LedgerLink these are server-backed metered calls: the
+ * browser tool posts to /api/agent/calculate, which runs the deterministic engine, records the
+ * agent_query event and reports metered usage. A failure surfaces an explicit error — there is no
+ * client-side fallback that would hide a rejection.
+ */
+async function runFacturgateAgentCall<TResult>(toolName: string, params: unknown): Promise<TResult> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent call failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: TResult;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent call failed: invalid response");
+  }
+  return json.data;
+}
+
+export interface ValidateEinvoiceParams {
+  /** An existing CII / UBL 2.1 document to validate as-is. */
+  xml?: string;
+  /** Canonical invoice model as a JSON string: { seller, buyer, invoice }. */
+  invoice?: string;
+  target_country?: string;
+  target_format?: string;
+}
+
+export interface ConvertInvoiceToFacturxParams {
+  /** Canonical invoice model as a JSON string: { seller, buyer, invoice }. */
+  invoice: string;
+  target_country?: string;
+  target_format?: string;
+}
+
+export interface CheckEuVatIdParams {
+  vat_id: string;
+  country: string;
+}
+
+export const validateEinvoiceTool: WebMCPToolDefinition<ValidateEinvoiceParams, EinvoiceReport> = {
+  name: "validate_einvoice",
+  description:
+    "Pre-send compliance gate for EU e-invoices (EN 16931 + CIUS-FR): returns the exact findings (rule id, severity, field path, fix) with blocking vs advisory severity, a 0-100 readiness score, and the totals reconciliation with the drift delta. Accepts a canonical invoice model or an existing CII/UBL 2.1 document. No rule is reported as passing unless it is implemented (see coverage).",
+  parameters: {
+    type: "object",
+    properties: {
+      xml: {
+        type: "string",
+        description:
+          "An existing CII (CrossIndustryInvoice) or UBL 2.1 Invoice document to validate as-is. Supply this or `invoice`.",
+      },
+      invoice: {
+        type: "string",
+        description:
+          "Canonical invoice model as a JSON string: { seller, buyer, invoice, targetFormat, targetCountry }.",
+      },
+      target_country: {
+        type: "string",
+        description:
+          "Rule set / rounding regime to validate against. Defaults to FR (CIUS-FR overlay).",
+        enum: ["FR", "PL", "BE", "DE"],
+      },
+      target_format: {
+        type: "string",
+        description: "Artifact the document is destined for. Defaults to facturx.",
+        enum: ["facturx", "cii", "ubl"],
+      },
+    },
+    required: [],
+  },
+  handler: (params) => runFacturgateAgentCall<EinvoiceReport>("validate_einvoice", params),
+};
+
+export const convertInvoiceToFacturxTool: WebMCPToolDefinition<
+  ConvertInvoiceToFacturxParams,
+  EinvoiceReport
+> = {
+  name: "convert_invoice_to_facturx",
+  description:
+    "Converts a canonical invoice model into a compliant artifact at the EN 16931 profile (CII/Factur-X body or UBL 2.1 with the Peppol BIS 3.0 ProfileID), returning the corrected XML, the change list (every finding with its rule id and fix) and the reconciled totals. Refuses to emit a document that has blocking findings or an unmappable field.",
+  parameters: {
+    type: "object",
+    properties: {
+      invoice: {
+        type: "string",
+        description:
+          "Canonical invoice model as a JSON string: { seller, buyer, invoice, targetFormat, targetCountry }.",
+      },
+      target_country: {
+        type: "string",
+        description: "Rule set / rounding regime for the emitted document. Defaults to FR.",
+        enum: ["FR", "PL", "BE", "DE"],
+      },
+      target_format: {
+        type: "string",
+        description: "facturx (default, CII at EN 16931), cii (standalone CII) or ubl (UBL 2.1).",
+        enum: ["facturx", "cii", "ubl"],
+      },
+    },
+    required: ["invoice"],
+  },
+  handler: (params) => runFacturgateAgentCall<EinvoiceReport>("convert_invoice_to_facturx", params),
+};
+
+export const checkEuVatIdTool: WebMCPToolDefinition<CheckEuVatIdParams, VatIdCheck> = {
+  name: "check_eu_vat_id",
+  description:
+    "Checks an EU VAT identifier offline: national format and (where implemented) the published checksum — FR VAT-key formula, DE MOD 11,10, BE mod 97, PL NIP, NL mod 11, IT Luhn. Reports formatValid/checksumValid explicitly and never claims a VIES status it did not query. An unknown country is a failure, not a pass.",
+  parameters: {
+    type: "object",
+    properties: {
+      vat_id: {
+        type: "string",
+        description: "The VAT identifier as written, e.g. 'FR83404833048' or 'BE 0123.456.749'.",
+      },
+      country: {
+        type: "string",
+        description: "ISO 3166-1 alpha-2 country code of the identifier (e.g. FR, DE, BE, PL, NL).",
+      },
+    },
+    required: ["vat_id", "country"],
+  },
+  handler: (params) => runFacturgateAgentCall<VatIdCheck>("check_eu_vat_id", params),
+};
+
+/**
  * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
  *
  * Single source of truth: the agent allowlist (./agentTools.ts) and the published
@@ -327,6 +465,9 @@ export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   calculateQbiDeductionTool,
   calculateQuarterlyEstimateTool,
   reconcileStripePayoutTool,
+  validateEinvoiceTool,
+  convertInvoiceToFacturxTool,
+  checkEuVatIdTool,
 ].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
@@ -336,6 +477,9 @@ export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(calculateQbiDeductionTool);
   registerWebMCPTool(calculateQuarterlyEstimateTool);
   registerWebMCPTool(reconcileStripePayoutTool);
+  registerWebMCPTool(validateEinvoiceTool);
+  registerWebMCPTool(convertInvoiceToFacturxTool);
+  registerWebMCPTool(checkEuVatIdTool);
 }
 
 

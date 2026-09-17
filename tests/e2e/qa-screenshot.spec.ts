@@ -1,11 +1,21 @@
 import { test, expect } from "@playwright/test";
 
-// Captures a stable full-page screenshot of the QuarterLine calculator for the
-// Gemini vision-QA step (scripts/visual-qa.mjs). Path is deterministic (not
-// platform-suffixed like toHaveScreenshot snapshots).
-test("capture QA screenshot", async ({ page }) => {
+// Captures stable full-page screenshots for the Gemini vision-QA step
+// (scripts/visual-qa.mjs). Paths are deterministic (not platform-suffixed like
+// toHaveScreenshot snapshots).
+test("capture QuarterLine QA screenshot", async ({ page }) => {
   await page.goto("/quarterline");
   await page.screenshot({ path: "test-results/quarterline-qa.png", fullPage: true });
+});
+
+// FacturGate is captured in its richest state: a validated, converted FR document (score card,
+// findings area, reconciliation, emitted artifact and the coverage disclosure).
+test("capture FacturGate QA screenshot", async ({ page }) => {
+  await page.goto("/facturgate");
+  await page.getByRole("button", { name: /Load valid FR example/ }).click();
+  await page.getByRole("button", { name: /Validate & convert/ }).click();
+  await expect(page.getByText("100/100")).toBeVisible();
+  await page.screenshot({ path: "test-results/facturgate-qa.png", fullPage: true });
 });
 
 // Deterministic font check — vision models cannot reliably distinguish monospace

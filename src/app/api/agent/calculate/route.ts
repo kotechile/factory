@@ -10,6 +10,16 @@ import {
   type StripeReconInput,
   type StripeReconOutput,
 } from "@/lib/calc/stripeRecon";
+import {
+  EinvoiceFieldError,
+  checkEuVatId,
+  convertInvoiceToFacturX,
+  validateEinvoice,
+  validateEinvoiceXml,
+  type EinvoiceInput,
+  type TargetCountry,
+  type TargetFormat,
+} from "@/lib/calc/einvoice";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { reportMeteredUsage } from "@/lib/stripe/meter";
 import { track } from "@/lib/telemetry";
@@ -26,6 +36,103 @@ interface LedgerlinkAgentInput {
   stripe_restricted_key?: string;
   export_json?: string;
 }
+
+interface FacturgateAgentInput {
+  xml?: string;
+  invoice?: string | Record<string, unknown>;
+  target_country?: string;
+  target_format?: string;
+  vat_id?: string;
+  country?: string;
+}
+
+/** PRD §3 agent-tier rates, per tool. */
+const FACTURGATE_PRICE_USD: Record<string, number> = {
+  validate_einvoice: 0.1,
+  convert_invoice_to_facturx: 0.25,
+  check_eu_vat_id: 0.05,
+};
+
+const FACTURGATE_METER_EVENT: Record<string, string> = {
+  validate_einvoice: "agent_einvoice_validation",
+  convert_invoice_to_facturx: "agent_einvoice_conversion",
+  check_eu_vat_id: "agent_vat_id_check",
+};
+
+const QUARTERLINE_TOOLS = ["calculate_qbi_deduction", "calculate_quarterly_estimate"];
+
+/** Parses the canonical invoice model an agent sends as a JSON string (or an object). */
+function parseCanonicalInvoice(value: unknown, toolName: string): EinvoiceInput {
+  if (typeof value === "string") {
+    if (!value.trim()) throw new Error(`${toolName} received an empty \`invoice\` payload.`);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(value);
+    } catch (error) {
+      throw new Error(
+        `\`invoice\` is not valid JSON: ${error instanceof Error ? error.message : "parse failure"}`,
+      );
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("`invoice` must be a JSON object shaped { seller, buyer, invoice, targetCountry?, targetFormat? }.");
+    }
+    return parsed as EinvoiceInput;
+  }
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as EinvoiceInput;
+  }
+  throw new Error(
+    `${toolName} needs the canonical invoice model in \`invoice\` (JSON string or object). Nothing was validated.`,
+  );
+}
+
+function targetOptions(body: FacturgateAgentInput): { targetCountry?: TargetCountry; targetFormat?: TargetFormat } {
+  const options: { targetCountry?: TargetCountry; targetFormat?: TargetFormat } = {};
+  if (typeof body.target_country === "string" && body.target_country.trim()) {
+    options.targetCountry = body.target_country.trim().toUpperCase() as TargetCountry;
+  }
+  if (typeof body.target_format === "string" && body.target_format.trim()) {
+    options.targetFormat = body.target_format.trim().toLowerCase() as TargetFormat;
+  }
+  return options;
+}
+
+/**
+ * FacturGate agent tier: validate_einvoice / convert_invoice_to_facturx / check_eu_vat_id.
+ * The deterministic engine runs in-process; an out-of-scope target or an unreadable document is an
+ * explicit 400 carrying the rule id — never a silent fallback to a default rule set.
+ */
+async function runFacturgateTool(
+  toolName: string,
+  body: FacturgateAgentInput,
+): Promise<{ data: unknown; costPerQueryUsd: number }> {
+  const options = targetOptions(body);
+  let data: unknown;
+
+  if (toolName === "check_eu_vat_id") {
+    if (typeof body.vat_id !== "string" || !body.vat_id.trim()) {
+      throw new Error("check_eu_vat_id requires `vat_id`.");
+    }
+    if (typeof body.country !== "string" || !body.country.trim()) {
+      throw new Error("check_eu_vat_id requires `country`.");
+    }
+    data = checkEuVatId(body.vat_id, body.country);
+  } else if (toolName === "validate_einvoice" && typeof body.xml === "string" && body.xml.trim()) {
+    data = validateEinvoiceXml(body.xml, options);
+  } else {
+    if (typeof body.xml === "string" && body.xml.trim()) {
+      throw new Error(`${toolName} takes a canonical invoice model in \`invoice\`, not an XML document.`);
+    }
+    const input = parseCanonicalInvoice(body.invoice, toolName);
+    data =
+      toolName === "convert_invoice_to_facturx"
+        ? convertInvoiceToFacturX({ ...input, ...options })
+        : validateEinvoice({ ...input, ...options });
+  }
+
+  return { data, costPerQueryUsd: FACTURGATE_PRICE_USD[toolName] ?? 0.25 };
+}
+
 
 async function runLedgerlinkReconciliation(
   input: LedgerlinkAgentInput,
@@ -137,6 +244,72 @@ export async function POST(req: NextRequest) {
         },
         computedAt: new Date().toISOString(),
       });
+    }
+
+    // --- FacturGate: validate_einvoice / convert_invoice_to_facturx / check_eu_vat_id ---
+    if (toolName in FACTURGATE_PRICE_USD) {
+      const body = (await req.json()) as FacturgateAgentInput;
+
+      let result: { data: unknown; costPerQueryUsd: number };
+      try {
+        result = await runFacturgateTool(toolName, body);
+      } catch (toolError) {
+        if (toolError instanceof EinvoiceFieldError) {
+          // An out-of-scope target or an unmappable field: explicit, with the rule id (rule 5).
+          return NextResponse.json(
+            { error: toolError.message, ruleId: toolError.ruleId, fieldPath: toolError.fieldPath },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json(
+          { error: toolError instanceof Error ? toolError.message : "FacturGate request failed" },
+          { status: 400 },
+        );
+      }
+
+      await track("agent_query", { tool: toolName }, "facturgate");
+
+      const customerId =
+        req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
+      let meteredUsageReported = false;
+      let meterEventId: string | undefined;
+      if (customerId && process.env.STRIPE_SECRET_KEY) {
+        try {
+          const meterResult = await reportMeteredUsage({
+            customerId,
+            eventName: FACTURGATE_METER_EVENT[toolName] ?? "agent_query",
+            value: 1,
+          });
+          meteredUsageReported = meterResult.success;
+          meterEventId = meterResult.eventId;
+        } catch (meterErr) {
+          console.error("Failed to record metered usage:", meterErr);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+        metering: {
+          meteredUsageReported,
+          meterEventId,
+          costPerQueryUsd: result.costPerQueryUsd,
+          meterEventName: FACTURGATE_METER_EVENT[toolName],
+        },
+        computedAt: new Date().toISOString(),
+      });
+    }
+
+    // A tool advertised in the manifest but not implemented here must not silently fall through to
+    // another product's engine.
+    if (!QUARTERLINE_TOOLS.includes(toolName)) {
+      return NextResponse.json(
+        {
+          error: `Tool '${toolName}' is advertised but has no implementation in this route.`,
+          supportedTools: SUPPORTED_AGENT_TOOLS,
+        },
+        { status: 501 },
+      );
     }
 
     // --- QuarterLine: legacy self-employment / QBI tools ---

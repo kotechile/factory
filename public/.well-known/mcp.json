@@ -1,7 +1,7 @@
 {
   "name": "factory-agent-tools",
-  "description": "Deterministic agent tools shipped by the Autonomous Product & Software Factory (factory.aichieve.net): 2026 US self-employment, Section 199A QBI, and quarterly estimated-tax calculations (QuarterLine), and Stripe payout -> GL reconciliation (LedgerLink).",
-  "version": "1.1.0",
+  "description": "Deterministic agent tools shipped by the Autonomous Product & Software Factory (factory.aichieve.net): 2026 US self-employment, Section 199A QBI, and quarterly estimated-tax calculations (QuarterLine), Stripe payout -> GL reconciliation (LedgerLink), and EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU VAT-id checks (FacturGate).",
+  "version": "1.2.0",
   "endpoint": "https://factory.aichieve.net/api/agent/calculate",
   "tool_selector": {
     "header": "x-webmcp-tool",
@@ -164,6 +164,102 @@
         "required": [
           "account_id",
           "period"
+        ]
+      }
+    },
+    {
+      "name": "validate_einvoice",
+      "description": "Pre-send compliance gate for EU e-invoices (EN 16931 + CIUS-FR): returns the exact findings (rule id, severity, field path, fix) with blocking vs advisory severity, a 0-100 readiness score, and the totals reconciliation with the drift delta. Accepts a canonical invoice model or an existing CII/UBL 2.1 document. No rule is reported as passing unless it is implemented (see coverage).",
+      "product": "facturgate",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "xml": {
+            "type": "string",
+            "description": "An existing CII (CrossIndustryInvoice) or UBL 2.1 Invoice document to validate as-is. Supply this or `invoice`."
+          },
+          "invoice": {
+            "type": "string",
+            "description": "Canonical invoice model as a JSON string: { seller, buyer, invoice, targetFormat, targetCountry }."
+          },
+          "target_country": {
+            "type": "string",
+            "description": "Rule set / rounding regime to validate against. Defaults to FR (CIUS-FR overlay).",
+            "enum": [
+              "FR",
+              "PL",
+              "BE",
+              "DE"
+            ]
+          },
+          "target_format": {
+            "type": "string",
+            "description": "Artifact the document is destined for. Defaults to facturx.",
+            "enum": [
+              "facturx",
+              "cii",
+              "ubl"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "convert_invoice_to_facturx",
+      "description": "Converts a canonical invoice model into a compliant artifact at the EN 16931 profile (CII/Factur-X body or UBL 2.1 with the Peppol BIS 3.0 ProfileID), returning the corrected XML, the change list (every finding with its rule id and fix) and the reconciled totals. Refuses to emit a document that has blocking findings or an unmappable field.",
+      "product": "facturgate",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "invoice": {
+            "type": "string",
+            "description": "Canonical invoice model as a JSON string: { seller, buyer, invoice, targetFormat, targetCountry }."
+          },
+          "target_country": {
+            "type": "string",
+            "description": "Rule set / rounding regime for the emitted document. Defaults to FR.",
+            "enum": [
+              "FR",
+              "PL",
+              "BE",
+              "DE"
+            ]
+          },
+          "target_format": {
+            "type": "string",
+            "description": "facturx (default, CII at EN 16931), cii (standalone CII) or ubl (UBL 2.1).",
+            "enum": [
+              "facturx",
+              "cii",
+              "ubl"
+            ]
+          }
+        },
+        "required": [
+          "invoice"
+        ]
+      }
+    },
+    {
+      "name": "check_eu_vat_id",
+      "description": "Checks an EU VAT identifier offline: national format and (where implemented) the published checksum — FR VAT-key formula, DE MOD 11,10, BE mod 97, PL NIP, NL mod 11, IT Luhn. Reports formatValid/checksumValid explicitly and never claims a VIES status it did not query. An unknown country is a failure, not a pass.",
+      "product": "facturgate",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vat_id": {
+            "type": "string",
+            "description": "The VAT identifier as written, e.g. 'FR83404833048' or 'BE 0123.456.749'."
+          },
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-2 country code of the identifier (e.g. FR, DE, BE, PL, NL)."
+          }
+        },
+        "required": [
+          "vat_id",
+          "country"
         ]
       }
     }
