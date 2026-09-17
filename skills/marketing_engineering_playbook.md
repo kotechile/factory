@@ -179,6 +179,9 @@ To execute this playbook without manual founder overhead, the factory deploys th
         (author to the 20-route target recorded in the journal — reconcile with the 50-page figure in §4
         before dispatching, and only count sessions that are **not** factory-generated; see edge-case 2026-09-11).
     *   **Day 14 Gate:** $\ge \$50$ gross revenue or $\ge 100$ agent queries. If unmet $\rightarrow$ run A/B copy test.
+        Count only **organic** agent queries: the metered route writes no internal marker, so the factory's
+        own deploy smoke lands in the same metric (3 such rows on 2026-09-17 — see edge-case 2026-09-17).
+        Attribute any nonzero `agent_query` reading against the ship/build log before scoring.
     *   **Day 30 Gate:** Break-even vs server cost. If failed $\rightarrow$ hibernate product and log learnings to `skills/self_improvement_eval.md`.
     *   **Measurement rule (all gates):** a gate may only be evaluated over a window that starts when the
         measuring instrumentation went live, and never over sessions produced by the factory's own CI,
@@ -264,3 +267,21 @@ Rules:
 3. A gate whose fallback action also needs traffic (e.g. "run an A/B copy test") cannot be satisfied by
    scheduling the fallback — pair it with a distribution action or record it as blocked-on-traffic, not as
    pending work.
+
+### Resolved edge-case (2026-09-17) — the factory's own deploy smoke lands in the agent-query metric
+
+`agent_query` had been 0 all-time, so "≥100 agent queries" looked like a clean demand signal. On
+2026-09-17 the FacturGate ship (`0da7fd6c8f68`) exercised the metered `/api/agent/calculate` route against
+production as part of its post-deploy check and wrote **3 `agent_query` rows** (`validate_einvoice` ×2,
+`check_eu_vat_id` ×1, 03:50:21–03:50:22). The route stores no `session_id` and no internal marker, so
+those rows are byte-for-byte identical in shape to what a real agent caller would produce; only the ship
+log distinguishes them. The metric a gate reads was therefore written by the factory itself, and the
+defect is silent — a future ship that probes harder inflates the leg it is measured by.
+
+Rules:
+1. The internal-traffic marker must cover **server-side route rows**, not just browser sessions
+   (`session_id` cannot carry it — the metered route has no cookie).
+2. Until that marker exists, score `agent_query` only after attributing every nonzero row against the
+   build/ship log by timestamp and tool name, and record the attribution in the gate row.
+3. A product that ships with metered tools is a candidate to write its own gate traffic; prefer a
+   read-only probe tool or a dry-run flag over calling the metered path for verification.

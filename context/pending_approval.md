@@ -11,6 +11,17 @@ instruction 2026-09-17: fix the manifest, then proceed to deliver and drain the 
 software-factory slots; item 2's distribution queue is editorial-gated (needs the editorial gate, not this
 one) and item 1's live Stripe key is a founder credential action, not a build._
 
+_**2026-09-17 08:00 sweep re-verified every item below live.** Item 3 stays closed (prod manifest
+byte-identical to the tree, sha256 `f3b4cbd2…327fea`, all 6 tools; retired tool name → 400). Item 4 is
+half-closed: **FacturGate shipped as `beta`** (`e77db64`, deployed tag `c1b3139`, `/facturgate` + all 12
+`/facturgate/calc/*` → 200) — **ParcelProof remains shortlisted with no go/no-go, so the build line is idle
+again as of 03:49.** Items 1, 2, 5, 6, 7 are unchanged and were re-measured this run: prod checkout still
+`cs_test_…` (4 `purchases`, all 09-02, $0 real revenue); `distribution_queue` 36/36 `ready`, untouched
+since 09-12 and **its own top item is dated 2026-09-18**; `events` 353 rows, 4 non-CI sessions (0 provably
+external in 17 days); **3 `agent_query` rows — all factory deploy smoke, so item 5 must now cover
+server-side route rows too**; fire-claim patch still unloaded (gateway process from 09-12; last mislabel
+09-16 08:07, none on 09-17)._
+
 ---
 
 ## OPEN — 2026-09-16 sweep (live-verified this run)
@@ -35,19 +46,29 @@ one) and item 1's live Stripe key is a founder credential action, not a build._
    `/api/agent/calculate` now returns 400 + the supported list for an unadvertised name instead of
    silently running the tax engine (rule 5). Post-deploy probes: prod manifest byte-identical to the
    tree (4 polls, ~60 s); `calculate_self_employment_2026` → 400; `reconcile_stripe_payout` with no
-   key/export → explicit 500. Neither probe wrote telemetry, so `agent_query` remains 0 all-time.
-4. **[APPROVED 2026-09-17 — build dispatched; was P0 — decision]** FacturGate / ParcelProof pair, queued by
-   the 09-14 recon (`91b6c50`). Owner instruction 2026-09-17 ("proceed to implement to deliver solutions")
-   is the go/no-go: **FacturGate (83) APPROVED primary** and dispatched as a build job against
-   `context/recon_proposals/2026-09-14_facturgate.md` (v1 scope guard only, registry status `beta` — the
-   public launch call stays with the founder). **ParcelProof (80) SHORTLISTED**, not started. The build
-   line's 8-day idle ends here (`91b6c50` 09-14 06:03 → first FacturGate commit).
+   key/export → explicit 500. Those two probes wrote no telemetry; the guide/manifest probes at 03:50 did —
+   see the 09-17 sweep note at the top of this file (`agent_query` = 3, all deploy smoke).
+4. **[PARTIALLY SHIPPED 2026-09-17 — FacturGate live as `beta`; ParcelProof still undecided]** FacturGate /
+   ParcelProof pair, queued by the 09-14 recon (`91b6c50`). Owner instruction 2026-09-17 ("proceed to
+   implement to deliver solutions") is the go/no-go: **FacturGate (83) APPROVED primary**, built and pushed
+   by job `0da7fd6c8f68` (`e77db64` + docs `c1b3139`), deployed tag `c1b3139`; live-verified this sweep —
+   `/facturgate` 200, all 12 `/facturgate/calc/*` 200, 3 metered WebMCP tools advertised, `verify-build.sh`
+   green end to end. Registry status stays `beta`: the **public launch call is still the founder's**.
+   **ParcelProof (80) SHORTLISTED, not started → open go/no-go; the build line is idle again since 03:49.**
+   The 8-day idle that ended here (`91b6c50` 09-14 06:03 → first FacturGate commit) restarts today.
 5. **[P1 — @Simon approve, code]** Tag internal/QA traffic on `events` at source + re-base the gate
    window to instrumentation start (09-09 20:52) + extend `scripts/growth-check.mjs` beyond
    `quarterline` (LedgerLink's 29 rows and the only 3 `reconcile_click` rows are invisible to every
-   gate). Honest traffic form as of today: quarterline 34/34 factory-generated, **2 sessions outside
-   every CI cluster and unattributable** (`30eb9935…` 09-10 12:04 → 09-14 02:33 with 3×
-   `reconcile_click`; `3f26bb8f…` 09-13 20:34:49), 0 provably external.
+   gate). Honest traffic form as of today (09-17 sweep): quarterline 51 session ids — 47 factory-generated
+   inside CI clusters (deploy smoke + Build Watchdog + the 09-17 FacturGate verify runs), **4 sessions
+   outside every CI cluster and all unattributable** (`3b3193ce…` 09-09 21:22 → 09-10 00:25; `30eb9935…`
+   09-10 12:04 → **09-16 23:57**, a returning browser holding 3× `reconcile_click` and the only
+   `checkout_click` outside the 09-02 window, 09-16 23:56:36; `3f26bb8f…` 09-13 20:34:49; `49d8211a…`
+   **09-16 19:06:50**), **0 provably external in 17 days**. New this sweep: the marker must also cover
+   **server-side route rows** — the 3 `agent_query` rows are all the FacturGate deploy smoke
+   (09-17 03:50:21–22) with `session_id` null, indistinguishable from a real agent caller and sitting in
+   the exact metric the Day-30 gate reads (see `skills/marketing_engineering_playbook.md` edge-case
+   2026-09-17).
 6. **[P1 — Simon / SOP]** Make the sweep's durable record non-optional. The 09-14 and 09-15 sweeps both
    ran `completed`, delivered full reports to Slack, and wrote **nothing** into the repo — the only
    copies are `/root/.hermes/cron/output/7804a08125ce/2026-09-1{4,5}_*.md`. This sweep reconstructed
