@@ -14,7 +14,9 @@ ground-zero distribution drop.
    - The exact source-signal thread reply (Reddit / X / forum).
    - A "Show HN" submission description.
    - Top 3 CPA / partner outreach drafts.
-3. Post to Slack `#loop-ai` in a 1-click review format (each payload + an approve/reject note).
+3. Post to Slack `#loop-ai` in a 1-click review format (each payload + an approve/reject note),
+   written per `skills/slack_reporting.md`: plain-English headline, what the post says and where it
+   goes, the exact reply that approves it, and the deadline it is tied to.
 
 ## Boundaries
 - No fabricated metrics or testimonials. Every claim traces to the blueprint's cited source

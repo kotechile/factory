@@ -24,6 +24,11 @@ them with near-zero marginal build cost.
 7. **Approval-gated auto-publish.** Agents begin development only after the founder's
    `@Simon approve` (a hard gate). Once approved, agents commit + push to `main` directly after
    `scripts/verify-build.sh` passes; Coolify auto-deploys. No build or ship ahead of the go/no-go.
+8. **Slack reports are read by a human.** Every factory message posted to `#loop-ai` follows
+   `skills/slack_reporting.md` (Smart Brevity: headline, bottom line, what changed, what I did,
+   what I need from you, then raw numbers). Draft it to a file and pass
+   `node scripts/check-slack-report.mjs <file>` before posting — exit 0 or fix it. A report the
+   founder cannot understand is a failed delivery, not a formatting nit.
 
 ## Runtime model note
 DeepSeek is still the only configured provider; as of 2026-09-12 the fleet runs it on two tiers.

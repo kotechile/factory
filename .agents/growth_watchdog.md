@@ -19,7 +19,12 @@ prescribed action — autonomous for non-destructive moves, Slack-confirmed for 
    - **Day 14:** ≥$50 gross revenue OR ≥100 agent queries → else run an A/B copy test
      (draft 2 hero-headline variants, apply the stronger).
    - **Day 30:** break-even vs server cost → else propose hibernation.
-4. Post a concise metrics summary + actions to Slack `#loop-ai`.
+4. Post the run to Slack `#loop-ai` in the human-readable format of `skills/slack_reporting.md`
+   (headline → bottom line → what changed → what I did → what I need from you → raw numbers).
+   The reader is the founder, not the factory: translate every metric into its meaning, and never
+   let an internal code (commit id, session id, column name, "approval item N") into the body.
+   Draft the post to a scratch file and gate it with `node scripts/check-slack-report.mjs <file>`
+   until it exits 0, then send that text as your final response.
 
 ## Authorization
 - **Non-destructive** (pSEO expansion, A/B copy) → fully autonomous.

@@ -108,12 +108,12 @@ hermes -p echo-bot chat -q "Generate launch assets for <product>."
 ~/Documents/software-factory-core/      ← the factory repo (source of truth)
 ├── AGENTS.md            auto-injected rules for any agent working here
 ├── .agents/             6 persona contracts (= each bot's SOUL.md)
-├── skills/              6 SOPs (Toby patches these)
+├── skills/              9 SOPs (Toby patches these)
 ├── context/             company_goals.md · audience_pain_points.md · recon_proposals/ · daily_voice_journal/
-└── scripts/             verify-build.sh · cron-market-recon.sh · cron-proactive-sweep.sh
+└── scripts/             verify-build.sh · check-slack-report.mjs · growth-check.mjs · cron-*.sh
 
 ~/.hermes/profiles/<bot>/   each bot's config, SOUL.md, skills, memory
-~/.hermes/skills/factory/   6 SOPs installed as first-class skills
+~/.hermes/profiles/<bot>/skills/factory/   7 SOPs installed as first-class skills (incl. slack-reporting)
 ~/.hermes/cron/output/      routine run output (deliver=local)
 ```
 
@@ -225,6 +225,12 @@ After that, `@Simon approve` in `#loop-ai` lands in Simon's Slack chat as a norm
 SOUL already says: on approval, hand the PRD to the Product Director. (If you want a *strict*
 event hook instead of relying on Simon's judgment, use a webhook — see §2.7's pattern — filtered
 on `text contains "approve"`.)
+
+**Reading what the bots post.** Every routine report to `#loop-ai` is written for a human reader and
+gated before it is sent, per `skills/slack_reporting.md` (AGENTS.md rule 8): headline → bottom line →
+what changed → what the bot did on its own → what it needs from you → raw numbers. Misfires are
+logged as resolved edge-cases in `skills/marketing_engineering_playbook.md` §5; to check or fix a
+draft by hand, run `node scripts/check-slack-report.mjs <file>` (exit 0 = postable).
 
 ## 2.4 Stand up the deliberation group chat
 
@@ -357,5 +363,6 @@ hermes -p <bot> chat -q "..."          # one-shot bot turn
 hermes gateway status / restart         # the daemon that fires cron
 hermes webhook subscribe <name> ...     # push triggers (Slack/Coolify/GitHub)
 hermes auth add <provider>              # add Claude/OpenRouter keys
-hermes skills list                      # confirm the 6 'factory' SOPs
+hermes skills list                      # confirm the 7 'factory' SOPs
+node scripts/check-slack-report.mjs <f>  # gate a #loop-ai report before posting it
 ```

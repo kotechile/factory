@@ -171,9 +171,13 @@ To execute this playbook without manual founder overhead, the factory deploys th
 ### 3. `growth-watchdog` — Weekly Performance Cron
 *   **Schedule:** Every Friday at 17:00 local time.
 *   **Mission:** Inspects Stripe revenue, Supabase purchase records, and WebMCP meter events.
-*   **Action authorization:** Non-destructive gate actions (pSEO expansion, A/B copy tests) run fully
+*   **Action authorization:*** Non-destructive gate actions (pSEO expansion, A/B copy tests) run fully
     autonomously. Destructive actions (product hibernation/archive) require Slack human confirmation —
     the watchdog proposes to #loop-ai and waits for `@Simon` sign-off before stopping the Coolify app.
+*   **Reporting:** the weekly post to `#loop-ai` follows `skills/slack_reporting.md` — headline, bottom
+    line, what changed, what it did on its own, what it needs from the founder, then the raw numbers.
+    `node scripts/check-slack-report.mjs <file>` must exit 0 first; a message the founder has to decode
+    is a failed delivery (see edge-case 2026-09-18).
 *   **Quantitative Gates:**
     *   **Day 7 Gate:** $\ge 50$ unique visitors, $\ge 1$ paid or agent event. If unmet $\rightarrow$ trigger pSEO expansion
         (author to the 20-route target recorded in the journal — reconcile with the 50-page figure in §4
@@ -305,3 +309,27 @@ Rules:
    than a single row but still not proof.
 3. Treat the marker as a **hard prerequisite for the Day-30 verdict**, not a nice-to-have: an unattributable
    session pile cannot score a session-based gate, and the pile is what the gate will be reading.
+
+### Resolved edge-case (2026-09-18) — the weekly report was unreadable to its own reader
+
+The 09-18 17:03 Growth Watchdog post was delivered in full and read by nobody: the founder's reply the next
+morning was "I do not understand". Every fact in it was correct — 18 days live, 58 sessions all
+factory-generated, 0 real revenue, three items needing a decision — and the message was 359 words of
+`page_view 161 · checkout_click 4` opened by a metric dump, with the escalations phrased as
+"approval item 1/2/5" and the stakes left implicit. It scores **30 errors** on
+`scripts/check-slack-report.mjs` (built from this incident): no plain-language headline, internal jargon
+and raw ids in the body, no explicit ask, over budget. The failure is not cosmetic: an escalation the
+founder cannot parse is an escalation that did not happen, and three of them sat unanswered across a run
+that had already been four days late.
+
+Rules:
+1. Every factory post to `#loop-ai` follows `skills/slack_reporting.md` and passes
+   `node scripts/check-slack-report.mjs <file>` at exit 0 before it goes out. This is a hard gate of the
+   same class as `scripts/verify-build.sh`, and it is never weakened to let a message pass.
+2. Metrics are not the report. State the meaning, the delta and the consequence in plain words; raw event
+   names, column names, session ids and commits are allowed only in the "Numbers, for the record" section.
+3. An escalation names the decision, the deadline, the cost of doing nothing and the exact reply to send.
+   Never reference queued work by internal index ("approval item 5") — name it by what it does and when it
+   was queued.
+4. A message that is technically correct but not understandable is a delivery failure, and it is logged as
+   one here rather than re-sent unchanged.
