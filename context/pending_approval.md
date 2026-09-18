@@ -35,6 +35,20 @@ $0 real revenue); `events` 374 rows / 149 sessions with **5 non-CI sessions** (n
 fires today 17:00** (first run since 09-11) and will meet exactly those polluted inputs; fire-claim patch still
 unloaded (gateway process from 09-12, no new mislabel)._
 
+_**2026-09-18 22:07 UTC — PARCELPROOF SHIPPED (cron build run `3584a62`, live-verified).** Queue item 4's
+ParcelProof half is now built and deployed to `https://factory.aichieve.net/parcelproof` at the approved
+**beta** status: the deterministic audit engine (`src/lib/calc/parcelaudit/`, 32 known-answer vitest
+vectors), the paste/upload recovery UI + dispute CSV, 6 `/parcelproof/calc/*` preset pages, and the two
+WebMCP tools `audit_carrier_invoice` + `compute_billable_weight` advertised in the generated
+`/.well-known/mcp.json` (v1.3.0, 8 tools). `scripts/verify-build.sh` passed end to end before the push
+(tsc / eslint 0 err / tokens / 92 vitest / build / 28 Playwright / Gemini visual-QA PASS ×3). PRD §5's v1
+scope guard is unchanged: zone-matrix derivation, published fuel tables, LTL/ocean modes and rate-card
+auto-mapping stay P1, and every line outside v1 is reported `unverifiable-rate` rather than passed.
+**Open for the owner:** the public launch call for ParcelProof is still his (status stays `beta`), and the
+PRD's tariff table puts UPS's AHS-Dimension trigger at a longest side > 96″ (FedEx > 48″), so a 40″ parcel
+is ineligible at *both* carriers — if the intended UPS trigger is 48″, that is a one-line change in
+`src/lib/calc/parcelaudit/surcharges.ts` and the vectors follow it. Nothing else in the queue changed._
+
 ---
 
 ## OPEN — 2026-09-16 sweep (live-verified this run)
