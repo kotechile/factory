@@ -4,12 +4,24 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-17 (manifest item closed by hand, not by a sweep) — item 3 is DONE and verified in
-production (`a57539f`); the remaining open items are unchanged from the 2026-09-16 sweep below. Owner
+_Last updated: 2026-09-18 (owner approval recorded by hand, not by a sweep) — **item 4's open go/no-go is
+answered: ParcelProof APPROVED and its build dispatched.** Item 3 is DONE and verified in
+production (`a57539f`); the other open items are unchanged from the 2026-09-16 sweep below. Prior owner
 instruction 2026-09-17: fix the manifest, then proceed to deliver and drain the queue — so items 4 and 5
 (item 5 = the internal-traffic marker, requires a migration on the production Supabase) are the next
 software-factory slots; item 2's distribution queue is editorial-gated (needs the editorial gate, not this
 one) and item 1's live Stripe key is a founder credential action, not a build._
+
+_**2026-09-18 21:32 UTC — OWNER APPROVAL RECORDED (by hand, not a sweep).** Owner instruction in `loop-ai`
+2026-09-18: **"approve ParcelProof"** → item 4's open ParcelProof go/no-go is answered. The ParcelProof (80)
+build is dispatched as a one-shot cron job against `context/recon_proposals/2026-09-14_parcelproof.md`,
+**PRD §5 v1 scope guard only** — DIM-weight recompute (UPS/FedEx/USPS domestic parcel, carrier × service ×
+date divisors incl. USPS 166 → 139 on 2026-07-12), round-up + cubic-inch thresholds, AHS-Dimension
+eligibility, service-commitment refund eligibility, dispute-window clock, CSV ingest, recovery ledger +
+dispute CSV, and the two WebMCP tools; registry status `beta` (the **public launch call stays with the
+founder**). Nothing outside that scope is approved — P1 items (zone-matrix derivation, published fuel
+tables, LTL/ocean modes, rate-card auto-mapping) stay deferred. Item 4's FacturGate half is unchanged
+(live as `beta`, launch call still open)._
 
 _**2026-09-18 08:00 sweep re-verified every item below live.** Item 3 stays closed (prod manifest byte-identical
 to the tree, sha256 `f3b4cbd2…327fea`; retired tool name → 400, second day). Item 4 is unchanged from 09-17:
@@ -55,8 +67,11 @@ unloaded (gateway process from 09-12, no new mislabel)._
    by job `0da7fd6c8f68` (`e77db64` + docs `c1b3139`), deployed tag `c1b3139`; live-verified this sweep —
    `/facturgate` 200, all 12 `/facturgate/calc/*` 200, 3 metered WebMCP tools advertised, `verify-build.sh`
    green end to end. Registry status stays `beta`: the **public launch call is still the founder's**.
-   **ParcelProof (80) SHORTLISTED, not started → open go/no-go; the build line is idle again since 03:49.**
-   The 8-day idle that ended here (`91b6c50` 09-14 06:03 → first FacturGate commit) restarts today.
+   **ParcelProof (80) APPROVED 2026-09-18** by owner instruction ("approve ParcelProof") → **build dispatched
+   as a one-shot job** against `context/recon_proposals/2026-09-14_parcelproof.md`, PRD §5 v1 scope guard only,
+   registry status `beta`. The build line's re-idle (28 h at the 08:00 sweep) ends with this dispatch.**
+   The 8-day idle that ended here (`91b6c50` 09-14 06:03 → first FacturGate commit) had restarted on 09-17;
+   this dispatch ends it again at ~42 h (last product commit `e77db64`, 09-17 03:49).
 5. **[P1 — @Simon approve, code]** Tag internal/QA traffic on `events` at source + re-base the gate
    window to instrumentation start (09-09 20:52) + extend `scripts/growth-check.mjs` beyond
    `quarterline` (LedgerLink's 29 rows and the only 3 `reconcile_click` rows are invisible to every
