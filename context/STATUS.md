@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-17 (daily sweep, 08:00 UTC) + 2026-09-17 (FacturGate beta build) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-18 (daily sweep, 08:00 UTC) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -108,7 +108,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live — 353 rows (quarterline 159 / factory 130 / ledgerlink 37 / facturgate 27), last write 2026-09-17 06:03:19; 128 sessions inside CI clusters, **4 sessions outside every CI cluster and unattributable** (0 provably external in 17 days); **3 `agent_query` rows, all factory deploy smoke** (facturgate, 2026-09-17 03:50:21–22) — no organic agent queries |
+| `events` | growth telemetry | ✅ live — 374 rows (quarterline 163 / factory 134 / ledgerlink 39 / facturgate 38), last write 2026-09-17 22:03:17; 149 sessions, **5 outside every CI cluster and unattributable** (0 provably external in 18 days); **3 `agent_query` rows, all factory deploy smoke** (facturgate, 2026-09-17 03:50:21–22) — organic agent queries 0 |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -122,16 +122,16 @@ mirrors them.
 ## Remaining / dormant
 
 1. Distribution is the binding constraint — **0 provably-external sessions / 0 organic `agent_query` / $0 real
-   revenue in 17 days live**; production Stripe is still test mode (`cs_test_` checkout sessions — fresh
-   probe 2026-09-17, 4 `cs_test_*` purchases all 09-02). Four sessions sit outside every CI cluster but
+   revenue in 18 days live**; production Stripe is still test mode (`cs_test_` checkout sessions — fresh
+   probe 2026-09-18, 4 `cs_test_*` purchases all 09-02). Five sessions sit outside every CI cluster but
    carry no UA/referrer, so they are unattributable, not provably external (`30eb9935` is a returning
-   browser, 09-10 → 09-16, and holds the only `checkout_click` outside the 09-02 window). The morning of
-   2026-09-17 added 3 `agent_query` rows — all of them the FacturGate deploy smoke, so the agent tier is
-   factory-exercised, not demanded. The pSEO footprint is now 32 indexable routes (20 quarterline + 12
-   facturgate) justified by traffic that is still 100 % factory-generated; the Day-7 fallback shipped
-   before its preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and
-   Day-30 (≈09-30) inherits the same $0. The `distribution_queue` has been untouched since 09-12 (36/36
-   `ready`) and its own top item is dated 2026-09-18.
+   browser, 09-10 → 09-16, and holds the only `checkout_click` outside the 09-02 window; `d8e77f23` adds a
+   second evening directory view, 09-17 22:03). The agent tier's only rows are the 3 FacturGate deploy-smoke
+   `agent_query` rows, so it is factory-exercised, not demanded. The pSEO footprint is 32 indexable routes
+   (20 quarterline + 12 facturgate) justified by traffic that is still 100 % factory-generated; the Day-7
+   fallback shipped before its preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on
+   09-14 and Day-30 (≈09-30) inherits the same $0. The `distribution_queue` has been untouched since 09-12
+   (36/36 `ready`, 0 published) and **its top item's event date is 2026-09-18**.
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.

@@ -11,16 +11,17 @@ instruction 2026-09-17: fix the manifest, then proceed to deliver and drain the 
 software-factory slots; item 2's distribution queue is editorial-gated (needs the editorial gate, not this
 one) and item 1's live Stripe key is a founder credential action, not a build._
 
-_**2026-09-17 08:00 sweep re-verified every item below live.** Item 3 stays closed (prod manifest
-byte-identical to the tree, sha256 `f3b4cbd2…327fea`, all 6 tools; retired tool name → 400). Item 4 is
-half-closed: **FacturGate shipped as `beta`** (`e77db64`, deployed tag `c1b3139`, `/facturgate` + all 12
-`/facturgate/calc/*` → 200) — **ParcelProof remains shortlisted with no go/no-go, so the build line is idle
-again as of 03:49.** Items 1, 2, 5, 6, 7 are unchanged and were re-measured this run: prod checkout still
-`cs_test_…` (4 `purchases`, all 09-02, $0 real revenue); `distribution_queue` 36/36 `ready`, untouched
-since 09-12 and **its own top item is dated 2026-09-18**; `events` 353 rows, 4 non-CI sessions (0 provably
-external in 17 days); **3 `agent_query` rows — all factory deploy smoke, so item 5 must now cover
-server-side route rows too**; fire-claim patch still unloaded (gateway process from 09-12; last mislabel
-09-16 08:07, none on 09-17)._
+_**2026-09-18 08:00 sweep re-verified every item below live.** Item 3 stays closed (prod manifest byte-identical
+to the tree, sha256 `f3b4cbd2…327fea`; retired tool name → 400, second day). Item 4 is unchanged from 09-17:
+**FacturGate live as `beta`** (all 12 `/facturgate/calc/*` → 200, enumerated from the preset file), **ParcelProof
+still shortlisted with no go/no-go — the build line has been idle 28 h** (last product commit `e77db64`,
+09-17 03:49; no commit at all since `c1b3139`). Item 2 is now **on the clock: `distribution_queue` is 36/36
+`ready`, 0 published, untouched since 09-12, and its top item's event date is TODAY 2026-09-18** (the Q3 wedge
+expired 09-15 unused). Items 1, 5, 6, 7 re-measured: prod checkout still `cs_test_…` (4 `purchases`, all 09-02,
+$0 real revenue); `events` 374 rows / 149 sessions with **5 non-CI sessions** (new `d8e77f23`, 09-17 22:03:17)
+→ 0 provably external in 18 days; **`agent_query` still 3, all FacturGate deploy smoke**; the **Growth Watchdog
+fires today 17:00** (first run since 09-11) and will meet exactly those polluted inputs; fire-claim patch still
+unloaded (gateway process from 09-12, no new mislabel)._
 
 ---
 

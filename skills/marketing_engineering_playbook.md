@@ -285,3 +285,23 @@ Rules:
    build/ship log by timestamp and tool name, and record the attribution in the gate row.
 3. A product that ships with metered tools is a candidate to write its own gate traffic; prefer a
    read-only probe tool or a dry-run flag over calling the metered path for verification.
+
+### Resolved edge-case (2026-09-18) — unattributable sessions accumulate while the marker stays unbuilt
+
+Every daily sweep now reports a small, slowly growing set of sessions that sit outside every CI cluster and
+carry no UA, referrer or path. The count went **2 (09-14) → 4 (09-17) → 5 (09-18)**; the newest
+(`d8e77f23`, 1 `factory:page_view`, 2026-09-17 22:03:17) is 22 h after `30eb9935`'s last row (09-16 23:57),
+on the same page. These are the only external-traffic candidates the factory has ever recorded, and the
+per-row data model cannot separate a real visitor from any other client, so each sweep can only restate
+"0 provably external" — a metric that never moves is not evidence of no demand, and reporting it as a bare
+zero invites the wrong conclusion (that distribution isn't working) as readily as the wrong action
+(hibernating a product with no measurable exposure).
+
+Rules:
+1. Report the non-CI session **count and its delta** each sweep, not just "0 provably external" — the trend
+   is the only signal available until the marker ships (approval item 5).
+2. Classify each new non-CI session by **shape and time-of-day** (page mix, evening vs CI-window) and state
+   the classification as a hypothesis, never as attribution. A returning pattern across days is stronger
+   than a single row but still not proof.
+3. Treat the marker as a **hard prerequisite for the Day-30 verdict**, not a nice-to-have: an unattributable
+   session pile cannot score a session-based gate, and the pile is what the gate will be reading.
