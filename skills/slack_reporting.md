@@ -66,6 +66,11 @@ output belongs.
    message — ✅ on track · ⚠️ needs you · ❌ blocked or failed. A wall of warnings stops meaning anything.
 9. **End with what happens next**, so silence never reads as absence of news.
 10. **Never paste machine output.** If a log line matters, quote only the part that carries the meaning.
+11. **Drafting tip (measured, not theoretical):** the 250-word ceiling is the binding constraint on a
+    report with three asks. Write the shortest true version first, then move everything that is not a
+    change, an action or an ask into the record section — and write the record section last, dumping
+    every id there. Two independent drafts of the §4 example both landed inside the budget (244 and 250
+    words); runs that treat the record section as a place to put the leftover numbers need three passes.
 
 ## 4. Worked example
 Real run, 2026-09-18. The founder's reply to the posted version was "I do not understand" — it opened with
