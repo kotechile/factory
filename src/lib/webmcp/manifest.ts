@@ -92,8 +92,10 @@ export function buildMcpManifest(): McpManifest {
       "Deterministic agent tools shipped by the Autonomous Product & Software Factory " +
       "(factory.aichieve.net): 2026 US self-employment, Section 199A QBI, and quarterly " +
       "estimated-tax calculations (QuarterLine), Stripe payout -> GL reconciliation (LedgerLink), " +
-      "and EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU VAT-id checks (FacturGate).",
-    version: "1.2.0",
+      "EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU VAT-id checks (FacturGate), " +
+      "and carrier invoice DIM-weight / surcharge auditing with billable-weight computation " +
+      "(ParcelProof).",
+    version: "1.3.0",
     endpoint: "https://factory.aichieve.net/api/agent/calculate",
     tool_selector: {
       header: "x-webmcp-tool",

@@ -18,6 +18,15 @@ test("capture FacturGate QA screenshot", async ({ page }) => {
   await page.screenshot({ path: "test-results/facturgate-qa.png", fullPage: true });
 });
 
+// ParcelProof is captured in its richest state: an audited invoice with money on it (recovery
+// summary, findings with triggers, the line ledger and the dispute packet button).
+test("capture ParcelProof QA screenshot", async ({ page }) => {
+  await page.goto("/parcelproof");
+  await page.getByRole("button", { name: "Audit invoice", exact: true }).click();
+  await expect(page.getByText("$71.50")).toBeVisible();
+  await page.screenshot({ path: "test-results/parcelproof-qa.png", fullPage: true });
+});
+
 // Deterministic font check — vision models cannot reliably distinguish monospace
 // from sans at small sizes, so this is asserted programmatically instead.
 test("numbers use a monospace font", async ({ page }) => {

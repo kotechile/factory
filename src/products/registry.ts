@@ -56,4 +56,17 @@ export const products: Product[] = [
     category: "Compliance",
     visibility: "public",
   },
+  {
+    slug: "parcelproof",
+    name: "ParcelProof",
+    tagline: "Carrier Invoice DIM-Weight & Surcharge Audit",
+    status: "beta",
+    description:
+      "Deterministic audit of UPS/FedEx/USPS parcel invoices against the shipment records behind them: billable weight recomputed with the carrier × service × ship-date divisor (USPS 166 → 139 on 2026-07-12) and the round-up rule, accessorial eligibility re-evaluated with the trigger that failed named, late-delivery refund eligibility and the per-line dispute window (UPS ≈30 / FedEx ≈21 days), and a per-line recovery ledger with a dispute CSV. No LLM and no invented rates: a line your contract rate card cannot price is reported unverifiable, never guessed.",
+    route: "/parcelproof",
+    webmcpTools: ["audit_carrier_invoice", "compute_billable_weight"],
+    launchedAt: "2026-09-18",
+    category: "Logistics",
+    visibility: "public",
+  },
 ];

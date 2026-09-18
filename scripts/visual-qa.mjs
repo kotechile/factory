@@ -33,6 +33,7 @@ loadEnvFile(".env");
 const SCREENSHOTS = [
   "test-results/quarterline-qa.png",
   "test-results/facturgate-qa.png",
+  "test-results/parcelproof-qa.png",
 ];
 const STYLEGUIDE = "skills/ui_component_standards.md";
 const BACKLOG = "context/design_backlog.md";

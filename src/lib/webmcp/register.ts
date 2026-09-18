@@ -3,6 +3,7 @@ import {
   type SelfEmployment2026Output,
 } from "@/lib/calc/selfEmployment2026";
 import type { EinvoiceReport, VatIdCheck } from "@/lib/calc/einvoice";
+import type { CsvAuditResult, WeightResolution } from "@/lib/calc/parcelaudit";
 import type {
   ReconcileStripePayoutInput,
   StripeReconOutput,
@@ -454,6 +455,146 @@ export const checkEuVatIdTool: WebMCPToolDefinition<CheckEuVatIdParams, VatIdChe
 };
 
 /**
+ * ParcelProof (carrier invoice audit) tools. Server-backed and metered like LedgerLink/FacturGate:
+ * the browser tool posts to /api/agent/calculate so the deterministic engine runs in-process on the
+ * server, the agent_query event is recorded and metered usage is reported. A failure surfaces an
+ * explicit error carrying the rule id — there is no client-side fallback.
+ */
+async function runParcelproofAgentCall<TResult>(toolName: string, params: unknown): Promise<TResult> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent call failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: TResult;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent call failed: invalid response");
+  }
+  return json.data;
+}
+
+export interface AuditCarrierInvoiceParams {
+  /** Shipment records CSV: order_id,tracking,carrier,service,ship_date,length,width,height,actual_weight_lb,zone,… */
+  shipment_records: string;
+  /** Carrier invoice lines CSV: tracking,invoice_date,carrier,service,billed_weight_lb,zone,base_charge_usd,surcharges,total_usd */
+  invoice_lines: string;
+  /** Optional contract rate card CSV: carrier,service,zone,min_weight_lb,max_weight_lb,rate_usd */
+  rate_card?: string;
+  /** "Today" for the dispute clock, ISO 8601. Defaults to the server's UTC date when omitted. */
+  as_of_date?: string;
+  /** Optional carrier filter (ups | fedex | usps); other lines are reported out-of-scope, not skipped. */
+  carrier?: string;
+}
+
+export interface ComputeBillableWeightParams {
+  carrier: string;
+  service: string;
+  /** ISO 8601 ship date — the divisor depends on it (USPS 166 → 139 on 2026-07-12). */
+  ship_date: string;
+  length: number;
+  width: number;
+  height: number;
+  actual_weight_lb: number;
+}
+
+export const auditCarrierInvoiceTool: WebMCPToolDefinition<
+  AuditCarrierInvoiceParams,
+  CsvAuditResult
+> = {
+  name: "audit_carrier_invoice",
+  description:
+    "Audits a UPS/FedEx/USPS parcel invoice against the shipment records behind it: recomputes billable weight per line from the carrier × service × ship-date divisor (USPS 166 → 139 on 2026-07-12) with the round-up rule and cubic-inch thresholds, re-evaluates accessorial eligibility (AHS-Dimension, AHS-Weight, oversize, residential, address correction) naming the trigger that failed, checks the service-commitment refund and the per-line dispute window (UPS ≈30 / FedEx ≈21 days), and returns a per-line recovery ledger plus a dispute CSV. A line whose amount cannot be proven is reported unverifiable, never guessed.",
+  parameters: {
+    type: "object",
+    properties: {
+      shipment_records: {
+        type: "string",
+        description:
+          "Shipment records as CSV text: order_id,tracking,carrier,service,ship_date,length,width,height,actual_weight_lb,zone,declared_value_usd,residential,address_correction,promised_date,delivered_at",
+      },
+      invoice_lines: {
+        type: "string",
+        description:
+          "Carrier invoice lines as CSV text: tracking,invoice_date,carrier,service,billed_weight_lb,zone,base_charge_usd,surcharges,total_usd (surcharges as code:amount pairs separated by ';').",
+      },
+      rate_card: {
+        type: "string",
+        description:
+          "Your contract rate card as CSV text: carrier,service,zone,min_weight_lb,max_weight_lb,rate_usd. Omit it and every line is reported unverifiable-rate (the weight proof still holds) instead of being priced from a guessed rate.",
+      },
+      as_of_date: {
+        type: "string",
+        description:
+          "ISO 8601 date used as 'today' for the dispute clock and money-back windows. Defaults to the server's UTC date.",
+      },
+      carrier: {
+        type: "string",
+        description: "Optional carrier filter.",
+        enum: ["ups", "fedex", "usps"],
+      },
+    },
+    required: ["shipment_records", "invoice_lines"],
+  },
+  handler: (params) => runParcelproofAgentCall<CsvAuditResult>("audit_carrier_invoice", params),
+};
+
+export const computeBillableWeightTool: WebMCPToolDefinition<
+  ComputeBillableWeightParams,
+  WeightResolution
+> = {
+  name: "compute_billable_weight",
+  description:
+    "Computes the billable weight a UPS/FedEx/USPS domestic parcel shipment incurs: max(actual, ceil(L)×ceil(W)×ceil(H)/divisor) with the divisor resolved by carrier × service × ship date (USPS 166 before 2026-07-12, then 139; UPS/FedEx 139) and the carrier's cubic-inch threshold applied (FedEx Ground / USPS: only above 1,728 cu in). Returns the divisor used, whether dimensional weight applied, the rounded dimensions and the billing basis. Use it to quote landed cost correctly; an unmapped service or an out-of-range ship date is an explicit error, never a default divisor.",
+  parameters: {
+    type: "object",
+    properties: {
+      carrier: {
+        type: "string",
+        description: "Carrier the parcel ships on.",
+        enum: ["ups", "fedex", "usps"],
+      },
+      service: {
+        type: "string",
+        description: "Service level, which selects the divisor table entry.",
+        enum: [
+          "ups_ground",
+          "ups_air",
+          "ups_express_saver",
+          "fedex_ground",
+          "fedex_home_delivery",
+          "fedex_express",
+          "usps_ground_advantage",
+          "usps_priority_mail",
+          "usps_priority_mail_express",
+          "usps_parcel_select",
+        ],
+      },
+      ship_date: {
+        type: "string",
+        description: "ISO 8601 ship date (YYYY-MM-DD): the divisor in force depends on it.",
+      },
+      length: { type: "number", description: "Package length in inches (fractions round up)." },
+      width: { type: "number", description: "Package width in inches (fractions round up)." },
+      height: { type: "number", description: "Package height in inches (fractions round up)." },
+      actual_weight_lb: { type: "number", description: "Scale weight in pounds." },
+    },
+    required: ["carrier", "service", "ship_date", "length", "width", "height", "actual_weight_lb"],
+  },
+  handler: (params) => runParcelproofAgentCall<WeightResolution>("compute_billable_weight", params),
+};
+
+/**
  * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
  *
  * Single source of truth: the agent allowlist (./agentTools.ts) and the published
@@ -468,6 +609,8 @@ export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   validateEinvoiceTool,
   convertInvoiceToFacturxTool,
   checkEuVatIdTool,
+  auditCarrierInvoiceTool,
+  computeBillableWeightTool,
 ].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
@@ -480,6 +623,8 @@ export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(validateEinvoiceTool);
   registerWebMCPTool(convertInvoiceToFacturxTool);
   registerWebMCPTool(checkEuVatIdTool);
+  registerWebMCPTool(auditCarrierInvoiceTool);
+  registerWebMCPTool(computeBillableWeightTool);
 }
 
 

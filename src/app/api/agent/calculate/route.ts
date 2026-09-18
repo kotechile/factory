@@ -20,6 +20,13 @@ import {
   type TargetCountry,
   type TargetFormat,
 } from "@/lib/calc/einvoice";
+import {
+  ParcelAuditFieldError,
+  auditInvoiceCsv,
+  computeBillableWeight,
+  type Carrier,
+  type ServiceCode,
+} from "@/lib/calc/parcelaudit";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { reportMeteredUsage } from "@/lib/stripe/meter";
 import { track } from "@/lib/telemetry";
@@ -58,6 +65,94 @@ const FACTURGATE_METER_EVENT: Record<string, string> = {
   convert_invoice_to_facturx: "agent_einvoice_conversion",
   check_eu_vat_id: "agent_vat_id_check",
 };
+
+/** ParcelProof pricing per the PRD §3 agent tier. */
+const PARCELAUDIT_PRICE_USD: Record<string, number> = {
+  audit_carrier_invoice: 0.25,
+  compute_billable_weight: 0.05,
+};
+
+const PARCELAUDIT_METER_EVENT: Record<string, string> = {
+  audit_carrier_invoice: "agent_parcel_audit",
+  compute_billable_weight: "agent_billable_weight",
+};
+
+interface ParcelproofAgentInput {
+  shipment_records?: unknown;
+  invoice_lines?: unknown;
+  rate_card?: unknown;
+  as_of_date?: unknown;
+  carrier?: unknown;
+  service?: unknown;
+  ship_date?: unknown;
+  length?: unknown;
+  width?: unknown;
+  height?: unknown;
+  actual_weight_lb?: unknown;
+}
+
+function requiredString(value: unknown, name: string): string {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`\`${name}\` is required and must be the CSV text to audit.`);
+  }
+  return value;
+}
+
+function requiredNumber(value: unknown, name: string): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    throw new Error(`\`${name}\` is required and must be a finite number.`);
+  }
+  return value;
+}
+
+/**
+ * ParcelProof agent tier: audit_carrier_invoice / compute_billable_weight.
+ *
+ * The deterministic engine runs in-process on the CSV text the agent supplies. `as_of_date`
+ * defaults to the server's UTC date (the request default declared in the tool schema, not an
+ * inferred value); everything else must be supplied, and an out-of-scope carrier/service or a
+ * malformed CSV is an explicit 400 carrying the rule id — never a defaulted divisor.
+ */
+function runParcelproofTool(
+  toolName: string,
+  body: ParcelproofAgentInput,
+): { data: unknown; costPerQueryUsd: number } {
+  if (toolName === "compute_billable_weight") {
+    const carrier = requiredString(body.carrier, "carrier") as Carrier;
+    const service = requiredString(body.service, "service") as ServiceCode;
+    const shipDate = requiredString(body.ship_date, "ship_date");
+    const data = computeBillableWeight({
+      carrier,
+      service,
+      shipDate,
+      dims: {
+        length: requiredNumber(body.length, "length"),
+        width: requiredNumber(body.width, "width"),
+        height: requiredNumber(body.height, "height"),
+      },
+      actualWeightLb: requiredNumber(body.actual_weight_lb, "actual_weight_lb"),
+    });
+    return { data, costPerQueryUsd: PARCELAUDIT_PRICE_USD[toolName] ?? 0.05 };
+  }
+
+  const shipmentRecordsCsv = requiredString(body.shipment_records, "shipment_records");
+  const invoiceLinesCsv = requiredString(body.invoice_lines, "invoice_lines");
+  const rateCardCsv = typeof body.rate_card === "string" ? body.rate_card : undefined;
+  const asOfDate =
+    typeof body.as_of_date === "string" && body.as_of_date.trim()
+      ? body.as_of_date.trim()
+      : new Date().toISOString().slice(0, 10);
+  const carrier = typeof body.carrier === "string" && body.carrier.trim() ? (body.carrier.trim() as Carrier) : undefined;
+
+  const data = auditInvoiceCsv({
+    shipmentRecordsCsv,
+    invoiceLinesCsv,
+    asOfDate,
+    ...(rateCardCsv === undefined ? {} : { rateCardCsv }),
+    ...(carrier === undefined ? {} : { carrier }),
+  });
+  return { data, costPerQueryUsd: PARCELAUDIT_PRICE_USD[toolName] ?? 0.25 };
+}
 
 const QUARTERLINE_TOOLS = ["calculate_qbi_deduction", "calculate_quarterly_estimate"];
 
@@ -295,6 +390,61 @@ export async function POST(req: NextRequest) {
           meterEventId,
           costPerQueryUsd: result.costPerQueryUsd,
           meterEventName: FACTURGATE_METER_EVENT[toolName],
+        },
+        computedAt: new Date().toISOString(),
+      });
+    }
+
+    // --- ParcelProof: audit_carrier_invoice / compute_billable_weight ---
+    if (toolName in PARCELAUDIT_PRICE_USD) {
+      const body = (await req.json()) as ParcelproofAgentInput;
+
+      let result: { data: unknown; costPerQueryUsd: number };
+      try {
+        result = runParcelproofTool(toolName, body);
+      } catch (toolError) {
+        if (toolError instanceof ParcelAuditFieldError) {
+          // A malformed CSV cell, an unmapped service or an out-of-range ship date: explicit, with
+          // the rule id and the field path (rule 5 — no defaulted divisor, no partial audit).
+          return NextResponse.json(
+            { error: toolError.message, ruleId: toolError.ruleId, fieldPath: toolError.fieldPath },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json(
+          { error: toolError instanceof Error ? toolError.message : "ParcelProof request failed" },
+          { status: 400 },
+        );
+      }
+
+      await track("agent_query", { tool: toolName }, "parcelproof");
+
+      const customerId =
+        req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
+      let meteredUsageReported = false;
+      let meterEventId: string | undefined;
+      if (customerId && process.env.STRIPE_SECRET_KEY) {
+        try {
+          const meterResult = await reportMeteredUsage({
+            customerId,
+            eventName: PARCELAUDIT_METER_EVENT[toolName] ?? "agent_query",
+            value: 1,
+          });
+          meteredUsageReported = meterResult.success;
+          meterEventId = meterResult.eventId;
+        } catch (meterErr) {
+          console.error("Failed to record metered usage:", meterErr);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: result.data,
+        metering: {
+          meteredUsageReported,
+          meterEventId,
+          costPerQueryUsd: result.costPerQueryUsd,
+          meterEventName: PARCELAUDIT_METER_EVENT[toolName],
         },
         computedAt: new Date().toISOString(),
       });
