@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe/checkout";
+import { products } from "@/products/registry";
 
 function getOrigin(req: NextRequest): string {
   if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -32,45 +33,89 @@ function getOrigin(req: NextRequest): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { plan = "pdf_audit_export", userId = "guest_user", email } = body;
+    const {
+      plan = "pdf_audit_export",
+      userId = "guest_user",
+      email,
+      app = (plan === "cpa_monthly" || plan === "pdf_audit_export") ? "quarterline" : "factory",
+      productName: customProductName,
+      productDescription: customProductDescription,
+      amount,
+      currency = "usd",
+      successUrl: customSuccessUrl,
+      cancelUrl: customCancelUrl,
+      metadata: customMetadata = {},
+      lineItems: customLineItems,
+    } = body;
 
     const origin = getOrigin(req);
+    const registeredProduct = products.find((p) => p.slug === app);
+    const appDisplayName = customProductName || registeredProduct?.name || "Factory Pro";
 
-    const isSubscription = plan === "cpa_monthly";
+    const isSubscription = body.mode === "subscription" || plan.includes("monthly") || plan.includes("sub");
     const mode = isSubscription ? "subscription" : "payment";
 
-    const lineItems = isSubscription
-      ? [
+    let lineItems = customLineItems;
+    if (!lineItems) {
+      if (isSubscription) {
+        lineItems = [
           {
             price_data: {
-              currency: "usd",
+              currency,
               product_data: {
-                name: "QuarterLine Pro — CPA & Accountant Roster",
-                description: "Multi-client 2026 OBBBA tax readiness engine & unlimited PDF exports",
+                name: customProductName || `${appDisplayName} Pro Subscription`,
+                description:
+                  customProductDescription ||
+                  registeredProduct?.description ||
+                  "Full access to deterministic tools and export capabilities",
                 tax_code: "txcd_10202000",
               },
-              unit_amount: 2900, // $29/month
+              unit_amount: amount ?? 2900, // $29/month default
               recurring: {
                 interval: "month" as const,
               },
             },
             quantity: 1,
           },
-        ]
-      : [
+        ];
+      } else {
+        lineItems = [
           {
             price_data: {
-              currency: "usd",
+              currency,
               product_data: {
-                name: "QuarterLine 2026 Tax Readiness Audit Report (PDF)",
-                description: "Official Section 199A QBI (20% rate) & Safe-Harbor Certified Audit Export",
+                name: customProductName || `${appDisplayName} Report / Export`,
+                description:
+                  customProductDescription ||
+                  registeredProduct?.description ||
+                  "Single export of branded report / CSV",
                 tax_code: "txcd_10000000",
               },
-              unit_amount: 900, // $9 one-off
+              unit_amount: amount ?? 900, // $9 one-off default
             },
             quantity: 1,
           },
         ];
+      }
+    }
+
+    const appPath = app === "factory" ? "" : app;
+    const resolvedSuccessUrl =
+      customSuccessUrl ||
+      `${origin}/${appPath}${appPath ? "" : ""}?session_id={CHECKOUT_SESSION_ID}&plan=${plan}&status=success`.replace(
+        /\/{2,}\?/g,
+        "/?",
+      );
+    const resolvedCancelUrl =
+      customCancelUrl ||
+      `${origin}/${appPath}${appPath ? "" : ""}?canceled=true`.replace(/\/{2,}\?/g, "/?");
+
+    const sessionMetadata = {
+      plan,
+      app,
+      appName: appDisplayName,
+      ...customMetadata,
+    };
 
     // If STRIPE_SECRET_KEY is configured, create live Stripe Checkout Session
     if (process.env.STRIPE_SECRET_KEY) {
@@ -79,12 +124,9 @@ export async function POST(req: NextRequest) {
         userEmail: email,
         mode,
         lineItems,
-        successUrl: `${origin}/quarterline?session_id={CHECKOUT_SESSION_ID}&plan=${plan}&status=success`,
-        cancelUrl: `${origin}/quarterline?canceled=true`,
-        metadata: {
-          plan,
-          app: "quarterline",
-        },
+        successUrl: resolvedSuccessUrl,
+        cancelUrl: resolvedCancelUrl,
+        metadata: sessionMetadata,
       });
 
       return NextResponse.json({
@@ -94,9 +136,12 @@ export async function POST(req: NextRequest) {
     }
 
     // In local dev without live Stripe key, provide immediate simulated checkout link
+    const simulatedSessionId = `simulated_${plan}_${Date.now()}`;
+    const simulatedUrl = resolvedSuccessUrl.replace("{CHECKOUT_SESSION_ID}", simulatedSessionId);
+
     return NextResponse.json({
-      url: `${origin}/quarterline?session_id=simulated_${plan}_${Date.now()}&plan=${plan}&status=success`,
-      sessionId: `simulated_${plan}_${Date.now()}`,
+      url: simulatedUrl,
+      sessionId: simulatedSessionId,
       simulated: true,
     });
   } catch (error: unknown) {

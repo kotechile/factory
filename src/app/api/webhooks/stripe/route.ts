@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/client";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/resend/email";
+import { products } from "@/products/registry";
 import type Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
@@ -78,26 +79,38 @@ export async function POST(req: NextRequest) {
         // Send transactional email with self-service cancellation / access instructions
         if (userEmail) {
           const isSub = session.mode === "subscription";
+          const appSlug = session.metadata?.app || "quarterline";
+          const registeredProduct = products.find((p) => p.slug === appSlug);
+          const appDisplayName = session.metadata?.appName || registeredProduct?.name || "Factory Pro";
+          const appPath = appSlug === "factory" ? "" : appSlug;
+
           const subject = isSub
-            ? "Your QuarterLine Pro CPA Subscription & Access"
-            : "Your QuarterLine 2026 Tax Readiness Audit Report";
+            ? `Your ${appDisplayName} Subscription & Access`
+            : `Your ${appDisplayName} Report / Export is Ready`;
 
           const portalUrl = customerId
             ? `https://factory.aichieve.net/api/portal?customer_id=${customerId}`
             : `https://factory.aichieve.net/api/portal?session_id=${session.id}`;
 
-          const appUrl = `https://factory.aichieve.net/quarterline?session_id=${session.id}&status=success`;
+          const appUrl = appPath
+            ? `https://factory.aichieve.net/${appPath}?session_id=${session.id}&status=success`
+            : `https://factory.aichieve.net/?session_id=${session.id}&status=success`;
+
+          const subtitleNote =
+            appSlug === "quarterline"
+              ? "Governed by One Big Beautiful Bill Act (Pub. L. 119-21) & IRS Rev. Proc. 2025-32."
+              : "Deterministic core verified by Autonomous Product & Software Factory.";
 
           const html = isSub
             ? `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.5;">
-              <h2 style="color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">Welcome to QuarterLine Pro</h2>
-              <p>Thank you for subscribing to the <strong>QuarterLine Pro CPA Roster</strong> ($29/month).</p>
-              <p>Your subscription unlocks unlimited multi-client calculations and certified 2026 tax readiness audit workpapers.</p>
+              <h2 style="color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">Welcome to ${appDisplayName}</h2>
+              <p>Thank you for subscribing to <strong>${appDisplayName} Pro</strong>.</p>
+              <p>Your subscription unlocks unlimited deterministic calculations, audit workpapers, and export capabilities.</p>
               
               <div style="margin: 24px 0;">
                 <a href="${appUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                  Access QuarterLine Pro Workspace
+                  Access ${appDisplayName} Workspace
                 </a>
               </div>
 
@@ -111,17 +124,17 @@ export async function POST(req: NextRequest) {
             `
             : `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.5;">
-              <h2 style="color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">Your 2026 Tax Audit Report is Ready</h2>
-              <p>Thank you for purchasing the <strong>QuarterLine 2026 Tax Readiness Audit Report</strong> ($9.00).</p>
+              <h2 style="color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 8px;">Your ${appDisplayName} Export is Ready</h2>
+              <p>Thank you for your purchase from <strong>${appDisplayName}</strong>.</p>
               
               <div style="margin: 24px 0;">
                 <a href="${appUrl}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                  Download Official Audit Report (PDF)
+                  Download / View Export
                 </a>
               </div>
 
               <p style="font-size: 13px; color: #64748b; margin-top: 24px;">
-                Governed by One Big Beautiful Bill Act (Pub. L. 119-21) & IRS Rev. Proc. 2025-32.
+                ${subtitleNote}
               </p>
             </div>
             `;

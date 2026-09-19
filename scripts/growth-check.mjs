@@ -43,7 +43,7 @@ loadEnvFile(".env");
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const stripeKey = process.env.STRIPE_SECRET_KEY;
-const PRODUCT = "quarterline";
+const PRODUCT = process.argv[2] || process.env.GROWTH_PRODUCT || "quarterline";
 const GATE_WINDOW_DAYS = Number(process.env.GATE_WINDOW_DAYS ?? 7);
 
 const summary = {
