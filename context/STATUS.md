@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-18 (daily sweep, 08:00 UTC) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-19 (daily sweep, 08:00 UTC) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -33,8 +33,8 @@ All nine deliver to `slack:C0BTPDKQXU2:1788974638.867929`; the flash-tier jobs a
 ⚠️ **Gateway restart pending (operator action).** The `cron/jobs.py` fire-claim fix is applied in the tree
 (`heartbeat_fire_claim` no longer takes the delivery-held `_fire_job_lock`) but the running gateway
 process is still the one started **2026-09-12 15:13**, so a completed+delivered run can still be mislabelled
-`Interrupted by shutdown before terminal completion` (last seen 2026-09-16 08:07; none on 09-17). Restart
-`hermes_cli.main gateway run` while no cron run is in flight; see
+`Interrupted by shutdown before terminal completion` (last seen 2026-09-16 08:07; none on 09-17, 09-18 or
+09-19). Restart `hermes_cli.main gateway run` while no cron run is in flight; see
 `hermes-cron-debugging/references/fire-claim-misreport.md`.
 
 | Job | Schedule | Model | Workdir |
@@ -62,7 +62,7 @@ Scout (Mon) → Simon PRD → [@Simon approve] ─┬─ Product Director (agy, 
 ## Architecture — subpaths under one deploy
 
 - `/` — Factory Showcase (directory: search, status badges, WebMCP agent catalog).
-- `/<slug>/` — each product's UI; `/quarterline/` and `/ledgerlink/` are live, `/facturgate/` is beta.
+- `/<slug>/` — each product's UI; `/quarterline/` and `/ledgerlink/` are live, `/facturgate/` and `/parcelproof/` are beta.
 - `/<slug>/calc/*` — per-product pSEO; `/api/*`, `/embed/*`, `/.well-known/*` are shared.
 
 ## Live product — QuarterLine
@@ -91,6 +91,28 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
   EXTENDED-CTC-FR lifecycle fields, e-reporting/CDAR and national serializations (PL KSeF FA(3) XML)
   are P1; `check_eu_vat_id` is offline format + checksum — VIES status is not queried.
 
+## Beta product — ParcelProof (built 2026-09-18, deliberately not launched)
+
+`https://factory.aichieve.net/parcelproof` — carrier invoice DIM-weight / surcharge audit, built from
+queue item 4's ParcelProof half (`3584a62`, owner-approved 2026-09-18, docs `73cad11` + `19d9529`).
+Registry status is **beta**: the public launch call is the founder's, so nothing here claims traction.
+
+- Engine `src/lib/calc/parcelaudit/` — billable weight recomputed as `max(actual, ceil(L)*ceil(W)*ceil(H)/divisor)`
+  with the divisor resolved by carrier × service × ship date (UPS/FedEx 139; USPS 166 before 2026-07-12,
+  then 139), the round-up rule applied to every dimension, and the cubic-inch threshold enforced. An
+  unmapped service or out-of-range date throws with its rule id — no divisor is ever defaulted. Accessorial
+  eligibility, service-commitment refunds and the per-carrier dispute clock (UPS ~30 / FedEx ~21 days) are
+  recomputed from the record; unpriceable lines report `unverifiable-rate`, never $0. 32 known-answer
+  vitest vectors pin the arithmetic.
+- Surfaces: `/parcelproof`, **6** `/parcelproof/calc/*` presets (all probed 200 on 2026-09-19), and
+  `audit_carrier_invoice` + `compute_billable_weight` registered via `navigator.modelContext.registerTool`
+  and advertised in the generated `/.well-known/mcp.json` (**v1.3.0, 8 tools**).
+- Stated v1 limits (PRD §5 scope guard): zone-matrix derivation, published fuel tables, LTL/ocean modes and
+  rate-card auto-mapping stay P1; every line outside v1 is reported `unverifiable-rate` rather than passed.
+- **Open question for the owner:** the tariff table makes UPS's AHS-Dimension trigger a longest side > 96″
+  while FedEx triggers at > 48″, so a 40″ parcel is ineligible at *both* carriers. If the intended UPS
+  trigger is 48″, that is a one-line change in `src/lib/calc/parcelaudit/surcharges.ts` and the vectors follow.
+
 ## Infrastructure
 
 - **Quality gate** — `scripts/verify-build.sh`: tsc → eslint → token-lint → vitest →
@@ -108,7 +130,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live — 374 rows (quarterline 163 / factory 134 / ledgerlink 39 / facturgate 38), last write 2026-09-17 22:03:17; 149 sessions, **5 outside every CI cluster and unattributable** (0 provably external in 18 days); **3 `agent_query` rows, all factory deploy smoke** (facturgate, 2026-09-17 03:50:21–22) — organic agent queries 0 |
+| `events` | growth telemetry | ✅ live — 633 rows (quarterline 196 / factory 152 / parcelproof 132 / facturgate 105 / ledgerlink 48), last write 2026-09-18 22:07:10Z; 328 session ids, **5 sessions outside every CI cluster and unattributable** (0 provably external in 19 days); **4 `agent_query` rows, all factory deploy smoke** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0 |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -122,16 +144,19 @@ mirrors them.
 ## Remaining / dormant
 
 1. Distribution is the binding constraint — **0 provably-external sessions / 0 organic `agent_query` / $0 real
-   revenue in 18 days live**; production Stripe is still test mode (`cs_test_` checkout sessions — fresh
-   probe 2026-09-18, 4 `cs_test_*` purchases all 09-02). Five sessions sit outside every CI cluster but
+   revenue in 19 days live**; production Stripe is still test mode (`cs_test_` checkout sessions — fresh
+   probe 2026-09-19, 4 `cs_test_*` purchases all 09-02). Five sessions sit outside every CI cluster but
    carry no UA/referrer, so they are unattributable, not provably external (`30eb9935` is a returning
    browser, 09-10 → 09-16, and holds the only `checkout_click` outside the 09-02 window; `d8e77f23` adds a
-   second evening directory view, 09-17 22:03). The agent tier's only rows are the 3 FacturGate deploy-smoke
-   `agent_query` rows, so it is factory-exercised, not demanded. The pSEO footprint is 32 indexable routes
-   (20 quarterline + 12 facturgate) justified by traffic that is still 100 % factory-generated; the Day-7
-   fallback shipped before its preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on
-   09-14 and Day-30 (≈09-30) inherits the same $0. The `distribution_queue` has been untouched since 09-12
-   (36/36 `ready`, 0 published) and **its top item's event date is 2026-09-18**.
+   second evening directory view, 09-17 22:03). The agent tier's only rows are the 4 factory deploy-smoke
+   `agent_query` rows (3 FacturGate + 1 ParcelProof ship probe), so it is factory-exercised, not demanded.
+   The pSEO footprint is 38 indexable routes (20 quarterline + 12 facturgate + 6 parcelproof) justified by
+   traffic that is still 100 % factory-generated; the Day-7 fallback shipped before its preconditions and
+   remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 11 days out)
+   inherits the same $0 and is formally gated on the still-unbuilt internal-traffic marker. The
+   `distribution_queue` has been untouched since 09-12 (36/36 `ready`, 0 published) and **its lead item's
+   event date (2026-09-18) has now passed with nothing posted**. Both shipped products (FacturGate,
+   ParcelProof) remain `beta` — the public launch calls are the founder's.
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.

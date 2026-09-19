@@ -4,13 +4,28 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-18 (owner approval recorded by hand, not by a sweep) — **item 4's open go/no-go is
-answered: ParcelProof APPROVED and its build dispatched.** Item 3 is DONE and verified in
-production (`a57539f`); the other open items are unchanged from the 2026-09-16 sweep below. Prior owner
-instruction 2026-09-17: fix the manifest, then proceed to deliver and drain the queue — so items 4 and 5
-(item 5 = the internal-traffic marker, requires a migration on the production Supabase) are the next
-software-factory slots; item 2's distribution queue is editorial-gated (needs the editorial gate, not this
-one) and item 1's live Stripe key is a founder credential action, not a build._
+_Last updated: 2026-09-19 (daily sweep, 08:00 UTC) — **item 4 is now fully shipped**: FacturGate and
+ParcelProof are both live as `beta` and both public launch calls stay with the founder. Item 3 is DONE and
+verified in production (`a57539f`). Items 1, 2, 5, 6, 7 are unchanged and re-verified live below. Prior
+owner instruction 2026-09-17: fix the manifest, then proceed to deliver and drain the queue — so item 5 (the
+internal-traffic marker, requires a migration on the production Supabase) is the next software-factory slot;
+item 2's distribution queue is editorial-gated (needs the editorial gate, not this one) and item 1's live
+Stripe key is a founder credential action, not a build._
+
+_**2026-09-19 08:00 sweep — measured live.** Item 4 closed on both halves: ParcelProof shipped 09-18 22:05
+(`3584a62` + docs `19d9529`), `/parcelproof` 200, all 6 `/parcelproof/calc/*` 200, manifest v1.3.0 with 8
+tools and byte-identical to the tree. **Item 2's clock has now run out: `distribution_queue` is 36/36
+`ready`, 0 published, untouched since 09-12 14:48, and its lead item's event date (2026-09-18) passed with
+nothing posted** — the third wedge in a row to expire. Item 1 re-measured: prod checkout still `cs_test_…`
+(fresh probe 09-19; 4 `purchases`, all 09-02, $0 real revenue). Item 5 re-measured: **`agent_query` is now
+4 rows and every one is our own ship probe** (3 FacturGate + 1 ParcelProof), so the Day-30 agent criterion
+still has no organic reading; the 09-18 Growth Watchdog row formally gates Day-30 on this item. Item 6: the
+sweep has now written a durable record four days running, still without a producer. Item 7: patch still
+unloaded (gateway pid from 09-12), no new mislabel on 09-17/09-18/09-19. **New this sweep:** an open
+correctness question on the shipped ParcelProof (UPS AHS-Dimension trigger 96″ as published vs 48″ as
+possibly intended — one line in `src/lib/calc/parcelaudit/surcharges.ts`)._
+
+---
 
 _**2026-09-18 21:32 UTC — OWNER APPROVAL RECORDED (by hand, not a sweep).** Owner instruction in `loop-ai`
 2026-09-18: **"approve ParcelProof"** → item 4's open ParcelProof go/no-go is answered. The ParcelProof (80)
@@ -75,7 +90,8 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    tree (4 polls, ~60 s); `calculate_self_employment_2026` → 400; `reconcile_stripe_payout` with no
    key/export → explicit 500. Those two probes wrote no telemetry; the guide/manifest probes at 03:50 did —
    see the 09-17 sweep note at the top of this file (`agent_query` = 3, all deploy smoke).
-4. **[PARTIALLY SHIPPED 2026-09-17 — FacturGate live as `beta`; ParcelProof still undecided]** FacturGate /
+4. **[CLOSED 2026-09-19 — fully shipped: FacturGate `beta` (`e77db64`) + ParcelProof `beta` (`3584a62`);
+   both launch calls remain open below]** FacturGate /
    ParcelProof pair, queued by the 09-14 recon (`91b6c50`). Owner instruction 2026-09-17 ("proceed to
    implement to deliver solutions") is the go/no-go: **FacturGate (83) APPROVED primary**, built and pushed
    by job `0da7fd6c8f68` (`e77db64` + docs `c1b3139`), deployed tag `c1b3139`; live-verified this sweep —
