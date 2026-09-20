@@ -50,8 +50,10 @@ Set `VERTICAL = <id>` at the top of the sweep and record it in the run report an
 - **Rotation rule:** the declared vertical must not be one of the last **two** declared verticals.
   Pick from the rotation queue in `context/vertical_coverage.md` (least-recently-scanned first,
   `never` before everything else). The queue's inventory of the factory's 26 audience verticals is
-  generated from the editorial registry — run `node scripts/vertical-sync.mjs` after any editorial
-  vertical change (`--check` fails on stale inventory or a missing verdict row). Every vertical in
+  generated from a **vendored snapshot** of the editorial registry
+  (`context/editorial_verticals.json`, provenance included) — re-vendor after an editorial vertical
+  change with `node scripts/vertical-sync.mjs --vendor`, and let `--check` fail the run if the snapshot
+  is stale, the inventory block is out of date, or a verdict row is missing. Every vertical in
   `skills/recon_vertical_packs.md` has a pack; add one when you open a new vertical.
 - **Freshness rule:** at least one of the top three scored candidates must come from the declared
   vertical. If it produces nothing ≥60, say so explicitly with the queries that failed and the

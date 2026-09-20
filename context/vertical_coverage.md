@@ -11,9 +11,19 @@ source of truth for the factory's audience menu (it defines the 26 verticals the
 publishes into, with persona, sources and cadence), so the inventory below is generated from it:
 
 ```
-node scripts/vertical-sync.mjs           # regenerate the inventory block + report verdict drift
-node scripts/vertical-sync.mjs --check   # non-zero if stale or drifting (CI-safe)
+node scripts/vertical-sync.mjs           # regenerate the inventory block from the vendored snapshot
+node scripts/vertical-sync.mjs --check   # non-zero if stale, drifting, or the snapshot is behind live
+node scripts/vertical-sync.mjs --vendor  # re-vendor from the live editorial checkout
 ```
+
+**No sibling checkout required.** The registry is vendored into this repo as
+`context/editorial_verticals.json` — a snapshot of `editorial-factory/context/verticals.json` with
+provenance (`sourceRepo`, `sourceRepoHead`, `sourceFileCommit`, `sourceSha256`, `fetchedAt`), so the
+ledger regenerates and the guard runs inside the deploy container where the sibling editorial checkout
+does not exist. When the live checkout *is* reachable (`../editorial-factory`, or `EDITORIAL_REPO=`),
+its sha256 is compared against `sourceSha256`: a snapshot behind live fails loudly with the added or
+removed verticals named, and is fixed by `--vendor` (which rewrites both the snapshot and the block).
+An absent vendored file is an error, never a skip — a guard that cannot verify must fail closed.
 
 **Channel honesty (measured 2026-09-20):** the editorial pipeline is live but its published set is
 currently empty (`editorial-factory/published/` holds only `.gitkeep` after the 09-19 reset onto real
@@ -25,8 +35,8 @@ own CI traffic.
 ## Inventory (generated)
 
 <!-- BEGIN:vertical-inventory (generated) -->
-_Generated 2026-09-20 by `scripts/vertical-sync.mjs` from
-`editorial-factory/context/verticals.json` (26 verticals). Do not hand-edit this block._
+_Generated 2026-09-20 by `scripts/vertical-sync.mjs` from the
+vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit dc868813a92d7a971e52e1ce602a92c5cb26c373, fetched 2026-09-20T16:59:43.679Z) — 26 verticals. Do not hand-edit this block._
 
 | Vertical | Label | Editorial persona | Cadence | Sources | Decision-shaped angles |
 |---|---|---|---|---|---|
@@ -129,8 +139,10 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 
 ## Rules
 - Update `last_scanned` and `best score` in the run that observes them (record hygiene rule 1).
-- Run `node scripts/vertical-sync.mjs` after any editorial vertical change; `--check` fails on stale
-  inventory or a missing/unknown verdict row, so the two registries cannot drift apart silently.
+- Run `node scripts/vertical-sync.mjs --check` in CI/sweeps; after an editorial vertical change run
+  `node scripts/vertical-sync.mjs --vendor` (the snapshot is vendored in `context/editorial_verticals.json`
+  with provenance, so no sibling checkout is needed). `--check` fails on a stale inventory block, a
+  missing/unknown verdict row, or a vendored snapshot that is behind the live registry.
 - A retired vertical needs its reason recorded; one that reappears with a *new* dated trigger is
   re-opened, not silently re-scanned.
 - Only verticals with a plausible distribution channel advance to a build recommendation.

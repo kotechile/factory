@@ -4,6 +4,7 @@ echo "Running factory build verification..."
 npx tsc --noEmit
 npm run lint
 npm run check:tokens
+npm run verticals:check
 npm run test
 npm run build
 npm run test:e2e

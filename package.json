@@ -10,6 +10,9 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "check:tokens": "node scripts/check-design-tokens.mjs",
+    "verticals:sync": "node scripts/vertical-sync.mjs",
+    "verticals:check": "node scripts/vertical-sync.mjs --check",
+    "verticals:vendor": "node scripts/vertical-sync.mjs --vendor",
     "mcp:sync": "MCP_MANIFEST_WRITE=1 vitest run src/lib/webmcp/manifest.test.ts",
     "visual-qa": "node scripts/visual-qa.mjs",
     "visual-qa:suggest": "node scripts/visual-qa.mjs --suggest"

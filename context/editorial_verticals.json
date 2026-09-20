@@ -1,0 +1,587 @@
+{
+  "_note": "Vendored snapshot of the editorial factory's vertical registry. Regenerate with: node scripts/vertical-sync.mjs --vendor",
+  "sourceRepo": "git@github.com:kotechile/Editorial-Factory.git",
+  "sourcePath": "/root/editorial-factory/context/verticals.json",
+  "sourceRepoHead": "dc868813a92d7a971e52e1ce602a92c5cb26c373",
+  "sourceFileCommit": "dc868813a92d7a971e52e1ce602a92c5cb26c373",
+  "sourceSha256": "7f791082af101834ab68fc27f6f66dccaa0759edfe91ea06537a622fa1e5b871",
+  "fetchedAt": "2026-09-20T16:59:43.679Z",
+  "verticals": [
+    {
+      "id": "agentic_ai",
+      "label": "Agentic Runtime & Architecture",
+      "cadence": "0 6 * * 1,4",
+      "sources": [
+        "arxiv",
+        "github_trending",
+        "x_ai",
+        "hacker_news",
+        "reddit_ml"
+      ],
+      "primary_angles": [
+        "memory tiering topology L1-L4",
+        "tool use and MCP protocol fabric",
+        "multi-agent coordination modes",
+        "distributed microservices architecture",
+        "deterministic RPC boundaries",
+        "subagent cost optimization"
+      ],
+      "target_persona": "ai_architect",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "ai_observability_qa",
+      "label": "Observability, Evals & Quality",
+      "cadence": "0 6 * * 2",
+      "sources": [
+        "arxiv",
+        "github_trending",
+        "hacker_news",
+        "x_ai",
+        "eval_benchmarks",
+        "vendor_changelogs"
+      ],
+      "primary_angles": [
+        "deterministic vs probabilistic QA",
+        "LLM-as-a-judge calibration",
+        "synthetic dataset stress testing",
+        "trace-level vertical flamegraphs",
+        "schema regression testing",
+        "redundant loop detection"
+      ],
+      "target_persona": "evals_infra_eng",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "agentic_resilience_failure",
+      "label": "Resilience & Failure Engineering",
+      "cadence": "0 6 * * 3",
+      "sources": [
+        "arxiv",
+        "github_trending",
+        "incident_reports",
+        "hacker_news",
+        "postmortems",
+        "x_ai"
+      ],
+      "primary_angles": [
+        "compound reliability math 0.95^10",
+        "agentic failure mode taxonomy",
+        "context poisoning mitigation",
+        "state recovery and checkpointing",
+        "transactional undo redo rollbacks",
+        "cascading error containment"
+      ],
+      "target_persona": "infra_engineer",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "enterprise_ai_governance",
+      "label": "Enterprise AI Governance & Control Planes",
+      "cadence": "0 6 * * 1",
+      "sources": [
+        "ciso_reports",
+        "owasp_genai",
+        "gartner_cloud",
+        "nist_ai_rmf",
+        "secops_advisories",
+        "hacker_news",
+        "x_ai"
+      ],
+      "primary_angles": [
+        "non-human identity NHI lifecycle management",
+        "agent blast-radius fencing and kill-switches",
+        "attribute-based access control ABAC for RAG",
+        "cross-domain context poisoning and data leakage",
+        "immutable cryptographic audit trails and provenance",
+        "EU AI Act and regulatory compliance replay",
+        "shadow AI migration to managed agent gateways",
+        "zero-trust agent security boundaries"
+      ],
+      "target_persona": "enterprise_cai",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "nhil_infrastructure_ops",
+      "label": "NHIL Infrastructure, NetOps & Power Strategy",
+      "cadence": "0 6 * * 2",
+      "sources": [
+        "datacenter_knowledge",
+        "open_compute_project",
+        "nanog_outages",
+        "arxiv",
+        "hacker_news",
+        "vendor_changelogs"
+      ],
+      "primary_angles": [
+        "deterministic guardrails for agentic netops",
+        "closed-loop self-healing telemetry boundaries",
+        "rack power density 40kW-100kW and thermal limits",
+        "substation interconnection queues and behind-the-meter power",
+        "sovereign localized SLM inference vs confidential cloud",
+        "data residency and air-gapped agent runtime"
+      ],
+      "target_persona": "it_ops_leader",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "multi_agent_enterprise_fabric",
+      "label": "Multi-Agent Orchestration & Enterprise Fabrics",
+      "cadence": "0 6 * * 3",
+      "sources": [
+        "arxiv",
+        "github_trending",
+        "enterprise_integration_patterns",
+        "hacker_news",
+        "x_ai"
+      ],
+      "primary_angles": [
+        "distributed saga patterns and multi-agent rollbacks",
+        "compensating transactions for stochastic failures",
+        "model context protocol MCP anti-corruption layer",
+        "ERP SAP Workday event-driven integration bus",
+        "tool schema bloat and context poisoning mitigation",
+        "durable execution state persistence"
+      ],
+      "target_persona": "ai_architect",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "enterprise_ai_finops",
+      "label": "AI FinOps & Value Realization",
+      "cadence": "0 6 * * 4",
+      "sources": [
+        "cloud_cost_reports",
+        "finops_foundation",
+        "gartner_cloud",
+        "hacker_news",
+        "substack_tech_leads"
+      ],
+      "primary_angles": [
+        "cost per resolved work-unit CRW economics",
+        "amortized human-in-the-loop HITL labor overhead",
+        "prompt prefix caching economics and layout stability",
+        "pilot-to-production graveyard and PoC audit scorecards",
+        "high-throughput deterministic automation ROI",
+        "token cost attribution by business unit"
+      ],
+      "target_persona": "enterprise_cai",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "enterprise_tech_leadership",
+      "label": "Technology & Architecture Decisions",
+      "cadence": "0 6 * * 2",
+      "sources": [
+        "hacker_news",
+        "substack_tech_leads",
+        "cloud_cost_reports",
+        "x_ai"
+      ],
+      "primary_angles": [
+        "cloud repatriation",
+        "monolith vs microservices",
+        "AI ROI",
+        "build vs buy"
+      ],
+      "target_persona": "eng_leader",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "gpu_hardware",
+      "label": "GPUs & AI Hardware",
+      "cadence": "0 6 * * 3",
+      "sources": [
+        "arxiv",
+        "github_trending",
+        "hacker_news",
+        "x_ai",
+        "vendor_changelogs"
+      ],
+      "primary_angles": [
+        "inference economics",
+        "supply constraints",
+        "open-source vs closed silicon",
+        "memory bandwidth ceilings"
+      ],
+      "target_persona": "infra_engineer",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "supply_chain",
+      "label": "Supply Chain Orchestration & Physical Logistics",
+      "cadence": "0 6 * * 4",
+      "sources": [
+        "freightwaves",
+        "supply_chain_dive",
+        "journal_of_commerce",
+        "tariff_updates",
+        "customs_rulings",
+        "x_ai",
+        "freightos_baltic",
+        "gartner_supply_chain"
+      ],
+      "primary_angles": [
+        "enterprise ERP WMS TMS decoupling 3-layer stack",
+        "SMB lean composable logistics SaaS blueprint",
+        "control tower maturity 4-stage hierarchy",
+        "multi-echelon inventory optimization MEIO",
+        "deterministic vs probabilistic demand sensing",
+        "closed loop S&OP to S&OE operational execution",
+        "autonomous mobile robots AMR vs ASRS capex ROI",
+        "dynamic velocity slotting and micro-fulfillment",
+        "dynamic freight routing and LTL consolidation",
+        "real-time in-transit visibility RTTV telematics",
+        "nearshoring and multi-sourcing value stream topology",
+        "upstream Tier-1 to Tier-N supplier blast radius",
+        "supply chain digital twin sandbox stress-testing",
+        "agentic exception handling and demurrage dispute pipelines"
+      ],
+      "target_persona": "ops_leader",
+      "enable_dataforseo": false
+    },
+    {
+      "id": "home_equity_tco",
+      "label": "Home Capital Allocation & TCO Economics",
+      "cadence": "0 6 * * 1",
+      "sources": [
+        "greenbuildingadvisor",
+        "jchs_harvard",
+        "nar_realtor_reports",
+        "energy_star",
+        "reddit_homeimprovement"
+      ],
+      "primary_angles": [
+        "remodel capitalization trap vs mechanical upgrades",
+        "compounding deferred maintenance liability math",
+        "heat pump seasonal COP curves and tariff shocks",
+        "time of use TOU arbitrage and battery amortization",
+        "heloc vs cash capex home capital allocations"
+      ],
+      "target_persona": "pro_homeowner",
+      "enable_dataforseo": false
+    },
+    {
+      "id": "smart_home_telemetry",
+      "label": "Local-First Smart Infrastructure & Telemetry",
+      "cadence": "0 6 * * 2",
+      "sources": [
+        "home_assistant_community",
+        "matter_thread_consortium",
+        "hackaday",
+        "reddit_homelab",
+        "github_trending"
+      ],
+      "primary_angles": [
+        "local-first home assistant vs cloud subscription fragility",
+        "ultrasonic inline flow meters and early leak telemetry",
+        "panel-level CT clamp energy and compressor monitoring",
+        "200A electrical service ampacity ceilings and smart load shedding",
+        "isolated IoT VLANs and zero-cloud camera privacy"
+      ],
+      "target_persona": "pro_homeowner",
+      "enable_dataforseo": false
+    },
+    {
+      "id": "home_ops_execution",
+      "label": "Home Operations, Permitting & Contractor Contracts",
+      "cadence": "0 6 * * 4",
+      "sources": [
+        "ashrae_standards",
+        "contractor_talk",
+        "icc_safe_codes",
+        "journal_light_construction",
+        "reddit_home"
+      ],
+      "primary_angles": [
+        "climate-zone preventative maintenance runbooks",
+        "contractor scope of work SOW and retainage escrow",
+        "unconditional mechanics lien waivers and permitting",
+        "pre-trade diagnostic triage delta-T and water hammer",
+        "annual preventative maintenance vendor contracts"
+      ],
+      "target_persona": "pro_homeowner",
+      "enable_dataforseo": false
+    },
+    {
+      "id": "resilient_home_assets",
+      "label": "Climate Hardening, Insurability & Grid Resilience",
+      "cadence": "0 6 * * 5",
+      "sources": [
+        "ibhs_fortified",
+        "insurance_information_institute",
+        "noaa_climate_risk",
+        "first_street_foundation",
+        "reddit_solardiy"
+      ],
+      "primary_angles": [
+        "property insurability crisis and fortified roof retrofits",
+        "behind-the-meter microgrids solar and LFP storage sizing",
+        "vehicle to home V2H bi-directional EV charging limits",
+        "ember-resistant venting and wildfire defensible space",
+        "symmetrical fiber and acoustic decoupling for dual offices"
+      ],
+      "target_persona": "pro_homeowner",
+      "enable_dataforseo": false
+    },
+    {
+      "id": "home_infrastructure_lifecycle_tco",
+      "label": "Home Infrastructure & Major Asset Lifecycle TCO",
+      "cadence": "0 6 * * 1",
+      "sources": [
+        "energy_star",
+        "ashrae_standards",
+        "jchs_harvard",
+        "nrel_pvwatts",
+        "awwa_water_audits",
+        "reddit_homeimprovement",
+        "hvac_talk"
+      ],
+      "primary_angles": [
+        "smart home and hvac transition tco break-even timelines",
+        "the 10-year home capex roadmap and replacement windows",
+        "solar and backup battery payback models and grid-failure protection",
+        "smart irrigation and water efficiency audits with automated leak detection"
+      ],
+      "target_persona": "pro_homeowner",
+      "enable_dataforseo": false
+    },
+    {
+      "id": "workstation_compute_economics",
+      "label": "Autonomous Tech Workstations & AI Compute Economics",
+      "cadence": "0 6 * * 2",
+      "sources": [
+        "tomshardware",
+        "puget_systems_benchmarks",
+        "anandtech",
+        "reddit_localllama",
+        "hacker_news",
+        "github_trending",
+        "lambda_labs_benchmarks"
+      ],
+      "primary_angles": [
+        "local workstation build vs cloud gpu compute matrix",
+        "the developer hardware debt index and lost compilation hours",
+        "local llm fine-tuning hardware requirements vs commercial api per-token fees",
+        "automated video rendering pipeline roi local vs cloud rendering nodes"
+      ],
+      "target_persona": "infra_engineer",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "enterprise_build_vs_buy",
+      "label": "Enterprise Build-vs-Buy & Developer Tooling Architecture",
+      "cadence": "0 6 * * 3",
+      "sources": [
+        "hacker_news",
+        "substack_tech_leads",
+        "gartner_cloud",
+        "thoughtworks_radar",
+        "cloud_cost_reports",
+        "stackoverflow_surveys"
+      ],
+      "primary_angles": [
+        "the hidden compliance and maintenance multiplier over 3-year windows",
+        "internal tooling maintenance tax calculator with loaded salary rates",
+        "self-hosted infrastructure vs managed cloud services tco",
+        "api ingestion and third-party service redundancy costs and fallback layers"
+      ],
+      "target_persona": "eng_leader",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "expat_cross_border_relocation",
+      "label": "Advanced Expat, Cross-Border & Multi-Jurisdictional Relocation",
+      "cadence": "0 6 * * 4",
+      "sources": [
+        "irs_international_bulletins",
+        "oecd_tax_reports",
+        "pwc_global_mobility",
+        "reddit_expats",
+        "numbeo_cost_of_living",
+        "international_living",
+        "nomad_capitalist_audits"
+      ],
+      "primary_angles": [
+        "the true cost of dual-jurisdiction compliance feie and ftc optimization",
+        "cross-border net cash flow and fx shock simulator over 5-year horizons",
+        "cost of living vs healthcare quality trade-offs and out-of-pocket medical expenses",
+        "remote work tax nexus risks for employers and distributed employees"
+      ],
+      "target_persona": "cross_border_expat",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "career_velocity_equity_engineering",
+      "label": "Career Velocity, Equity Liquidity & Offer Engineering",
+      "cadence": "0 6 * * 5",
+      "sources": [
+        "levels_fyi",
+        "carta_equity_reports",
+        "sec_edgar_filings",
+        "blind_tech_threads",
+        "hacker_news",
+        "comp_gauge"
+      ],
+      "primary_angles": [
+        "how to quantify and negotiate cliff forfeitures and unvested equity",
+        "equity growth and scenario matrix startup strike prices vs enterprise comp",
+        "the true hourly rate of corporate leadership factoring meetings and off-hours",
+        "upskilling roi and certification amortization salary bump payback windows"
+      ],
+      "target_persona": "equity_career_strategist",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "personal_microeconomics_tinkering_tax",
+      "label": "Personal Asset Micro-Economics & 'Tinkering Tax' Audits",
+      "cadence": "0 6 * * 6",
+      "sources": [
+        "reddit_selfhosted",
+        "reddit_homelab",
+        "hacker_news",
+        "reddit_3dprinting",
+        "github_trending",
+        "substitutions_database"
+      ],
+      "primary_angles": [
+        "the trap of free open-source self-hosting and reverse proxy debugging hours",
+        "the hobbyist automation roi calculator setup time vs manual execution",
+        "subscription creep and micro-saas audit frameworks",
+        "the true cost of 3d printing and fabrication hobbies filament waste and calibration"
+      ],
+      "target_persona": "systems_tinkerer_pro",
+      "enable_dataforseo": false
+    },
+    {
+      "id": "meio_working_capital_tco",
+      "label": "Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO",
+      "cadence": "0 6 * * 1",
+      "sources": [
+        "freightwaves",
+        "supply_chain_dive",
+        "gartner_supply_chain",
+        "journal_of_commerce",
+        "cscmp_research",
+        "financial_times_trade",
+        "reddit_supplychain"
+      ],
+      "primary_angles": [
+        "quantifying cash flow impact of safety stock across distributed warehouses vs stockout risk and expedited freight",
+        "the working capital trap carrying cost of stagnant inventory against volatile supplier lead times",
+        "expedited freight vs safety stock calculator air freight surcharges vs excess regional buffer stock",
+        "sku rationalization roi true holding and handling cost of long-tail low-turnover inventory items"
+      ],
+      "target_persona": "ops_leader",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "control_tower_exception_orchestration",
+      "label": "Control Tower Visibility & Real-Time Exception Orchestration",
+      "cadence": "0 6 * * 2",
+      "sources": [
+        "freightwaves",
+        "supply_chain_dive",
+        "gartner_supply_chain",
+        "journal_of_commerce",
+        "logistics_management",
+        "iot_world_today",
+        "x_ai"
+      ],
+      "primary_angles": [
+        "assessing software and operational investment from reactive tracking to predictive ai exception management",
+        "control tower build vs buy matrix engineering maintenance overhead of custom api aggregators vs visibility platforms",
+        "the true cost of a late shipment automated model for downstream labor downtime penalty fees and customer churn",
+        "telemetry and iot roi in transit hardware and data streaming costs of real-time temperature shock sensors vs spoilage write-offs"
+      ],
+      "target_persona": "supply_chain_architect",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "warehouse_automation_robotics_capex",
+      "label": "Warehouse Automation & Robotics CapEx Amortization",
+      "cadence": "0 6 * * 3",
+      "sources": [
+        "modern_materials_handling",
+        "dc_velocity",
+        "robotics_business_review",
+        "supply_chain_dive",
+        "gartner_supply_chain",
+        "logistics_management",
+        "reddit_supplychain"
+      ],
+      "primary_angles": [
+        "financial modeling for fulfillment centers manual picking workflows vs amr and asrs capital deployment",
+        "amr fleet payback period calculator equipment lease maintenance facility modifications and labor turnover savings",
+        "labor volatility risk index rising minimum wages and warehouse labor shortages altering automation roi curve",
+        "pick-and-pack error tax reverse logistics and customer support overhead of human fulfillment errors vs automated vision validation"
+      ],
+      "target_persona": "ops_leader",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "demand_sensing_advanced_sop",
+      "label": "Demand Sensing & Advanced Sales & Operations Planning (S&OP)",
+      "cadence": "0 6 * * 4",
+      "sources": [
+        "gartner_supply_chain",
+        "supply_chain_brain",
+        "supply_chain_dive",
+        "harvard_business_review",
+        "journal_of_business_forecasting",
+        "x_ai"
+      ],
+      "primary_angles": [
+        "evaluating financial return of upgrading from spreadsheet forecasting to real-time ml demand sensing tools",
+        "forecast accuracy amortization reducing mape percentage driving millions in excess safety stock reduction",
+        "promo and seasonality shock simulator supply chain stress and capacity requirements during sudden demand spikes",
+        "erp native planning vs specialized sop point solutions total cost of ownership and integration friction of standalone modules"
+      ],
+      "target_persona": "ops_leader",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "last_mile_routing_fleet_carbon",
+      "label": "Last-Mile Route Optimization & Fleet Carbon Accounting",
+      "cadence": "0 6 * * 5",
+      "sources": [
+        "freightwaves",
+        "logistics_management",
+        "fleet_owner",
+        "epa_smartway",
+        "greenbiz_transport",
+        "supply_chain_dive"
+      ],
+      "primary_angles": [
+        "optimizing dynamic delivery routing fleet asset utilization and regulatory compliance for carbon tracking",
+        "dynamic routing software roi mileage reduction fuel burn drops and stop-density improvements vs saas license fees",
+        "ev fleet transition tco 7-year total cost of ownership for electric delivery vans vs ice and depot charging infrastructure",
+        "scope 3 logistics carbon tax modeling financial impact of emerging regulatory reporting on third-party carrier spend"
+      ],
+      "target_persona": "supply_chain_architect",
+      "enable_dataforseo": true
+    },
+    {
+      "id": "supplier_risk_reshoring_decision",
+      "label": "Supplier Risk Management & Reshoring/Nearshoring Decision Engines",
+      "cadence": "0 6 * * 6",
+      "sources": [
+        "reshoring_initiative",
+        "kearney_reshoring_index",
+        "freightos_baltic",
+        "journal_of_commerce",
+        "customs_rulings",
+        "usitc_reports",
+        "tariff_updates"
+      ],
+      "primary_angles": [
+        "quantifying geopolitical tariff and lead-time risks of single-source offshore manufacturing vs nearshoring unit costs",
+        "total landed cost tlc calculator factoring tariffs customs delays currency risk quality audit travel and ocean freight volatility",
+        "disruption resilience matrix financial survival curve of supply chain network facing multi-week export hub shutdowns",
+        "dual-sourcing overhead vs risk mitigation splitting purchase orders across two suppliers vs losing volume tier pricing discounts"
+      ],
+      "target_persona": "ops_leader",
+      "enable_dataforseo": true
+    }
+  ]
+}
