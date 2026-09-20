@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-19 (daily sweep, 08:00 UTC) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-20 (daily sweep, 08:00 UTC) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -62,15 +62,23 @@ Scout (Mon) → Simon PRD → [@Simon approve] ─┬─ Product Director (agy, 
 ## Architecture — subpaths under one deploy
 
 - `/` — Factory Showcase (directory: search, status badges, WebMCP agent catalog).
-- `/<slug>/` — each product's UI; `/quarterline/` and `/ledgerlink/` are live, `/facturgate/` and `/parcelproof/` are beta.
+- `/<slug>/` — each product's UI; `/ledgerlink/` is live, `/facturgate/` and `/parcelproof/` are beta,
+  `/quarterline/` is retired (registry status `killed` since 2026-09-19, `bc3d556`) but still served.
 - `/<slug>/calc/*` — per-product pSEO; `/api/*`, `/embed/*`, `/.well-known/*` are shared.
+- Payments are product-generic since `bc3d556`: `/api/checkout` and the Stripe webhook resolve the product
+  from the request (`app`) or the registry, with the receipt email templated per product. **One residual
+  default**: an `app`-less request still resolves to `quarterline`, i.e. the retired product.
 
-## Live product — QuarterLine
+## Retired product — QuarterLine (retired 2026-09-19, `bc3d556`)
 
 `https://factory.aichieve.net/quarterline` — 2026 self-employment tax + QBI + estimated-payment
-calculator. Live surfaces (all HTTP 200): directory, calculator, `/quarterline/calc/*` pSEO
-(20 presets, 308-redirected from the old `/calc/*`), `/embed/countdown`, `/.well-known/mcp.json`
-(generated from `registry.ts` since 2026-09-17 — `a57539f`; do not hand-edit).
+calculator. The owner retired it from active inventory after the Q3 2026 tax deadline window
+(registry status `live` → `killed`, retirement copy live on the showcase). The route, the calculator and
+the 20 `/quarterline/calc/*` presets are untouched and still 200; `/.well-known/mcp.json` is generated
+from `registry.ts` since 2026-09-17 (`a57539f`) — do not hand-edit. **Two surfaces were not retired with
+it** (measured 2026-09-20): the manifest still advertises its two tools (`calculate_qbi_deduction`,
+`calculate_quarterly_estimate`), and the default `pdf_audit_export` checkout still carries
+`app=quarterline` in the Stripe session metadata.
 
 ## Beta product — FacturGate (built 2026-09-17, deliberately not launched)
 
@@ -119,8 +127,10 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
   build → Playwright (visual + axe a11y) → Gemini vision-QA (`visual-qa`).
 - **Design flywheel** — `visual-qa --suggest` → `context/design_backlog.md` → Toby triage.
 - **Telemetry** — `src/lib/telemetry.ts` → Supabase `events` (page_view, export_click,
-  checkout_click, agent_query, reconcile_click — the last two are not in the growth-check script,
-  which is hard-scoped to `quarterline`).
+  checkout_click, agent_query, reconcile_click). `scripts/growth-check.mjs` now takes the product as an
+  argument (`process.argv[2] || GROWTH_PRODUCT || "quarterline"`, `bc3d556`) instead of being hard-scoped,
+  but `reconcile_click`/`agent_query` still are not counted by it, and the internal-traffic marker (queue
+  item 5) remains unbuilt.
 - **Growth surfaces** — pSEO routes, embed widget, `.well-known` A2A manifests.
 - **Config-as-data** — Gemini key/model/prompt live in Supabase `factory_config`
   (modifiable without redeploy).
@@ -130,7 +140,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live — 633 rows (quarterline 196 / factory 152 / parcelproof 132 / facturgate 105 / ledgerlink 48), last write 2026-09-18 22:07:10Z; 328 session ids, **5 sessions outside every CI cluster and unattributable** (0 provably external in 19 days); **4 `agent_query` rows, all factory deploy smoke** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0 |
+| `events` | growth telemetry | ✅ live — 799 rows (quarterline 213 / parcelproof 208 / factory 169 / facturgate 153 / ledgerlink 56), last write 2026-09-19 23:42:28Z; 445 session ids, **7 session ids outside every CI cluster, all unattributable, plus 16 null-session rows** (0 provably external in 20 days); **4 `agent_query` rows, all factory deploy smoke** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0 |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -144,19 +154,20 @@ mirrors them.
 ## Remaining / dormant
 
 1. Distribution is the binding constraint — **0 provably-external sessions / 0 organic `agent_query` / $0 real
-   revenue in 19 days live**; production Stripe is still test mode (`cs_test_` checkout sessions — fresh
-   probe 2026-09-19, 4 `cs_test_*` purchases all 09-02). Five sessions sit outside every CI cluster but
-   carry no UA/referrer, so they are unattributable, not provably external (`30eb9935` is a returning
-   browser, 09-10 → 09-16, and holds the only `checkout_click` outside the 09-02 window; `d8e77f23` adds a
-   second evening directory view, 09-17 22:03). The agent tier's only rows are the 4 factory deploy-smoke
-   `agent_query` rows (3 FacturGate + 1 ParcelProof ship probe), so it is factory-exercised, not demanded.
-   The pSEO footprint is 38 indexable routes (20 quarterline + 12 facturgate + 6 parcelproof) justified by
-   traffic that is still 100 % factory-generated; the Day-7 fallback shipped before its preconditions and
-   remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 11 days out)
-   inherits the same $0 and is formally gated on the still-unbuilt internal-traffic marker. The
-   `distribution_queue` has been untouched since 09-12 (36/36 `ready`, 0 published) and **its lead item's
-   event date (2026-09-18) has now passed with nothing posted**. Both shipped products (FacturGate,
-   ParcelProof) remain `beta` — the public launch calls are the founder's.
+   revenue in 20 days live**; production Stripe is still test mode (`cs_test_` checkout sessions, `livemode:false`
+   read back from the Stripe API — fresh probe 2026-09-20, 4 `cs_test_*` purchases all 09-02). Seven session ids
+   sit outside every CI cluster but carry no UA/referrer, so they are unattributable, not provably external
+   (`3b3193ce` is a returning browser, 09-09 → 09-19; `30eb9935` holds the only `checkout_click` outside the
+   09-02 window; `e41dfb4c` is new, 09-19 21:50; `1199d4ed` sits 7 minutes after the 09-13 Build Watchdog run).
+   The agent tier's only rows are the 4 factory deploy-smoke `agent_query` rows (3 FacturGate + 1 ParcelProof
+   ship probe), so it is factory-exercised, not demanded. The pSEO footprint is 38 indexable routes (20
+   quarterline + 12 facturgate + 6 parcelproof) justified by traffic that is still 100 % factory-generated; the
+   Day-7 fallback shipped before its preconditions and remains unreviewed; the Day-14 gate scored an honest MISS
+   on 09-14 and Day-30 (≈09-30, 10 days out) inherits the same $0 and is formally gated on the still-unbuilt
+   internal-traffic marker. The `distribution_queue` was **deleted unposted by the owner on 09-19 22:42
+   (`[]`, 0 items ever published)** — the 36 posts prepared on 09-12 all expired unused, and the editorial
+   pipeline was reset on real search demand. Both shipped products (FacturGate, ParcelProof) remain `beta` —
+   the public launch calls are the founder's.
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.

@@ -4,13 +4,33 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-19 (daily sweep, 08:00 UTC) — **item 4 is now fully shipped**: FacturGate and
-ParcelProof are both live as `beta` and both public launch calls stay with the founder. Item 3 is DONE and
-verified in production (`a57539f`). Items 1, 2, 5, 6, 7 are unchanged and re-verified live below. Prior
-owner instruction 2026-09-17: fix the manifest, then proceed to deliver and drain the queue — so item 5 (the
-internal-traffic marker, requires a migration on the production Supabase) is the next software-factory slot;
-item 2's distribution queue is editorial-gated (needs the editorial gate, not this one) and item 1's live
-Stripe key is a founder credential action, not a build._
+_Last updated: 2026-09-20 (daily sweep, 08:00 UTC) — **item 2's distribution half is resolved by owner
+action**: the queue was deleted unposted (empty since 09-19 22:42; 0 items ever published). **New open item 8**
+— the owner's own QuarterLine retirement (`bc3d556`) is half-applied on two live surfaces. Item 1 re-measured
+live: production checkout is still sandbox (`livemode:false`, read back from the Stripe API). Items 5, 6, 7
+unchanged. Prior owner instruction 2026-09-17 ("fix the manifest, then proceed to deliver and drain the queue")
+— the manifest fix shipped (`a57539f`) and the queue has now been drained by deletion; item 5 (the
+internal-traffic marker, requires a migration on the production Supabase) remains the next software-factory
+slot, and item 1's live Stripe key is a founder credential action, not a build._
+
+_**2026-09-20 08:00 sweep — measured live.** Two owner workstreams landed overnight. (a) `bc3d556`
+(2026-09-19 23:43 UTC, Jorge Fernandez, by hand): **QuarterLine retired in the registry (`live` → `killed`)**
+and `/api/checkout` + the Stripe webhook generalized to any product (`app` from the request or the registry,
+per-product receipt email); `scripts/growth-check.mjs` now takes the product as an argument, a partial answer
+to item 5. Deployed and live (showcase serves the retirement copy). **Item 8 opened:** a default checkout
+request (`plan: "pdf_audit_export"`, no `app`) still resolves to the retired product — the session metadata
+read back from the Stripe API says `app=quarterline, appName=QuarterLine` — and the published manifest still
+advertises its two tools (`calculate_qbi_deduction`, `calculate_quarterly_estimate`). (b) `editorial-factory`
+six commits 23:09 → 01:23: new verticals + Google Search Console wiring, and `fbc3606` removed all drafts and
+published articles "to start fresh" — `published/` holds only `.gitkeep`, `/api/articles.json` → `[]`, and
+**`factory_config.distribution_queue` is `[]` (updated 09-19 22:42:49Z)**, so the 36 posts prepared 09-12 are
+deleted, not published. **Item 2 is therefore closed as resolved-by-removal**, with the honest residue that 0
+items were ever published and the third wedge in a row expired unused. Item 1: prod checkout `cs_test_a1MlUGMq…`
+with `livemode:false` (API-verified), 4 `purchases` all 09-02, $0 real revenue. Item 5: `agent_query` still 4,
+every one our own ship probe; manifest byte-identical to the tree (sha256 `6ea29ed1…`, v1.3.0, 8 tools). Item
+6: the durable record is now written a fifth day running without a producer. Item 7: patch still unloaded
+(gateway pid `1963330` from 09-12), no new mislabel; it matters again on 09-22 (`enterprise_tech_leadership`)
+and 09-23 (`gpu_hardware`), the two jobs that still display the 09-15/09-16 mislabels._
 
 _**2026-09-19 08:00 sweep — measured live.** Item 4 closed on both halves: ParcelProof shipped 09-18 22:05
 (`3584a62` + docs `19d9529`), `/parcelproof` 200, all 6 `/parcelproof/calc/*` 200, manifest v1.3.0 with 8
@@ -73,10 +93,12 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    `purchases` = 4 rows, all `cs_test_*`, all 2026-09-02; the only `subscriptions` row is `canceled`.
    Real collected revenue **$0**. Day-14 already scored an honest MISS (row in
    `skills/self_improvement_eval.md`); Day-30 (≈09-30) inherits the same $0 unless answered.
-2. **[P0 — no approval needed, expired 09-15]** Echo: post GTM Vectors 1 & 5 / work the queue.
-   `factory_config.distribution_queue` live: **36 items, all `ready`, 0 published, 0 deleted**,
-   `updated_at` still 2026-09-12T14:48:22Z. The Q3 estimated-tax wedge expired with nothing posted;
-   16 days live has produced **0 provably-external sessions** (see item 5's honest form).
+2. **[CLOSED 2026-09-20 — resolved by owner removal, not by publishing]** Echo: post GTM Vectors 1 & 5 /
+   work the queue. `factory_config.distribution_queue` is now **`[]`, `updated_at` 2026-09-19T22:42:49Z** —
+   the owner deleted the 36 prepared posts (all `ready` since 09-12, 0 published) while resetting the
+   editorial pipeline onto real search demand. Honest residue: **0 items were ever published**, and the third
+   urgency wedge in a row (Q3 estimated tax 09-15, the 09-18 customs/CBP story) expired unused. No
+   distribution work is owed from this repo; a new queue is the editorial engine's to regenerate.
 3. **[RESOLVED 2026-09-17 — shipped `a57539f`, live-verified]** `.well-known/mcp.json` is now
    generated, never hand-written: `src/lib/webmcp/manifest.ts` derives it from `src/products/registry.ts`
    + `WEBMCP_TOOL_SUMMARIES` (the new canonical surface in `register.ts`). It advertises all three real
@@ -130,6 +152,17 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    **18 occurrences since 09-03 across 8 days.** Patch re-applied (`cron/jobs.py.bak.20260916`),
    `pytest tests/cron/` re-run; not restarted mid-run because the cron scheduler is in-process with
    this sweep. Operator action: restart `hermes-gateway.service` when no run is in flight.
+8. **[P0/P1 — @Simon approve, code, one line each | NEW 2026-09-20]** Finish the QuarterLine retirement the
+   owner's `bc3d556` started, so no live surface sells or advertises a retired product:
+   (a) `/api/checkout` still defaults `app = "quarterline"` for `plan: "pdf_audit_export"` — measured live:
+   an `app`-less request produced `cs_test_a1MlUGMq…` whose Stripe metadata reads `app=quarterline,
+   appName=QuarterLine`, and the receipt email is templated on that name; (b) `public/.well-known/mcp.json`
+   (generated from `registry.ts` + `WEBMCP_TOOL_SUMMARIES`, so the fix is in the generator/registry, not the
+   file) still advertises `calculate_qbi_deduction` and `calculate_quarterly_estimate`, both attributed
+   `quarterline`. Suggested shape: filter the manifest and the product lookup to non-`killed` statuses and
+   default the export plan to a `live` product (`ledgerlink`) or reject the default explicitly. Customer-facing
+   risk is latent while checkout is sandbox, and becomes live the moment item 1 is answered. Both changes are
+   `src/` work → rule 7 gate applies.
 
 ---
 
