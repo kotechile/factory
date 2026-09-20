@@ -333,3 +333,29 @@ Rules:
    was queued.
 4. A message that is technically correct but not understandable is a delivery failure, and it is logged as
    one here rather than re-sent unchanged.
+
+### Resolved edge-case (2026-09-20) — retiring a product in the registry does not retire its paid or agent surfaces
+
+The owner retired QuarterLine by setting its registry status to `killed` (`bc3d556`, 2026-09-19). Two live
+surfaces kept selling and advertising it, and each was only visible by probing the deployed app:
+
+- `/api/checkout` — the request-level default still resolved to the retired product: an `app`-less request
+  with `plan: "pdf_audit_export"` produced a session whose provider metadata read
+  `app=quarterline, appName=QuarterLine`, so the buyer would receive a receipt titled with a product the
+  directory advertises as retired. The default must come from the registry's non-`killed` set (or be
+  rejected explicitly), not from a literal in the route.
+- `/.well-known/mcp.json` — still advertised the retired product's two tools (`calculate_qbi_deduction`,
+  `calculate_quarterly_estimate`), i.e. agents could still be pointed at a retired product. The manifest is
+  generated from the registry, so the filter belongs in the generator/registry, not in the published file.
+
+Rules:
+1. A status change is not a retirement. When any product moves to `killed`, enumerate its surfaces —
+   directory, route, pSEO presets, checkout/plan defaults, webhook receipt copy, agent manifest, embed —
+   and treat the un-retired ones as a finding; publish them in the status map rather than assuming the
+   registry is the single source of truth for everything downstream.
+2. Verify paid and agent surfaces by **reading the platform back**, not by reading the source: create the
+   session and read its metadata from the provider (this is what exposed the default), and fetch the
+   published manifest. Source inspection alone reported the new generic behaviour and hid the residual
+   default.
+3. The whole class is latent while payment is in sandbox and becomes customer-visible the moment a live
+   key lands — so it is scored as a finding against the payment decision, not deferred as cosmetic.
