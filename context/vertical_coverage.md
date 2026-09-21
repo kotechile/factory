@@ -35,8 +35,8 @@ own CI traffic.
 ## Inventory (generated)
 
 <!-- BEGIN:vertical-inventory (generated) -->
-_Generated 2026-09-20 by `scripts/vertical-sync.mjs` from the
-vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit dc868813a92d7a971e52e1ce602a92c5cb26c373, fetched 2026-09-20T16:59:43.679Z) — 26 verticals. Do not hand-edit this block._
+_Generated 2026-09-21 by `scripts/vertical-sync.mjs` from the
+vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit fcdf814e64e8bfedf12c51b4e23c4b28910f8884, fetched 2026-09-21T06:00:37.727Z) — 26 verticals. Do not hand-edit this block._
 
 | Vertical | Label | Editorial persona | Cadence | Sources | Decision-shaped angles |
 |---|---|---|---|---|---|
@@ -44,27 +44,27 @@ vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-fa
 | `agentic_resilience_failure` | Resilience & Failure Engineering | `infra_engineer` | `0 6 * * 3` | 6 | 0 |
 | `ai_observability_qa` | Observability, Evals & Quality | `evals_infra_eng` | `0 6 * * 2` | 6 | 0 |
 | `career_velocity_equity_engineering` | Career Velocity, Equity Liquidity & Offer Engineering | `equity_career_strategist` | `0 6 * * 5` | 6 | 2 |
-| `control_tower_exception_orchestration` | Control Tower Visibility & Real-Time Exception Orchestration | `supply_chain_architect` | `0 6 * * 2` | 7 | 3 |
-| `demand_sensing_advanced_sop` | Demand Sensing & Advanced Sales & Operations Planning (S&OP) | `ops_leader` | `0 6 * * 4` | 6 | 2 |
+| `control_tower_exception_orchestration` | Control Tower Visibility & Real-Time Exception Orchestration | `supply_chain_architect` | `0 6 * * 2` | 8 | 3 |
+| `demand_sensing_advanced_sop` | Demand Sensing & Advanced Sales & Operations Planning (S&OP) | `ops_leader` | `0 6 * * 4` | 7 | 2 |
 | `enterprise_ai_finops` | AI FinOps & Value Realization | `enterprise_cai` | `0 6 * * 4` | 5 | 5 |
 | `enterprise_ai_governance` | Enterprise AI Governance & Control Planes | `enterprise_cai` | `0 6 * * 1` | 7 | 0 |
 | `enterprise_build_vs_buy` | Enterprise Build-vs-Buy & Developer Tooling Architecture | `eng_leader` | `0 6 * * 3` | 6 | 3 |
 | `enterprise_tech_leadership` | Technology & Architecture Decisions | `eng_leader` | `0 6 * * 2` | 4 | 1 |
 | `expat_cross_border_relocation` | Advanced Expat, Cross-Border & Multi-Jurisdictional Relocation | `cross_border_expat` | `0 6 * * 4` | 7 | 2 |
 | `gpu_hardware` | GPUs & AI Hardware | `infra_engineer` | `0 6 * * 3` | 5 | 1 |
-| `home_equity_tco` | Home Capital Allocation & TCO Economics | `pro_homeowner` | `0 6 * * 1` | 5 | 1 |
-| `home_infrastructure_lifecycle_tco` | Home Infrastructure & Major Asset Lifecycle TCO | `pro_homeowner` | `0 6 * * 1` | 7 | 2 |
-| `home_ops_execution` | Home Operations, Permitting & Contractor Contracts | `pro_homeowner` | `0 6 * * 4` | 5 | 0 |
-| `last_mile_routing_fleet_carbon` | Last-Mile Route Optimization & Fleet Carbon Accounting | `supply_chain_architect` | `0 6 * * 5` | 6 | 2 |
-| `meio_working_capital_tco` | Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO | `ops_leader` | `0 6 * * 1` | 7 | 3 |
+| `home_equity_tco` | Home Capital Allocation & TCO Economics | `pro_homeowner` | `0 6 * * 1` | 6 | 1 |
+| `home_infrastructure_lifecycle_tco` | Home Infrastructure & Major Asset Lifecycle TCO | `pro_homeowner` | `0 6 * * 1` | 8 | 2 |
+| `home_ops_execution` | Home Operations, Permitting & Contractor Contracts | `pro_homeowner` | `0 6 * * 4` | 6 | 0 |
+| `last_mile_routing_fleet_carbon` | Last-Mile Route Optimization & Fleet Carbon Accounting | `supply_chain_architect` | `0 6 * * 5` | 7 | 2 |
+| `meio_working_capital_tco` | Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO | `ops_leader` | `0 6 * * 1` | 8 | 3 |
 | `multi_agent_enterprise_fabric` | Multi-Agent Orchestration & Enterprise Fabrics | `ai_architect` | `0 6 * * 3` | 5 | 0 |
 | `nhil_infrastructure_ops` | NHIL Infrastructure, NetOps & Power Strategy | `it_ops_leader` | `0 6 * * 2` | 6 | 0 |
-| `personal_microeconomics_tinkering_tax` | Personal Asset Micro-Economics & 'Tinkering Tax' Audits | `systems_tinkerer_pro` | `0 6 * * 6` | 6 | 2 |
-| `resilient_home_assets` | Climate Hardening, Insurability & Grid Resilience | `pro_homeowner` | `0 6 * * 5` | 5 | 0 |
-| `smart_home_telemetry` | Local-First Smart Infrastructure & Telemetry | `pro_homeowner` | `0 6 * * 2` | 5 | 0 |
-| `supplier_risk_reshoring_decision` | Supplier Risk Management & Reshoring/Nearshoring Decision Engines | `ops_leader` | `0 6 * * 6` | 7 | 3 |
-| `supply_chain` | Supply Chain Orchestration & Physical Logistics | `ops_leader` | `0 6 * * 4` | 8 | 1 |
-| `warehouse_automation_robotics_capex` | Warehouse Automation & Robotics CapEx Amortization | `ops_leader` | `0 6 * * 3` | 7 | 2 |
+| `personal_microeconomics_tinkering_tax` | Personal Asset Micro-Economics & 'Tinkering Tax' Audits | `systems_tinkerer_pro` | `0 6 * * 6` | 7 | 2 |
+| `resilient_home_assets` | Climate Hardening, Insurability & Grid Resilience | `pro_homeowner` | `0 6 * * 5` | 6 | 0 |
+| `smart_home_telemetry` | Local-First Smart Infrastructure & Telemetry | `pro_homeowner` | `0 6 * * 2` | 6 | 0 |
+| `supplier_risk_reshoring_decision` | Supplier Risk Management & Reshoring/Nearshoring Decision Engines | `ops_leader` | `0 6 * * 6` | 8 | 3 |
+| `supply_chain` | Supply Chain Orchestration & Physical Logistics | `ops_leader` | `0 6 * * 4` | 9 | 1 |
+| `warehouse_automation_robotics_capex` | Warehouse Automation & Robotics CapEx Amortization | `ops_leader` | `0 6 * * 3` | 8 | 2 |
 | `workstation_compute_economics` | Autonomous Tech Workstations & AI Compute Economics | `infra_engineer` | `0 6 * * 2` | 7 | 2 |
 <!-- END:vertical-inventory -->
 
@@ -81,7 +81,7 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 |---|---|---|
 | `supply_chain` | A — adjacent, saturated | ParcelProof's vertical. Do not re-scan for *parcel/audit* shapes; the unclaimed surface is S&OE exception economics. |
 | `meio_working_capital_tco` | A — pack (probed) | Safety-stock vs expedited-freight decision. Free freight-rate calculators exist; the unowned part is the decision, not the rate table. |
-| `warehouse_automation_robotics_capex` | A — pack (probed) | AMR/ASRS payback. Every vendor ships a lead-magnet ROI calculator; no neutral self-serve one. Strongest new candidate. |
+| `warehouse_automation_robotics_capex` | A — **scanned 2026-09-21** (best 78) | AMR/ASRS payback, capex case. Free **vendor** ROI calculators now exist (ISD, Dexory, Kinexon, KUKA) — so a plain calculator is not the product; the unowned surface is auditing the vendor's own case (loaded labour + turnover, hidden integration/maintenance, tax year) and normalizing competing quotes. CaseProof proposed. |
 | `control_tower_exception_orchestration` | A — stub | Cost-of-late-shipment + build-vs-buy matrix; needs a dated trigger to score. |
 | `demand_sensing_advanced_sop` | A — stub | Forecast-accuracy → carrying-cost model; crowded by planning suites. |
 | `last_mile_routing_fleet_carbon` | A — stub | EV fleet 7-year TCO + scope-3 logistics carbon; sequence after the capex family. |
@@ -121,11 +121,16 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | construction_field_ops | ✅ | probe 2026-09-20 | 0 | **retired** | Funded incumbent shipped the deterministic slice (Datagrid/Procore, Autodesk AutoSpecs). |
 | manufacturing_shopfloor | ✅ | probe 2026-09-20 | 0 | **retired** | Fails Filter 2: value needs machine connectivity/edge hardware. |
 
+## Scanned / verified — editorial verticals
+
+| Vertical | Pack | Last scanned | Best score | Status | Note |
+|---|---|---|---|---|---|
+| warehouse_automation_robotics_capex | ✅ | 2026-09-21 | 78 (CaseProof) | **open — PRD at the approve gate** | First scan of this vertical. Free vendor ROI calculators found (ISD, Dexory, Kinexon, KUKA), so the recommended product is the *audit of the vendor's case*, not a calculator; runners-up: sustained-throughput validator 66, peak labour vs rented capacity 63. Dated triggers: 2026-12-31 placed-in-service for the 2026 write-off, 2027-01-01 wage floors. |
+
 ## Never scanned — rotation queue (highest priority first)
 
 | Vertical | Why it's plausible | First probe shape |
 |---|---|---|
-| warehouse_automation_robotics_capex | Pack probed 2026-09-20; commercial buyer, deterministic payback model, no neutral free tool | `AMR fleet payback period calculator 2026 labor turnover manual spreadsheet` |
 | healthcare_rcm | 835/ERA denial + deposit reconciliation, CARC/RARC interpretation; small practices post EOBs by hand | `835 remittance ERA denial reconciliation small practice manual posting 2026` |
 | supplier_risk_reshoring_decision | Tariff-adjusted landed cost; dated 2026 tariff escalation; spreadsheets are the incumbent | `total landed cost calculator tariff 2026 spreadsheet importers sourcing decision` |
 | enterprise_ai_finops | Finance-side reconciliation of provider invoices against tagged usage; FinOps Foundation names it the top tooling gap | `AI token cost attribution showback business unit 2026 finops manual chargeback` |

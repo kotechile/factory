@@ -163,6 +163,24 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    default the export plan to a `live` product (`ledgerlink`) or reject the default explicitly. Customer-facing
    risk is latent while checkout is sandbox, and becomes live the moment item 1 is answered. Both changes are
    `src/` work → rule 7 gate applies.
+9. **[NEW 2026-09-21 — candidate at the go/no-go, @Simon approve]** **CaseProof (78)** — the 2026-09-21
+   weekly recon's single candidate, full PRD at `context/recon_proposals/2026-09-21_caseproof.md`. First
+   scan of the `warehouse_automation_robotics_capex` vertical (never scanned; ledger verdict A, pack now
+   verified). The product is the **buyer's side of a warehouse-automation business case**: it re-runs a
+   vendor's own quoted numbers against the buyer's fully loaded labour (turnover included), the lines
+   vendors omit (integration, facility work, maintenance, commissioning ramp), the buyer's tax year
+   (Section 179 limit $2,560,000 / phase-out $4,090,000, 100% bonus depreciation, equipment placed in
+   service by **2026-12-31**), and normalizes 2–3 competing quotes onto one five-year cash model —
+   returning payback, IRR, NPV at the buyer's hurdle rate, the assumptions that fail and at what value,
+   a sensitivity grid, and an exportable decision pack. **The free-incumbent check shaped the scope and
+   is the reason this is not another calculator:** free *vendor* ROI calculators now exist (ISD launched
+   2026-07-10; Dexory, Kinexon and KUKA also publish one), so a generic calculator is excluded by the
+   recon drop rule; the audit + multi-quote comparison is the unowned surface. Build estimate ≈3.5 h;
+   nothing is built and nothing shipped — the go/no-go (`@Simon approve CaseProof`) is the founder's.
+   Timeliness: the Sep–Oct peak-staffing commitment window, the 2026-12-31 in-service date, and the
+   2027-01-01 wage-floor step (CA $16.90 → $17.40, +2.99%). Runners-up scored this sweep and shortlisted:
+   sustained-throughput validator (66) and peak-labour vs rented capacity (63), both blocked by weaker
+   free-incumbent positions.
 
 ---
 

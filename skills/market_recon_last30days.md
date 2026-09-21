@@ -225,6 +225,18 @@ different verticals). Fix: Stage 0 vertical declaration + rotation, per-vertical
 Subsequent sweeps: log **vertical coverage** here alongside query syntax — a query-pattern log
 without a vertical dimension cannot detect domain drift.
 
+### Free-incumbent rule — vendor lead magnets now count (measured 2026-09-21)
+The first scan of `warehouse_automation_robotics_capex` returned four independent 2026 sources naming
+the same arithmetic bug (a business case written by the party selling the equipment), and then hit
+the rule that killed two candidates on 2026-09-14: **the free incumbent already exists**. The
+difference is who publishes it — vendors now ship free, CFO-grade payback/IRR/NPV calculators (ISD
+launched one 2026-07-10; Dexory, Kinexon and KUKA publish calculators too), so "no free tool exists"
+is false even while "no *neutral* tool exists" is true. Rule refinement: when the free incumbent is a
+*seller's*, the discovery is not dead — the unowned surface is the buyer's side of that tool (re-run
+the vendor's own quoted numbers against the buyer's loaded costs, and normalize competing quotes), and
+the pack's incumbent line must be corrected in the same run. Do not propose "a calculator" in a
+vertical whose vendors give one away; propose the audit, and score pricing friction honestly (~70, not 90).
+
 - **Zero viable candidates** → log failed query patterns to `skills/self_improvement_eval.md`,
   cycle secondary vectors (AWS billing shifts, Figma token pipelines, webhook translation), and
   widen the window to 45 days.

@@ -2,10 +2,10 @@
   "_note": "Vendored snapshot of the editorial factory's vertical registry. Regenerate with: node scripts/vertical-sync.mjs --vendor",
   "sourceRepo": "git@github.com:kotechile/Editorial-Factory.git",
   "sourcePath": "/root/editorial-factory/context/verticals.json",
-  "sourceRepoHead": "dc868813a92d7a971e52e1ce602a92c5cb26c373",
-  "sourceFileCommit": "dc868813a92d7a971e52e1ce602a92c5cb26c373",
-  "sourceSha256": "7f791082af101834ab68fc27f6f66dccaa0759edfe91ea06537a622fa1e5b871",
-  "fetchedAt": "2026-09-20T16:59:43.679Z",
+  "sourceRepoHead": "fcdf814e64e8bfedf12c51b4e23c4b28910f8884",
+  "sourceFileCommit": "fcdf814e64e8bfedf12c51b4e23c4b28910f8884",
+  "sourceSha256": "6663a66d69d6fe0a79ccf4a94b50e270650520f435562fe45a898dac6875ca43",
+  "fetchedAt": "2026-09-21T06:00:37.727Z",
   "verticals": [
     {
       "id": "agentic_ai",
@@ -212,6 +212,7 @@
       "label": "Supply Chain Orchestration & Physical Logistics",
       "cadence": "0 6 * * 4",
       "sources": [
+        "supply_chain_intel",
         "freightwaves",
         "supply_chain_dive",
         "journal_of_commerce",
@@ -245,6 +246,7 @@
       "label": "Home Capital Allocation & TCO Economics",
       "cadence": "0 6 * * 1",
       "sources": [
+        "home_lifestyle_intel",
         "greenbuildingadvisor",
         "jchs_harvard",
         "nar_realtor_reports",
@@ -266,6 +268,7 @@
       "label": "Local-First Smart Infrastructure & Telemetry",
       "cadence": "0 6 * * 2",
       "sources": [
+        "home_lifestyle_intel",
         "home_assistant_community",
         "matter_thread_consortium",
         "hackaday",
@@ -287,6 +290,7 @@
       "label": "Home Operations, Permitting & Contractor Contracts",
       "cadence": "0 6 * * 4",
       "sources": [
+        "home_lifestyle_intel",
         "ashrae_standards",
         "contractor_talk",
         "icc_safe_codes",
@@ -308,6 +312,7 @@
       "label": "Climate Hardening, Insurability & Grid Resilience",
       "cadence": "0 6 * * 5",
       "sources": [
+        "home_lifestyle_intel",
         "ibhs_fortified",
         "insurance_information_institute",
         "noaa_climate_risk",
@@ -329,6 +334,7 @@
       "label": "Home Infrastructure & Major Asset Lifecycle TCO",
       "cadence": "0 6 * * 1",
       "sources": [
+        "home_lifestyle_intel",
         "energy_star",
         "ashrae_standards",
         "jchs_harvard",
@@ -437,6 +443,7 @@
       "label": "Personal Asset Micro-Economics & 'Tinkering Tax' Audits",
       "cadence": "0 6 * * 6",
       "sources": [
+        "home_lifestyle_intel",
         "reddit_selfhosted",
         "reddit_homelab",
         "hacker_news",
@@ -458,6 +465,7 @@
       "label": "Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO",
       "cadence": "0 6 * * 1",
       "sources": [
+        "supply_chain_intel",
         "freightwaves",
         "supply_chain_dive",
         "gartner_supply_chain",
@@ -480,6 +488,7 @@
       "label": "Control Tower Visibility & Real-Time Exception Orchestration",
       "cadence": "0 6 * * 2",
       "sources": [
+        "supply_chain_intel",
         "freightwaves",
         "supply_chain_dive",
         "gartner_supply_chain",
@@ -502,6 +511,7 @@
       "label": "Warehouse Automation & Robotics CapEx Amortization",
       "cadence": "0 6 * * 3",
       "sources": [
+        "supply_chain_intel",
         "modern_materials_handling",
         "dc_velocity",
         "robotics_business_review",
@@ -524,6 +534,7 @@
       "label": "Demand Sensing & Advanced Sales & Operations Planning (S&OP)",
       "cadence": "0 6 * * 4",
       "sources": [
+        "supply_chain_intel",
         "gartner_supply_chain",
         "supply_chain_brain",
         "supply_chain_dive",
@@ -545,6 +556,7 @@
       "label": "Last-Mile Route Optimization & Fleet Carbon Accounting",
       "cadence": "0 6 * * 5",
       "sources": [
+        "supply_chain_intel",
         "freightwaves",
         "logistics_management",
         "fleet_owner",
@@ -566,6 +578,7 @@
       "label": "Supplier Risk Management & Reshoring/Nearshoring Decision Engines",
       "cadence": "0 6 * * 6",
       "sources": [
+        "supply_chain_intel",
         "reshoring_initiative",
         "kearney_reshoring_index",
         "freightos_baltic",

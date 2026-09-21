@@ -159,21 +159,35 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 
 ## warehouse_automation_robotics_capex
 - **Trigger surface:** MHI/MMH automation studies, RaaS vendor pricing, labor-market and minimum-wage
-  data, capital-depreciation rules.
-- **Dated triggers:** capex/budget cycles, wage-rate changes, lease vs buy windows; no single mandate —
-  urgency comes from the buyer's own approval cycle, so score the urgency factor honestly (30–60).
-- **Query shapes (measured 2026-09-20):** `AMR fleet payback period calculator warehouse automation
+  data, capital-depreciation rules (Section 179 / bonus depreciation), automation order-lead-time reporting.
+- **Dated triggers:** **2026-12-31** placed-in-service deadline for the year's Section 179 /
+  bonus-depreciation claim (2026: limit $2,560,000, phase-out $4,090,000, bonus 100%) — the order has
+  to commit weeks earlier; **2027-01-01** wage floors step up (CA $16.90 → $17.40, +2.99%, announced
+  2026-07-31) after the 2026 round lifted 19 states / 49 localities; the Sep–Oct peak-staffing
+  commitment window (recruit 6–8 weeks ahead). Urgency is the buyer's own approval cycle, but these
+  dates give it a calendar — score 65–75, not 30.
+- **Query shapes (measured):** 2026-09-20 — `AMR fleet payback period calculator warehouse automation
   ROI 2026 labor turnover manual spreadsheet` → 5/5 on-topic (swiftflutter, zcnest, cxtms, reemanbot,
-  hachidori). Measured numbers: payback 8–24 months by facility type (e-commerce 8–14, multi-shift
-  manufacturing 12–18), warehouse turnover >60%/yr, loaded labor cost must include benefits/turnover
-  to avoid a 12-month projection stretching to 36.
+  hachidori). 2026-09-21 — `warehouse automation ROI calculator 2026 labor cost payback spreadsheet
+  manual` and `vendor ROI calculator biased warehouse automation business case finance rejected 2026`
+  → 8/8 on the pain (trymconsulting, monocleapp, logio, goasrs, rorixtech, thenetworkinstallers), while
+  every top result on the *tool* query is a vendor's own calculator. Best pain phrasing:
+  `"vendor's business case" OR "vendor ROI model" warehouse automation audit second opinion 2026`.
+  Measured numbers: payback 8–24 months by facility type; warehouse turnover >60%/yr; integration
+  $25k–$100k over 6–14 weeks (6–14 systems), maintenance 10–20% of equipment cost per year, facility
+  network/power upgrades routinely absent from quotes; hardware is only 60–70% of project cost.
 - **Buyer & budget:** warehouse/production ops leaders building a CFO case; capex sign-off budget.
-- **Incumbent / free check:** **every vendor ships a lead-magnet ROI calculator** (that is the
-  incumbent: vendor-biased models gated behind a demo request); no neutral, self-serve, arithmetic-
-  transparent model found. Classic "incumbent exists, but it is a sales tool" gap.
-- **Funnel risk:** low. Archetype (a), deterministic and fixture-testable; the differentiator must be
-  the *loaded-labor and rejected-assumption* arithmetic (turnover, maintenance, integration, RaaS vs
-  buy), not another rate table.
+  Secondary: supply-chain finance, and fractional logistics consultants auditing for clients.
+- **Incumbent / free check (corrected 2026-09-21):** free **vendor** calculators are now the incumbent
+  and are CFO-grade — ISD (free payback/IRR/NPV tool, launched 2026-07-10), Dexory (Forrester-TEI
+  calculator), Kinexon (AMR/AGV fleet-size + ROI), KUKA (AMR fleet). **A generic "warehouse automation
+  ROI calculator" fails the free-tool rule — do not propose one.** The unowned surface is the
+  adversarial re-run (the vendor's own quoted numbers against the buyer's loaded labour, hidden
+  integration/maintenance and tax year) plus multi-quote normalization; the paid substitutes are
+  consultants or the integrator's "human walkthrough". Pricing friction ≈70, not 90.
+- **Funnel risk:** low on filters 1–4. Real risks: scope creep (accept pasted/CSV line items only — no
+  PDF/OCR extraction) and rule 5 (an unstated vendor cost line must report `unstated` and block a pass
+  verdict, never be defaulted). Verified 2026-09-21 — see `context/recon_proposals/2026-09-21_caseproof.md`.
 
 ## meio_working_capital_tco
 - **Trigger surface:** freight-rate indices (Freightos/BAI), carrier surcharge tables, CSCMP/Gartner
