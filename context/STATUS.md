@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-20 (daily sweep, 08:00 UTC; recon vertical scoping landed 13:30 UTC) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-21 (daily sweep, 08:00 UTC; first vertical-scoped weekly recon ran 06:00 and opened CaseProof, item 9) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -33,8 +33,9 @@ All nine deliver to `slack:C0BTPDKQXU2:1788974638.867929`; the flash-tier jobs a
 ⚠️ **Gateway restart pending (operator action).** The `cron/jobs.py` fire-claim fix is applied in the tree
 (`heartbeat_fire_claim` no longer takes the delivery-held `_fire_job_lock`) but the running gateway
 process is still the one started **2026-09-12 15:13**, so a completed+delivered run can still be mislabelled
-`Interrupted by shutdown before terminal completion` (last seen 2026-09-16 08:07; none on 09-17, 09-18 or
-09-19). Restart `hermes_cli.main gateway run` while no cron run is in flight; see
+`Interrupted by shutdown before terminal completion` (last seen 2026-09-16 08:07; none on 09-17 → 09-21).
+Restart `hermes_cli.main gateway run` while no cron run is in flight — the two jobs that still display the
+09-15/09-16 mislabels next run **09-22** and **09-23**; see
 `hermes-cron-debugging/references/fire-claim-misreport.md`.
 
 | Job | Schedule | Model | Workdir |
@@ -72,6 +73,14 @@ Reason: 4 of 5 PRDs sat in one vertical cluster (money/document reconciliation) 
 domain-agnostic — the prior query book had been pruned by its own improvement loop onto two
 compliance-shaped phrasings. Only verticals with an existing distribution channel advance to a build
 recommendation.
+
+**First vertical-scoped run (2026-09-21 06:00, on time, `ok`):** declared `warehouse_automation_robotics_capex`
+(out of the never-scanned queue), produced one candidate — **CaseProof (78)**, the buyer-side audit of a
+warehouse-automation business case (`context/recon_proposals/2026-09-21_caseproof.md`, build ≈3.5 h) — now
+open as approval item 9. The free-incumbent check excluded the naive calculator (free vendor ROI
+calculators exist) and left the adversarial re-run + multi-quote comparison in scope. Runners-up: 66
+(sustained-throughput validator, shortlist) and 63 (peak-labour vs rented capacity, defer).
+`scripts/vertical-sync.mjs --check` → exit 0 (26 verticals, no drift).
 
 ## Architecture — subpaths under one deploy
 
@@ -154,7 +163,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live — 799 rows (quarterline 213 / parcelproof 208 / factory 169 / facturgate 153 / ledgerlink 56), last write 2026-09-19 23:42:28Z; 445 session ids, **7 session ids outside every CI cluster, all unattributable, plus 16 null-session rows** (0 provably external in 20 days); **4 `agent_query` rows, all factory deploy smoke** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0 |
+| `events` | growth telemetry | ✅ live — 923 rows (parcelproof 265 / quarterline 224 / facturgate 187 / factory 183 / ledgerlink 64), last write 2026-09-21 02:53:16Z; 526 session ids, **6 standalone session ids outside every CI cluster — all unattributable (one returning browser, `30eb9935`, browsed four products 09-10 → 09-21) — plus 5 rows inside seconds of the 09-14 10:01 test burst and 198 null-session rows** (0 provably external in 21 days); **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0 |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -168,20 +177,22 @@ mirrors them.
 ## Remaining / dormant
 
 1. Distribution is the binding constraint — **0 provably-external sessions / 0 organic `agent_query` / $0 real
-   revenue in 20 days live**; production Stripe is still test mode (`cs_test_` checkout sessions, `livemode:false`
-   read back from the Stripe API — fresh probe 2026-09-20, 4 `cs_test_*` purchases all 09-02). Seven session ids
-   sit outside every CI cluster but carry no UA/referrer, so they are unattributable, not provably external
-   (`3b3193ce` is a returning browser, 09-09 → 09-19; `30eb9935` holds the only `checkout_click` outside the
-   09-02 window; `e41dfb4c` is new, 09-19 21:50; `1199d4ed` sits 7 minutes after the 09-13 Build Watchdog run).
-   The agent tier's only rows are the 4 factory deploy-smoke `agent_query` rows (3 FacturGate + 1 ParcelProof
-   ship probe), so it is factory-exercised, not demanded. The pSEO footprint is 38 indexable routes (20
-   quarterline + 12 facturgate + 6 parcelproof) justified by traffic that is still 100 % factory-generated; the
-   Day-7 fallback shipped before its preconditions and remains unreviewed; the Day-14 gate scored an honest MISS
-   on 09-14 and Day-30 (≈09-30, 10 days out) inherits the same $0 and is formally gated on the still-unbuilt
-   internal-traffic marker. The `distribution_queue` was **deleted unposted by the owner on 09-19 22:42
-   (`[]`, 0 items ever published)** — the 36 posts prepared on 09-12 all expired unused, and the editorial
-   pipeline was reset on real search demand. Both shipped products (FacturGate, ParcelProof) remain `beta` —
-   the public launch calls are the founder's.
+   revenue in 21 days live**; production Stripe is still test mode (`cs_test_` checkout sessions, `livemode:false`
+   read back from the Stripe API — fresh probe 2026-09-21, `cs_test_a1Ay2uDa…`; 4 `cs_test_*` purchases all 09-02).
+   Six standalone session ids sit outside every CI cluster but carry no UA/referrer, so they are unattributable,
+   not provably external (`30eb9935` is a returning browser, 09-10 → 09-21, 23 rows across four products —
+   including **8 new page views on 09-20 and 09-21**, the only visitor-like signal on the board;
+   `3b3193ce` returned 09-19; `e41dfb4c` 09-19 21:50); 198 null-session rows carry every `agent_query`,
+   `checkout_click` and `export_click` row. The agent tier's only rows are the 4 factory ship-probe `agent_query`
+   rows (3 FacturGate + 1 ParcelProof), so it is factory-exercised, not demanded. The pSEO footprint is 38
+   indexable routes (20 quarterline + 12 facturgate + 6 parcelproof, all 200 on 2026-09-21) justified by traffic
+   that is still 100 % factory-generated; the Day-7 fallback shipped before its preconditions and remains
+   unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 9 days out) inherits the same
+   $0 and is formally gated on the still-unbuilt internal-traffic marker. The `distribution_queue` was
+   **deleted unposted by the owner on 09-19 22:42 (`[]`, 0 items ever published, unchanged since)** — the 36 posts
+   prepared on 09-12 all expired unused. Both shipped products (FacturGate, ParcelProof) remain `beta` — the
+   public launch calls are the founder's. The build line has been idle since 2026-09-18 22:05 (~58 h) with the
+   approval queue holding items 1, 5, 8 and 9.
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.

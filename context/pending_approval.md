@@ -4,14 +4,34 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-20 (daily sweep, 08:00 UTC) — **item 2's distribution half is resolved by owner
-action**: the queue was deleted unposted (empty since 09-19 22:42; 0 items ever published). **New open item 8**
-— the owner's own QuarterLine retirement (`bc3d556`) is half-applied on two live surfaces. Item 1 re-measured
-live: production checkout is still sandbox (`livemode:false`, read back from the Stripe API). Items 5, 6, 7
-unchanged. Prior owner instruction 2026-09-17 ("fix the manifest, then proceed to deliver and drain the queue")
-— the manifest fix shipped (`a57539f`) and the queue has now been drained by deletion; item 5 (the
-internal-traffic marker, requires a migration on the production Supabase) remains the next software-factory
-slot, and item 1's live Stripe key is a founder credential action, not a build._
+_Last updated: 2026-09-21 (daily sweep, 08:00 UTC) — **item 9 opened by this morning's weekly recon** (CaseProof,
+78). Item 8 re-measured live and **unchanged for a third day** (the retired product is still the default in the
+payment route and still on the agent menu). Item 1 re-measured live: production checkout is still sandbox
+(`cs_test_a1Ay2uDa…`, `livemode:false`). Items 5, 6, 7 unchanged. The build line has been idle since
+2026-09-18 22:05 (~58 h) — every open item is waiting on the founder. Prior owner instruction 2026-09-17
+("fix the manifest, then proceed to deliver and drain the queue") — the manifest fix shipped (`a57539f`) and the
+queue has now been drained by deletion; item 5 (the internal-traffic marker, requires a migration on the
+production Supabase) remains the next software-factory slot, and item 1's live Stripe key is a founder
+credential action, not a build._
+
+_**2026-09-21 08:00 sweep — measured live.** No product code and no `src/` change in the last day. The **Weekly
+Market Recon ran on time at 06:00 (`ok`) — the first vertical-scoped run** — declaring
+`warehouse_automation_robotics_capex` from the never-scanned rotation queue and producing **CaseProof (78)**
+(`9bbb804`, PRD `context/recon_proposals/2026-09-21_caseproof.md`, build ≈3.5 h): the buyer-side audit of a
+warehouse-automation business case, scoped away from the generic calculator by the free-incumbent check (free
+vendor ROI calculators now exist: ISD 2026-07-10, Dexory, Kinexon, KUKA) toward the adversarial re-run of the
+vendor's own numbers plus multi-quote comparison. Two further commits landed outside any scheduled run
+(`1bc3a58` 09-20 13:32 vertical-scoped discovery; `ffebf51` 09-20 17:01 vendored registry). Item 8: the
+published manifest still advertises `calculate_qbi_deduction` + `calculate_quarterly_estimate` and
+`src/app/api/checkout/route.ts:40` still defaults `app="quarterline"` for `pdf_audit_export` (fresh `app`-less
+probe → `cs_test_a1Ay2uDa…`). Item 1: `livemode:false`, 4 `purchases` all 09-02, **$0 real revenue**. Item 5:
+`agent_query` still 4, every one a factory ship probe → organic 0 on day 21. Item 6: the durable record is
+written a sixth day running without a producer. Item 7: patch still unloaded (gateway pid `1963330` from
+09-12), no new mislabel; the two jobs that still display the 09-15/09-16 mislabels next run **09-22** and
+**09-23**. New evidence for item 5: the one returning browser (`30eb9935`) made **8 page views on 09-20 and
+09-21 across the showcase, LedgerLink and FacturGate** — the only visitor-like signal in 21 days and still
+unattributable without tagging at source. Prod probes: all 38 `/calc/*` routes 200, manifest v1.3.0 / 8 tools /
+sha256 `6ea29ed1…` byte-identical to the tree, retired tool name → 400; `vertical-sync.mjs --check` exit 0._
 
 _**2026-09-20 08:00 sweep — measured live.** Two owner workstreams landed overnight. (a) `bc3d556`
 (2026-09-19 23:43 UTC, Jorge Fernandez, by hand): **QuarterLine retired in the registry (`live` → `killed`)**
