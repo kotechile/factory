@@ -4,13 +4,70 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-22 (owner approval recorded by hand + item 8 shipped) — **owner instruction 2026-09-22 in
+_Last updated: 2026-09-22 (CaseProof shipped `78d0739`, live-verified — item 9 closed; item 8 shipped
+`b6e6555` earlier the same day) — **owner instruction 2026-09-22 in
 `loop-ai` (Jorge Fernandez): "Pending developments are approved. Tomorrow I will take care of my pending actions
 (stripe, to-do's list, etc)"** → item 8 approved and shipped (`b6e6555`, live-verified) and item 9 (CaseProof)
-approved and dispatched as a one-shot build job. The owner's own actions — the live Stripe key (item 1) and the
-editorial to-do list, which lives in `kiosk/editorial-factory` — stay his, and were not touched. Items 5, 6, 7 are
-unchanged (item 5 also needs a production Supabase migration only the owner can apply); **item 10 opened** with the
-QuarterLine surfaces the registry retirement still does not cover._
+approved, dispatched (dispatch record `ea56aaf`) and **built + shipped this pass**. The owner's own actions — the
+live Stripe key (item 1) and the editorial to-do list, which lives in `kiosk/editorial-factory` — stay his, and
+were not touched. Items 5, 6, 7 are unchanged (item 5 also needs a production Supabase migration only the owner
+can apply); **item 10 remains open** with the QuarterLine surfaces the registry retirement does not cover._
+
+_**2026-09-22 — CASEPROOF SHIPPED `78d0739`, live-verified.** The one-shot build job landed the 09-21 weekly
+recon's single candidate (score 78) at `https://factory.aichieve.net/caseproof` as a **`beta`** product — the
+public launch call stays with the founder, as every build does. PRD `context/recon_proposals/2026-09-21_caseproof.md`,
+**§5 v1 scope guard only**: line items are pasted/uploaded as CSV rows (no PDF/OCR), no rate table of our own, no
+throughput sizing model, and an unstated cost line blocks a pass verdict rather than being estimated._
+
+- **Engine** `src/lib/calc/caseproof/` (pure: no I/O, no clock, no LLM): fully loaded labour rate with its
+  component breakdown (wage + employer burden + benefits + FLSA overtime premium + turnover replacement); the
+  quote-line normalizer (echoed, categorized, never re-priced — an unmapped row is surfaced, a blank amount is an
+  unpriced line, never $0); §179 (with its phase-out) → bonus → straight-line **by tax year** from a cited rule
+  table (2026 only; an uncited year is refused, never estimated); the after-tax cash flow per bid (ramp, downtime
+  at the contracted availability, error saving, maintenance/licence, amortized one-time lines, lease/RaaS
+  escalation and peak-fleet weight, debt service) with payback in months, IRR and NPV at the hurdle rate; the
+  audit (vendor's own assumptions re-run, buyer's applied one input group at a time, break-even per assumption,
+  ranked confirm-in-writing list); and 2–3 bids on one cash model with the solved crossing and the PRD's
+  sensitivity grid.
+- **Known-answer vectors (29 tests, `npm run test` 123/123):** the PRD's flip is **reproduced exactly** — a
+  proposal claiming **14 months** is re-run by the same engine at **14.1** and audits at **41.0** on the buyer's
+  numbers, with the driver chain reconciling month for month (the test asserts `14.1 + Σ deltas == 41.0` and that
+  the chain's last value equals the buyer's run); §179 phase-out at a $5,000,000 basis cuts the $2,560,000 limit to
+  **$1,650,000** (−$910,000, $0 at $6,650,000); the capex-vs-subscription ranking flips at a **40.0% seasonal
+  premium** (1.400 ± 0.005); a fully stated quote produces **zero flags and nothing unstated**; an empty
+  maintenance field reports **`unstated`, charges $0 and blocks a pass**.
+- **Two PRD lines reported with their own honest verdict, not bent to the prose:** (a) the §2 vector 3 direction —
+  the crossing is at 40.0% as written, but the measured direction is the reverse of the PRD's phrasing
+  ("subscribing wins only past a 40% seasonal premium"): a fixed-price capex bid has no peak exposure while a
+  per-unit subscription is charged for the peak fleet, so the subscription leads *below* 40% and the capex bid
+  leads above it. The engine publishes the direction it solved; the prose claim is unverifiable as written.
+  (b) the flip's attribution — the three inputs the PRD names do move it (loaded labour **−10.3** months, turnover
+  **−0.9**, maintenance **+19.7**), but the largest single driver is the headcount claim itself: the proposal's
+  **52 FTE** vs the buyer's own **18** accounts for **+26.6** of the 27-month gap. Reported as measured.
+- **Surface:** `/caseproof` + **6** `/caseproof/calc/*` preset pages; registry entry at `beta`; telemetry under the
+  `caseproof` slug; **3** metered WebMCP tools (`audit_automation_case`, `compare_automation_bids`,
+  `after_tax_payback` at **$0.50/call**) registered via `navigator.modelContext` **and** handled in the server
+  branch of `/api/agent/calculate` (explicit 400 + rule id on a malformed case: live `cp-options-empty` /
+  `case.options`). Published manifest generated (**v1.5.0, 9 tools**, `npm run mcp:sync`; `manifest.test.ts` is the
+  drift guard) — never hand-edited.
+- **Gate:** `scripts/verify-build.sh` **green end to end** — tsc 0 / eslint 0 errors / design tokens /
+  `verticals:check` / **vitest 123** / `next build` / **Playwright 41** (13 new: 10 CaseProof e2e incl. axe WCAG
+  2.1 AA, 2 layout guards, 1 QA capture; the directory visual snapshot regenerated **and reviewed**) / Gemini
+  visual-QA **PASS ×4** including CaseProof on the first verdict.
+- **Live, after the deploy (not the push):** deployed image tag
+  `af8yqbwrrnyyfgs9wcg0intj:78d073988131be39e48ad6ae955db7ce983e6eea` == pushed HEAD; `/caseproof` **200**;
+  published manifest **byte-identical to the tree** (sha256 `f3be55bc…`, v1.5.0, 9 tools, CaseProof's 3 advertised);
+  the 400 rejection paths (unknown tool → the 9-tool list; malformed case → `ruleId` + `fieldPath`) returned before
+  any telemetry write; and one **metered** success-path probe (`audit_automation_case`) returned **payback 41**,
+  `costPerQueryUsd 0.50`, meter event `agent_case_audit` — **its `agent_query` row and the 90 `page_view`/
+  `audit_click` rows my own verification runs wrote under `product=caseproof` (ids 1006–1189, 01:56–01:59 UTC,
+  51 Playwright sessions, all created before the product existed in production) were deleted afterwards**, so
+  `product=caseproof` reads **0 rows** and the growth metric is not reading our own tests as usage.
+- **Docs in the same pass:** `skills/webmcp_integration.md` (multi-tool product checklist + the resolve-once rule),
+  `skills/ui_component_standards.md` (directory snapshot, repeated-number locators, no clock in the deterministic
+  core), `skills/self_improvement_eval.md` (7 rows). Code and docs are separate commits.
+- **Open for the owner:** the public launch call for CaseProof (status stays `beta`); the paid decision-pack export
+  and its Stripe checkout are **not** part of v1 (CSV pack ships; PRD §3 pricing is unchanged and unwired).
 
 _**2026-09-22 — OWNER APPROVAL RECORDED + ITEM 8 SHIPPED (by hand, not a sweep).** Owner instruction in `loop-ai`
 (Jorge Fernandez, software-factory approver), verbatim: **"Pending developments are approved. Tomorrow I will take
@@ -263,7 +320,8 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    default the export plan to a `live` product (`ledgerlink`) or reject the default explicitly. Customer-facing
    risk is latent while checkout is sandbox, and becomes live the moment item 1 is answered. Both changes are
    `src/` work → rule 7 gate applies.
-9. **[APPROVED 2026-09-22 — DISPATCHED as a one-shot build job; UUID in the DISPATCH section]** **CaseProof (78)** — the 2026-09-21
+9. **[CLOSED 2026-09-22 — SHIPPED `78d0739`, live-verified; full evidence in the 09-22 CaseProof entry
+   at the top]** **CaseProof (78)** — the 2026-09-21
    weekly recon's single candidate, full PRD at `context/recon_proposals/2026-09-21_caseproof.md`. First
    scan of the `warehouse_automation_robotics_capex` vertical (never scanned; ledger verdict A, pack now
    verified). The product is the **buyer's side of a warehouse-automation business case**: it re-runs a
@@ -276,8 +334,9 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    is the reason this is not another calculator:** free *vendor* ROI calculators now exist (ISD launched
    2026-07-10; Dexory, Kinexon and KUKA also publish one), so a generic calculator is excluded by the
    recon drop rule; the audit + multi-quote comparison is the unowned surface. Build estimate ≈3.5 h;
-   nothing is built and nothing shipped — the go/no-go (`@Simon approve CaseProof`) is the founder's.
-   Timeliness: the Sep–Oct peak-staffing commitment window, the 2026-12-31 in-service date, and the
+   **built and shipped 2026-09-22 (`78d0739`, live-verified, status `beta`); the public launch call
+   remains the founder's.** Timeliness: the Sep–Oct peak-staffing commitment window, the 2026-12-31
+   in-service date, and the
    2027-01-01 wage-floor step (CA $16.90 → $17.40, +2.99%). Runners-up scored this sweep and shortlisted:
    sustained-throughput validator (66) and peak-labour vs rented capacity (63), both blocked by weaker
    free-incumbent positions.

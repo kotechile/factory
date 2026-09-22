@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-21 (daily sweep, 08:00 UTC; first vertical-scoped weekly recon ran 06:00 and opened CaseProof, item 9) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-22 (CaseProof built + shipped `78d0739` from approval item 9; item 8 shipped `b6e6555` the same day) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -121,6 +121,38 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
   rules are covered by the measured high-frequency families only; PDF/A-3 hybrid authoring,
   EXTENDED-CTC-FR lifecycle fields, e-reporting/CDAR and national serializations (PL KSeF FA(3) XML)
   are P1; `check_eu_vat_id` is offline format + checksum — VIES status is not queried.
+
+## Beta product — CaseProof (built 2026-09-22, deliberately not launched)
+
+`https://factory.aichieve.net/caseproof` — the buyer's side of a warehouse-automation business case,
+built from approval item 9 (`78d0739`, owner-approved 2026-09-22, PRD `context/recon_proposals/2026-09-21_caseproof.md`,
+§5 v1 scope guard only). Registry status is **beta**: the public launch call is the founder's, so nothing
+here claims traction.
+
+- Engine `src/lib/calc/caseproof/` — pure, no I/O, no clock, no LLM: the **fully loaded** labour rate with its
+  component breakdown (wage + employer payroll burden + benefits + FLSA overtime premium + turnover
+  replacement); the vendor's quote line items as CSV rows, echoed and categorized, never re-priced (an
+  unmapped row is surfaced, a blank amount is an unpriced line — never $0); §179 (with its phase-out) then
+  100% bonus then straight-line **by tax year**, from a cited rule table (2026 only; an uncited year is
+  refused, never estimated); the after-tax cash flow per bid (ramp, downtime at the contracted availability,
+  error saving, maintenance/licence, amortized one-time lines, lease/RaaS escalation and the peak-fleet
+  weight, debt service) with payback in months, IRR and NPV at the hurdle rate; the audit (the vendor's own
+  assumptions re-run through the same engine, then the buyer's applied one input group at a time, break-even
+  per assumption, ranked confirm-in-writing list); and 2–3 bids on one cash model with the solved crossing
+  point and the volume −10/−20/−30%, capex +15%, maintenance +25% sensitivity grid.
+- **29 known-answer vectors** pin the PRD's arithmetic: a proposal claiming **14 months** reproduced at
+  **14.1** and audited at **41.0**, with the driver chain reconciling month for month; the §179 phase-out
+  ($5,000,000 basis → $1,650,000 allowed, −$910,000, $0 at $6,650,000); the capex-vs-subscription crossing at
+  a **40.0% seasonal premium**; a fully stated quote producing **zero flags**; an empty maintenance field
+  reported **`unstated`** and blocking a pass.
+- Surfaces: `/caseproof`, **6** `/caseproof/calc/*` presets, and `audit_automation_case` +
+  `compare_automation_bids` + `after_tax_payback` ($0.50/call) registered via
+  `navigator.modelContext.registerTool` and advertised in the generated `/.well-known/mcp.json`
+  (**v1.5.0, 9 tools**).
+- Stated v1 limits (PRD §5 scope guard, published in the product's own coverage panel): no PDF/OCR
+  extraction of a proposal, no rate tables or benchmarks of our own, no throughput *sizing* model, the §179
+  taxable-business-income limitation and MACRS conventions are not modelled, and a paid decision-pack export
+  / Stripe checkout is not wired (the CSV pack ships free).
 
 ## Beta product — ParcelProof (built 2026-09-18, deliberately not launched)
 

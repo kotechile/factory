@@ -81,5 +81,27 @@ would have returned a tax calculation instead of an error. The route now ends it
 an explicit `501` for an advertised-but-unimplemented name (factory rule 5: no silent fallback), and
 each new tool gets its own branch + metered event name before `mcp:sync` is run.
 
+**Rule for a product that ships more than one tool (2026-09-22, CaseProof):** a product's tools are
+declared once in `registry.ts` (`webmcpTools: [...]`) and defined once in `register.ts`, and BOTH the
+published manifest and the agent allowlist derive from the registry — so shipping three tools is the
+same ride as shipping one, *provided* every name also has a server branch. Checklist: (a) definitions
+with `required` params that exist in `properties` (the manifest test asserts this); (b) the registry
+entry at the intended status (`beta` for a new product — the launch call is the founder's);
+(c) a branch in `/api/agent/calculate` that validates the payload and returns an explicit 400 carrying
+the rule id — registering a name is not implementing it; (d) `npm run mcp:sync` **and a `version` bump
+in `manifest.ts`** (a new product changes the tool list, so the published version must move);
+(e) `npm run test`. When the selector argument is a JSON string, parse and validate it with the
+ENGINE's own reader (`readCaseInput`), never a shallow `if (!body.case)` check: the engine's error
+carries the field path the agent needs to fix its own call.
+
+**Rule for an engine that resolves an input twice (2026-09-22, CaseProof):** when a module resolves a
+caller input at compute time — CaseProof resolves a bid's quote CSV into cost terms inside
+`computeOption` — every other reader of those terms must resolve it the same way first. The audit
+levers initially read the raw bid, so three lines the quote priced read as `unstated` and the findings
+contradicted the verdict the cash model had just produced. Resolve once at the audit's entry point
+(`auditOption` → `applyQuote(input.option).option`) and make the resolver idempotent (a second pass
+that changes nothing must add no note). Symptom to recognise: a verdict that disagrees with its own
+findings.
+
 ## 6. Failure handling
 - Broken MCP/WebMCP endpoints → Toby logs and patches this skill.

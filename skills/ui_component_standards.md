@@ -94,6 +94,27 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   2. **A `w-full` table still overflows its card when its min-content width exceeds the container** — the browser then clips the last column instead of shrinking, and a clipped *number* in an audit reads as a hidden number. Measure it, don't eyeball it: `table.getBoundingClientRect().width` vs the wrapper's, and assert it (`tests/e2e/parcelproof-layout.spec.ts` is the standing guard). Fixes that actually work: `break-all` on long unbreakable tokens (tracking numbers, field paths), an explicit column width (`w-48`) on the mono column, and dropping a column that only repeats another.
   3. **For per-record detail (an audit ledger, a reconciliation list), prefer a labelled block per record over a wide table.** Nine columns cannot fit a 798px card; the same data as an 8-field `<dl>` grid per line wraps at any width, survives mobile, and can never hide a column. Reach for a table only when the column count is small and the values short.
 
+- **2026-09-22 — CaseProof: adding a product fails the directory snapshot, and a repeated formatted
+  number breaks a locator (test/build).** Three rules from one build:
+  1. **Adding a product changes the directory page, so `landing.spec.ts`'s visual snapshot must be
+     regenerated in the same commit** (`npx playwright test tests/e2e/landing.spec.ts
+     --update-snapshots`) — and *reviewed*, not just accepted: open the new PNG and confirm the new
+     card renders with its status badge and tool names. A snapshot updated without looking is a
+     product nobody proof-read.
+  2. **A formatted number that legitimately appears more than once breaks a strict-mode locator.** The
+     audited payback ("41 months · 3.4 yr") renders in the verdict tile, in a driver row and in the
+     comparison table, so `getByText(...)` throws a strict-mode violation. Scope the assertion
+     (`.first()`, or a more specific role/region) instead of loosening the text.
+  3. **Assert the string the report prints, not a rounded form of it.** `/peakFactor = 1\.4\b/` never
+     matched because the engine publishes the solved crossing as `1.401`, and `\b` cannot match between
+     two word characters.
+
+- **2026-09-22 — CaseProof: no clock in the deterministic core (build).** The decision-pack CSV carried
+  a `generated <ISO timestamp>` header, so two runs of the same case produced different bytes and the
+  determinism test failed. An engine that must be reproducible *is* reproducible only if it reads no
+  clock: the pack now carries the case's own provenance (label, tax year, cited rule source), and a
+  date belongs in the filename or on the page, never inside the audited artifact.
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 
