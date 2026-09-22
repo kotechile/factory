@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         // Send transactional email with self-service cancellation / access instructions
         if (userEmail) {
           const isSub = session.mode === "subscription";
-          const appSlug = session.metadata?.app || "quarterline";
+          const appSlug = session.metadata?.app || "factory";
           const registeredProduct = products.find((p) => p.slug === appSlug);
           const appDisplayName = session.metadata?.appName || registeredProduct?.name || "Factory Pro";
           const appPath = appSlug === "factory" ? "" : appSlug;

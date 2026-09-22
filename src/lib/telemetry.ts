@@ -1,6 +1,12 @@
 import { createAdminClient } from "@/lib/supabase";
+import { defaultInventoryProduct } from "@/products/registry";
 
-const DEFAULT_PRODUCT = "quarterline";
+/**
+ * Attribution for a caller that names no product: the first product still `live` in the registry.
+ * This was the literal "quarterline", which outlived that product's retirement and kept writing
+ * events under a retired product (see context/pending_approval.md item 8).
+ */
+const DEFAULT_PRODUCT = defaultInventoryProduct?.slug ?? "factory";
 
 /**
  * Records a growth/analytics event to Supabase `events` for the kill/scale gates.

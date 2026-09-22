@@ -1,6 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe/checkout";
-import { products } from "@/products/registry";
+import { activeProductSlugs, isRetiredProduct, products } from "@/products/registry";
+
+/**
+ * Plans that belong to a product subpath. These are the ones that used to fall back to a
+ * hard-coded product slug; they now require an explicit `app` instead of silently picking one.
+ */
+const PRODUCT_SCOPED_PLANS = ["cpa_monthly", "pdf_audit_export"];
+
+/**
+ * Resolves the product a checkout session is attributed to.
+ *
+ * Selling is always product-scoped, so a request that names no product cannot be attributed
+ * honestly: the retired-product literal that used to answer it minted receipts titled with a
+ * product the directory advertises as retired. Therefore:
+ *  - an `app` naming a `killed` registry product is an explicit 400 — never sold, never swapped
+ *    for a different product (AGENTS.md rule 5, no silent fallbacks);
+ *  - an `app`-less product-scoped plan is an explicit 400 naming what is in inventory;
+ *  - other `app`-less plans keep the `factory` directory sentinel they always used.
+ * App names that are not registry products stay accepted for caller-supplied white-label flows.
+ */
+function resolveCheckoutApp(
+  plan: string,
+  requestedApp: unknown,
+): { app: string } | { error: string } {
+  if (typeof requestedApp === "string" && requestedApp.trim() !== "") {
+    const app = requestedApp.trim();
+    if (isRetiredProduct(app)) {
+      return {
+        error:
+          `Product '${app}' is retired and cannot be purchased. ` +
+          `Products in inventory: ${activeProductSlugs.join(", ")}.`,
+      };
+    }
+    return { app };
+  }
+
+  if (PRODUCT_SCOPED_PLANS.includes(plan)) {
+    return {
+      error:
+        `Plan '${plan}' is product-scoped: send an 'app' naming a product in inventory ` +
+        `(${activeProductSlugs.join(", ")}). No product is assumed for this plan.`,
+    };
+  }
+
+  return { app: "factory" };
+}
 
 function getOrigin(req: NextRequest): string {
   if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -37,7 +82,7 @@ export async function POST(req: NextRequest) {
       plan = "pdf_audit_export",
       userId = "guest_user",
       email,
-      app = (plan === "cpa_monthly" || plan === "pdf_audit_export") ? "quarterline" : "factory",
+      app: requestedApp,
       productName: customProductName,
       productDescription: customProductDescription,
       amount,
@@ -49,6 +94,17 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const origin = getOrigin(req);
+
+    // Product attribution is resolved from the registry, never from a literal in this route:
+    // a retired product must not be sold, and no product may be silently substituted for it.
+    const resolvedApp = resolveCheckoutApp(plan, requestedApp);
+    if ("error" in resolvedApp) {
+      return NextResponse.json(
+        { error: resolvedApp.error, productsInInventory: activeProductSlugs },
+        { status: 400 },
+      );
+    }
+    const app = resolvedApp.app;
     const registeredProduct = products.find((p) => p.slug === app);
     const appDisplayName = customProductName || registeredProduct?.name || "Factory Pro";
 

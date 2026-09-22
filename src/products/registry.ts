@@ -70,3 +70,33 @@ export const products: Product[] = [
     visibility: "public",
   },
 ];
+
+/**
+ * Products still in inventory — everything the factory may still sell or advertise.
+ *
+ * A `killed` entry stays in `products` so the directory can show its retirement notice and the
+ * trail keeps the record, but it must NOT reach a paid or agent surface. Every generated surface
+ * (the checkout product lookup, the WebMCP manifest, the agent allowlist, telemetry attribution)
+ * derives from this list so a retirement cannot be half-applied: flipping `status` is enough.
+ */
+export const activeProducts: Product[] = products.filter((product) => product.status !== "killed");
+
+/** Products the factory has retired. Their tools may exist in code but may not be advertised. */
+export const retiredProducts: Product[] = products.filter((product) => product.status === "killed");
+
+/** Slugs a caller may name when a surface sells or meters: the inventory, in registry order. */
+export const activeProductSlugs: readonly string[] = activeProducts.map((product) => product.slug);
+
+/**
+ * The product an unattributed, product-scoped request resolves to: the first `live` product in
+ * registry order. `beta` products are deliberately not a default — a default must be a product the
+ * factory has already launched, and there is no default when nothing is live.
+ */
+export const defaultInventoryProduct: Product | undefined = activeProducts.find(
+  (product) => product.status === "live",
+);
+
+/** True when the slug names a retired product — an explicit failure at any sell/advertise boundary. */
+export function isRetiredProduct(slug: string): boolean {
+  return retiredProducts.some((product) => product.slug === slug);
+}

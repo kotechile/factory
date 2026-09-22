@@ -1,14 +1,15 @@
-import { products } from "@/products/registry";
+import { activeProducts } from "@/products/registry";
+import { DEFAULT_AGENT_TOOL } from "./agentTools";
 import { WEBMCP_TOOL_SUMMARIES } from "./register";
 import type { WebMCPToolParameters } from "./types";
 
 /**
  * The published agent-discovery listing served at /.well-known/mcp.json.
  *
- * GENERATED, never hand-written: every field below is derived from the products in
- * src/products/registry.ts and the tool definitions in ./register.ts. Regenerate with
- * `npm run mcp:sync`; ./manifest.test.ts fails the build if the published file drifts
- * from this function's output.
+ * GENERATED, never hand-written: every field below is derived from the products **still in
+ * inventory** (src/products/registry.ts, `killed` entries excluded) and the tool definitions in
+ * ./register.ts. Regenerate with `npm run mcp:sync`; ./manifest.test.ts fails the build if the
+ * published file drifts from this function's output, or if a retired product's tool reappears.
  */
 export const MCP_MANIFEST_PATH = "public/.well-known/mcp.json";
 
@@ -44,12 +45,15 @@ export interface McpManifest {
 
 /**
  * Maps every registered WebMCP tool name to the slug of the product that owns it.
- * Throws on a tool claimed by two products — an ambiguous owner is a registry bug,
- * not something to paper over in the listing.
+ *
+ * Only products still in inventory are listed: a retired product's tools must not be advertised,
+ * so the exclusion lives here (and in the agent allowlist) rather than in the published file.
+ * Throws on a tool claimed by two products — an ambiguous owner is a registry bug, not something
+ * to paper over in the listing.
  */
 export function toolOwnerMap(): Map<string, string> {
   const owner = new Map<string, string>();
-  for (const product of products) {
+  for (const product of activeProducts) {
     for (const toolName of product.webmcpTools) {
       const existing = owner.get(toolName);
       if (existing && existing !== product.slug) {
@@ -90,16 +94,15 @@ export function buildMcpManifest(): McpManifest {
     name: "factory-agent-tools",
     description:
       "Deterministic agent tools shipped by the Autonomous Product & Software Factory " +
-      "(factory.aichieve.net): 2026 US self-employment, Section 199A QBI, and quarterly " +
-      "estimated-tax calculations (QuarterLine), Stripe payout -> GL reconciliation (LedgerLink), " +
-      "EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU VAT-id checks (FacturGate), " +
-      "and carrier invoice DIM-weight / surcharge auditing with billable-weight computation " +
-      "(ParcelProof).",
-    version: "1.3.0",
+      "(factory.aichieve.net), one product subpath per tool: Stripe payout -> GL reconciliation " +
+      "(LedgerLink), EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU " +
+      "VAT-id checks (FacturGate), and carrier invoice DIM-weight / surcharge auditing with " +
+      "billable-weight computation (ParcelProof). Products retired in the registry are not listed.",
+    version: "1.4.0",
     endpoint: "https://factory.aichieve.net/api/agent/calculate",
     tool_selector: {
       header: "x-webmcp-tool",
-      default: "calculate_qbi_deduction",
+      default: DEFAULT_AGENT_TOOL,
       note: "Name of the tool to invoke; must be one of the tools listed below. Omit for the default.",
     },
     auth: {

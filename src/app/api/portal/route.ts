@@ -50,19 +50,21 @@ export async function GET(req: NextRequest) {
     }
 
     if (!customerId) {
-      return NextResponse.redirect(`${getOrigin(req)}/quarterline?error=no_customer_found`);
+      // The portal sends the customer to the directory root. It used to hard-code the retired
+      // QuarterLine page, so a paying customer's billing link landed on a retired product.
+      return NextResponse.redirect(`${getOrigin(req)}/?error=no_customer_found`);
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${getOrigin(req)}/quarterline`,
+      return_url: `${getOrigin(req)}/`,
     });
 
     return NextResponse.redirect(portalSession.url);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to create portal session";
     console.error("Stripe portal error:", message);
-    return NextResponse.redirect(`${getOrigin(req)}/quarterline?error=portal_failed`);
+    return NextResponse.redirect(`${getOrigin(req)}/?error=portal_failed`);
   }
 }
 
@@ -84,7 +86,7 @@ export async function POST(req: NextRequest) {
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${getOrigin(req)}/quarterline`,
+      return_url: `${getOrigin(req)}/`,
     });
 
     return NextResponse.json({ url: portalSession.url });
