@@ -4,14 +4,34 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-22 (CaseProof shipped `78d0739`, live-verified — item 9 closed; item 8 shipped
-`b6e6555` earlier the same day) — **owner instruction 2026-09-22 in
+_Last updated: 2026-09-22 (08:00 sweep, every open item re-measured live; CaseProof shipped `78d0739`,
+live-verified — item 9 closed; item 8 shipped `b6e6555` earlier the same day) — **owner instruction 2026-09-22 in
 `loop-ai` (Jorge Fernandez): "Pending developments are approved. Tomorrow I will take care of my pending actions
 (stripe, to-do's list, etc)"** → item 8 approved and shipped (`b6e6555`, live-verified) and item 9 (CaseProof)
 approved, dispatched (dispatch record `ea56aaf`) and **built + shipped this pass**. The owner's own actions — the
 live Stripe key (item 1) and the editorial to-do list, which lives in `kiosk/editorial-factory` — stay his, and
 were not touched. Items 5, 6, 7 are unchanged (item 5 also needs a production Supabase migration only the owner
 can apply); **item 10 remains open** with the QuarterLine surfaces the registry retirement does not cover._
+
+_**2026-09-22 08:00 sweep — measured live.** Two builds shipped in one hour overnight and nothing new was
+built after them. Re-verified rather than assumed: `/`, `/caseproof`, `/quarterline`, `/ledgerlink`,
+`/facturgate`, `/parcelproof` all 200 and **all 44 `/calc/*` presets 200** (caseproof 6 + quarterline 20 +
+facturgate 12 + parcelproof 6, slugs enumerated from the preset files); published manifest **v1.5.0, 9 tools**,
+sha256 `f3be55bc…` **byte-identical to the working tree**; **item 8 holds on the deployed app** — app-less
+`pdf_audit_export` → 400 naming the inventory, `app=quarterline` → 400 "retired and cannot be purchased",
+`app=ledgerlink` → 200 `cs_test_a10wdt20…`, `/api/portal` → 307 to the directory. `events` **1099 rows**
+(+176 since the 09-21 sweep: 39 Build Watchdog Playwright, 136 the two pre-commit verify runs, 1 the returning
+browser), 649 session ids, **`product=caseproof` reads 0 rows** (the build deleted its own 90 verification rows
+after the deploy check). **Item 1** re-measured: `livemode:false`, 4 `purchases` all `cs_test_*` 09-02, **$0
+real revenue** — 8 days to Day-30. **Item 5**: `agent_query` still 4, every one a factory ship probe → organic 0
+on day 21; the returning browser `30eb9935…` came back a **seventh** day (09-22 01:25:12Z, 24 rows lifetime) and
+is still unattributable. **Item 6**: durable record written a seventh day running, still without a producer.
+**Item 7**: patch still unloaded (gateway pid from 09-12), **but the mislabel did not recur** — the 09-22 06:00
+`enterprise_tech_leadership` run recorded `ok`, leaving only the 09-16 `gpu_hardware` label (next run 09-23).
+**Item 10** re-measured live: `/quarterline` 200 (calculator works, $9 export returns the explicit 400), its 20
+presets 200 and indexable, `/embed/countdown` 200 and still linking there. CaseProof build job `38704fd5a527`
+fired 01:36:29 / completed 02:06:48 `ok`. Crons: 12 jobs, **0 open incidents**; `vertical-sync.mjs --check`
+exit 0 (26 verticals, no drift). Tree: `HEAD == origin/main == 64af7c1`, clean except untracked `.hermes/`._
 
 _**2026-09-22 — CASEPROOF SHIPPED `78d0739`, live-verified.** The one-shot build job landed the 09-21 weekly
 recon's single candidate (score 78) at `https://factory.aichieve.net/caseproof` as a **`beta`** product — the
