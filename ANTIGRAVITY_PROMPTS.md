@@ -54,7 +54,8 @@ just the shared primitives every future tool inherits:
 
 Hard rules (from AGENTS.md): all secrets env-only — add a .env.example with the
 VARIABLE NAMES only (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
-STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY) and NEVER hardcode values
+STRIPE_MODE, STRIPE_SECRET_KEY_TEST/LIVE, STRIPE_WEBHOOK_SECRET_TEST/LIVE,
+RESEND_API_KEY) and NEVER hardcode values
 (this org has push protection that rejects committed secrets). No silent fallbacks.
 Reuse primitives. After `scripts/verify-build.sh` passes, commit and push to main.
 ```

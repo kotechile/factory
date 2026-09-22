@@ -16,8 +16,9 @@
 // sessions". Gate window defaults to 7 days; set GATE_WINDOW_DAYS to override.
 //
 // Run from the repo root: `node scripts/growth-check.mjs`.
-// Requires NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (and STRIPE_SECRET_KEY for the
-// revenue block); without them the script reports how many metrics it could not compute.
+// Requires NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (and STRIPE_MODE plus that
+// mode's key for the revenue block); without them the script reports how many metrics it could
+// not compute.
 
 import { readFileSync, existsSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
@@ -42,7 +43,14 @@ loadEnvFile(".env");
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const stripeKey = process.env.STRIPE_SECRET_KEY;
+// Stripe mode (mirrors src/lib/stripe/mode.ts): revenue is only real when the key came from live
+// mode. A sandbox key returns sandbox charges — counting those as gate revenue is the 2026-09-11
+// misreport this script now refuses to repeat.
+const stripeMode = (process.env.STRIPE_MODE || "").trim().toLowerCase();
+const stripeKey =
+  (stripeMode === "live" ? process.env.STRIPE_SECRET_KEY_LIVE : process.env.STRIPE_SECRET_KEY_TEST) ||
+  process.env.STRIPE_SECRET_KEY;
+const stripeKeyPrefix = stripeMode === "live" ? "sk_live_" : "sk_test_";
 const PRODUCT = process.argv[2] || process.env.GROWTH_PRODUCT || "quarterline";
 const GATE_WINDOW_DAYS = Number(process.env.GATE_WINDOW_DAYS ?? 7);
 
@@ -56,6 +64,8 @@ const summary = {
   unique_sessions_product: PRODUCT,
   gross_revenue_usd: null,
   days_since_first_event: null,
+  stripe_mode: stripeMode || "unset",
+  revenue_is_sandbox: null,
 };
 
 if (supabaseUrl && serviceKey) {
@@ -123,22 +133,35 @@ if (supabaseUrl && serviceKey) {
 }
 
 if (stripeKey) {
-  try {
-    const res = await fetch("https://api.stripe.com/v1/charges?limit=100", {
-      headers: { Authorization: `Bearer ${stripeKey}` },
-    });
-    if (res.ok) {
-      const j = await res.json();
-      summary.gross_revenue_usd = j.data.reduce((sum, c) => sum + c.amount / 100, 0);
-      summary.charge_count = j.data.length;
-    } else {
-      summary.stripe_error = `HTTP ${res.status}`;
+  if (stripeMode !== "live" && stripeMode !== "test") {
+    summary.stripe_error =
+      "STRIPE_MODE is not set — cannot tell sandbox charges from real revenue. Set STRIPE_MODE=test|live.";
+  } else if (!stripeKey.startsWith(stripeKeyPrefix)) {
+    summary.stripe_error = `Stripe key does not match STRIPE_MODE=${stripeMode} (expected ${stripeKeyPrefix}…).`;
+  } else {
+    try {
+      const res = await fetch("https://api.stripe.com/v1/charges?limit=100", {
+        headers: { Authorization: `Bearer ${stripeKey}` },
+      });
+      if (res.ok) {
+        const j = await res.json();
+        summary.gross_revenue_usd = j.data.reduce((sum, c) => sum + c.amount / 100, 0);
+        summary.charge_count = j.data.length;
+        if (stripeMode !== "live") {
+          summary.revenue_is_sandbox = true;
+          summary.revenue_mode_warning =
+            "These charges are SANDBOX (test mode) — not real revenue. Set STRIPE_MODE=live with the live key to measure revenue.";
+        }
+      } else {
+        summary.stripe_error = `HTTP ${res.status}`;
+      }
+    } catch (e) {
+      summary.stripe_error = e.message;
     }
-  } catch (e) {
-    summary.stripe_error = e.message;
   }
 } else {
-  summary.stripe_error = "STRIPE_SECRET_KEY not configured.";
+  summary.stripe_error =
+    "No Stripe key configured (expected STRIPE_MODE + STRIPE_SECRET_KEY_TEST/STRIPE_SECRET_KEY_LIVE).";
 }
 
 console.log(JSON.stringify(summary, null, 2));

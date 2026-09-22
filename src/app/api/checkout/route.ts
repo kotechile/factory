@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe/checkout";
+import { isStripeConfigured } from "@/lib/stripe/mode";
 import { activeProductSlugs, isRetiredProduct, products } from "@/products/registry";
 
 /**
@@ -173,8 +174,10 @@ export async function POST(req: NextRequest) {
       ...customMetadata,
     };
 
-    // If STRIPE_SECRET_KEY is configured, create live Stripe Checkout Session
-    if (process.env.STRIPE_SECRET_KEY) {
+    // Mode-aware gate (src/lib/stripe/mode.ts): real session when STRIPE_MODE is set and its
+    // key pair is present. A live deploy that has no usable Stripe config must NOT hand back a
+    // simulated success — see the production guard below the call.
+    if (isStripeConfigured()) {
       const session = await createCheckoutSession({
         userId,
         userEmail: email,
@@ -191,7 +194,21 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // In local dev without live Stripe key, provide immediate simulated checkout link
+    // Production must never answer a real buyer with a pretend receipt: if a live deploy has no
+    // usable Stripe configuration the request fails loudly instead of redirecting to a
+    // simulated session that grants nothing (AGENTS.md rule 5 — no silent fallbacks).
+    if (process.env.NODE_ENV === "production") {
+      console.error(
+        "[checkout] Stripe is not configured for this deploy (STRIPE_MODE + its key pair). " +
+          "Refusing to issue a simulated checkout in production.",
+      );
+      return NextResponse.json(
+        { error: "Payments are not configured on this deploy. Please contact support." },
+        { status: 500 },
+      );
+    }
+
+    // Local dev without Stripe keys: immediate simulated checkout link.
     const simulatedSessionId = `simulated_${plan}_${Date.now()}`;
     const simulatedUrl = resolvedSuccessUrl.replace("{CHECKOUT_SESSION_ID}", simulatedSessionId);
 

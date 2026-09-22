@@ -256,9 +256,19 @@ Then create the primitive files the SOPs reference:
 - `src/app/api/webhooks/stripe/route.ts` — per `skills/stripe_gating_workflow.md`
 - `src/lib/` Supabase + Stripe + Resend client helpers
 
-**Secrets are env-only** (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
-`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`) in a gitignored `.env.local` —
+**Secrets are env-only** (`NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`,
+and the mode-paired Stripe set — `STRIPE_MODE`, `STRIPE_SECRET_KEY_TEST`/`STRIPE_SECRET_KEY_LIVE`,
+`STRIPE_WEBHOOK_SECRET_TEST`/`STRIPE_WEBHOOK_SECRET_LIVE`) in a gitignored `.env.local` —
 never hardcoded (this repo's GitHub remote has push protection that rejects committed secrets).
+
+**Stripe modes** — sandbox vs live is decided by the key, never by the Stripe dashboard toggle
+(`src/lib/stripe/mode.ts`). Both key pairs live in the deploy env; `STRIPE_MODE=test|live` picks
+one, so switching is a single env change and reverting is another. A key whose prefix disagrees
+with `STRIPE_MODE` is a hard startup error, not a warning: a live deploy holding a sandbox key
+still accepts checkouts and webhooks while collecting nothing, which is how a test key once got
+counted as real revenue (`skills/self_improvement_eval.md`). Prefer restricted keys (`rk_live_…`)
+scoped to the endpoints actually called once live, and pair each mode with its own webhook
+endpoint signing secret — a sandbox endpoint cannot be verified with a live secret.
 
 Verify the build gate works:
 ```bash

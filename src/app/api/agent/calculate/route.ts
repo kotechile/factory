@@ -36,6 +36,7 @@ import {
 } from "@/lib/calc/caseproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { reportMeteredUsage } from "@/lib/stripe/meter";
+import { isStripeConfigured } from "@/lib/stripe/mode";
 import { track } from "@/lib/telemetry";
 import {
   DEFAULT_AGENT_TOOL,
@@ -370,7 +371,7 @@ export async function POST(req: NextRequest) {
         req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
       let meteredUsageReported = false;
       let meterEventId: string | undefined;
-      if (customerId && process.env.STRIPE_SECRET_KEY) {
+      if (customerId && isStripeConfigured()) {
         try {
           const meterResult = await reportMeteredUsage({
             customerId,
@@ -423,7 +424,7 @@ export async function POST(req: NextRequest) {
         req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
       let meteredUsageReported = false;
       let meterEventId: string | undefined;
-      if (customerId && process.env.STRIPE_SECRET_KEY) {
+      if (customerId && isStripeConfigured()) {
         try {
           const meterResult = await reportMeteredUsage({
             customerId,
@@ -478,7 +479,7 @@ export async function POST(req: NextRequest) {
         req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
       let meteredUsageReported = false;
       let meterEventId: string | undefined;
-      if (customerId && process.env.STRIPE_SECRET_KEY) {
+      if (customerId && isStripeConfigured()) {
         try {
           const meterResult = await reportMeteredUsage({
             customerId,
@@ -553,7 +554,7 @@ export async function POST(req: NextRequest) {
         req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
       let caseMetered = false;
       let caseMeterEventId: string | undefined;
-      if (caseCustomerId && process.env.STRIPE_SECRET_KEY) {
+      if (caseCustomerId && isStripeConfigured()) {
         try {
           const meterResult = await reportMeteredUsage({
             customerId: caseCustomerId,
@@ -616,7 +617,7 @@ export async function POST(req: NextRequest) {
     let meteredUsageReported = false;
     let meterEventId: string | undefined;
 
-    if (customerId && process.env.STRIPE_SECRET_KEY) {
+    if (customerId && isStripeConfigured()) {
       try {
         const meterResult = await reportMeteredUsage({
           customerId,

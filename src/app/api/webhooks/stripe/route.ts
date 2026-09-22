@@ -1,15 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/client";
+import { peekStripeMode, stripeWebhookSecret } from "@/lib/stripe/mode";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/resend/email";
 import { products } from "@/products/registry";
 import type Stripe from "stripe";
 
 export async function POST(req: NextRequest) {
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+  const mode = peekStripeMode();
+
+  // The signing secret is mode-paired: a sandbox events endpoint cannot be verified with a
+  // live endpoint's secret, and vice versa. Resolving it here fails loudly on a misconfigured
+  // deploy instead of silently 400-ing every real event.
+  let webhookSecret: string | undefined;
+  try {
+    webhookSecret = stripeWebhookSecret();
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Stripe mode is misconfigured.";
+    console.error(`[stripe-webhook] ${message}`);
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+
   if (!webhookSecret) {
+    const expected =
+      mode === "unset" ? "STRIPE_WEBHOOK_SECRET_<MODE>" : `STRIPE_WEBHOOK_SECRET_${mode.toUpperCase()}`;
+    console.error(`[stripe-webhook] ${expected} is not configured on the server.`);
     return NextResponse.json(
-      { error: "STRIPE_WEBHOOK_SECRET is not configured on the server." },
+      { error: `${expected} is not configured on the server.`, mode },
       { status: 500 },
     );
   }
@@ -29,11 +46,13 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Invalid webhook signature";
-    console.error(`Webhook signature verification failed: ${message} (using secret starting with ${webhookSecret.slice(0, 8)}...)`);
+    // Log the mode only — never key material. The mode is what tells you which events endpoint
+    // (and therefore which signing secret) this request came from when a mismatch happens.
+    console.error(`Webhook signature verification failed in ${mode} mode: ${message}`);
     return NextResponse.json(
       {
         error: `Webhook signature verification failed: ${message}`,
-        usingSecretPrefix: webhookSecret.slice(0, 8) + "...",
+        mode,
       },
       { status: 400 },
     );

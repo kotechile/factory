@@ -51,3 +51,27 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
 - **Managed Payments & Product Tax Codes**: Stripe accounts with Managed Payments reject products without a tax code. Always set `tax_code` on `product_data` (`txcd_10000000` for digital reports/exports, `txcd_10202000` for SaaS). Explicitly pass `managed_payments: { enabled: false }` on checkout sessions to prevent MoR onboarding blocks.
 - **Independent Plan Loading**: In checkout modals, track loading by specific plan (`checkingOutPlan: string | null`) instead of a generic boolean so multiple checkout buttons don't enter loading state simultaneously.
 - **True Binary PDF Delivery**: Never substitute `.txt` text blobs for advertised PDF exports. Build official documents with `pdf-lib`. TypeScript 5.5+ invariant: cast `pdfBytes as unknown as BlobPart` when creating the browser `Blob`.
+
+## 10. Stripe mode invariants (2026-09-22 — the sandbox/live split)
+
+- **The mode comes from the env, never from the dashboard toggle.** `src/lib/stripe/mode.ts` is the
+  single resolver: `STRIPE_MODE=test|live` plus a mode-paired `STRIPE_SECRET_KEY_TEST`/`_LIVE` and
+  `STRIPE_WEBHOOK_SECRET_TEST`/`_LIVE`. Never read `process.env.STRIPE_SECRET_KEY` directly in a
+  route/gate — use `isStripeConfigured()` (gate) or `getStripe()` (client).
+- **A key from the wrong mode is a hard error, not a warning.** `sk_test_…` under `STRIPE_MODE=live`
+  (and vice versa) throws with the variable name and the expected prefix. Never fall back to a
+  sandbox key to keep a live deploy "working": that deploy accepts checkouts, records rows and
+  collects $0 — the failure that was misreported as $161 of revenue on 2026-09-11.
+- **Never infer the mode from whichever key happens to be present.** Missing `STRIPE_MODE` =
+  explicit failure. Both key pairs stay configured so the switch is one env write.
+- **Production never simulates a checkout.** The simulated-session branch in `/api/checkout` is
+  gated behind `NODE_ENV !== "production"`; a live deploy with no usable Stripe config returns 500.
+- **Webhook secrets are mode-paired too.** Only the mode's own signing secret may verify an
+  inbound event; secret keys are prefix-checkable, webhook secrets are not, so the pairing is the
+  only guard — a mismatch shows up as a signature failure, so log the mode with it.
+- **Never echo key material — not even a prefix — from an unauthenticated endpoint.** The Stripe
+  webhook route used to return the first 8 characters of the signing secret in its 400 body;
+  log the mode instead.
+- **Revenue metrics must state their mode.** `scripts/growth-check.mjs` reports `stripe_mode` and
+  refuses to present sandbox charges as revenue (`revenue_is_sandbox`). Any gate evaluation that
+  reads a dollar amount has to say which mode produced it.
