@@ -359,3 +359,27 @@ Rules:
    default.
 3. The whole class is latent while payment is in sandbox and becomes customer-visible the moment a live
    key lands — so it is scored as a finding against the payment decision, not deferred as cosmetic.
+
+**Resolved 2026-09-22 (`b6e6555` + gate `a5c8c89`) — the retirement is now derived, and the probe changed shape.**
+`src/products/registry.ts` derives the inventory (`activeProducts`, `retiredProducts`, `activeProductSlugs`,
+`defaultInventoryProduct`, `isRetiredProduct`); the checkout route, the published manifest and the agent allowlist
+all read it, so a `status` change retires every paid/agent surface at once. The manifest is v1.4.0 / 6 tools and its
+selector default is derived (`DEFAULT_AGENT_TOOL`), not a literal. Rules added:
+
+4. **A default that names a product is a retirement leftover.** When a request omits the product, do not resolve it
+   to a "current" product — reject it explicitly and list the inventory (rule 5, no silent fallbacks).
+   Re-attributing a retired product's own page to a live one is a silent substitution, and the buyer would receive a
+   receipt for a product they did not choose. Shipped shape: `resolveCheckoutApp()` in
+   `src/app/api/checkout/route.ts` (killed `app` → 400; `app`-less product-scoped plan → 400 naming the inventory;
+   `factory` stays the sentinel for generic app-less plans; non-registry white-label names still accepted).
+   **Probe consequence:** a paid-surface probe must now name a product — an `app`-less product-scoped request is a
+   400 by design, so a sandbox/live reading comes from `app=<inventory product>`.
+5. **Enumerate the retirement when the `status` changes, and say what you did not retire.** Measured 2026-09-22,
+   the paid and agent surfaces are clean; `/quarterline` (working calculator + a CTA that now returns an explicit
+   400), its 20 preset pages and `/embed/countdown` are still published to visitors. Those are content decisions,
+   so they are queued as an owner call (`context/pending_approval.md` item 10) rather than fixed silently.
+6. **A guard that fails on its own timestamp is a false red.** `verticals:check` compared the generated inventory
+   block byte-for-byte including its generation date, so `scripts/verify-build.sh` was red on a clean `main` every
+   morning until someone re-ran the sync. Normalize the volatile token (here `_Generated <date> by`), keep every
+   content row and the provenance line byte-compared, and prove both directions — date-only → exit 0, one character
+   changed in a row → exit 1.

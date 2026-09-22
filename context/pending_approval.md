@@ -4,15 +4,74 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-21 (daily sweep, 08:00 UTC) — **item 9 opened by this morning's weekly recon** (CaseProof,
-78). Item 8 re-measured live and **unchanged for a third day** (the retired product is still the default in the
-payment route and still on the agent menu). Item 1 re-measured live: production checkout is still sandbox
-(`cs_test_a1Ay2uDa…`, `livemode:false`). Items 5, 6, 7 unchanged. The build line has been idle since
-2026-09-18 22:05 (~58 h) — every open item is waiting on the founder. Prior owner instruction 2026-09-17
-("fix the manifest, then proceed to deliver and drain the queue") — the manifest fix shipped (`a57539f`) and the
-queue has now been drained by deletion; item 5 (the internal-traffic marker, requires a migration on the
-production Supabase) remains the next software-factory slot, and item 1's live Stripe key is a founder
-credential action, not a build._
+_Last updated: 2026-09-22 (owner approval recorded by hand + item 8 shipped) — **owner instruction 2026-09-22 in
+`loop-ai` (Jorge Fernandez): "Pending developments are approved. Tomorrow I will take care of my pending actions
+(stripe, to-do's list, etc)"** → item 8 approved and shipped (`b6e6555`, live-verified) and item 9 (CaseProof)
+approved and dispatched as a one-shot build job. The owner's own actions — the live Stripe key (item 1) and the
+editorial to-do list, which lives in `kiosk/editorial-factory` — stay his, and were not touched. Items 5, 6, 7 are
+unchanged (item 5 also needs a production Supabase migration only the owner can apply); **item 10 opened** with the
+QuarterLine surfaces the registry retirement still does not cover._
+
+_**2026-09-22 — OWNER APPROVAL RECORDED + ITEM 8 SHIPPED (by hand, not a sweep).** Owner instruction in `loop-ai`
+(Jorge Fernandez, software-factory approver), verbatim: **"Pending developments are approved. Tomorrow I will take
+care of my pending actions (stripe, to-do's list, etc)"**. Read as the open *software* work this queue was waiting
+on the approver for — item 8 (finish the retirement) and item 9 (CaseProof, the 09-21 recon candidate at the
+go/no-go) — and applied to nothing else: the phrasing followed a list, so it was scoped to the two items named as
+developments, one build slot at a time (item 5 was not dispatched; item 6 is SOP work; item 7 needs an operator
+restart). The owner's own actions are explicitly his: item 1's live Stripe key and the editorial distribution
+to-do list.
+
+**Item 8 — SHIPPED `b6e6555`, live-verified.** Both halves the item named, plus every other stale literal of the
+retired slug on a paid or agent surface:
+
+- `src/products/registry.ts` now derives the inventory (`activeProducts` / `retiredProducts` /
+  `activeProductSlugs` / `defaultInventoryProduct` / `isRetiredProduct`); generated surfaces read it, so one
+  `status` change retires every surface instead of needing an edit per surface.
+- `/api/checkout` (a): `app` no longer defaults to a product literal. An `app` naming a `killed` product is an
+  explicit 400; an `app`-less product-scoped plan (`pdf_audit_export`, `cpa_monthly`) is an explicit 400 naming
+  the inventory — **rejected, not silently substituted for a live product**, because re-attributing the retired
+  product's own page to LedgerLink would be a silent fallback (rule 5). `factory` stays the directory sentinel for
+  app-less generic plans; non-registry white-label app names stay accepted.
+- WebMCP manifest + agent allowlist (b): both now derive from the inventory, so the retired product's two tools are
+  neither served nor advertised. Manifest v1.4.0, **6 tools (was 8)**, and `tool_selector.default` is now the
+  derived `DEFAULT_AGENT_TOOL` (`reconcile_stripe_payout`) instead of a retired tool name. `manifest.test.ts`
+  asserts that nothing owned by a retired product is served or advertised, that the selector default is an
+  advertised tool, and that no tool definition belongs to no product at all.
+- **Guard proven by injection before committing:** (a) the previously published manifest file → the byte-identity
+  test fails; (b) counting `killed` products as inventory → `retired product's tool 'calculate_qbi_deduction' is
+  still advertised in the manifest` fails. 9/9 green after each restore.
+- Same-class stale literals of the retired slug: telemetry's default product, the Stripe webhook's app fallback,
+  and the billing portal's three redirects to the retired page (now the directory root).
+- **Gate:** `scripts/verify-build.sh` green end to end (tsc 0 / eslint 0 errors / tokens / `verticals:check` /
+  vitest 94 / build / Playwright 28 / visual-qa PASS ×3).
+- **Live, after the deploy (not the push):** deployed image tag `af8yqbwrrnyyfgs9wcg0intj:a5c8c8971…` == pushed
+  HEAD; published manifest byte-identical to the tree (sha256 `b5ca149c…`, v1.4.0, 6 tools, default
+  `reconcile_stripe_payout`); app-less `pdf_audit_export` → **400** with the inventory list; `app=quarterline` →
+  **400** "retired and cannot be purchased"; `app=ledgerlink` → 200 `cs_test_a1YNCQRO…` (one sandbox session from
+  the verification probe; the route writes no telemetry); retired tool name → **400** + the 6-tool list; a live
+  tool → 200 (its `agent_query` probe row id 1005 was deleted after the check — `agent_query` is back to 4, all
+  pre-existing ship probes); `/api/portal` → 307 to `/`.
+
+**Also shipped in the same pass — `a5c8c89`, the build gate itself.** `scripts/verify-build.sh` was **red on a clean
+`main`** before any change was made: `verticals:check` compared the generated inventory block byte-for-byte
+including the date it was generated, so it failed every calendar day until someone re-ran the sync. The check now
+normalizes only the `_Generated <date> by` token (rows and the snapshot provenance line are still byte-compared) and
+a plain `verticals:sync` keeps the date fresh. Proven: date-only staleness → exit 0, one character changed in an
+inventory row → exit 1.
+
+**Item 9 — APPROVED + DISPATCHED.** CaseProof (78) is dispatched as a one-shot cron job (see DISPATCH below)
+against `context/recon_proposals/2026-09-21_caseproof.md`, **PRD §5 v1 scope guard only**, registry status
+`beta` — the public launch call stays with the founder, as every build does.
+
+**Item 10 — NEW, opened by this ship (owner decision).** The registry retirement is now complete on the paid and
+agent surfaces, but three QuarterLine surfaces are still live for the public: (a) `/quarterline` still renders the
+working calculator with a "$9 export" CTA that now returns an explicit 400 error instead of selling (honest, but a
+dead end for a visitor); (b) the 20 `/quarterline/calc/*` preset pages are still served and indexable — 38
+`/calc/*` routes were 200 in the 09-21 sweep; (c) `/embed/countdown` still links to `/quarterline`. Nothing was
+changed here because each is a publish/unpublish decision, not a retirement leftover: recommend (a) replace the
+calculator with the retirement notice the directory already carries, (b) keep or 301 the preset pages to the
+directory, (c) repoint the embed. Awaiting the founder's call.
+
 
 _**2026-09-21 08:00 sweep — measured live.** No product code and no `src/` change in the last day. The **Weekly
 Market Recon ran on time at 06:00 (`ok`) — the first vertical-scoped run** — declaring
@@ -113,6 +172,9 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    `purchases` = 4 rows, all `cs_test_*`, all 2026-09-02; the only `subscriptions` row is `canceled`.
    Real collected revenue **$0**. Day-14 already scored an honest MISS (row in
    `skills/self_improvement_eval.md`); Day-30 (≈09-30) inherits the same $0 unless answered.
+   _2026-09-22: the paid-surface probe must now name a product. An `app`-less product-scoped request is an explicit
+   400 (item 8, shipped), so a sandbox/live reading needs `app=<inventory product>` — verified this pass with
+   `app=ledgerlink` → 200 `cs_test_a1YNCQRO…`, `livemode:false`, and `app=quarterline` → 400._
 2. **[CLOSED 2026-09-20 — resolved by owner removal, not by publishing]** Echo: post GTM Vectors 1 & 5 /
    work the queue. `factory_config.distribution_queue` is now **`[]`, `updated_at` 2026-09-19T22:42:49Z** —
    the owner deleted the 36 prepared posts (all `ready` since 09-12, 0 published) while resetting the
@@ -172,7 +234,8 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    **18 occurrences since 09-03 across 8 days.** Patch re-applied (`cron/jobs.py.bak.20260916`),
    `pytest tests/cron/` re-run; not restarted mid-run because the cron scheduler is in-process with
    this sweep. Operator action: restart `hermes-gateway.service` when no run is in flight.
-8. **[P0/P1 — @Simon approve, code, one line each | NEW 2026-09-20]** Finish the QuarterLine retirement the
+8. **[CLOSED 2026-09-22 — SHIPPED `b6e6555`, live-verified; full evidence in the 09-22 entry at the top]
+   Finish the QuarterLine retirement the
    owner's `bc3d556` started, so no live surface sells or advertises a retired product:
    (a) `/api/checkout` still defaults `app = "quarterline"` for `plan: "pdf_audit_export"` — measured live:
    an `app`-less request produced `cs_test_a1MlUGMq…` whose Stripe metadata reads `app=quarterline,
@@ -183,7 +246,7 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    default the export plan to a `live` product (`ledgerlink`) or reject the default explicitly. Customer-facing
    risk is latent while checkout is sandbox, and becomes live the moment item 1 is answered. Both changes are
    `src/` work → rule 7 gate applies.
-9. **[NEW 2026-09-21 — candidate at the go/no-go, @Simon approve]** **CaseProof (78)** — the 2026-09-21
+9. **[APPROVED 2026-09-22 — DISPATCHED as a one-shot build job; UUID in the DISPATCH section]** **CaseProof (78)** — the 2026-09-21
    weekly recon's single candidate, full PRD at `context/recon_proposals/2026-09-21_caseproof.md`. First
    scan of the `warehouse_automation_robotics_capex` vertical (never scanned; ledger verdict A, pack now
    verified). The product is the **buyer's side of a warehouse-automation business case**: it re-runs a

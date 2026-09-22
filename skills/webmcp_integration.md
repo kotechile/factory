@@ -57,6 +57,14 @@ browser tool registers — while omitting `calculate_quarterly_estimate` and
 - `agentTools.ts` — the API allowlist reads the same summaries, so `/api/agent/calculate` returns 400
   for a name the listing does not advertise (factory rule 5), including the whole `calculate_*` family
   if someone renames a tool without updating the registry.
+- **Retiring a product delists its tools (2026-09-22, `b6e6555`).** Both the manifest and the allowlist
+  read `activeProducts` from `src/products/registry.ts` — every product whose status is not `killed` — so
+  flipping a status to `killed` removes its tools from the published listing **and** from the accepted set
+  in the same moment, with no per-tool edit and no window where a retired tool is still served. The
+  selector default (`DEFAULT_AGENT_TOOL`) is derived from that inventory and throws if nothing is in it.
+  `manifest.test.ts` asserts that nothing owned by a retired product is served or advertised and that the
+  selector default is an advertised tool; both assertions were proven by injection before shipping
+  (counting `killed` products as inventory → the test names the retired tool and fails).
 
 **Rule for the next tool:** add the definition in `register.ts` + the `webmcpTools` entry in
 `registry.ts`, run `npm run mcp:sync`, then `bash scripts/verify-build.sh`. If a tool is added
