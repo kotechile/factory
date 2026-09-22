@@ -27,6 +27,15 @@ test("capture ParcelProof QA screenshot", async ({ page }) => {
   await page.screenshot({ path: "test-results/parcelproof-qa.png", fullPage: true });
 });
 
+// CaseProof is captured in its richest state: an audited case with money and a chain on it (the
+// verdict, the vendor-vs-buyer chain, the loaded-rate table, the cash flow and the ranked list).
+test("capture CaseProof QA screenshot", async ({ page }) => {
+  await page.goto("/caseproof");
+  await page.getByRole("button", { name: "Audit the case" }).click();
+  await expect(page.getByText("41 months · 3.4 yr").first()).toBeVisible();
+  await page.screenshot({ path: "test-results/caseproof-qa.png", fullPage: true });
+});
+
 // Deterministic font check — vision models cannot reliably distinguish monospace
 // from sans at small sizes, so this is asserted programmatically instead.
 test("numbers use a monospace font", async ({ page }) => {

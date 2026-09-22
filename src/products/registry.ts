@@ -69,6 +69,19 @@ export const products: Product[] = [
     category: "Logistics",
     visibility: "public",
   },
+  {
+    slug: "caseproof",
+    name: "CaseProof",
+    tagline: "Buyer-Side Audit of a Warehouse Automation Business Case",
+    status: "beta",
+    description:
+      "Re-runs a vendor's own quoted warehouse-automation numbers against the buyer's case: labour at the fully loaded rate (payroll burden, benefits, overtime, turnover replacement), the lines a quote omits (integration, facility work, maintenance, training, ramp and downtime), §179 then bonus depreciation by tax year, and 2–3 competing bids normalized onto one after-tax cash model with payback, IRR, NPV, the break-even of every assumption, and a ranked list to confirm in writing before signature. A cost line the case does not state is reported unstated and blocks a pass — never defaulted, never estimated.",
+    route: "/caseproof",
+    webmcpTools: ["audit_automation_case", "compare_automation_bids", "after_tax_payback"],
+    launchedAt: "2026-09-22",
+    category: "Industrial",
+    visibility: "public",
+  },
 ];
 
 /**

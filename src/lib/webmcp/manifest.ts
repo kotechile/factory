@@ -96,9 +96,11 @@ export function buildMcpManifest(): McpManifest {
       "Deterministic agent tools shipped by the Autonomous Product & Software Factory " +
       "(factory.aichieve.net), one product subpath per tool: Stripe payout -> GL reconciliation " +
       "(LedgerLink), EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU " +
-      "VAT-id checks (FacturGate), and carrier invoice DIM-weight / surcharge auditing with " +
-      "billable-weight computation (ParcelProof). Products retired in the registry are not listed.",
-    version: "1.4.0",
+      "VAT-id checks (FacturGate), carrier invoice DIM-weight / surcharge auditing with " +
+      "billable-weight computation (ParcelProof), and buyer-side warehouse-automation case " +
+      "auditing with multi-bid comparison and after-tax payback (CaseProof). Products retired in " +
+      "the registry are not listed.",
+    version: "1.5.0",
     endpoint: "https://factory.aichieve.net/api/agent/calculate",
     tool_selector: {
       header: "x-webmcp-tool",

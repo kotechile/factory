@@ -595,6 +595,100 @@ export const computeBillableWeightTool: WebMCPToolDefinition<
 };
 
 /**
+ * CaseProof (buyer-side warehouse-automation case audit) tools. Server-backed and metered like the
+ * others: the browser tool posts the case to /api/agent/calculate, which validates it, runs the
+ * deterministic engine in-process, records the agent_query event and reports metered usage. A case
+ * the engine cannot audit comes back as an explicit error carrying the rule id — there is no
+ * client-side fallback and no partially-audited case.
+ */
+async function runCaseProofAgentCall<TResult>(toolName: string, params: unknown): Promise<TResult> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent call failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: TResult;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent call failed: invalid response");
+  }
+  return json.data;
+}
+
+export interface CaseProofAgentParams {
+  /**
+   * The case as a JSON string: `{ baseline, finance, options[], label?, quoteCsv? }`. The shape is
+   * documented in `src/lib/calc/caseproof/types.ts`; an unreadable case is an explicit error naming
+   * the field, never a default.
+   */
+  case: string;
+}
+
+export const auditAutomationCaseTool: WebMCPToolDefinition<CaseProofAgentParams, unknown> = {
+  name: "audit_automation_case",
+  description:
+    "Audits a warehouse-automation business case from the buyer's side: re-runs the vendor's own quoted numbers through the same engine as the buyer's, prices labour at the fully loaded rate (payroll burden, benefits, overtime premium, turnover replacement), adds the cost lines a quote omits (integration, facility work, maintenance, training, ramp and downtime at the contracted availability), applies §179 then bonus depreciation by tax year, and returns payback in months, IRR, NPV at the hurdle rate, the break-even of every assumption the case depends on, the inputs that moved the vendor's number, and the ranked list to confirm in writing. A cost line the case does not state is reported unstated and blocks a pass verdict — nothing is defaulted.",
+  parameters: {
+    type: "object",
+    properties: {
+      case: {
+        type: "string",
+        description:
+          "The case as a JSON string: { baseline: { ordersPerDay, linesPerOrder, operatingDaysPerYear, shifts, staffByFunction[], hourlyWage, paidHoursPerFtePerYear, payrollBurdenPct?, benefitsPct?, overtimeHoursPerWeek?, turnoverPct?, costPerHireCents?, errorRatePct?, costPerErrorCents?, peakFactor?, vendorAssumedHourlyRate? }, finance: { horizonYears, hurdleRatePct, taxRatePct, inServiceTaxYear, section179ElectionCents?, financingRatePct?, financingMonths? }, options: [{ id, vendor, model: capex|lease|raas, capex?, lease?, raas?, integrationCostCents?, facilityCostCents?, trainingCostCents?, softwareAnnualCents?, maintenancePctOfCapex?, maintenanceAnnualCents?, labourImpact: { fteRemoved, disposition: cash_out|redeploy, rampMonths }, errorReductionPct?, throughputClaim?: { picksPerHour, basis, availabilityPct? }, vendorClaim?, quoteCsv? }] }. Money is integer cents; percentages are percentage points.",
+      },
+    },
+    required: ["case"],
+  },
+  handler: (params) => runCaseProofAgentCall<unknown>("audit_automation_case", params),
+};
+
+export const compareAutomationBidsTool: WebMCPToolDefinition<CaseProofAgentParams, unknown> = {
+  name: "compare_automation_bids",
+  description:
+    "Normalizes 2–3 competing warehouse-automation bids onto one after-tax cash model — a capex purchase, a lease and a per-unit subscription can be ranked side by side — and returns the NPV ranking at the buyer's hurdle rate, the cost per order and per line for each bid, the point at which the ranking flips as the peak-season premium, the maintenance load or the hurdle rate moves, and the sensitivity grid (volume −10/−20/−30%, capex +15%, maintenance +25%). A ranking that flips inside a scenario is reported as such.",
+  parameters: {
+    type: "object",
+    properties: {
+      case: {
+        type: "string",
+        description:
+          "The case as a JSON string with 2 or 3 bids in `options` (same shape as audit_automation_case). Each bid may carry the vendor's quote line items as CSV in `quoteCsv`.",
+      },
+    },
+    required: ["case"],
+  },
+  handler: (params) => runCaseProofAgentCall<unknown>("compare_automation_bids", params),
+};
+
+export const afterTaxPaybackTool: WebMCPToolDefinition<CaseProofAgentParams, unknown> = {
+  name: "after_tax_payback",
+  description:
+    "The after-tax payback primitive for one automation bid: payback in months measured from the t=0 outlay, NPV at the buyer's hurdle rate, IRR, the upfront outlay, and the depreciation schedule by tax year (§179 with its phase-out, then bonus depreciation, then straight-line). Use it when you only need the tax timing and the payback, not the full assumption audit.",
+  parameters: {
+    type: "object",
+    properties: {
+      case: {
+        type: "string",
+        description:
+          "The case as a JSON string with exactly one bid in `options`; the first bid is used (same shape as audit_automation_case).",
+      },
+    },
+    required: ["case"],
+  },
+  handler: (params) => runCaseProofAgentCall<unknown>("after_tax_payback", params),
+};
+
+/**
  * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
  *
  * Single source of truth: the agent allowlist (./agentTools.ts) and the published
@@ -611,6 +705,9 @@ export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   checkEuVatIdTool,
   auditCarrierInvoiceTool,
   computeBillableWeightTool,
+  auditAutomationCaseTool,
+  compareAutomationBidsTool,
+  afterTaxPaybackTool,
 ].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
@@ -625,6 +722,9 @@ export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(checkEuVatIdTool);
   registerWebMCPTool(auditCarrierInvoiceTool);
   registerWebMCPTool(computeBillableWeightTool);
+  registerWebMCPTool(auditAutomationCaseTool);
+  registerWebMCPTool(compareAutomationBidsTool);
+  registerWebMCPTool(afterTaxPaybackTool);
 }
 
 

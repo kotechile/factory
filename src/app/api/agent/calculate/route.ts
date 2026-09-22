@@ -27,6 +27,13 @@ import {
   type Carrier,
   type ServiceCode,
 } from "@/lib/calc/parcelaudit";
+import {
+  CaseProofInputError,
+  afterTaxPayback,
+  auditCase,
+  compareBids,
+  readCaseInput,
+} from "@/lib/calc/caseproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { reportMeteredUsage } from "@/lib/stripe/meter";
 import { track } from "@/lib/telemetry";
@@ -89,6 +96,54 @@ interface ParcelproofAgentInput {
   width?: unknown;
   height?: unknown;
   actual_weight_lb?: unknown;
+}
+
+/** CaseProof pricing per PRD §3: $0.50 per agent call on the audit tier. */
+const CASEPROOF_PRICE_USD: Record<string, number> = {
+  audit_automation_case: 0.5,
+  compare_automation_bids: 0.5,
+  after_tax_payback: 0.5,
+};
+
+const CASEPROOF_METER_EVENT: Record<string, string> = {
+  audit_automation_case: "agent_case_audit",
+  compare_automation_bids: "agent_case_comparison",
+  after_tax_payback: "agent_after_tax_payback",
+};
+
+interface CaseProofAgentInput {
+  case?: unknown;
+}
+
+/**
+ * Reads the case an agent sends: a JSON string (the documented shape) or an already-parsed object.
+ * A missing or unreadable case is refused with the field named — there is no default case.
+ */
+function parseCasePayload(value: unknown, toolName: string): unknown {
+  if (typeof value === "string") {
+    if (!value.trim()) {
+      throw new CaseProofInputError(
+        "cp-case-empty",
+        "case",
+        `${toolName} received an empty \`case\`. Nothing was audited.`,
+      );
+    }
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      throw new CaseProofInputError(
+        "cp-case-json",
+        "case",
+        `\`case\` is not valid JSON: ${error instanceof Error ? error.message : "parse failure"}. Nothing was audited.`,
+      );
+    }
+  }
+  if (value && typeof value === "object" && !Array.isArray(value)) return value;
+  throw new CaseProofInputError(
+    "cp-case-missing",
+    "case",
+    `${toolName} needs the case in \`case\` (a JSON string or an object) shaped { baseline, finance, options[] }. Nothing was audited.`,
+  );
 }
 
 function requiredString(value: unknown, name: string): string {
@@ -445,6 +500,81 @@ export async function POST(req: NextRequest) {
           meterEventId,
           costPerQueryUsd: result.costPerQueryUsd,
           meterEventName: PARCELAUDIT_METER_EVENT[toolName],
+        },
+        computedAt: new Date().toISOString(),
+      });
+    }
+
+    // --- CaseProof: audit_automation_case / compare_automation_bids / after_tax_payback ---
+    if (toolName in CASEPROOF_PRICE_USD) {
+      const body = (await req.json()) as CaseProofAgentInput;
+
+      let data: unknown;
+      let costPerQueryUsd = CASEPROOF_PRICE_USD[toolName] ?? 0.5;
+      try {
+        const caseInput = readCaseInput(parseCasePayload(body.case, toolName));
+        if (toolName === "audit_automation_case") {
+          data = auditCase(caseInput);
+        } else if (toolName === "compare_automation_bids") {
+          if (caseInput.options.length < 2) {
+            throw new CaseProofInputError(
+              "cp-compare-options",
+              "case.options",
+              "`compare_automation_bids` needs at least two bids to compare; the case holds one. Nothing was audited.",
+            );
+          }
+          data = compareBids({
+            baseline: caseInput.baseline,
+            finance: caseInput.finance,
+            options: caseInput.options,
+          });
+        } else {
+          data = afterTaxPayback(caseInput);
+        }
+        costPerQueryUsd = CASEPROOF_PRICE_USD[toolName] ?? 0.5;
+      } catch (toolError) {
+        if (toolError instanceof CaseProofInputError) {
+          // A malformed case, an uncited tax year, an unsupported model: explicit, with the rule id
+          // and the field path (rule 5 — no default case, no partially-audited result).
+          return NextResponse.json(
+            { error: toolError.message, ruleId: toolError.ruleId, fieldPath: toolError.fieldPath },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json(
+          { error: toolError instanceof Error ? toolError.message : "CaseProof request failed" },
+          { status: 400 },
+        );
+      }
+
+      await track("agent_query", { tool: toolName }, "caseproof");
+
+      const caseCustomerId =
+        req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
+      let caseMetered = false;
+      let caseMeterEventId: string | undefined;
+      if (caseCustomerId && process.env.STRIPE_SECRET_KEY) {
+        try {
+          const meterResult = await reportMeteredUsage({
+            customerId: caseCustomerId,
+            eventName: CASEPROOF_METER_EVENT[toolName] ?? "agent_query",
+            value: 1,
+          });
+          caseMetered = meterResult.success;
+          caseMeterEventId = meterResult.eventId;
+        } catch (meterErr) {
+          console.error("Failed to record metered usage:", meterErr);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        data,
+        metering: {
+          meteredUsageReported: caseMetered,
+          meterEventId: caseMeterEventId,
+          costPerQueryUsd,
+          meterEventName: CASEPROOF_METER_EVENT[toolName],
         },
         computedAt: new Date().toISOString(),
       });
