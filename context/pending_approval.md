@@ -165,6 +165,23 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
 
 ---
 
+## DISPATCH — 2026-09-22 (approval item 9, CaseProof)
+
+- **Job:** `38704fd5a527` — "CaseProof build (approval item 9)", one-shot (`in 2m`), workdir
+  `software-factory-core`, `deliver=slack`, `attach_to_session=true`, skill `approval-gated-shipping`.
+- **Fired:** 2026-09-22 01:35:42 UTC, execution `40042aae3e4b4e80a177ff7db1bb1c64` — verified via
+  `hermes cron list` (`Execution: running …`, `Repeat: 1/1`), not from `jobs.json` (which keeps
+  `last_run_at: null` until the run completes).
+- **The dispatched prompt constrains the job to:** PRD §5 v1 scope guard only; registry status `beta`;
+  the full `scripts/verify-build.sh` gate; push **only** on green; restore-a-clean-tree-and-report on a
+  root cause it cannot fix; deploy verification by container image tag == `git rev-parse --short HEAD`;
+  side-effect-free post-deploy probes; the durable record + the rule-6 SOP patch; and a report that
+  passes `scripts/check-slack-report.mjs` before it is posted.
+- **Known limitation (recorded, not hidden):** `cronjob_manage action='create'` ignores `model`/`provider`
+  — the job persisted with `model: null`, so it runs on the **default fleet tier** (`deepseek-flash`)
+  rather than the frontier builder tier the repo's "Runtime model note" assigns to Product Director
+  work. One build slot is running; nothing else was dispatched in parallel.
+
 ## OPEN — 2026-09-16 sweep (live-verified this run)
 
 1. **[P0 — founder, ~5 min]** `sk_live` in the deploy env **or** record test-mode as intended.
