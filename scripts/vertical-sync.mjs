@@ -232,7 +232,20 @@ if (unknownVerdict.length) {
   problems.push(`verdict row(s) for unknown vertical(s): ${unknownVerdict.join(", ")} — retired in the editorial registry?`);
 }
 
-const stale = next !== ledger;
+/**
+ * The block carries the DATE it was generated, which changes every calendar day; comparing the raw
+ * text made this check fail every morning on a timestamp rather than on inventory drift (measured
+ * 2026-09-22: the build gate was red on a clean `main` before any change was made, and regenerating
+ * moved only the date token). Only that token is normalized — every inventory row and the snapshot
+ * provenance line are still compared byte-for-byte.
+ */
+const withoutGeneratedOn = (text) =>
+  text.replace(/_Generated \d{4}-\d{2}-\d{2} by /, "_Generated <date> by ");
+
+/** Inventory drift: the block's content (rows + provenance) no longer matches the registry. */
+const stale = withoutGeneratedOn(next) !== withoutGeneratedOn(ledger);
+/** The block also carries its generation date: keep refreshing it, but never fail a check on it. */
+const needsWrite = next !== ledger;
 
 if (CHECK) {
   if (stale) problems.push("vertical inventory block is stale — run: node scripts/vertical-sync.mjs");
@@ -246,9 +259,13 @@ if (CHECK) {
   process.exit(0);
 }
 
-if (stale) {
+if (needsWrite) {
   await writeFile(LEDGER, next);
-  console.log(`✓ regenerated vertical inventory block (${source.verticals.length} verticals, ${source.provenance.mode})`);
+  console.log(
+    stale
+      ? `✓ regenerated vertical inventory block (${source.verticals.length} verticals, ${source.provenance.mode})`
+      : `✓ refreshed the block's generation date (${source.verticals.length} verticals, no content drift)`,
+  );
 } else {
   console.log(`✓ vertical inventory already current (${source.verticals.length} verticals, ${source.provenance.mode})`);
 }
