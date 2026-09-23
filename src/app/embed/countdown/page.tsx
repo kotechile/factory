@@ -33,7 +33,9 @@ export default function CountdownEmbed() {
           : `${days}d ${hours}h ${minutes}m ${seconds}s`}
       </div>
       <a
-        href="https://factory.aichieve.net/quarterline"
+        href="https://apps.giniloh.com/quarterline"
+        target="_blank"
+        rel="noopener noreferrer"
         className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-card hover:opacity-90"
       >
         Check Safe Harbor &rarr;

@@ -11,7 +11,7 @@ function getOrigin(req: NextRequest): string {
   if (forwardedHost && !forwardedHost.includes("0.0.0.0") && !forwardedHost.includes("127.0.0.1")) {
     return `${forwardedProto}://${forwardedHost}`;
   }
-  return "https://factory.aichieve.net";
+  return "https://apps.giniloh.com";
 }
 
 export async function GET(req: NextRequest) {

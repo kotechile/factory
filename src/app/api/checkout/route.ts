@@ -49,11 +49,9 @@ function resolveCheckoutApp(
 }
 
 function getOrigin(req: NextRequest): string {
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
-  }
-  if (process.env.APP_URL) {
-    return process.env.APP_URL.replace(/\/$/, "");
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL;
+  if (envUrl) {
+    return envUrl.replace(/\/$/, "");
   }
 
   const forwardedHost = req.headers.get("x-forwarded-host");
@@ -73,7 +71,7 @@ function getOrigin(req: NextRequest): string {
     return reqOrigin;
   }
 
-  return "https://factory.aichieve.net";
+  return "https://apps.giniloh.com";
 }
 
 export async function POST(req: NextRequest) {

@@ -20,6 +20,8 @@ playwright-report/
 npm-debug.log*
 *.tsbuildinfo
 
-# Editor / OS
+# Editor / OS / Tooling
 .vscode/
 .idea/
+.hermes/
+

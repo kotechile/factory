@@ -348,11 +348,12 @@ export async function POST(req: NextRequest) {
     // (/.well-known/mcp.json) are both generated from src/lib/webmcp/register.ts and are
     // held in sync by src/lib/webmcp/manifest.test.ts.
     if (!isSupportedAgentTool(requestedTool)) {
+      const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://apps.giniloh.com").replace(/\/$/, "");
       return NextResponse.json(
         {
           error: `Unsupported tool '${requestedTool}'.`,
           supportedTools: SUPPORTED_AGENT_TOOLS,
-          manifest: "https://factory.aichieve.net/.well-known/mcp.json",
+          manifest: `${baseUrl}/.well-known/mcp.json`,
         },
         { status: 400 },
       );

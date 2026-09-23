@@ -107,13 +107,14 @@ export async function POST(req: NextRequest) {
             ? `Your ${appDisplayName} Subscription & Access`
             : `Your ${appDisplayName} Report / Export is Ready`;
 
+          const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://apps.giniloh.com").replace(/\/$/, "");
           const portalUrl = customerId
-            ? `https://factory.aichieve.net/api/portal?customer_id=${customerId}`
-            : `https://factory.aichieve.net/api/portal?session_id=${session.id}`;
+            ? `${baseUrl}/api/portal?customer_id=${customerId}`
+            : `${baseUrl}/api/portal?session_id=${session.id}`;
 
           const appUrl = appPath
-            ? `https://factory.aichieve.net/${appPath}?session_id=${session.id}&status=success`
-            : `https://factory.aichieve.net/?session_id=${session.id}&status=success`;
+            ? `${baseUrl}/${appPath}?session_id=${session.id}&status=success`
+            : `${baseUrl}/?session_id=${session.id}&status=success`;
 
           const subtitleNote =
             appSlug === "quarterline"

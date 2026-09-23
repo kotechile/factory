@@ -42,9 +42,10 @@ providers' keys are added.
 
 ## Product structure — subpaths under one deploy
 
-Every product ships to a subpath of the single Coolify app (`factory.aichieve.net`):
+Every product ships to a subpath of the single Coolify app (`apps.giniloh.com`):
 
-- `/` — Factory Showcase (directory: search, status, WebMCP catalog) rendered from `src/products/registry.ts`.
+- `/` — Redirects to primary brand site (`https://giniloh.com`).
+- `/showcase` — Factory Showcase (directory: search, status, WebMCP catalog) rendered from `src/products/registry.ts`.
 - `/<slug>/` — a product's UI (e.g. `/quarterline/`).
 - `/<slug>/calc/*` — a product's programmatic-SEO pages.
 - `/api/*`, `/embed/*`, `/.well-known/*` — SHARED across all products.
