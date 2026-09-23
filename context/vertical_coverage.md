@@ -35,37 +35,37 @@ own CI traffic.
 ## Inventory (generated)
 
 <!-- BEGIN:vertical-inventory (generated) -->
-_Generated 2026-09-22 by `scripts/vertical-sync.mjs` from the
-vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit fcdf814e64e8bfedf12c51b4e23c4b28910f8884, fetched 2026-09-21T06:00:37.727Z) — 26 verticals. Do not hand-edit this block._
+_Generated 2026-09-23 by `scripts/vertical-sync.mjs` from the
+vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit ed90c8bb4c4c5ed77c2875bf35e909666c554543, fetched 2026-09-23T02:56:56.029Z) — 26 verticals. Do not hand-edit this block._
 
 | Vertical | Label | Editorial persona | Cadence | Sources | Decision-shaped angles |
 |---|---|---|---|---|---|
 | `agentic_ai` | Agentic Runtime & Architecture | `ai_architect` | `0 6 * * 1,4` | 5 | 1 |
 | `agentic_resilience_failure` | Resilience & Failure Engineering | `infra_engineer` | `0 6 * * 3` | 6 | 0 |
 | `ai_observability_qa` | Observability, Evals & Quality | `evals_infra_eng` | `0 6 * * 2` | 6 | 0 |
-| `career_velocity_equity_engineering` | Career Velocity, Equity Liquidity & Offer Engineering | `equity_career_strategist` | `0 6 * * 5` | 6 | 2 |
-| `control_tower_exception_orchestration` | Control Tower Visibility & Real-Time Exception Orchestration | `supply_chain_architect` | `0 6 * * 2` | 8 | 3 |
-| `demand_sensing_advanced_sop` | Demand Sensing & Advanced Sales & Operations Planning (S&OP) | `ops_leader` | `0 6 * * 4` | 7 | 2 |
-| `enterprise_ai_finops` | AI FinOps & Value Realization | `enterprise_cai` | `0 6 * * 4` | 5 | 5 |
-| `enterprise_ai_governance` | Enterprise AI Governance & Control Planes | `enterprise_cai` | `0 6 * * 1` | 7 | 0 |
-| `enterprise_build_vs_buy` | Enterprise Build-vs-Buy & Developer Tooling Architecture | `eng_leader` | `0 6 * * 3` | 6 | 3 |
-| `enterprise_tech_leadership` | Technology & Architecture Decisions | `eng_leader` | `0 6 * * 2` | 4 | 1 |
-| `expat_cross_border_relocation` | Advanced Expat, Cross-Border & Multi-Jurisdictional Relocation | `cross_border_expat` | `0 6 * * 4` | 7 | 2 |
-| `gpu_hardware` | GPUs & AI Hardware | `infra_engineer` | `0 6 * * 3` | 5 | 1 |
-| `home_equity_tco` | Home Capital Allocation & TCO Economics | `pro_homeowner` | `0 6 * * 1` | 6 | 1 |
-| `home_infrastructure_lifecycle_tco` | Home Infrastructure & Major Asset Lifecycle TCO | `pro_homeowner` | `0 6 * * 1` | 8 | 2 |
-| `home_ops_execution` | Home Operations, Permitting & Contractor Contracts | `pro_homeowner` | `0 6 * * 4` | 6 | 0 |
-| `last_mile_routing_fleet_carbon` | Last-Mile Route Optimization & Fleet Carbon Accounting | `supply_chain_architect` | `0 6 * * 5` | 7 | 2 |
-| `meio_working_capital_tco` | Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO | `ops_leader` | `0 6 * * 1` | 8 | 3 |
-| `multi_agent_enterprise_fabric` | Multi-Agent Orchestration & Enterprise Fabrics | `ai_architect` | `0 6 * * 3` | 5 | 0 |
-| `nhil_infrastructure_ops` | NHIL Infrastructure, NetOps & Power Strategy | `it_ops_leader` | `0 6 * * 2` | 6 | 0 |
+| `career_velocity_equity_engineering` | Career Velocity, Equity Liquidity & Offer Engineering | `equity_career_strategist` | `30 6 * * 5` | 6 | 2 |
+| `control_tower_exception_orchestration` | Control Tower Visibility & Real-Time Exception Orchestration | `supply_chain_architect` | `30 8 * * 2` | 8 | 3 |
+| `demand_sensing_advanced_sop` | Demand Sensing & Advanced Sales & Operations Planning (S&OP) | `ops_leader` | `30 8 * * 4` | 7 | 2 |
+| `enterprise_ai_finops` | AI FinOps & Value Realization | `enterprise_cai` | `30 6 * * 4` | 5 | 5 |
+| `enterprise_ai_governance` | Enterprise AI Governance & Control Planes | `enterprise_cai` | `30 6 * * 1` | 7 | 0 |
+| `enterprise_build_vs_buy` | Enterprise Build-vs-Buy & Developer Tooling Architecture | `eng_leader` | `30 7 * * 3` | 6 | 3 |
+| `enterprise_tech_leadership` | Technology & Architecture Decisions | `eng_leader` | `0 7 * * 2` | 4 | 1 |
+| `expat_cross_border_relocation` | Advanced Expat, Cross-Border & Multi-Jurisdictional Relocation | `cross_border_expat` | `0 8 * * 4` | 7 | 2 |
+| `gpu_hardware` | GPUs & AI Hardware | `infra_engineer` | `0 7 * * 3` | 5 | 1 |
+| `home_equity_tco` | Home Capital Allocation & TCO Economics | `pro_homeowner` | `0 7 * * 1` | 6 | 1 |
+| `home_infrastructure_lifecycle_tco` | Home Infrastructure & Major Asset Lifecycle TCO | `pro_homeowner` | `30 7 * * 1` | 8 | 2 |
+| `home_ops_execution` | Home Operations, Permitting & Contractor Contracts | `pro_homeowner` | `30 7 * * 4` | 6 | 0 |
+| `last_mile_routing_fleet_carbon` | Last-Mile Route Optimization & Fleet Carbon Accounting | `supply_chain_architect` | `0 7 * * 5` | 7 | 2 |
+| `meio_working_capital_tco` | Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO | `ops_leader` | `0 8 * * 1` | 8 | 3 |
+| `multi_agent_enterprise_fabric` | Multi-Agent Orchestration & Enterprise Fabrics | `ai_architect` | `30 6 * * 3` | 5 | 0 |
+| `nhil_infrastructure_ops` | NHIL Infrastructure, NetOps & Power Strategy | `it_ops_leader` | `30 6 * * 2` | 6 | 0 |
 | `personal_microeconomics_tinkering_tax` | Personal Asset Micro-Economics & 'Tinkering Tax' Audits | `systems_tinkerer_pro` | `0 6 * * 6` | 7 | 2 |
 | `resilient_home_assets` | Climate Hardening, Insurability & Grid Resilience | `pro_homeowner` | `0 6 * * 5` | 6 | 0 |
-| `smart_home_telemetry` | Local-First Smart Infrastructure & Telemetry | `pro_homeowner` | `0 6 * * 2` | 6 | 0 |
-| `supplier_risk_reshoring_decision` | Supplier Risk Management & Reshoring/Nearshoring Decision Engines | `ops_leader` | `0 6 * * 6` | 8 | 3 |
-| `supply_chain` | Supply Chain Orchestration & Physical Logistics | `ops_leader` | `0 6 * * 4` | 9 | 1 |
-| `warehouse_automation_robotics_capex` | Warehouse Automation & Robotics CapEx Amortization | `ops_leader` | `0 6 * * 3` | 8 | 2 |
-| `workstation_compute_economics` | Autonomous Tech Workstations & AI Compute Economics | `infra_engineer` | `0 6 * * 2` | 7 | 2 |
+| `smart_home_telemetry` | Local-First Smart Infrastructure & Telemetry | `pro_homeowner` | `30 7 * * 2` | 6 | 0 |
+| `supplier_risk_reshoring_decision` | Supplier Risk Management & Reshoring/Nearshoring Decision Engines | `ops_leader` | `30 6 * * 6` | 8 | 3 |
+| `supply_chain` | Supply Chain Orchestration & Physical Logistics | `ops_leader` | `0 7 * * 4` | 9 | 1 |
+| `warehouse_automation_robotics_capex` | Warehouse Automation & Robotics CapEx Amortization | `ops_leader` | `0 8 * * 3` | 8 | 2 |
+| `workstation_compute_economics` | Autonomous Tech Workstations & AI Compute Economics | `infra_engineer` | `0 8 * * 2` | 7 | 2 |
 <!-- END:vertical-inventory -->
 
 ## Recon verdicts (hand-maintained, drift-checked)
