@@ -4,7 +4,34 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-22 (08:00 sweep, every open item re-measured live; CaseProof shipped `78d0739`,
+_Last updated: 2026-09-23 (08:00 sweep, every open item re-measured live; **the deploy moved to
+`apps.giniloh.com`** and the live payment key slot was filled with a key ID that Stripe rejects — item 11 opened
+for the migration leftovers; item 7's last symptom cleared itself)._
+
+_**2026-09-23 08:00 sweep — measured live on the new host.** Three owner commits in 24 h, no scheduled build:
+`dfc2851` (explicit `STRIPE_MODE` resolver, `src/lib/stripe/mode.ts`), `9eb43a5` (migrate to
+`apps.giniloh.com`, showcase → `/showcase`), `1393f42` (re-vendor the editorial registry). Deployed image
+`af8yqbwrrnyyfgs9wcg0intj:1393f42…` == pushed HEAD. **New host**: `/` 307 → `https://giniloh.com/`,
+`/showcase` 200, all four products 200, **all 44 `/calc/*` presets 200**, manifest **v1.5.0 / 9 tools**,
+sha256 `2843f352…` byte-identical to the tree. **Legacy `factory.aichieve.net` → 503 on every path.**
+**Item 1 re-measured and now diagnosed:** the mode split is configured (`STRIPE_MODE=test`,
+`STRIPE_SECRET_KEY_TEST=sk_test_…`) **and** a live pair exists, but `STRIPE_SECRET_KEY_LIVE=mk_1UAeGxJaTDc3aAp0lG3UwbFj`
+is the key's **ID** — read-only `GET /v1/balance` → **HTTP 401** *"Invalid API key provided: mk_1…
+This looks like the ID of an API key rather than the key itself."* `mode.ts` requires the `sk_live_` prefix in
+live mode, so flipping `STRIPE_MODE=live` as-is throws explicitly. Checkout `app=ledgerlink` → 200
+`cs_test_a1l9pF2VmGwT3oDxyoyh5dvCJ199BQZYGbjPH4ccQGlqX4l3mv6hGtO0p7`; app-less `pdf_audit_export` → 400;
+`app=quarterline` → 400; `/api/portal` → 307. **$0 real revenue, 7 days to Day-30 (≈09-30).**
+`events` **1419 rows / 858 sessions** (+320: 124 Build Watchdog Playwright 09-22 10:0x, 189 the three verify
+runs behind `dfc2851`/`9eb43a5`, **7 rows from five new standalone sessions** `3eb270ce`, `ac8303ae`,
+`59a27597`, `24c8fd67`, `a3f8de07` — straddling the migration, still unattributable). **`agent_query` still 4,
+all factory ship probes → organic 0 on day 23.** Returning browser `30eb9935…` did **not** return 09-23.
+`product=caseproof` now reads **114** rows, all factory verification runs (the 09-22 build's own row-deletion
+was not repeated). `factory_config.distribution_queue` still `[]` (day 4). Crons: 30 jobs, **0 open incidents**;
+**`gpu_hardware` ran 09-23 07:13:13 `ok` → item 7 has no visible symptom left** (gateway still the 09-12
+process, restart still owed to load the fix). `vertical-sync.mjs --check` exit 0 (26 verticals, no drift).
+Tree: `HEAD == origin/main == 1393f42`, clean except untracked `.hermes/`._
+
+_Last updated: 2026-09-22 (08:00 sweep, every open item re-measured live; CaseProof shipped `78d0739`, 
 live-verified — item 9 closed; item 8 shipped `b6e6555` earlier the same day) — **owner instruction 2026-09-22 in
 `loop-ai` (Jorge Fernandez): "Pending developments are approved. Tomorrow I will take care of my pending actions
 (stripe, to-do's list, etc)"** → item 8 approved and shipped (`b6e6555`, live-verified) and item 9 (CaseProof)
@@ -319,7 +346,10 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    both entries and the four missing gate rows; the structural fix (a producer for
    `context/daily_voice_journal/`, or an explicit "write the entry + commit" step in the sweep SOP)
    is still open.
-7. **[P1 — Hermes fork, DONE this sweep, needs a gateway restart to load]** The recurring
+7. **[P2 as of 2026-09-23 — no visible symptom left; restart still owed]** _2026-09-23: the last stale label
+   (`gpu_hardware`, next run 09-23) recorded **`ok`** at 07:13:13Z, so the mislabel has now gone a full week
+   without a recurrence. The running gateway is still the 09-12 process, so the fix is unloaded but no longer
+   urgent. Restart when no cron run is in flight._ **[P1 — Hermes fork, DONE this sweep, needs a gateway restart to load]** The recurring
    `Interrupted by shutdown before terminal completion` label is a **bookkeeping** failure, not a run
    failure: today's `Full Pipeline: gpu_hardware` logged `completed successfully` (06:11:28) and
    `delivered to slack` (06:12:25), then `Timed out waiting for local fire fence … failing closed`
@@ -360,6 +390,13 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
    2027-01-01 wage-floor step (CA $16.90 → $17.40, +2.99%). Runners-up scored this sweep and shortlisted:
    sustained-throughput validator (66) and peak-labour vs rented capacity (63), both blocked by weaker
    free-incumbent positions.
+
+11. **[P2 — @Simon approve, code, NEW 2026-09-23]** Two leftovers of the domain migration: (a)
+   `public/.well-known/ai-plugin.json` is served 200 on `apps.giniloh.com` but its `api.url` and
+   `legal_info_url` still name the dead `factory.aichieve.net`, and its `/openapi.json` companion 404s;
+   (b) `/robots.txt` and `/sitemap.xml` 404 with no producer in the repo at all, while 44 `/calc/*` landing
+   pages are indexable. Recommend repointing (a) and generating (b) from the preset files. Both are publish/code
+   decisions → rule 7; neither affects money or the build gate, so nothing was changed silently.
 
 ---
 

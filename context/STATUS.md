@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-22 (08:00 sweep, every surface re-measured live · CaseProof built + shipped `78d0739` from approval item 9; item 8 shipped `b6e6555` the same day) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-23 (08:00 sweep, every surface re-measured live on the new host · the deploy moved to `apps.giniloh.com` (showcase → `/showcase`, legacy `factory.aichieve.net` now 503) and the live payment key slot was filled with a key ID Stripe rejects) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -30,14 +30,12 @@ older `deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. Fron
 All nine deliver to `slack:C0BTPDKQXU2:1788974638.867929`; the flash-tier jobs are pinned to
 `deepseek-flash` and the rest to `deepseek-v4-pro` (see the model note above).
 
-⚠️ **Gateway restart pending (operator action).** The `cron/jobs.py` fire-claim fix is applied in the tree
-(`heartbeat_fire_claim` no longer takes the delivery-held `_fire_job_lock`) but the running gateway
-process is still the one started **2026-09-12 15:13**, so a completed+delivered run can still be mislabelled
-`Interrupted by shutdown before terminal completion` (last actual occurrence 2026-09-16 08:07; none on 09-17 → 09-22,
-including the 09-22 06:00 `enterprise_tech_leadership` run, which recorded `ok`). Restart
-`hermes_cli.main gateway run` while no cron run is in flight — the last stale label is `gpu_hardware`, which next
-runs **09-23**; see
-`hermes-cron-debugging/references/fire-claim-misreport.md`.
+⚠️ **Gateway restart still owed (operator action, no visible symptom left).** The `cron/jobs.py` fire-claim fix is
+applied in the tree (`heartbeat_fire_claim` no longer takes the delivery-held `_fire_job_lock`) but the running
+gateway process is still the one started **2026-09-12 15:13**. The last stale `Interrupted by shutdown` label
+(`gpu_hardware`) **recorded `ok` on 2026-09-23 07:13:13Z**, so the mislabel has now gone a full week without a
+recurrence and nothing on the board is mislabelled. Restart `hermes_cli.main gateway run` while no cron run is in
+flight when convenient; see `hermes-cron-debugging/references/fire-claim-misreport.md`.
 
 | Job | Schedule | Model | Workdir |
 |---|---|---|---|
@@ -83,9 +81,13 @@ calculators exist) and left the adversarial re-run + multi-quote comparison in s
 (sustained-throughput validator, shortlist) and 63 (peak-labour vs rented capacity, defer).
 `scripts/vertical-sync.mjs --check` → exit 0 (26 verticals, no drift).
 
-## Architecture — subpaths under one deploy
+## Architecture — subpaths under one deploy (moved 2026-09-23)
 
-- `/` — Factory Showcase (directory: search, status badges, WebMCP agent catalog).
+**Host: `https://apps.giniloh.com`.** `9eb43a5` (2026-09-23 01:57 UTC, owner) migrated the deploy off
+`factory.aichieve.net`, which now returns **503 on every path**; `/` 307s to `https://giniloh.com`.
+
+- `/` — 307 → `https://giniloh.com` (the primary brand site).
+- `/showcase` — Factory Showcase / directory (search, status badges, WebMCP agent catalog).
 - `/<slug>/` — each product's UI; `/ledgerlink/` is live, `/facturgate/` and `/parcelproof/` are beta,
   `/quarterline/` is retired (registry status `killed` since 2026-09-19, `bc3d556`) but still served.
 - `/<slug>/calc/*` — per-product pSEO; `/api/*`, `/embed/*`, `/.well-known/*` are shared.
@@ -95,7 +97,7 @@ calculators exist) and left the adversarial re-run + multi-quote comparison in s
 
 ## Retired product — QuarterLine (retired 2026-09-19, `bc3d556`)
 
-`https://factory.aichieve.net/quarterline` — 2026 self-employment tax + QBI + estimated-payment
+`https://apps.giniloh.com/quarterline` — 2026 self-employment tax + QBI + estimated-payment
 calculator. The owner retired it from active inventory after the Q3 2026 tax deadline window
 (registry status `live` → `killed`, retirement copy live on the showcase). The route, the calculator and
 the 20 `/quarterline/calc/*` presets are untouched and still 200; `/.well-known/mcp.json` is generated
@@ -106,7 +108,7 @@ it** (measured 2026-09-20): the manifest still advertises its two tools (`calcul
 
 ## Beta product — FacturGate (built 2026-09-17, deliberately not launched)
 
-`https://factory.aichieve.net/facturgate` — EN 16931 / CIUS-FR e-invoice pre-send gate and
+`https://apps.giniloh.com/facturgate` — EN 16931 / CIUS-FR e-invoice pre-send gate and
 Factur-X (CII) / UBL 2.1 converter, built from queue item 4 (`e77db64`, owner-approved 2026-09-17).
 Registry status is **beta**: the public launch call is the founder's, so nothing here claims traction.
 
@@ -125,7 +127,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 
 ## Beta product — CaseProof (built 2026-09-22, deliberately not launched)
 
-`https://factory.aichieve.net/caseproof` — the buyer's side of a warehouse-automation business case,
+`https://apps.giniloh.com/caseproof` — the buyer's side of a warehouse-automation business case,
 built from approval item 9 (`78d0739`, owner-approved 2026-09-22, PRD `context/recon_proposals/2026-09-21_caseproof.md`,
 §5 v1 scope guard only). Registry status is **beta**: the public launch call is the founder's, so nothing
 here claims traction.
@@ -157,7 +159,7 @@ here claims traction.
 
 ## Beta product — ParcelProof (built 2026-09-18, deliberately not launched)
 
-`https://factory.aichieve.net/parcelproof` — carrier invoice DIM-weight / surcharge audit, built from
+`https://apps.giniloh.com/parcelproof` — carrier invoice DIM-weight / surcharge audit, built from
 queue item 4's ParcelProof half (`3584a62`, owner-approved 2026-09-18, docs `73cad11` + `19d9529`).
 Registry status is **beta**: the public launch call is the founder's, so nothing here claims traction.
 
@@ -196,7 +198,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live — **1099 rows** (parcelproof 345 / facturgate 237 / quarterline 228 / factory 199 / ledgerlink 90), last write 2026-09-22T01:59:09Z; 649 session ids, **6 standalone session ids outside every CI cluster — all unattributable (one returning browser, `30eb9935`, browsed four products on seven separate days 09-10 → 09-22) — plus 5 rows inside seconds of the 09-14 10:01 test burst and 198 null-session rows** (0 provably external in 22 days); **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads 0 rows (its 90 verification rows were deleted post-deploy) |
+| `events` | growth telemetry | ✅ live (read 2026-09-23) — **1419 rows** (parcelproof 440 / facturgate 297 / quarterline 228 / factory 219 / ledgerlink 121 / caseproof 114), last write 2026-09-23T02:42:28Z; **858 session ids**, 198 null-session rows; **standalone session ids outside every CI cluster — all unattributable**: the returning browser `30eb9935` (24 rows across four products on seven separate days 09-10 → 09-22, **did not return 09-23**), `3b3193ce` (09-19), `e41dfb4c` (09-19) and **five new ones in the 26 h to 08:00 09-23** (`3eb270ce` 09-22 21:48:52Z, `ac8303ae` 09-23 01:38:00Z, `59a27597` 01:39:39 factory + 01:39:50 ledgerlink, `24c8fd67` 01:40:10, `a3f8de07` 02:41:57 factory + 02:42:28 ledgerlink) — they straddle the 01:57 domain migration and read like the owner checking the site, but carry no UA/referrer → **0 provably external in 23 days**. **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads **114** rows, all factory verification runs (the 09-22 build's own 90-row deletion was not repeated) |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -210,24 +212,32 @@ mirrors them.
 ## Remaining / dormant
 
 1. Distribution is the binding constraint — **0 provably-external sessions / 0 organic `agent_query` / $0 real
-   revenue in 22 days live**; production Stripe is still practice mode (`cs_test_` checkout sessions, `livemode:false`
-   read back from the Stripe API — fresh probe 2026-09-22, `cs_test_a10wdt20…` via `app=ledgerlink`; 4 `cs_test_*`
-   purchases all 09-02).
-   Six standalone session ids sit outside every CI cluster but carry no UA/referrer, so they are unattributable,
+   revenue in 23 days live**; production Stripe is still practice mode (`cs_test_` checkout sessions, `livemode:false`
+   read back from the Stripe API — fresh probe 2026-09-23, `cs_test_a1l9pF2VmGwT3oDxyoyh5dvCJ199BQZYGbjPH4ccQGlqX4l3mv6hGtO0p7`
+   via `app=ledgerlink`; 4 `cs_test_*` purchases all 09-02). **The mode split now exists** (`dfc2851`): deploy env has
+   `STRIPE_MODE=test`, `STRIPE_SECRET_KEY_TEST=sk_test_…` and a **live pair whose secret `mk_1UAeGxJaTDc3aAp0lG3UwbFj`
+   is the key's ID, not the key** — read-only `GET /v1/balance` → HTTP 401 *"This looks like the ID of an API key rather
+   than the key itself"*; `src/lib/stripe/mode.ts` needs the `sk_live_` prefix, so `STRIPE_MODE=live` with that value is
+   an explicit throw. The remaining step to real revenue is one paste.
+   Eleven standalone session ids sit outside every CI cluster but carry no UA/referrer, so they are unattributable,
    not provably external (`30eb9935` is a returning browser, 09-10 → 09-22, **24 rows across four products on
-   seven separate days** — it returned again 09-22 01:25:12Z, the only visitor-like signal on the board;
-   `3b3193ce` returned 09-19; `e41dfb4c` 09-19 21:50); 198 null-session rows carry every `agent_query`,
+   seven separate days** — it did **not** return on 09-23; `3b3193ce` returned 09-19; `e41dfb4c` 09-19 21:50;
+   **five new single-visit sessions in the 26 h to 08:00 09-23**, two of them showing the directory-then-product
+   click pattern no factory test run produces); 198 null-session rows carry every `agent_query`,
    `checkout_click` and `export_click` row. The agent tier's only rows are the 4 factory ship-probe `agent_query`
    rows (3 FacturGate + 1 ParcelProof), so it is factory-exercised, not demanded. The pSEO footprint is 44
-   indexable routes (20 quarterline + 12 facturgate + 6 parcelproof + 6 caseproof, all 200 on 2026-09-22) justified
-   by traffic that is still 100 % factory-generated; the Day-7 fallback shipped before its preconditions and remains
-   unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 8 days out) inherits the same
-   $0 and is formally gated on the still-unbuilt internal-traffic marker. The `distribution_queue` was
+   indexable routes (20 quarterline + 12 facturgate + 6 parcelproof + 6 caseproof, all 200 on 2026-09-23 on the new
+   host) justified by traffic that is still 100 % factory-generated, and **nothing maps them for crawlers**
+   (`/robots.txt` and `/sitemap.xml` 404, no producer in the repo — item 11); the Day-7 fallback shipped before its
+   preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 7 days out)
+   inherits the same $0 and is formally gated on the still-unbuilt internal-traffic marker. The `distribution_queue` was
    **deleted unposted by the owner on 09-19 22:42 (`[]`, 0 items ever published, unchanged since)** — the 36 posts
    prepared on 09-12 all expired unused. **Three products are built and remain `beta`** (FacturGate, ParcelProof,
    CaseProof) — the public launch calls are the founder's. The build line ran twice on 2026-09-22 (item 8 `b6e6555`,
-   item 9 `78d0739`); the open queue holds item 1 (live payment key), item 5 (internal-traffic marker + migration),
-   item 6 (durable record), item 7 (gateway restart) and **item 10** (the three public QuarterLine surfaces).
+   item 9 `78d0739`); the open queue holds item 1 (the live payment key — one paste), item 5 (internal-traffic
+   marker + migration), item 6 (durable record), item 7 (gateway restart, no visible symptom left), **item 10**
+   (the three public QuarterLine surfaces) and **item 11** (the migration leftovers: a descriptor file naming the
+   dead host + no crawler map).
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.
