@@ -1,6 +1,6 @@
 # Factory Status Map
 
-_Last updated: 2026-09-23 (08:00 sweep, every surface re-measured live on the new host · the deploy moved to `apps.giniloh.com` (showcase → `/showcase`, legacy `factory.aichieve.net` now 503) and the live payment key slot was filled with a key ID Stripe rejects) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-24 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or shipped in 24 h · the live payment key slot still holds a key ID Stripe rejects (401, re-verified) · the written-and-waiting social queue went from empty to 15 ready items, none published · 6 days to the Day-30 gate) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 

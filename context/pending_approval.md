@@ -4,9 +4,25 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-23 (08:00 sweep, every open item re-measured live; **the deploy moved to
-`apps.giniloh.com`** and the live payment key slot was filled with a key ID that Stripe rejects — item 11 opened
-for the migration leftovers; item 7's last symptom cleared itself)._
+_Last updated: 2026-09-24 (08:00 sweep, every open item re-measured live) — **nothing was built, shipped or
+committed in the last 24 h** (`HEAD == origin/main == b75615e`, the running app image is that same docs commit;
+the build line has been idle ≈54 h). **Item 1 unchanged, re-verified:** the deploy env carries the full mode
+split (`STRIPE_MODE=test`, `STRIPE_SECRET_KEY_TEST=sk_test_…`, `STRIPE_WEBHOOK_SECRET_TEST=whsec_g6Jc…`) and a
+live pair whose secret is still the key's **ID** (`STRIPE_SECRET_KEY_LIVE=mk_1UAeGxJaTDc3aAp0lG3UwbFj`) —
+read-only `GET /v1/balance` → **HTTP 401** *"This looks like the ID of an API key rather than the key itself."*
+**$0 real revenue, 6 days to Day-30 (≈09-30).** Prod surfaces unchanged and green on the new host: `/` 307 →
+`giniloh.com`, `/showcase` + all four products + `/embed/countdown` 200, legacy `factory.aichieve.net` 503,
+manifest **v1.5.0 / 9 tools** sha256 `2843f352…` byte-identical to the tree, POST `/api/checkout` unchanged
+(ledgerlink 200 `cs_test_…`, caseproof 200, app-less 400, `app=quarterline` 400 retired, `/api/portal` 307).
+`events` **1485 rows / 899 sessions** (+66: 63 the 09-23 10:01 Build Watchdog Playwright run, 3 session
+`59a27597…` returning to the factory page at 12:13:50 / 12:16:50 / 14:11:42Z; **no event at all in the 18 h
+before this sweep**; last event 2026-09-23T14:11:42Z). `product=caseproof` 114 → **137** (all our own test run).
+**`agent_query` still 4, all factory ship probes → organic 0 on day 24.** `factory_config.distribution_queue`
+went `[]` → **15 items, all `ready`, 0 published** (`updated_at` 2026-09-23T13:18:00Z, seeded by hand, not by a
+cron). Crons: **30 jobs, 0 open incidents** (editorial fleet healthy: `agentic_ai` 09-24 06:14, `supply_chain`
+09-24 07:09, `home_ops_execution` 09-24 07:38, all `ok`). `vertical-sync.mjs --check` exit 0 (26 verticals, no
+drift). Item 11 leftovers unchanged: `ai-plugin.json` still names the dead host and its `/openapi.json` 404s;
+`/robots.txt` + `/sitemap.xml` 404 with no producer._
 
 _**2026-09-23 08:00 sweep — measured live on the new host.** Three owner commits in 24 h, no scheduled build:
 `dfc2851` (explicit `STRIPE_MODE` resolver, `src/lib/stripe/mode.ts`), `9eb43a5` (migrate to
