@@ -1,6 +1,10 @@
 # Factory Status Map
 
-_Last updated: 2026-09-24 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or shipped in 24 h · the live payment key slot still holds a key ID Stripe rejects (401, re-verified) · the written-and-waiting social queue went from empty to 15 ready items, none published · 6 days to the Day-30 gate) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-25 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or
+shipped in 24 h and the build line has been idle ≈70 h · the live payment key slot still holds a key ID Stripe
+rejects (401, re-verified; the sandbox key in the same env returns 200) · **four of the six published editorial
+articles and their nine queued social posts disappeared from the live pressflow site at 00:36 UTC today, with no
+repo change behind it** · 5 days to the Day-30 gate) · canonical source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -198,7 +202,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live (read 2026-09-23) — **1419 rows** (parcelproof 440 / facturgate 297 / quarterline 228 / factory 219 / ledgerlink 121 / caseproof 114), last write 2026-09-23T02:42:28Z; **858 session ids**, 198 null-session rows; **standalone session ids outside every CI cluster — all unattributable**: the returning browser `30eb9935` (24 rows across four products on seven separate days 09-10 → 09-22, **did not return 09-23**), `3b3193ce` (09-19), `e41dfb4c` (09-19) and **five new ones in the 26 h to 08:00 09-23** (`3eb270ce` 09-22 21:48:52Z, `ac8303ae` 09-23 01:38:00Z, `59a27597` 01:39:39 factory + 01:39:50 ledgerlink, `24c8fd67` 01:40:10, `a3f8de07` 02:41:57 factory + 02:42:28 ledgerlink) — they straddle the 01:57 domain migration and read like the owner checking the site, but carry no UA/referrer → **0 provably external in 23 days**. **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads **114** rows, all factory verification runs (the 09-22 build's own 90-row deletion was not repeated) |
+| `events` | growth telemetry | ✅ live (read 2026-09-25) — **1547 rows** (parcelproof 478 / facturgate 321 / factory 228 / quarterline 228 / caseproof 159 / ledgerlink 133), last write **2026-09-24T10:01:37Z** (22 h silent at the sweep); **940 session ids**, 198 null-session rows; the last 62 rows are entirely the 09-24 10:01 Build Watchdog Playwright run, and the session ids before it are the unattributable ones recorded in the 09-23/09-24 entries (returning browser `30eb9935` last seen 09-22T01:25:12Z; `59a27597` last seen 09-23T14:11:42Z, three factory-page `page_view`s, nothing since) — **0 provably external in 25 days**. **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads **159** rows, all factory verification runs |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -229,15 +233,20 @@ mirrors them.
    indexable routes (20 quarterline + 12 facturgate + 6 parcelproof + 6 caseproof, all 200 on 2026-09-23 on the new
    host) justified by traffic that is still 100 % factory-generated, and **nothing maps them for crawlers**
    (`/robots.txt` and `/sitemap.xml` 404, no producer in the repo — item 11); the Day-7 fallback shipped before its
-   preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 7 days out)
-   inherits the same $0 and is formally gated on the still-unbuilt internal-traffic marker. The `distribution_queue` was
-   **deleted unposted by the owner on 09-19 22:42 (`[]`, 0 items ever published, unchanged since)** — the 36 posts
-   prepared on 09-12 all expired unused. **Three products are built and remain `beta`** (FacturGate, ParcelProof,
-   CaseProof) — the public launch calls are the founder's. The build line ran twice on 2026-09-22 (item 8 `b6e6555`,
-   item 9 `78d0739`); the open queue holds item 1 (the live payment key — one paste), item 5 (internal-traffic
-   marker + migration), item 6 (durable record), item 7 (gateway restart, no visible symptom left), **item 10**
-   (the three public QuarterLine surfaces) and **item 11** (the migration leftovers: a descriptor file naming the
-   dead host + no crawler map).
+   preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 5 days out)
+   inherits the same $0 and is formally gated on the still-unbuilt internal-traffic marker. **The `distribution_queue`
+   now holds 6 ready items, 0 published** (`updated_at` 2026-09-25T00:36:44Z): it was seeded by hand at 15 items on
+   09-23 (`mcp-skills-extension`, `ai-price-volatility…`, `nvidia-hugging-face-moat`, `rollback-breaks-execution-continuity`,
+   `temporal-durable-execution-12-55b`, `unfi-warehouse-automation-capex`), and **nine of those items were removed
+   together with the four articles deleted from the live pressflow site at 00:36 UTC on 09-25** — a deletion with no
+   matching commit anywhere (`pressflow /api/articles.json` 6 → 2 items, container `published/` mtime 2026-09-25 00:36,
+   Supabase `articles` 6 → 2 rows), while this repo's `published/` and `published_log.md` still carry all six, so a
+   rebuild of the pressflow app redeploys the four. **Three products are built and remain `beta`** (FacturGate,
+   ParcelProof, CaseProof) — the public launch calls are the founder's. The build line ran twice on 2026-09-22 (item 8
+   `b6e6555`, item 9 `78d0739`) and nothing since; the open queue holds item 1 (the live payment key — one paste),
+   item 5 (internal-traffic marker + migration), item 6 (durable record), item 7 (gateway restart, no visible symptom
+   left; cron doctor clean), **item 10** (the three public QuarterLine surfaces — all 20 preset pages re-probed 200 on
+   09-25) and **item 11** (the migration leftovers: a descriptor file naming the dead host + no crawler map).
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.
