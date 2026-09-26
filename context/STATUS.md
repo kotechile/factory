@@ -1,10 +1,12 @@
 # Factory Status Map
 
-_Last updated: 2026-09-25 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or
-shipped in 24 h and the build line has been idle ≈70 h · the live payment key slot still holds a key ID Stripe
-rejects (401, re-verified; the sandbox key in the same env returns 200) · **four of the six published editorial
-articles and their nine queued social posts disappeared from the live pressflow site at 00:36 UTC today, with no
-repo change behind it** · 5 days to the Day-30 gate) · canonical source of truth for the fleet's current state_
+_Last updated: 2026-09-26 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or
+shipped in this repo in 24 h and the build line has been idle ≈94 h · the live payment key slot still holds a key
+ID Stripe rejects (401, re-verified from inside the running container; the sandbox key in the same env returns
+200) · **the four editorial articles that vanished 09-25 00:36 are back — the overnight pressflow rebuild
+redeployed them and the pipeline published three more, so the site now serves 15** · the social queue is now
+produced automatically by the publish pass (6 → 38 cards, 0 published) · 4 days to the Day-30 gate) · canonical
+source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
 
@@ -29,10 +31,13 @@ older `deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. Fron
 `voice_content_engine` · `ui_component_standards` · `design_review` · `stripe_gating_workflow` ·
 `webmcp_integration` · `self_improvement_eval`
 
-## Heartbeat — 9 crons (Simon gateway)
+## Heartbeat — the factory's 9 crons (31 jobs on the Simon gateway)
 
-All nine deliver to `slack:C0BTPDKQXU2:1788974638.867929`; the flash-tier jobs are pinned to
-`deepseek-flash` and the rest to `deepseek-v4-pro` (see the model note above).
+All nine factory jobs deliver to `slack:C0BTPDKQXU2:1788974638.867929`; the flash-tier jobs are pinned to
+`deepseek-flash` and the rest to `deepseek-v4-pro` (see the model note above). Across both repos the gateway
+carries **31 active jobs** at 2026-09-26 (22 with a last run, all `ok`; 9 registered verticals never run),
+`hermes cron doctor` clean. Newest: **Editorial Verify Gate** (`30 9 * * *`, created 2026-09-26T01:34, ran `ok`)
+— a daily `verify.sh` + pressflow-image-vs-HEAD check, silent when green.
 
 ⚠️ **Gateway restart still owed (operator action, no visible symptom left).** The `cron/jobs.py` fire-claim fix is
 applied in the tree (`heartbeat_fire_claim` no longer takes the delivery-held `_fire_job_lock`) but the running
@@ -202,7 +207,7 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live (read 2026-09-25) — **1547 rows** (parcelproof 478 / facturgate 321 / factory 228 / quarterline 228 / caseproof 159 / ledgerlink 133), last write **2026-09-24T10:01:37Z** (22 h silent at the sweep); **940 session ids**, 198 null-session rows; the last 62 rows are entirely the 09-24 10:01 Build Watchdog Playwright run, and the session ids before it are the unattributable ones recorded in the 09-23/09-24 entries (returning browser `30eb9935` last seen 09-22T01:25:12Z; `59a27597` last seen 09-23T14:11:42Z, three factory-page `page_view`s, nothing since) — **0 provably external in 25 days**. **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads **159** rows, all factory verification runs |
+| `events` | growth telemetry | ✅ live (read 2026-09-26, full paged read) — **1609 rows** (parcelproof 497 / facturgate 333 / factory 231 / quarterline 228 / caseproof 181 / ledgerlink 139), last write **2026-09-25T10:02:14Z** (≈22 h silent at the sweep); **981 session ids**, 198 null-session rows; every 09-24 and 09-25 row falls inside the 10:00–10:05 Build Watchdog Playwright window (62 rows on each day), and the session ids before it are the unattributable ones recorded in the 09-23/09-24 entries (returning browser `30eb9935` last seen 09-22T01:25:12Z; `59a27597` last seen 09-23T14:11:42Z, three factory-page `page_view`s, nothing since — **the last non-test event**) — **0 provably external in 26 days**. **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads **181** rows, all factory verification runs |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 
@@ -235,13 +240,15 @@ mirrors them.
    (`/robots.txt` and `/sitemap.xml` 404, no producer in the repo — item 11); the Day-7 fallback shipped before its
    preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 5 days out)
    inherits the same $0 and is formally gated on the still-unbuilt internal-traffic marker. **The `distribution_queue`
-   now holds 6 ready items, 0 published** (`updated_at` 2026-09-25T00:36:44Z): it was seeded by hand at 15 items on
-   09-23 (`mcp-skills-extension`, `ai-price-volatility…`, `nvidia-hugging-face-moat`, `rollback-breaks-execution-continuity`,
-   `temporal-durable-execution-12-55b`, `unfi-warehouse-automation-capex`), and **nine of those items were removed
-   together with the four articles deleted from the live pressflow site at 00:36 UTC on 09-25** — a deletion with no
-   matching commit anywhere (`pressflow /api/articles.json` 6 → 2 items, container `published/` mtime 2026-09-25 00:36,
-   Supabase `articles` 6 → 2 rows), while this repo's `published/` and `published_log.md` still carry all six, so a
-   rebuild of the pressflow app redeploys the four. **Three products are built and remain `beta`** (FacturGate,
+   now holds 38 ready items, 0 published** (`updated_at` 2026-09-26T06:41:31Z): the editorial repo's own change
+   (`5c7df8a`, `scripts/seed_distribution.py` as step 4c of the publish pass) made the to-do cards automatic, so a
+   cron does produce this queue now — the 09-25 00:36 queue rewrite (15 → 6) is superseded. **The four articles
+   deleted from the live pressflow site at 00:36 UTC on 09-25 are back**: the pressflow container was rebuilt
+   2026-09-26 ≈06:39 (image `536219b…` == the editorial repo's HEAD) and `/api/articles.json` serves **15** items
+   (`published/` 15 files, dir mtime 06:39), including the four deleted slugs and three published today. The
+   deletion itself stays unattributable (no traefik access logs; pressflow logs only its startup banner). Supabase
+   `articles` holds 10 rows against those 15 live files — five live articles have no row (new observation, P2).
+   **Three products are built and remain `beta`** (FacturGate,
    ParcelProof, CaseProof) — the public launch calls are the founder's. The build line ran twice on 2026-09-22 (item 8
    `b6e6555`, item 9 `78d0739`) and nothing since; the open queue holds item 1 (the live payment key — one paste),
    item 5 (internal-traffic marker + migration), item 6 (durable record), item 7 (gateway restart, no visible symptom

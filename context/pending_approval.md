@@ -4,28 +4,32 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-09-25 (08:00 sweep, every open item re-measured live) — **nothing was built, shipped or
-committed in the last 24 h** (`HEAD == origin/main == 7cef2d8`, the running app image is that same docs commit; the
-build line has been idle ≈70 h). **Item 1 unchanged, re-verified:** the deploy env carries the full mode split
-(`STRIPE_MODE=test`, `STRIPE_SECRET_KEY_TEST=sk_test_…` → `GET /v1/balance` **200**) and a live pair whose secret is
-still the key's **ID** (`STRIPE_SECRET_KEY_LIVE=mk_1UAeGxJaTDc3aAp0lG3UwbFj` → read-only `GET /v1/balance` **HTTP
-401** *"This looks like the ID of an API key rather than the key itself."*). **$0 real revenue, 5 days to Day-30
-(≈09-30).** Prod surfaces unchanged and green on the new host: `/` 307 → `giniloh.com`, `/showcase` + all four
-products + `/embed/countdown` 200, legacy `factory.aichieve.net` 503, manifest **v1.5.0 / 9 tools** sha256
-`2843f352…` byte-identical to the tree, all **20** `/quarterline/calc/*` preset pages 200 (item 10 still open),
-POST `/api/checkout` unchanged (ledgerlink 200 `cs_test_…`, caseproof 200, app-less 400, `app=quarterline` 400
-retired, `/api/portal` 307). `events` **1547 rows / 940 sessions** (+62 — the whole 09-24 10:01 Build Watchdog
-Playwright run; **no event at all in the 22 h before this sweep**; last event 2026-09-24T10:01:37Z).
-`product=caseproof` 137 → **159** (all our own test run). **`agent_query` still 4, all factory ship probes → organic
-0 on day 25.** **NEW: four of the six published editorial articles and their nine queued social posts disappeared
-from the live pressflow site at 00:36 UTC today** (`pressflow /api/articles.json` 6 → 2; container `published/`
-mtime 2026-09-25 00:36; Supabase `articles` 6 → 2 rows; `distribution_queue` 15 → **6 items, all `ready`, 0
-published**, `updated_at` 2026-09-25T00:36:44Z) with no commit behind it in any repo — while this repo's
-`published/` + `published_log.md` still carry all six, so a pressflow rebuild redeploys them. Crons: **30 active,
-`hermes cron doctor` clean** (editorial fleet healthy: `resilient_home_assets` 09-25 06:07, `career_velocity…`
-09-25 06:37, `last_mile_routing…` 09-25 07:10, all `ok`). `vertical-sync.mjs --check` exit 0 (26 verticals, no
-drift). Item 11 leftovers unchanged: `ai-plugin.json` still names the dead host and its `/openapi.json` 404s;
-`/robots.txt` + `/sitemap.xml` 404 with no producer. Next Growth Watchdog: **today 17:00** (last before Day-30)._
+_Last updated: 2026-09-26 (08:00 sweep, every open item re-measured live) — **nothing was built, shipped or
+committed in the last 24 h** (`HEAD == origin/main == 50014d4`, the 09-25 Growth Watchdog's docs commit, and the
+running app image is that same commit; the build line has been idle ≈94 h). **Item 1 unchanged, re-verified from
+inside the running container:** the deploy env carries the full mode split (`STRIPE_MODE=test`,
+`STRIPE_SECRET_KEY_TEST=sk_test_…` → `GET /v1/balance` **200**) and a live pair whose secret is still the key's
+**ID** (`STRIPE_SECRET_KEY_LIVE=mk_1UAeGxJaTDc3aAp0lG3UwbFj` → read-only `GET /v1/balance` **HTTP 401** *"This
+looks like the ID of an API key rather than the key itself."*). **$0 real revenue, 4 days to Day-30 (≈09-30).**
+Prod surfaces unchanged and green on the new host: `/` 307 → `giniloh.com`, `/showcase` + all four products +
+`/embed/countdown` 200, legacy `factory.aichieve.net` 503, manifest **v1.5.0 / 9 tools** sha256 `2843f352…`
+byte-identical to the tree, all **20** `/quarterline/calc/*` preset pages 200 (item 10 still open), POST
+`/api/checkout` unchanged (ledgerlink 200 `cs_test_…`, caseproof 200, app-less 400, `app=quarterline` 400
+retired, `/api/portal` 307). `events` **1609 rows / 981 sessions** (+62 — the whole 09-25 10:02 Build Watchdog
+Playwright run; **no event at all in the ≈22 h before this sweep**; last event 2026-09-25T10:02:14Z; last
+non-test event still 2026-09-23T14:11:42Z). `product=caseproof` 159 → **181** (all our own test run).
+**`agent_query` still 4, all factory ship probes → organic 0 on day 26.** **RESOLVED: the four articles deleted
+from the live pressflow site on 09-25 00:36 are back** — the pressflow container was rebuilt 2026-09-26 ≈06:39
+(image `536219b…` == the editorial repo's HEAD) and `pressflow /api/articles.json` serves **15** items, including
+the four deleted slugs and three published today; the deletion stays unattributable (no traefik access logs).
+Supabase `articles` holds **10** rows against those 15 live files (five have no row — new P2). The social queue is
+now **auto-produced**: `distribution_queue` 6 → **38 items, all `ready`, 0 published**, `updated_at`
+2026-09-26T06:41:31Z (editorial commit `5c7df8a`, `scripts/seed_distribution.py` as step 4c of the publish pass).
+Crons: **31 active, `hermes cron doctor` clean**, 22 with a last run all `ok` (editorial publishes 09-26 06:11 and
+06:42; the 09-25 Growth Watchdog ran 17:06 `ok`; new job **Editorial Verify Gate** created 2026-09-26T01:34, ran
+`ok`). `vertical-sync.mjs --check` exit 0 (26 verticals, no drift). Item 11 leftovers unchanged: `ai-plugin.json`
+still names the dead host and its `/openapi.json` 404s; `/robots.txt` + `/sitemap.xml` 404 with no producer. Next
+Growth Watchdog: **2026-10-02 17:00** (Day-30, 09-30, is a Wednesday and is scored by the daily sweep)._
 
 
 _Last updated: 2026-09-24 (08:00 sweep, every open item re-measured live) — **nothing was built, shipped or
