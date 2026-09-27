@@ -4,6 +4,33 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-09-27 (08:00 sweep, every open item re-measured live) — **nothing was built, shipped or
+committed in the last 24 h** (`HEAD == origin/main == f20b9e3`, the 09-26 sweep's docs commit, and the running app
+image is that same commit; the build line has been idle ≈118 h since the two 09-22 builds). **Item 1 unchanged,
+re-verified from inside the running container:** the deploy env carries the full mode split (`STRIPE_MODE=test`,
+`STRIPE_SECRET_KEY_TEST=sk_test_…` → `GET /v1/balance` **200**) and a live pair whose secret is still the key's
+**ID** (`STRIPE_SECRET_KEY_LIVE=mk_1UAeGxJaTDc3aAp0lG3UwbFj` → read-only `GET /v1/balance` **HTTP 401** *"This
+looks like the ID of an API key rather than the key itself."*). **$0 real revenue, 3 days to Day-30 (09-30).**
+Prod surfaces unchanged and green: `/` 307 → `giniloh.com`, `/showcase` + all four products + `/embed/countdown`
+200, legacy `factory.aichieve.net` 503, manifest **v1.5.0 / 9 tools** sha256 `2843f352…` byte-identical to the
+tree, all **20** `/quarterline/calc/*` preset pages 200 (item 10 still open), POST `/api/checkout` unchanged
+(ledgerlink 200 `cs_test_…`, caseproof 200, app-less 400, `app=quarterline` 400 retired, `/api/portal` 307).
+`events` **1672 rows / 1022 sessions** (+63 — the whole 09-26 10:01 Build Watchdog Playwright run, 12 seconds;
+**no event at all in the ≈22 h before this sweep**; last event 2026-09-26T10:01:57Z; last non-test event still
+2026-09-23T14:11:42Z → 4 days with no visitor). `product=caseproof` 181 → **204** (all our own test run;
+seventh consecutive day). **`agent_query` still 4, all factory ship probes → organic 0 on day 27.** Pressflow
+serves the same **15** articles as yesterday (`/api/articles.json` 15, container `536219b…` == editorial HEAD,
+**up 25 h** — no editorial deploy in 24 h; today is a Sunday and no pipeline is scheduled then). Supabase
+`articles` still holds **10** rows against those 15 live files (five have no row — P2, unchanged). The social
+queue is unchanged: **38 items, all `ready`, 0 published**, `updated_at` 2026-09-26T06:41:31Z (23 Reddit + 15
+LinkedIn across 15 articles). Crons: **31 active, `hermes cron doctor` clean**, 22 with a last run all `ok`
+(Build Watchdog 09-26 10:03, Editorial Verify Gate 09-26 09:30, personal_microeconomics 09-26 06:11,
+supplier_risk_reshoring_decision 09-26 06:42). `vertical-sync.mjs --check` exit 0 (26 verticals, no drift).
+Item 11 leftovers unchanged: `ai-plugin.json` still names the dead host and its `/openapi.json` 404s;
+`/robots.txt` + `/sitemap.xml` 404 with no producer. Item 7 unchanged: gateway process still the 2026-09-12
+15:13 one (`1963330`), no visible symptom. Next Growth Watchdog: **2026-10-02 17:00** (Day-30, 09-30, is a
+Wednesday and is scored by the daily sweep)._
+
 _Last updated: 2026-09-26 (08:00 sweep, every open item re-measured live) — **nothing was built, shipped or
 committed in the last 24 h** (`HEAD == origin/main == 50014d4`, the 09-25 Growth Watchdog's docs commit, and the
 running app image is that same commit; the build line has been idle ≈94 h). **Item 1 unchanged, re-verified from

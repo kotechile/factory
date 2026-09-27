@@ -1,11 +1,12 @@
 # Factory Status Map
 
-_Last updated: 2026-09-26 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or
-shipped in this repo in 24 h and the build line has been idle ≈94 h · the live payment key slot still holds a key
+_Last updated: 2026-09-27 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or
+shipped in this repo and the build line has been idle ≈118 h (5 days) · the live payment key slot still holds a key
 ID Stripe rejects (401, re-verified from inside the running container; the sandbox key in the same env returns
-200) · **the four editorial articles that vanished 09-25 00:36 are back — the overnight pressflow rebuild
-redeployed them and the pipeline published three more, so the site now serves 15** · the social queue is now
-produced automatically by the publish pass (6 → 38 cards, 0 published) · 4 days to the Day-30 gate) · canonical
+200) · the seventh consecutive day of factory-only traffic: all 63 new rows are the 09-26 10:01 Build Watchdog
+Playwright run and the last non-test event is still 09-23T14:11:42Z (4 days with no visitor) · the social queue is
+unchanged at 38 cards, 0 published · pressflow serves the same 15 articles (no editorial deploy in 24 h) ·
+**3 days to the Day-30 gate (09-30)**) · canonical
 source of truth for the fleet's current state_
 
 ## Fleet — 6 bots + 8 contracts
@@ -238,7 +239,7 @@ mirrors them.
    indexable routes (20 quarterline + 12 facturgate + 6 parcelproof + 6 caseproof, all 200 on 2026-09-23 on the new
    host) justified by traffic that is still 100 % factory-generated, and **nothing maps them for crawlers**
    (`/robots.txt` and `/sitemap.xml` 404, no producer in the repo — item 11); the Day-7 fallback shipped before its
-   preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 5 days out)
+   preconditions and remains unreviewed; the Day-14 gate scored an honest MISS on 09-14 and Day-30 (≈09-30, 3 days out)
    inherits the same $0 and is formally gated on the still-unbuilt internal-traffic marker. **The `distribution_queue`
    now holds 38 ready items, 0 published** (`updated_at` 2026-09-26T06:41:31Z): the editorial repo's own change
    (`5c7df8a`, `scripts/seed_distribution.py` as step 4c of the publish pass) made the to-do cards automatic, so a
