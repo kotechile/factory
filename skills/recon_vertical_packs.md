@@ -144,6 +144,44 @@ per vertical.
   rule forbids. A deterministic *paper-log-to-OEE* calculator is possible but sits behind incumbents
   and offers no hook.
 
+## healthcare_rcm
+- **Trigger surface:** X12 835 (005010X221A1) / 837 / 277, CARC/RARC code lists, CMS
+  administrative-simplification rules, CAQH CORE operating rules, payer provider manuals,
+  clearinghouse changelogs.
+- **Dated triggers:** the payer contract-renewal cycle turning on **1 January**; **2027-01-01**
+  CY2027 Medicare PFS effective date (conversion factor proposed **−1.19%** to $33.17 qualifying /
+  **−1.69%** to $32.84 non-qualifying as the one-year **+2.50%** bump expires; same-day E/M billed
+  with a global-period service to pay 50% each); CMS-0057-F payer prior-auth metrics first due
+  **2026-03-31**; payer claim-filing (90–365 days) and appeal (60–180 days) windows, payer- and
+  state-specific. **Vector A is empty here:** the 835 has no version churn (CMS adopted-standards
+  table keeps 835 at Version 5010; the 2026-03-24 claims-attachments final rule adopts X12 6020 for
+  275/277 only) — do not search for an 835 migration.
+- **Query shapes that returned in-window (measured 2026-09-28):**
+  `835 remittance ERA denial reconciliation small practice manual posting 2026` → 6/6 on-topic, but
+  5/6 are vendors selling the fix; `payer underpayment audit contract variance medical practice
+  spreadsheet 2026 revenue cycle` → 6/6, all sellers; `appeal filing deadline calculator payer
+  timely filing limit free tool 2026` → 6/6 incl. two free calculators; `payer underpayment recovery
+  software pricing per month contract management small practice 2026` → 6/6 incl. published prices.
+  **Screening rule this vertical teaches:** on a vertical whose suppliers publish heavily, only
+  *non-seller* sources may count toward the repeat-intent weight — otherwise service-vendor content
+  marketing manufactures the score.
+- **Buyer & budget:** billing/practice manager at 3–15 provider practices and third-party billing
+  companies. Real money at risk ($30K–$150K/yr per small practice; $46K/provider/yr recovered per a
+  2024 MGMA survey) but the self-serve price band is already occupied free or at $5/letter.
+- **Incumbent / free check (measured 2026-09-28):** **free** — AMA Claims Workflow Assistant (ERA
+  code combinations + member appeal templates), Healthcare Data Insight free EDI viewer (25 KB /
+  3 claims), eMedcoders free in-browser 835 parser, Stedi free validator tier, `pyx12`,
+  `era_835_parser` gem, free timely-filing calculators (legitmedbilling, nextrcm), free appeal-letter
+  generators; **cheap self-serve** — EZAppeal $5/appeal letter with a BAA; **paid, sales-led** —
+  Waystar Revenue Capture, MD Clarity RevFind / PayerMonitor ($500/mo/team; enterprise CLMs
+  $30K–$200K+ first year), Rivet Health, Vera Signals, DataRovers Denials 360; plus the PM/EHR's own
+  fee-schedule and contract-variance reporting (athenahealth reporting packs).
+- **Funnel risk:** **Filter 1** — the value is the appeals chase (MD Clarity, Revecore, Advantum,
+  StafGo, Sirius all sell people pursuing the variance), which rule 1 forbids; and the Stage 0
+  **channel rule** — no editorial vertical and no owned audience for a medical-billing buyer. Retired
+  2026-09-28; re-open only on a *dated* payer/provider mandate reaching practices, never for
+  underpayment detection.
+
 ---
 
 # Editorial-derived packs

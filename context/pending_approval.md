@@ -357,6 +357,32 @@ is ineligible at *both* carriers — if the intended UPS trigger is 48″, that 
   rather than the frontier builder tier the repo's "Runtime model note" assigns to Product Director
   work. One build slot is running; nothing else was dispatched in parallel.
 
+## Recon 2026-09-28 — weekly sweep → **no build proposed**
+
+Scan window 2026-08-29 → 2026-09-28. Declared vertical `healthcare_rcm`, taken from the
+never-scanned rotation queue (first scan of this vertical). No candidate cleared the funnel, so
+**no approval item was opened and nothing is owed to the build gate** — the founder's reply
+`@Simon approve 12` exists only as an override if he wants the dropped candidate built anyway.
+
+- **Top candidate — PayerVariance (score 69):** practice-side audit of payer 835 remittance allowed
+  amounts against contracted rates, plus appeal packets. Loud demand (1–3% of net patient revenue
+  lost to underpayments; $30K–$150K/yr at risk for a 3–5 provider practice) but **dropped**: the
+  free-incumbent rule (the AMA's free Claims Workflow Assistant + free 835 parsers + free
+  filing/appeal calculators + the practice system's own contract-variance reporting), Filter 1 (the
+  recovery layer is a human appeals chase → factory rule 1), and the Stage 0 channel rule (no
+  editorial vertical, no owned audience).
+- **Runners-up, all dropped:** ERA/EFT reassociation exception checker (62), denial appeal-worth-it
+  estimator (58), payer prior-auth metric aggregator (55).
+- **Record:** PRD `context/recon_proposals/2026-09-28_payervariance_no-build.md`; vertical retired in
+  `context/vertical_coverage.md` (moved out of the never-scanned queue); pack added at
+  `skills/recon_vertical_packs.md` §healthcare_rcm; the sweep's own measurement lesson (sellers'
+  content marketing inflates the Stage 3 repeat-intent weight) logged in
+  `skills/self_improvement_eval.md`; `node scripts/vertical-sync.mjs --check` exit 0.
+- **Consequence for the build line:** last week's recon candidate (CaseProof) shipped 09-22, so this
+  is the first weekly scan since vertical rotation began that adds nothing to the queue — the build
+  line stays idle by the founder's own pending decisions (items 1, 10, 11), not by a missing
+  candidate. Next scan 2026-10-05 opens the next never-scanned vertical.
+
 ## OPEN — 2026-09-16 sweep (live-verified this run)
 
 1. **[P0 — founder, ~5 min]** `sk_live` in the deploy env **or** record test-mode as intended.
