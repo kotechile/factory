@@ -4,6 +4,33 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-01 (15:30 sweep, every open item re-measured live) — **the factory was blind for three days:
+the provider account ran out of credit** and the 09-28/09-29/09-30 sweeps plus three Build Watchdog runs failed on
+`HTTP 402: Insufficient Balance` (17 jobs still report a 402 last run; jobs resumed `ok` from 10-01 10:33). **Day-30
+(due 2026-09-30) was therefore never scored on its date and is scored MISS here, one day late, on all three legs:**
+0 unique sessions in the last-7-day window, `agent_query` still **4** (all factory ship probes → organic 0 on day
+31), **$0 real revenue**. **Item 1 unchanged, re-verified from inside the running container:** the deploy env carries
+the full mode split (`STRIPE_MODE=test`, `STRIPE_SECRET_KEY_TEST=sk_test_…` → `GET /v1/balance` **200**) and a live
+pair whose secret is still the key's **ID** (`STRIPE_SECRET_KEY_LIVE=mk_1UAeGxJaTDc3aAp0lG3UwbFj` → read-only
+`GET /v1/balance` **HTTP 401** *"This looks like the ID of an API key rather than the key itself."*). Prod surfaces
+unchanged and green: `/` 307 → `giniloh.com`, `/showcase` + all four products + `/embed/countdown` 200, legacy
+`factory.aichieve.net` 503, manifest **v1.5.0 / 9 tools** sha256 `2843f352…` byte-identical to the tree, all **20**
+`/quarterline/calc/*` preset pages 200 (item 10 still open), POST `/api/checkout` unchanged (ledgerlink 200
+`cs_test_…`, caseproof 200, app-less 400, `app=quarterline` 400 retired, `/api/portal` 307). `events` **1858 rows /
+1143 sessions** (+186 — exactly two factory runs: 124 rows 09-27 10:00–10:05 and 62 rows 10-01 00:57:35–00:57:49,
+the latter 40 fresh sessions across all five products; **zero rows on 09-28/29/30 because the watchdogs were out of
+credit**; last event 2026-10-01T00:57:49Z, last non-test event still 2026-09-23T14:11:42Z → **8 days with no
+visitor**). `product=caseproof` 204 → **272** (all our own test runs). Pressflow serves **14** articles (was 15): four
+new pieces dated 2026-10-01 replaced five older ones, container `234b86ae…` rebuilt 10-01 14:22, and Supabase
+`articles` now holds **14 rows (was 10)** — **the 10-vs-15 mismatch is resolved**, at 14 live files vs 14 rows. The
+social queue grew again: **38 → 46 items, all `ready`, 0 published**, `updated_at` 2026-10-01T13:09:43Z. Crons:
+**32 active (was 31; new job WordPress Draft Sweep `15 14 * * *`, ran `ok` 10-01 14:17)** and **`hermes cron doctor`
+is NOT clean** — 17 jobs report `HTTP 402: Insufficient Balance` as their last run. `vertical-sync.mjs --check`
+exit 0 (26 verticals, no drift). Item 11 leftovers unchanged: `ai-plugin.json` still names the dead host and its
+`/openapi.json` 404s; `/robots.txt` + `/sitemap.xml` 404 with no producer. Item 7 unchanged: gateway process still
+the 2026-09-12 15:13 one (`1963330`), no visible symptom. Next Growth Watchdog: **2026-10-02 17:00**; next live gate
+is ledgerlink ≈2026-10-09._
+
 _Last updated: 2026-09-27 (08:00 sweep, every open item re-measured live) — **nothing was built, shipped or
 committed in the last 24 h** (`HEAD == origin/main == f20b9e3`, the 09-26 sweep's docs commit, and the running app
 image is that same commit; the build line has been idle ≈118 h since the two 09-22 builds). **Item 1 unchanged,

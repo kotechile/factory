@@ -1,5 +1,17 @@
 # Factory Status Map
 
+_Last updated: 2026-10-01 (15:30 sweep, every surface re-measured live on `apps.giniloh.com` · **the factory was
+blind for three days**: the provider account ran out of credit, so the 08:00 sweeps of 09-28/09-29/09-30 and three
+Build Watchdog runs all died on `HTTP 402: Insufficient Balance` (17 jobs still report a 402 last run) — jobs
+resumed `ok` from 10-01 10:33 · **Day-30 (due 09-30) was never scored on its date and is now scored MISS on all
+three legs: 0 in-window unique sessions, 4 agent queries (all factory probes), $0 real revenue** · the live
+payment key slot still holds a key ID Stripe rejects (401, re-verified from inside the running container; the
+sandbox key in the same env returns 200) · **8 days with no visitor of any kind** (last non-test event
+2026-09-23T14:11:42Z; all +186 rows since 09-27 are two factory test runs) · the social queue grew 38 → 46 cards,
+0 ever published · pressflow published 4 new articles today and the live/supabase article gap closed at 14/14 ·
+nothing was built or shipped in this repo, build line idle ≈9 days since the 09-22 builds) · canonical
+source of truth for the fleet's current state_
+
 _Last updated: 2026-09-27 (08:00 sweep, every surface re-measured live on `apps.giniloh.com` · nothing was built or
 shipped in this repo and the build line has been idle ≈118 h (5 days) · the live payment key slot still holds a key
 ID Stripe rejects (401, re-verified from inside the running container; the sandbox key in the same env returns
