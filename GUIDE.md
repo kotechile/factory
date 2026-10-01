@@ -54,9 +54,9 @@ hermes cron list        # the three jobs
 
 | Routine | Schedule | What it does |
 |---|---|---|
-| `[bot:simon] Weekly Market Recon` | Mon 06:00 local | 30-day discovery sweep → 4-filter funnel → PRD to `context/recon_proposals/` |
-| `[bot:simon] Daily Proactive Sweep` | daily 08:00 | reviews `context/daily_voice_journal/`, flags action items |
-| `[bot:toby] Build Watchdog` | daily 10:00 | checks for new commits, runs `verify-build.sh`, patches SOPs on failure |
+| `[bot:simon] Weekly Market Recon` | Mon 14:30 UTC | 30-day discovery sweep → 4-filter funnel → PRD to `context/recon_proposals/` |
+| `[bot:simon] Daily Proactive Sweep` | daily 15:30 UTC | reviews `context/daily_voice_journal/`, flags action items |
+| `[bot:toby] Build Watchdog` | daily 16:30 UTC | checks for new commits, runs `verify-build.sh`, patches SOPs on failure |
 
 **Trigger manually** (don't wait for the schedule):
 
@@ -66,7 +66,13 @@ hermes cron run "Daily Proactive Sweep"
 hermes cron run "Build Watchdog"
 ```
 
-**Where output goes:** currently `--deliver local`, so each run's final message is saved to
+**Off-peak.** The three routines run on DeepSeek, which bills weekday tokens at 2x inside
+01:00–04:00 and 06:00–10:00 UTC, so none of them fires in those windows (the editorial pipelines,
+which share the model, were moved to 10:30–13:00 UTC for the same reason). The scheduler reads these
+hours on the host clock, which is UTC; `scripts/verify.sh` §7.2 in the editorial repo re-checks the
+whole live fleet daily and reports a job that drifts back into a 2x window.
+
+**Where output goes:** `--deliver slack` (the `#loop-ai` home channel), and each run's final message is also saved to
 `~/.hermes/cron/output/<job_id>/<timestamp>.md`. The PRD itself is written by Simon into
 `context/recon_proposals/YYYY-MM-DD_<product>.md` (the durable deliverable). See §2.2 to switch
 delivery into the bot's chat.
