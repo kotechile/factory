@@ -4,6 +4,34 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-02 (15:30 sweep, every open item re-measured live) — **the provider outage is clearing but
+`hermes cron doctor` is still NOT clean: 15 jobs report a failed last run (17 → 15), and the 15 that remain are the
+weekly editorial vertical jobs whose last run fell inside the 09-28…09-30 `HTTP 402: Insufficient Balance` window
+(last run 09-28 06:31 → 09-30 08:01) with next runs 10-05 → 10-08 — stale stamps, not a live outage.** The daily
+sweep (`ok` 10-01 15:37) and the Build Watchdog (`ok` 10-01 16:33) have both run since the balance returned.
+**Item 1 unchanged, re-verified from inside the running container:** the deploy env carries the full mode split
+(`STRIPE_MODE=test`, `STRIPE_SECRET_KEY_TEST=sk_test_…` → `GET /v1/balance` **200**) and a live pair whose secret
+is still the key's **ID** (`STRIPE_SECRET_KEY_LIVE=mk_1UAeGxJaTDc3aAp0lG3UwbFj` → read-only `GET /v1/balance`
+**HTTP 401** *"This looks like the ID of an API key rather than the key itself."*). Prod surfaces unchanged and
+green: `/` 307 → `giniloh.com`, `/showcase` + all four products + `/embed/countdown` 200, legacy
+`factory.aichieve.net` 503, manifest **v1.5.0 / 9 tools** sha256 `2843f352…` byte-identical to the tree, all **20**
+`/quarterline/calc/*` preset pages 200 (item 10 still open), POST `/api/checkout` unchanged (ledgerlink 200
+`cs_test_…`, caseproof 200, app-less 400, `app=quarterline` 400 retired, `/api/portal` 307). `events` **1921 rows /
+1184 sessions** (+63 — the whole 10-01 16:31 Build Watchdog Playwright run, 3 seconds, 41 fresh sessions across all
+five products; **zero rows on 2026-10-02**; last event 2026-10-01T16:31:21Z, last non-test event still
+2026-09-23T14:11:42Z → **9 days with no visitor**). Revenue still **$0** (4 `purchases` all `cs_test_*`, all
+09-02) — with one new data change: the single `subscriptions` row flipped `canceled` → `active` (`updated_at`
+2026-10-02T02:04:18Z) but reads **`livemode:false`** through the sandbox key (still sandbox; stored customer id
+does not match the one Stripe returns; no accompanying telemetry row, so unattributable). `agent_query` still
+**4** (all factory ship probes → organic 0 on day 32). Pressflow serves **16** articles (was 14; two new dated
+2026-10-02), container `b4b382c9…` == editorial HEAD, and Supabase `articles` now holds **16 rows** — DB and live
+files agree 16/16. The social queue grew again: **46 → 50 items, all `ready`, 0 published**, `updated_at`
+2026-10-02T11:40:44Z. Crons: **32 active**; 15 with a non-`ok` last run (the stale 402s above). `vertical-sync.mjs
+--check` exit 0 (26 verticals, no drift). Item 11 leftovers unchanged: `ai-plugin.json` still names the dead host
+and its `/openapi.json` 404s; `/robots.txt` + `/sitemap.xml` 404 with no producer. Item 7 unchanged: gateway
+process still the 2026-09-12 15:13 one (`1963330`), no visible symptom. Next Growth Watchdog: **2026-10-02 17:00**
+(today); next Weekly Market Recon 2026-10-05 14:30; next live gate is ledgerlink ≈2026-10-09._
+
 _Last updated: 2026-10-01 (15:30 sweep, every open item re-measured live) — **the factory was blind for three days:
 the provider account ran out of credit** and the 09-28/09-29/09-30 sweeps plus three Build Watchdog runs failed on
 `HTTP 402: Insufficient Balance` (17 jobs still report a 402 last run; jobs resumed `ok` from 10-01 10:33). **Day-30

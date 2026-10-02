@@ -1,5 +1,19 @@
 # Factory Status Map
 
+_Last updated: 2026-10-02 (15:30 sweep, every surface re-measured live on `apps.giniloh.com` · **the provider
+outage is clearing, not cleared**: `hermes cron doctor` is still NOT clean — a failed last run is reported by 15
+jobs (down from 17), but the 15 are the weekly editorial vertical jobs whose last run fell inside the 09-28…09-30
+`HTTP 402: Insufficient Balance` window and whose next runs are 10-05 → 10-08, so the labels are stale stamps,
+not a live outage; the daily sweep and the Build Watchdog have both run `ok` since 10-01 10:33 · **the live
+payment key slot still holds a key ID Stripe rejects (401, re-verified from inside the running container; the
+sandbox key in the same env returns 200)** · **9 days with no visitor of any kind** (last non-test event
+2026-09-23T14:11:42Z; the whole +63 rows since 09-27 are the 10-01 16:31 Build Watchdog Playwright run, and
+2026-10-02 has zero rows) · $0 real revenue (4 sandbox purchases; the one subscription row flipped canceled →
+active at 10-02 02:04 but reads `livemode:false` — still sandbox) · the social queue grew 46 → 50 cards, 0 ever
+published · pressflow serves 16 articles (was 14) and Supabase `articles` agrees at 16/16 · nothing was built or
+shipped in this repo, build line idle ≈10 days since the 09-22 builds) · canonical
+source of truth for the fleet's current state_
+
 _Last updated: 2026-10-01 (15:30 sweep, every surface re-measured live on `apps.giniloh.com` · **the factory was
 blind for three days**: the provider account ran out of credit, so the 08:00 sweeps of 09-28/09-29/09-30 and three
 Build Watchdog runs all died on `HTTP 402: Insufficient Balance` (17 jobs still report a 402 last run) — jobs
