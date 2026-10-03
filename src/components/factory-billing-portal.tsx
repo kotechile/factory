@@ -18,6 +18,7 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trackEvent } from "@/lib/telemetry-client";
+import BillingUsage from "@/components/billing-usage";
 
 interface ToolPricingRow {
   name: string;
@@ -491,6 +492,9 @@ export default function FactoryBillingPortal() {
               </div>
             </div>
           </div>
+
+          {/* V1.4 — this customer's own usage, spend cap and per-query audit log */}
+          <BillingUsage />
         </main>
       </div>
     </div>

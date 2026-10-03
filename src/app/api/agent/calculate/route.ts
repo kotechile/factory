@@ -35,8 +35,7 @@ import {
   readCaseInput,
 } from "@/lib/calc/caseproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
-import { reportMeteredUsage } from "@/lib/stripe/meter";
-import { isStripeConfigured } from "@/lib/stripe/mode";
+import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
 import { track } from "@/lib/telemetry";
 import {
   DEFAULT_AGENT_TOOL,
@@ -363,35 +362,29 @@ export async function POST(req: NextRequest) {
 
     // --- LedgerLink: reconcile_stripe_payout (metered WebMCP tool) ---
     if (toolName === "reconcile_stripe_payout") {
+      // Cap gate runs BEFORE the tool (V1.2): an over-cap call is a 402 and the engine never runs.
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
       const input: LedgerlinkAgentInput = await req.json();
       const result = await runLedgerlinkReconciliation(input);
 
       await track("agent_query", { tool: "reconcile_stripe_payout" }, "ledgerlink");
 
-      const customerId =
-        req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
-      let meteredUsageReported = false;
-      let meterEventId: string | undefined;
-      if (customerId && isStripeConfigured()) {
-        try {
-          const meterResult = await reportMeteredUsage({
-            customerId,
-            eventName: "agent_reconciliation",
-            value: 1, // 1 query @ $0.25
-          });
-          meteredUsageReported = meterResult.success;
-          meterEventId = meterResult.eventId;
-        } catch (meterErr) {
-          console.error("Failed to record metered usage:", meterErr);
-        }
-      }
+      const metering = await billSuccessfulCall(req, {
+        tool: "reconcile_stripe_payout",
+        costUsd: 0.25, // 1 query @ $0.25
+        eventName: "agent_reconciliation",
+        product: "ledgerlink",
+      });
 
       return NextResponse.json({
         success: true,
         data: result,
         metering: {
-          meteredUsageReported,
-          meterEventId,
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
           costPerQueryUsd: 0.25,
         },
         computedAt: new Date().toISOString(),
@@ -400,6 +393,10 @@ export async function POST(req: NextRequest) {
 
     // --- FacturGate: validate_einvoice / convert_invoice_to_facturx / check_eu_vat_id ---
     if (toolName in FACTURGATE_PRICE_USD) {
+      // Cap gate runs BEFORE the tool (V1.2).
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
       const body = (await req.json()) as FacturgateAgentInput;
 
       let result: { data: unknown; costPerQueryUsd: number };
@@ -421,30 +418,20 @@ export async function POST(req: NextRequest) {
 
       await track("agent_query", { tool: toolName }, "facturgate");
 
-      const customerId =
-        req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
-      let meteredUsageReported = false;
-      let meterEventId: string | undefined;
-      if (customerId && isStripeConfigured()) {
-        try {
-          const meterResult = await reportMeteredUsage({
-            customerId,
-            eventName: FACTURGATE_METER_EVENT[toolName] ?? "agent_query",
-            value: 1,
-          });
-          meteredUsageReported = meterResult.success;
-          meterEventId = meterResult.eventId;
-        } catch (meterErr) {
-          console.error("Failed to record metered usage:", meterErr);
-        }
-      }
+      const metering = await billSuccessfulCall(req, {
+        tool: toolName,
+        costUsd: result.costPerQueryUsd,
+        eventName: FACTURGATE_METER_EVENT[toolName] ?? "agent_query",
+        product: "facturgate",
+      });
 
       return NextResponse.json({
         success: true,
         data: result.data,
         metering: {
-          meteredUsageReported,
-          meterEventId,
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
           costPerQueryUsd: result.costPerQueryUsd,
           meterEventName: FACTURGATE_METER_EVENT[toolName],
         },
@@ -454,6 +441,10 @@ export async function POST(req: NextRequest) {
 
     // --- ParcelProof: audit_carrier_invoice / compute_billable_weight ---
     if (toolName in PARCELAUDIT_PRICE_USD) {
+      // Cap gate runs BEFORE the tool (V1.2).
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
       const body = (await req.json()) as ParcelproofAgentInput;
 
       let result: { data: unknown; costPerQueryUsd: number };
@@ -476,30 +467,20 @@ export async function POST(req: NextRequest) {
 
       await track("agent_query", { tool: toolName }, "parcelproof");
 
-      const customerId =
-        req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
-      let meteredUsageReported = false;
-      let meterEventId: string | undefined;
-      if (customerId && isStripeConfigured()) {
-        try {
-          const meterResult = await reportMeteredUsage({
-            customerId,
-            eventName: PARCELAUDIT_METER_EVENT[toolName] ?? "agent_query",
-            value: 1,
-          });
-          meteredUsageReported = meterResult.success;
-          meterEventId = meterResult.eventId;
-        } catch (meterErr) {
-          console.error("Failed to record metered usage:", meterErr);
-        }
-      }
+      const metering = await billSuccessfulCall(req, {
+        tool: toolName,
+        costUsd: result.costPerQueryUsd,
+        eventName: PARCELAUDIT_METER_EVENT[toolName] ?? "agent_query",
+        product: "parcelproof",
+      });
 
       return NextResponse.json({
         success: true,
         data: result.data,
         metering: {
-          meteredUsageReported,
-          meterEventId,
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
           costPerQueryUsd: result.costPerQueryUsd,
           meterEventName: PARCELAUDIT_METER_EVENT[toolName],
         },
@@ -509,6 +490,10 @@ export async function POST(req: NextRequest) {
 
     // --- CaseProof: audit_automation_case / compare_automation_bids / after_tax_payback ---
     if (toolName in CASEPROOF_PRICE_USD) {
+      // Cap gate runs BEFORE the tool (V1.2).
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
       const body = (await req.json()) as CaseProofAgentInput;
 
       let data: unknown;
@@ -551,30 +536,20 @@ export async function POST(req: NextRequest) {
 
       await track("agent_query", { tool: toolName }, "caseproof");
 
-      const caseCustomerId =
-        req.headers.get("x-stripe-customer-id") || req.headers.get("x-customer-id");
-      let caseMetered = false;
-      let caseMeterEventId: string | undefined;
-      if (caseCustomerId && isStripeConfigured()) {
-        try {
-          const meterResult = await reportMeteredUsage({
-            customerId: caseCustomerId,
-            eventName: CASEPROOF_METER_EVENT[toolName] ?? "agent_query",
-            value: 1,
-          });
-          caseMetered = meterResult.success;
-          caseMeterEventId = meterResult.eventId;
-        } catch (meterErr) {
-          console.error("Failed to record metered usage:", meterErr);
-        }
-      }
+      const metering = await billSuccessfulCall(req, {
+        tool: toolName,
+        costUsd: costPerQueryUsd,
+        eventName: CASEPROOF_METER_EVENT[toolName] ?? "agent_query",
+        product: "caseproof",
+      });
 
       return NextResponse.json({
         success: true,
         data,
         metering: {
-          meteredUsageReported: caseMetered,
-          meterEventId: caseMeterEventId,
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
           costPerQueryUsd,
           meterEventName: CASEPROOF_METER_EVENT[toolName],
         },
@@ -595,6 +570,10 @@ export async function POST(req: NextRequest) {
     }
 
     // --- QuarterLine: legacy self-employment / QBI tools ---
+    // Cap gate runs BEFORE the tool (V1.2).
+    const capped = await billingCapGuard(req);
+    if (capped) return capped;
+
     const input: SelfEmployment2026Input = await req.json();
 
     const validation = selfEmployment2026Engine.validate(input);
@@ -610,34 +589,21 @@ export async function POST(req: NextRequest) {
     // Record the agent query for the growth kill/scale gates (best-effort).
     await track("agent_query", { tool: toolName });
 
-    // If request contains Stripe Customer ID for agent billing, report $0.25 metered usage
-    const customerId =
-      req.headers.get("x-stripe-customer-id") ||
-      req.headers.get("x-customer-id");
-
-    let meteredUsageReported = false;
-    let meterEventId: string | undefined;
-
-    if (customerId && isStripeConfigured()) {
-      try {
-        const meterResult = await reportMeteredUsage({
-          customerId,
-          eventName: "agent_tax_calculation",
-          value: 1, // 1 query @ $0.25
-        });
-        meteredUsageReported = meterResult.success;
-        meterEventId = meterResult.eventId;
-      } catch (meterErr) {
-        console.error("Failed to record metered usage:", meterErr);
-      }
-    }
+    // $0.25 metered usage for a caller that presents a Stripe customer id.
+    const metering = await billSuccessfulCall(req, {
+      tool: toolName,
+      costUsd: 0.25, // 1 query @ $0.25
+      eventName: "agent_tax_calculation",
+      product: "factory",
+    });
 
     return NextResponse.json({
       success: true,
       data: result,
       metering: {
-        meteredUsageReported,
-        meterEventId,
+        meteredUsageReported: metering.meteredUsageReported,
+        meterEventId: metering.meterEventId,
+        usageRecorded: metering.usageRecorded,
         costPerQueryUsd: 0.25,
       },
       computedAt: new Date().toISOString(),

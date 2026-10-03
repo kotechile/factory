@@ -18,6 +18,13 @@ test("billing portal renders at /billing with plans and portal form", async ({ p
   await expect(page.getByText("reconcile_stripe_payout")).toBeVisible();
 });
 
+test("billing portal exposes the self-serve usage & spend section", async ({ page }) => {
+  await page.goto("/billing");
+  await expect(page.getByRole("heading", { name: "Your Usage & Spend" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Load usage" })).toBeVisible();
+  await expect(page.getByText("Metered agent usage for the current month")).toBeVisible();
+});
+
 test("billing portal passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {
   await page.goto("/billing");
   const results = await new AxeBuilder({ page })
