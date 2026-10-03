@@ -124,3 +124,19 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
   identified callers are capped and anonymous calls stay free. Requiring identity is a contract change —
   update `/.well-known/mcp.json` and its drift test in the same pass, never a quiet code tweak.
 
+## 13. Pricing surfaces (2026-10-03)
+
+- **One catalog, and every displayed price reads it.** The agent API's rate tables, the /billing pricing
+  matrix, each product page and the directory all render from `src/products/pricing.ts`. A price written
+  in a second place is how a flat "$0.25 / query" survived on a product page for five tools that charged
+  something else. Throwing lookups (`pricingFor`, `agentRateForTool`) for the sell/serve boundaries;
+  tolerant ones (`priceSummary`, `agentRateOrNull`) only for display, which must still render a retired
+  product.
+- **Pair the catalog with a drift test.** Fail the build when an in-inventory product or one of its
+  advertised tools has no price, when a price belongs to no registry product, or when the agent route
+  stops sourcing its rates from the catalog — otherwise the next tool ships free and nobody notices.
+- **A visual-snapshot failure after an intended UI change is a baseline to re-derive, not to skip.**
+  Regenerate it with `--update-snapshots`, but LOOK at the new image (or the diff) first: accepting the
+  render without reading it is how a regression becomes the reference. Snapshots are per-platform, so a
+  regenerate on Linux leaves the macOS baseline stale — say so rather than implying both moved.
+

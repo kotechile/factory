@@ -45,10 +45,17 @@ authorised the three money-relevant defects only. Shipped and verified against t
   env to switch the Agent CTA back on (`STRIPE_METER_EVENT_NAME` is optional — the code default already
   matches the meter). **D4** (identity required on the metered path) stays unshipped on purpose: the
   published manifest advertises the id as optional, so that is a contract change for the owner to call.
-  **Flagged, not changed:** the published manifest still advertises a flat `rate_per_query_usd: 0.25`
-  while per-tool prices run $0.05–$0.50, and the `/billing` pricing matrix shows "$0.25 / query" on all
-  four products. Both are now inaccurate against the payload; editing a published contract is the owner's
-  call, so they are reported rather than edited.
+  **Pricing is now shown per product — `adefa50`.** One catalog (`src/products/pricing.ts`) is the single
+  source for the per-tool agent rates, the free tier and the one-off export; the agent API, the `/billing`
+  matrix, each product page's pricing block and the showcase directory all read from it, and a drift test
+  fails the build when an in-inventory product or tool has no price. Live: `/ledgerlink` $0.25 ·
+  `/facturgate` $0.05/$0.10/$0.25 · `/parcelproof` $0.05/$0.25 + $9 one-off · `/caseproof` $0.50 + $9
+  one-off; the showcase shows a price line per card and a rate on each of the 10 catalog rows; the
+  `/billing` matrix now reads "from $0.05 / query" instead of the wrong flat "$0.25 / query".
+  **Still flagged, not changed:** the published manifest advertises a flat `rate_per_query_usd: 0.25`
+  while per-tool prices run $0.05–$0.50 — editing a published contract is the owner's call. And the
+  macOS Playwright snapshot (`landing-chromium-darwin.png`) is now stale: the Linux baseline was
+  regenerated after inspecting the diff, but a macOS render can only be produced on a Mac.
 
 - **Item:** the factory's first customer-facing billing contract — a verified usage ledger + a read
   surface every app consumes. Full PRD: `context/recon_proposals/2026-10-03_factory_billing_v1.md`.
