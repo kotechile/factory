@@ -36,6 +36,7 @@ import {
 } from "@/lib/calc/caseproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
+import { agentRateForTool, agentRatesForProduct } from "@/products/pricing";
 import { track } from "@/lib/telemetry";
 import {
   DEFAULT_AGENT_TOOL,
@@ -60,21 +61,18 @@ interface FacturgateAgentInput {
   country?: string;
 }
 
-/** PRD §3 agent-tier rates, per tool. */
-const FACTURGATE_PRICE_USD: Record<string, number> = {
-  validate_einvoice: 0.1,
-  convert_invoice_to_facturx: 0.25,
-  check_eu_vat_id: 0.05,
-};
+/**
+ * Agent-tier rates. Sourced from the single pricing catalog (src/products/pricing.ts) so the price
+ * the API charges and the price every page displays cannot drift apart; the catalog's drift test
+ * fails the build if a tool is missing a rate.
+ */
+const FACTURGATE_PRICE_USD = agentRatesForProduct("facturgate");
 
 // Metering no longer uses a per-tool event name: Stripe binds a meter to ONE event name, so every
 // tool reports under one meter with `value` = the charge in cents (src/lib/stripe/meter.ts).
 
-/** ParcelProof pricing per the PRD §3 agent tier. */
-const PARCELAUDIT_PRICE_USD: Record<string, number> = {
-  audit_carrier_invoice: 0.25,
-  compute_billable_weight: 0.05,
-};
+/** ParcelProof rates, from the pricing catalog. */
+const PARCELAUDIT_PRICE_USD = agentRatesForProduct("parcelproof");
 
 interface ParcelproofAgentInput {
   shipment_records?: unknown;
@@ -90,12 +88,8 @@ interface ParcelproofAgentInput {
   actual_weight_lb?: unknown;
 }
 
-/** CaseProof pricing per PRD §3: $0.50 per agent call on the audit tier. */
-const CASEPROOF_PRICE_USD: Record<string, number> = {
-  audit_automation_case: 0.5,
-  compare_automation_bids: 0.5,
-  after_tax_payback: 0.5,
-};
+/** CaseProof rates, from the pricing catalog ($0.50 per agent call on the audit tier). */
+const CASEPROOF_PRICE_USD = agentRatesForProduct("caseproof");
 
 interface CaseProofAgentInput {
   case?: unknown;
@@ -359,7 +353,7 @@ export async function POST(req: NextRequest) {
 
       const metering = await billSuccessfulCall(req, {
         tool: "reconcile_stripe_payout",
-        costUsd: 0.25, // 1 query @ $0.25
+        costUsd: agentRateForTool("reconcile_stripe_payout"),
         product: "ledgerlink",
       });
 
@@ -572,10 +566,10 @@ export async function POST(req: NextRequest) {
     // Record the agent query for the growth kill/scale gates (best-effort).
     await track("agent_query", { tool: toolName });
 
-    // $0.25 metered usage for a caller that presents a Stripe customer id.
+    // Metered usage for a caller that presents a Stripe customer id, priced from the catalog.
     const metering = await billSuccessfulCall(req, {
       tool: toolName,
-      costUsd: 0.25, // 1 query @ $0.25
+      costUsd: agentRateForTool(toolName),
       product: "factory",
     });
 

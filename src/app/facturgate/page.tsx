@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import FacturGateCalculator from "@/components/facturgate-calculator";
+import ProductPricing from "@/components/product-pricing";
 import { einvoicePresets } from "@/lib/seo/einvoice/presets";
 
 export const metadata: Metadata = {
@@ -24,6 +25,8 @@ export default function Page() {
       </div>
 
       <FacturGateCalculator initialFormat="facturx" initialCountry="FR" />
+
+      <ProductPricing slug="facturgate" />
 
       <div className="mx-auto w-full max-w-4xl space-y-4 px-4 pb-14 sm:px-6">
         <h2 className="text-base font-semibold text-foreground">

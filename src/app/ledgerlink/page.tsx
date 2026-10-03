@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LedgerLinkCalculator from "@/components/ledgerlink-calculator";
+import ProductPricing from "@/components/product-pricing";
 
 export const metadata: Metadata = {
   title: "LedgerLink — Stripe Payout → GL Reconciliation Engine",
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <LedgerLinkCalculator />;
+  return (
+    <>
+      <LedgerLinkCalculator />
+      <ProductPricing slug="ledgerlink" />
+    </>
+  );
 }

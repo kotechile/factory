@@ -19,6 +19,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { trackEvent } from "@/lib/telemetry-client";
 import BillingUsage from "@/components/billing-usage";
+import { activeProducts } from "@/products/registry";
+import { PRODUCT_PRICING } from "@/products/pricing";
 
 interface ToolPricingRow {
   name: string;
@@ -29,40 +31,25 @@ interface ToolPricingRow {
   agentPrice: string;
 }
 
-const PRICING_MATRIX: ToolPricingRow[] = [
-  {
-    name: "LedgerLink",
-    slug: "ledgerlink",
-    tool: "reconcile_stripe_payout",
+/**
+ * Derived from the pricing catalog (src/products/pricing.ts) and the product registry, never
+ * hand-written: this table used to hardcode "$0.25 / query" on every product, which was already
+ * wrong for five of the ten tools.
+ */
+const PRICING_MATRIX: ToolPricingRow[] = activeProducts.map((product) => {
+  const pricing = PRODUCT_PRICING[product.slug];
+  const rates = pricing ? Object.values(pricing.agentRates) : [];
+  const lowest = rates.length > 0 ? Math.min(...rates) : null;
+  return {
+    name: product.name,
+    slug: product.slug,
+    tool: product.webmcpTools.join(" / "),
     webPreview: "Free (Deterministic)",
-    exportPrice: "Free (Client-side CSV)",
-    agentPrice: "$0.25 / query",
-  },
-  {
-    name: "FacturGate",
-    slug: "facturgate",
-    tool: "validate_einvoice / convert",
-    webPreview: "Free (Pre-send Gate)",
-    exportPrice: "Free / Pro ($29/mo)",
-    agentPrice: "$0.25 / query",
-  },
-  {
-    name: "ParcelProof",
-    slug: "parcelproof",
-    tool: "audit_carrier_invoice",
-    webPreview: "Free (Audit Findings)",
-    exportPrice: "$9 / export or Pro",
-    agentPrice: "$0.25 / query",
-  },
-  {
-    name: "CaseProof",
-    slug: "caseproof",
-    tool: "audit_automation_case",
-    webPreview: "Free (NPV / Payback)",
-    exportPrice: "$9 / decision pack",
-    agentPrice: "$0.25 / query",
-  },
-];
+    exportPrice:
+      pricing && pricing.exportUsd !== null ? `$${pricing.exportUsd} one-off / Pro` : "Free / Pro",
+    agentPrice: lowest !== null ? `from $${lowest.toFixed(2)} / query` : "—",
+  };
+});
 
 export default function FactoryBillingPortal() {
   const [lookupQuery, setLookupQuery] = React.useState("");

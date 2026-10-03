@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CaseProofCalculator from "@/components/caseproof-calculator";
+import ProductPricing from "@/components/product-pricing";
 import { caseproofPresets } from "@/lib/seo/caseproof/presets";
 
 export const metadata: Metadata = {
@@ -25,6 +26,8 @@ export default function Page() {
       </div>
 
       <CaseProofCalculator initialScenario="vendor_case" />
+
+      <ProductPricing slug="caseproof" />
 
       <div className="mx-auto w-full max-w-4xl space-y-4 px-4 pb-14 sm:px-6">
         <h2 className="text-base font-semibold text-foreground">Rule and clause deep dives</h2>

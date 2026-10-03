@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { products, type ProductStatus } from "@/products/registry";
+import { agentRateOrNull, priceSummary } from "@/products/pricing";
 import { trackEvent } from "@/lib/telemetry-client";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -26,7 +27,8 @@ export default function DirectoryList() {
       p.name.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
-      p.webmcpTools.some((t) => t.toLowerCase().includes(q)),
+      p.webmcpTools.some((t) => t.toLowerCase().includes(q)) ||
+      (priceSummary(p.slug) ?? "").toLowerCase().includes(q),
   );
 
   const catalog = publicProducts.flatMap((p) => p.webmcpTools.map((tool) => ({ tool, product: p.name })));
@@ -66,6 +68,11 @@ export default function DirectoryList() {
                   </code>
                 ))}
               </div>
+              {priceSummary(p.slug) && (
+                <p className="border-t border-border/60 pt-3 text-xs text-muted">
+                  {priceSummary(p.slug)}
+                </p>
+              )}
               <a href={p.route} className="text-sm font-medium text-primary hover:underline">
                 Open {p.name} →
               </a>
@@ -80,15 +87,25 @@ export default function DirectoryList() {
       <section>
         <h2 className="mb-3 text-base font-semibold text-foreground">WebMCP agent catalog</h2>
         <div className="space-y-1">
-          {catalog.map(({ tool, product }) => (
-            <div
-              key={tool}
-              className="flex items-center justify-between gap-3 rounded border border-border bg-card px-3 py-2 text-sm"
-            >
-              <code className="font-mono text-xs text-foreground">{tool}</code>
-              <span className="text-xs text-muted">{product}</span>
-            </div>
-          ))}
+          {catalog.map(({ tool, product }) => {
+            const rate = agentRateOrNull(tool);
+            return (
+              <div
+                key={tool}
+                className="flex items-center justify-between gap-3 rounded border border-border bg-card px-3 py-2 text-sm"
+              >
+                <code className="font-mono text-xs text-foreground">{tool}</code>
+                <span className="flex items-center gap-3">
+                  <span className="text-xs text-muted">{product}</span>
+                  {rate !== null && (
+                    <span className="font-mono text-xs font-semibold text-primary">
+                      ${rate.toFixed(2)}/call
+                    </span>
+                  )}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>
