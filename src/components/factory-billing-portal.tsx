@@ -20,7 +20,10 @@ import { Badge } from "@/components/ui/badge";
 import { trackEvent } from "@/lib/telemetry-client";
 import BillingUsage from "@/components/billing-usage";
 import { activeProducts } from "@/products/registry";
-import { PRODUCT_PRICING } from "@/products/pricing";
+import { PRODUCT_PRICING, agentRateRange } from "@/products/pricing";
+
+/** The metered range for copy that must not hardcode a rate (the old flat "$0.25/query"). */
+const AGENT_RATE_RANGE = agentRateRange();
 
 interface ToolPricingRow {
   name: string;
@@ -201,7 +204,8 @@ export default function FactoryBillingPortal() {
 
             <p className="text-sm text-muted sm:text-base leading-relaxed">
               Register a card to receive an <code className="font-mono text-foreground font-semibold">x-customer-id</code> for
-              autonomous $0.25/query WebMCP tool execution, subscribe to Factory Pro, or manage existing invoices via Stripe.
+              usage-based WebMCP tool execution (from ${AGENT_RATE_RANGE.min.toFixed(2)} a call), subscribe to Factory Pro, or
+              manage existing invoices via Stripe.
             </p>
           </div>
 
@@ -222,8 +226,10 @@ export default function FactoryBillingPortal() {
                   Pay-as-you-go access for AI agents, LLM pipelines, and automated accounting bots.
                 </CardDescription>
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold font-mono text-foreground">$0.25</span>
-                  <span className="text-xs text-muted font-medium">/ successful query</span>
+                  <span className="text-3xl font-extrabold font-mono text-foreground">
+                    from ${AGENT_RATE_RANGE.min.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-muted font-medium">/ successful call</span>
                 </div>
                 <p className="text-[11px] text-[#047857] font-medium mt-1">
                   $0 base subscription • Billed monthly on usage

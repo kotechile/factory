@@ -1,7 +1,7 @@
 {
   "name": "factory-agent-tools",
   "description": "Deterministic agent tools shipped by the Autonomous Product & Software Factory (apps.giniloh.com), one product subpath per tool: Stripe payout -> GL reconciliation (LedgerLink), EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU VAT-id checks (FacturGate), carrier invoice DIM-weight / surcharge auditing with billable-weight computation (ParcelProof), and buyer-side warehouse-automation case auditing with multi-bid comparison and after-tax payback (CaseProof). Products retired in the registry are not listed.",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "endpoint": "https://apps.giniloh.com/api/agent/calculate",
   "tool_selector": {
     "header": "x-webmcp-tool",
@@ -11,12 +11,28 @@
   "auth": {
     "type": "api_key",
     "header": "x-customer-id",
-    "note": "Optional Stripe customer id for $0.25/query metered billing."
+    "note": "Optional Stripe customer id. Sending it meters the call and bills it to that customer; omitting it runs the tool unbilled and uncapped."
   },
   "pricing": {
     "mode": "metered",
-    "rate_per_query_usd": 0.25,
-    "currency": "USD"
+    "currency": "USD",
+    "unit": "per successful call",
+    "rate_range_usd": {
+      "min": 0.05,
+      "max": 0.5
+    },
+    "rates_by_tool": {
+      "reconcile_stripe_payout": 0.25,
+      "validate_einvoice": 0.1,
+      "convert_invoice_to_facturx": 0.25,
+      "check_eu_vat_id": 0.05,
+      "audit_carrier_invoice": 0.25,
+      "compute_billable_weight": 0.05,
+      "audit_automation_case": 0.5,
+      "compare_automation_bids": 0.5,
+      "after_tax_payback": 0.5
+    },
+    "note": "Metered per successful call and billed monthly to your Stripe customer. /billing shows the live rate per tool, your usage history and your spend cap."
   },
   "tools": [
     {

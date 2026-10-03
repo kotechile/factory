@@ -1,4 +1,5 @@
 import { activeProducts } from "@/products/registry";
+import { agentRateForTool } from "@/products/pricing";
 import { DEFAULT_AGENT_TOOL } from "./agentTools";
 import { WEBMCP_TOOL_SUMMARIES } from "./register";
 import type { WebMCPToolParameters } from "./types";
@@ -37,8 +38,12 @@ export interface McpManifest {
   };
   pricing: {
     mode: string;
-    rate_per_query_usd: number;
     currency: string;
+    unit: string;
+    rate_range_usd: { min: number; max: number };
+    /** The metered rate for every advertised tool, USD per successful call. */
+    rates_by_tool: Record<string, number>;
+    note: string;
   };
   tools: McpManifestTool[];
 }
@@ -89,7 +94,32 @@ export function manifestTools(): McpManifestTool[] {
   });
 }
 
+/**
+ * The metered rate for every tool the manifest advertises, in USD per successful call, sourced from
+ * the single pricing catalog (src/products/pricing.ts).
+ *
+ * The manifest used to publish a flat `rate_per_query_usd: 0.25` while the API charged $0.05–$0.50
+ * depending on the tool, so an agent reading it was quoted the wrong price for five of the nine
+ * tools. Deriving the rates here keeps the published contract and the charged price identical; a
+ * tool with no catalog rate throws rather than publishing an unpriceable surface.
+ */
+export function meteredRatesByTool(): Record<string, number> {
+  const rates: Record<string, number> = {};
+  for (const [name] of toolOwnerMap()) {
+    rates[name] = agentRateForTool(name);
+  }
+  return rates;
+}
+
 export function buildMcpManifest(): McpManifest {
+  const ratesByTool = meteredRatesByTool();
+  const rateValues = Object.values(ratesByTool);
+  if (rateValues.length === 0) {
+    throw new Error(
+      "The manifest would advertise no metered rates at all; check src/products/pricing.ts.",
+    );
+  }
+
   return {
     name: "factory-agent-tools",
     description:
@@ -100,7 +130,9 @@ export function buildMcpManifest(): McpManifest {
       "billable-weight computation (ParcelProof), and buyer-side warehouse-automation case " +
       "auditing with multi-bid comparison and after-tax payback (CaseProof). Products retired in " +
       "the registry are not listed.",
-    version: "1.5.0",
+    // 2.0.0: the flat rate_per_query_usd was replaced by per-tool rates — a consumer reading the
+    // old field must re-read pricing, so this is a breaking change, not a silent one.
+    version: "2.0.0",
     endpoint: "https://apps.giniloh.com/api/agent/calculate",
     tool_selector: {
       header: "x-webmcp-tool",
@@ -110,12 +142,18 @@ export function buildMcpManifest(): McpManifest {
     auth: {
       type: "api_key",
       header: "x-customer-id",
-      note: "Optional Stripe customer id for $0.25/query metered billing.",
+      note: "Optional Stripe customer id. Sending it meters the call and bills it to that customer; omitting it runs the tool unbilled and uncapped.",
     },
     pricing: {
       mode: "metered",
-      rate_per_query_usd: 0.25,
       currency: "USD",
+      unit: "per successful call",
+      rate_range_usd: {
+        min: Math.min(...rateValues),
+        max: Math.max(...rateValues),
+      },
+      rates_by_tool: ratesByTool,
+      note: "Metered per successful call and billed monthly to your Stripe customer. /billing shows the live rate per tool, your usage history and your spend cap.",
     },
     tools: manifestTools(),
   };

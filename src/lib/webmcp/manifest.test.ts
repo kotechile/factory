@@ -3,9 +3,16 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import { activeProducts, products, retiredProducts } from "@/products/registry";
+import { agentRateForTool } from "@/products/pricing";
 import { WEBMCP_TOOL_SUMMARIES } from "./register";
 import { DEFAULT_AGENT_TOOL, SUPPORTED_AGENT_TOOLS } from "./agentTools";
-import { MCP_MANIFEST_PATH, buildMcpManifest, serializeMcpManifest, toolOwnerMap } from "./manifest";
+import {
+  MCP_MANIFEST_PATH,
+  buildMcpManifest,
+  meteredRatesByTool,
+  serializeMcpManifest,
+  toolOwnerMap,
+} from "./manifest";
 
 /**
  * Drift guard for the published agent-discovery listing.
@@ -101,6 +108,31 @@ describe("WebMCP tool surface", () => {
       expect(defined).toContain(tool.name);
     }
     expect(defined).not.toContain("calculate_self_employment_2026");
+  });
+
+  it("publishes a real rate for every advertised tool instead of one flat guess", () => {
+    const manifest = buildMcpManifest();
+    const rates = meteredRatesByTool();
+    expect(Object.keys(rates).sort()).toEqual(manifest.tools.map((tool) => tool.name).sort());
+
+    for (const tool of manifest.tools) {
+      expect(rates[tool.name], `'${tool.name}' is advertised with no published rate`).toBeGreaterThan(0);
+    }
+    const values = Object.values(rates);
+    expect(manifest.pricing.rate_range_usd.min).toBe(Math.min(...values));
+    expect(manifest.pricing.rate_range_usd.max).toBe(Math.max(...values));
+    expect(manifest.pricing.mode).toBe("metered");
+    expect(manifest.pricing.unit).toBe("per successful call");
+  });
+
+  it("quotes exactly the per-tool rates the API charges, and never resurrects a flat rate", () => {
+    for (const [tool, rate] of Object.entries(meteredRatesByTool())) {
+      expect(rate, `the manifest quotes a different rate for '${tool}' than the catalog`).toBe(
+        agentRateForTool(tool),
+      );
+    }
+    // The flat `rate_per_query_usd: 0.25` was wrong for five of nine tools; it must not come back.
+    expect(JSON.stringify(buildMcpManifest())).not.toContain("rate_per_query_usd");
   });
 
   it("keeps the published .well-known/mcp.json byte-identical to the generator", () => {

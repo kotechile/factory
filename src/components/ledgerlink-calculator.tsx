@@ -10,6 +10,7 @@ import {
 } from "@/lib/calc/stripeRecon";
 import { workedExampleFixture, smallSampleFixture } from "@/lib/calc/stripeRecon.fixtures";
 import { trackEvent } from "@/lib/telemetry-client";
+import { agentRateForTool } from "@/products/pricing";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -341,7 +342,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
               reconcile_stripe_payout
             </span>
             <span className="rounded-full bg-[#10B981]/10 px-2.5 py-1 font-mono text-[11px] font-semibold text-[#047857]">
-              METERED $0.25
+              METERED ${agentRateForTool("reconcile_stripe_payout").toFixed(2)}
             </span>
           </div>
         </div>

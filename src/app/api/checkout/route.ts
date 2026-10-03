@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createCheckoutSession } from "@/lib/stripe/checkout";
 import { isStripeConfigured } from "@/lib/stripe/mode";
 import { activeProductSlugs, isRetiredProduct, products } from "@/products/registry";
+import { agentRateRange } from "@/products/pricing";
+
+/** The metered range for the agent plan's description — never a hardcoded per-call rate. */
+const AGENT_RATE_RANGE = agentRateRange();
 
 /**
  * Plans that belong to a product subpath. These are the ones that used to fall back to a
@@ -62,7 +66,7 @@ const PLAN_CATALOG: Record<string, PlanSpec> = {
     amount: 0,
     mode: "subscription",
     name: "Agent Metered Access",
-    description: "Metered agent access across all WebMCP tools ($0.25/query, billed monthly on usage)",
+    description: `Metered agent access across all WebMCP tools ($${AGENT_RATE_RANGE.min.toFixed(2)}–$${AGENT_RATE_RANGE.max.toFixed(2)} per successful call by tool, billed monthly on usage)`,
     taxCode: "txcd_10202000",
     meterPriceEnv: "STRIPE_AGENT_METER_PRICE_ID",
   },

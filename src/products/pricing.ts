@@ -113,6 +113,20 @@ export function lowestAgentRate(slug: string): number {
 }
 
 /**
+ * The metered rate range across every priced tool, for copy that must not hardcode a rate
+ * ("from $0.05 a call", "$0.05–$0.50 by tool").
+ */
+export function agentRateRange(): { min: number; max: number } {
+  const rates = Object.values(PRODUCT_PRICING).flatMap((pricing) =>
+    Object.values(pricing.agentRates),
+  );
+  if (rates.length === 0) {
+    throw new Error("No agent rates are defined anywhere; there is no range to describe.");
+  }
+  return { min: Math.min(...rates), max: Math.max(...rates) };
+}
+
+/**
  * Display helpers for the directory and product surfaces. These are deliberately tolerant: a
  * directory card must still render for a retired product with no price, where the sell/serve
  * boundaries call the throwing lookups above instead.

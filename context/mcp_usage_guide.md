@@ -9,7 +9,7 @@ The **Autonomous Product & Software Factory** (`apps.giniloh.com`) exposes every
 - **Canonical Manifest**: [`https://apps.giniloh.com/.well-known/mcp.json`](https://apps.giniloh.com/.well-known/mcp.json)
 - **Agent API Endpoint**: `POST https://apps.giniloh.com/api/agent/calculate`
 - **Tool Selector Header**: `x-webmcp-tool: <tool_name>`
-- **Billing & Auth Header**: `x-customer-id: <cus_...>` (optional Stripe customer ID for $0.25/query metered tier)
+- **Billing & Auth Header**: `x-customer-id: <cus_...>` (optional Stripe customer ID; sending it meters the call at that tool's rate and bills it monthly, omitting it runs the tool unbilled)
 - **Interactive Directory**: [`https://apps.giniloh.com/showcase`](https://apps.giniloh.com/showcase)
 
 ### Active Factory MCP Tools
@@ -238,11 +238,19 @@ In **Cursor Settings > Features > MCP**:
   },
   "metering": {
     "meteredUsageReported": false,
+    "usageRecorded": false,
+    "meteredCents": 25,
     "costPerQueryUsd": 0.25
   },
   "computedAt": "2026-10-03T18:45:00.000Z"
 }
 ```
+
+> The rates above are per tool — `reconcile_stripe_payout` is $0.25, `check_eu_vat_id` is $0.05,
+> `audit_automation_case` is $0.50. Read `pricing.rates_by_tool` in the manifest for the current
+> value rather than assuming one flat price. This example sent no `x-customer-id`, so nothing was
+> metered (`meteredUsageReported` and `usageRecorded` false); with the header set, both flip to
+> true, a `meterEventId` appears, and the call is billed at the tool's rate.
 
 ---
 
