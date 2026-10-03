@@ -55,189 +55,202 @@ function buildExportJson(input: StripeReconInput): string {
 
 function DisaggregationPrism() {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/80 p-4 shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_8px_24px_-4px_rgba(15,23,42,0.04)] backdrop-blur-xs">
-      {/* Top subtle technical bar */}
-      <div className="mb-2 flex items-center justify-between border-b border-border/60 pb-2 text-[11px] font-mono text-muted">
-        <span className="flex items-center gap-1.5 font-medium text-foreground">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-          DIS-AGGREGATION PRISM
-        </span>
-        <span className="rounded bg-black/[0.04] px-1.5 py-0.5 text-[10px] text-muted">
-          1 PAYOUT → 5 GL THREADS
-        </span>
+    <div className="relative">
+      {/* Ambient refraction radial glow behind prism for canvas depth */}
+      <div
+        className="pointer-events-none absolute -inset-2 rounded-3xl bg-gradient-to-r from-[#635BFF]/15 via-[#06B6D4]/12 to-[#4338CA]/15 blur-xl -z-10"
+        aria-hidden="true"
+      />
+
+      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card/85 p-4 ring-1 ring-[#0F172A]/[0.05] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.06)] backdrop-blur-xs">
+        {/* Top subtle technical bar */}
+        <div className="mb-2 flex items-center justify-between border-b border-border/60 pb-2 text-[11px] font-mono text-muted">
+          <span className="flex items-center gap-1.5 font-medium text-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            DIS-AGGREGATION PRISM
+          </span>
+          <span className="rounded bg-black/[0.04] px-1.5 py-0.5 text-[10px] text-muted">
+            1 PAYOUT → 5 GL THREADS
+          </span>
+        </div>
+
+        <svg
+          viewBox="0 0 600 230"
+          className="w-full h-auto select-none"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Dis-aggregation Prism: single netted payout fanning into 5 GL journal lines"
+        >
+          <defs>
+            <linearGradient id="prismBeam" x1="140" y1="115" x2="225" y2="115" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#635BFF" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#4338CA" stopOpacity="1" />
+            </linearGradient>
+
+            <linearGradient id="prismFacet" x1="220" y1="75" x2="270" y2="155" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#F1F5F9" stopOpacity="0.7" />
+            </linearGradient>
+
+            <linearGradient id="prismGlowGrad" x1="220" y1="75" x2="270" y2="155" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#635BFF" />
+              <stop offset="50%" stopColor="#06B6D4" />
+              <stop offset="100%" stopColor="#4338CA" />
+            </linearGradient>
+
+            <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          {/* 1. Incoming solid node ($ currency) */}
+          <g transform="translate(10, 85)">
+            <rect
+              width="130"
+              height="60"
+              rx="8"
+              fill="#FFFFFF"
+              stroke="#CBD5E1"
+              strokeWidth="1"
+              filter="drop-shadow(0 2px 4px rgba(15,23,42,0.05))"
+            />
+            <rect x="0" y="0" width="130" height="3.5" rx="1.5" fill="#635BFF" />
+            <text x="12" y="20" fill="#64748B" fontSize="9" fontFamily="monospace" fontWeight="600" letterSpacing="0.05em">
+              NETTED PAYOUT
+            </text>
+            <text x="12" y="38" fill="#0F172A" fontSize="13" fontFamily="monospace" fontWeight="700">
+              $4,378.21
+            </text>
+            <text x="12" y="50" fill="#64748B" fontSize="9" fontFamily="monospace">
+              po_1NqK2t...net
+            </text>
+          </g>
+
+          {/* Thick solid incoming beam */}
+          <path
+            d="M 140 115 L 225 115"
+            stroke="url(#prismBeam)"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          <circle cx="180" cy="115" r="3" fill="#635BFF" />
+
+          {/* 2. Glassmorphic Prism in center */}
+          <g transform="translate(225, 75)">
+            <polygon
+              points="24,3 48,38 38,76 10,76 0,38"
+              fill="url(#prismFacet)"
+              stroke="url(#prismGlowGrad)"
+              strokeWidth="1.5"
+              filter="url(#softGlow)"
+            />
+            {/* Inner crystal refraction lines */}
+            <line x1="24" y1="3" x2="24" y2="76" stroke="#635BFF" strokeWidth="0.75" strokeDasharray="2 2" opacity="0.6" />
+            <line x1="0" y1="38" x2="48" y2="38" stroke="#06B6D4" strokeWidth="0.75" strokeDasharray="2 2" opacity="0.6" />
+            <circle cx="24" cy="38" r="3" fill="#635BFF" />
+          </g>
+
+          {/* 3. Five Fanning Out Thread Lines */}
+          {/* Charges (#10B981) */}
+          <path
+            d="M 273 110 C 315 105, 335 26, 380 26"
+            stroke="#10B981"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Refunds (#EF4444) */}
+          <path
+            d="M 273 113 C 315 110, 335 70, 380 70"
+            stroke="#EF4444"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* Stripe Fees (#635BFF) */}
+          <path
+            d="M 273 115 C 315 115, 335 115, 380 115"
+            stroke="#635BFF"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* FX Adjustments (#F59E0B) */}
+          <path
+            d="M 273 117 C 315 120, 335 160, 380 160"
+            stroke="#F59E0B"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+          {/* GL Net (#0F172A) */}
+          <path
+            d="M 273 120 C 315 125, 335 204, 380 204"
+            stroke="#0F172A"
+            strokeWidth="2"
+            fill="none"
+            strokeLinecap="round"
+          />
+
+          {/* 4. Output Node Pills with Micro-Badge Tags */}
+          {/* 1. Charges (+) */}
+          <g transform="translate(380, 10)">
+            <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#10B981" strokeWidth="1" strokeOpacity="0.4" />
+            <rect x="7" y="8" width="16" height="16" rx="4" fill="#DCFCE7" />
+            <text x="15" y="20" textAnchor="middle" fill="#047857" fontSize="11" fontWeight="700">+</text>
+            <text x="28" y="20" fill="#047857" fontSize="10" fontWeight="600">Charges</text>
+            <text x="198" y="20" textAnchor="end" fill="#047857" fontSize="10" fontFamily="monospace" fontWeight="700">
+              +$5,120.00
+            </text>
+          </g>
+
+          {/* 2. Refunds (-) */}
+          <g transform="translate(380, 54)">
+            <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#EF4444" strokeWidth="1" strokeOpacity="0.4" />
+            <rect x="7" y="8" width="16" height="16" rx="4" fill="#FEE2E2" />
+            <text x="15" y="20" textAnchor="middle" fill="#991B1B" fontSize="11" fontWeight="700">−</text>
+            <text x="28" y="20" fill="#991B1B" fontSize="10" fontWeight="600">Refunds</text>
+            <text x="198" y="20" textAnchor="end" fill="#991B1B" fontSize="10" fontFamily="monospace" fontWeight="700">
+              -$420.00
+            </text>
+          </g>
+
+          {/* 3. Stripe Fees (-) */}
+          <g transform="translate(380, 99)">
+            <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#635BFF" strokeWidth="1" strokeOpacity="0.4" />
+            <rect x="7" y="8" width="16" height="16" rx="4" fill="#EEF2FF" />
+            <text x="15" y="20" textAnchor="middle" fill="#4F46E5" fontSize="11" fontWeight="700">−</text>
+            <text x="28" y="20" fill="#4F46E5" fontSize="10" fontWeight="600">Stripe Fees</text>
+            <text x="198" y="20" textAnchor="end" fill="#4F46E5" fontSize="10" fontFamily="monospace" fontWeight="700">
+              -$142.79
+            </text>
+          </g>
+
+          {/* 4. FX Adjustments (-) */}
+          <g transform="translate(380, 144)">
+            <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#F59E0B" strokeWidth="1" strokeOpacity="0.4" />
+            <rect x="7" y="8" width="16" height="16" rx="4" fill="#FEF3C7" />
+            <text x="15" y="20" textAnchor="middle" fill="#92400E" fontSize="11" fontWeight="700">−</text>
+            <text x="28" y="20" fill="#92400E" fontSize="10" fontWeight="600">FX Adjustments</text>
+            <text x="198" y="20" textAnchor="end" fill="#92400E" fontSize="10" fontFamily="monospace" fontWeight="700">
+              -$179.00
+            </text>
+          </g>
+
+          {/* 5. GL Net (=) */}
+          <g transform="translate(380, 188)">
+            <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.2" strokeOpacity="0.4" />
+            <rect x="7" y="8" width="16" height="16" rx="4" fill="#F1F5F9" />
+            <text x="15" y="20" textAnchor="middle" fill="#0F172A" fontSize="11" fontWeight="700">=</text>
+            <text x="28" y="20" fill="#0F172A" fontSize="10" fontWeight="600">GL Net (Balanced)</text>
+            <text x="198" y="20" textAnchor="end" fill="#0F172A" fontSize="10" fontFamily="monospace" fontWeight="700">
+              =$4,378.21
+            </text>
+          </g>
+        </svg>
       </div>
-
-      <svg
-        viewBox="0 0 600 230"
-        className="w-full h-auto select-none"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        role="img"
-        aria-label="Dis-aggregation Prism: single netted payout fanning into 5 GL journal lines"
-      >
-        <defs>
-          <linearGradient id="prismBeam" x1="140" y1="115" x2="225" y2="115" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#635BFF" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#4338CA" stopOpacity="1" />
-          </linearGradient>
-
-          <linearGradient id="prismFacet" x1="220" y1="75" x2="270" y2="155" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="#F1F5F9" stopOpacity="0.7" />
-          </linearGradient>
-
-          <linearGradient id="prismGlowGrad" x1="220" y1="75" x2="270" y2="155" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#635BFF" />
-            <stop offset="50%" stopColor="#06B6D4" />
-            <stop offset="100%" stopColor="#4338CA" />
-          </linearGradient>
-
-          <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="2.5" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-
-        {/* 1. Incoming solid node */}
-        <g transform="translate(10, 85)">
-          <rect
-            width="130"
-            height="60"
-            rx="8"
-            fill="#FFFFFF"
-            stroke="#CBD5E1"
-            strokeWidth="1"
-            filter="drop-shadow(0 2px 4px rgba(15,23,42,0.05))"
-          />
-          <rect x="0" y="0" width="130" height="3.5" rx="1.5" fill="#635BFF" />
-          <text x="12" y="20" fill="#64748B" fontSize="9" fontFamily="monospace" fontWeight="600" letterSpacing="0.05em">
-            NETTED PAYOUT
-          </text>
-          <text x="12" y="38" fill="#0F172A" fontSize="13" fontFamily="monospace" fontWeight="700">
-            £4,378.21
-          </text>
-          <text x="12" y="50" fill="#64748B" fontSize="9" fontFamily="monospace">
-            po_1NqK2t...net
-          </text>
-        </g>
-
-        {/* Thick solid incoming beam */}
-        <path
-          d="M 140 115 L 225 115"
-          stroke="url(#prismBeam)"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-        />
-        <circle cx="180" cy="115" r="3" fill="#635BFF" />
-
-        {/* 2. Glassmorphic Prism in center */}
-        <g transform="translate(225, 75)">
-          <polygon
-            points="24,3 48,38 38,76 10,76 0,38"
-            fill="url(#prismFacet)"
-            stroke="url(#prismGlowGrad)"
-            strokeWidth="1.5"
-            filter="url(#softGlow)"
-          />
-          {/* Inner crystal refraction lines */}
-          <line x1="24" y1="3" x2="24" y2="76" stroke="#635BFF" strokeWidth="0.75" strokeDasharray="2 2" opacity="0.6" />
-          <line x1="0" y1="38" x2="48" y2="38" stroke="#06B6D4" strokeWidth="0.75" strokeDasharray="2 2" opacity="0.6" />
-          <circle cx="24" cy="38" r="3" fill="#635BFF" />
-        </g>
-
-        {/* 3. Five Fanning Out Thread Lines */}
-        {/* Charges (#10B981) */}
-        <path
-          d="M 273 110 C 315 105, 335 26, 380 26"
-          stroke="#10B981"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-        {/* Refunds (#EF4444) */}
-        <path
-          d="M 273 113 C 315 110, 335 70, 380 70"
-          stroke="#EF4444"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-        {/* Stripe Fees (#635BFF) */}
-        <path
-          d="M 273 115 C 315 115, 335 115, 380 115"
-          stroke="#635BFF"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-        {/* FX Adjustments (#F59E0B) */}
-        <path
-          d="M 273 117 C 315 120, 335 160, 380 160"
-          stroke="#F59E0B"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-        {/* GL Net (#0F172A) */}
-        <path
-          d="M 273 120 C 315 125, 335 204, 380 204"
-          stroke="#0F172A"
-          strokeWidth="2"
-          fill="none"
-          strokeLinecap="round"
-        />
-
-        {/* 4. Output Node Pills */}
-        {/* 1. Charges */}
-        <g transform="translate(380, 10)">
-          <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#10B981" strokeWidth="1" strokeOpacity="0.4" />
-          <circle cx="12" cy="16" r="3.5" fill="#10B981" />
-          <text x="24" y="20" fill="#047857" fontSize="10" fontWeight="600">Charges</text>
-          <text x="198" y="20" textAnchor="end" fill="#047857" fontSize="10" fontFamily="monospace" fontWeight="700">
-            +£5,120.00
-          </text>
-        </g>
-
-        {/* 2. Refunds */}
-        <g transform="translate(380, 54)">
-          <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#EF4444" strokeWidth="1" strokeOpacity="0.4" />
-          <circle cx="12" cy="16" r="3.5" fill="#EF4444" />
-          <text x="24" y="20" fill="#991B1B" fontSize="10" fontWeight="600">Refunds</text>
-          <text x="198" y="20" textAnchor="end" fill="#991B1B" fontSize="10" fontFamily="monospace" fontWeight="700">
-            -£420.00
-          </text>
-        </g>
-
-        {/* 3. Stripe Fees */}
-        <g transform="translate(380, 99)">
-          <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#635BFF" strokeWidth="1" strokeOpacity="0.4" />
-          <circle cx="12" cy="16" r="3.5" fill="#635BFF" />
-          <text x="24" y="20" fill="#4F46E5" fontSize="10" fontWeight="600">Stripe Fees</text>
-          <text x="198" y="20" textAnchor="end" fill="#4F46E5" fontSize="10" fontFamily="monospace" fontWeight="700">
-            -£142.79
-          </text>
-        </g>
-
-        {/* 4. FX Adjustments */}
-        <g transform="translate(380, 144)">
-          <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#F59E0B" strokeWidth="1" strokeOpacity="0.4" />
-          <circle cx="12" cy="16" r="3.5" fill="#F59E0B" />
-          <text x="24" y="20" fill="#92400E" fontSize="10" fontWeight="600">FX Adjustments</text>
-          <text x="198" y="20" textAnchor="end" fill="#92400E" fontSize="10" fontFamily="monospace" fontWeight="700">
-            -£179.00
-          </text>
-        </g>
-
-        {/* 5. GL Net */}
-        <g transform="translate(380, 188)">
-          <rect width="210" height="32" rx="6" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.2" strokeOpacity="0.4" />
-          <circle cx="12" cy="16" r="3.5" fill="#0F172A" />
-          <text x="24" y="20" fill="#0F172A" fontSize="10" fontWeight="600">GL Net (Balanced)</text>
-          <text x="198" y="20" textAnchor="end" fill="#0F172A" fontSize="10" fontFamily="monospace" fontWeight="700">
-            =£4,378.21
-          </text>
-        </g>
-      </svg>
     </div>
   );
 }
@@ -401,26 +414,26 @@ export default function LedgerLinkCalculator() {
         />
 
         <main className="mx-auto w-full max-w-7xl space-y-10 px-4 py-8 sm:px-6 lg:px-8">
-          {/* Hero with Dis-aggregation Prism Artwork */}
+          {/* Hero with Dis-aggregation Prism Artwork (Vertically Balanced) */}
           <div className="mx-auto max-w-6xl">
             <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
-              <div className="space-y-4 text-center lg:col-span-6 lg:text-left">
-                {/* Live Interactive Pill */}
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/90 px-3.5 py-1 font-mono text-xs text-muted shadow-xs backdrop-blur-xs">
-                  <span className="relative flex h-2 w-2">
+              <div className="flex flex-col justify-center space-y-4 text-center lg:col-span-6 lg:text-left">
+                {/* Crisp Dual-Segment Pill Badge */}
+                <div className="inline-flex items-center gap-2 self-center lg:self-start rounded-full border border-[#E2E8F0] bg-[#F1F5F9]/90 px-3 py-1 font-mono text-xs text-[#334155] shadow-2xs backdrop-blur-xs">
+                  <span className="relative flex h-1.5 w-1.5">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#10B981] opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[#10B981]" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#10B981]" />
                   </span>
-                  <span className="font-semibold text-foreground">BROWSER-LOCAL DETERMINISTIC</span>
-                  <span className="text-border">•</span>
-                  <span>Autonomous Product &amp; Software Factory • Payout Dis-aggregation Engine</span>
+                  <span className="font-semibold text-foreground">LOCAL-FIRST RECONCILER</span>
+                  <span className="text-[#CBD5E1]">|</span>
+                  <span className="text-[#64748B]">ASC 606 / IFRS 15 COMPLIANT</span>
                 </div>
 
-                <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-[34px] lg:leading-tight">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-[38px] lg:leading-[1.18]">
                   Turn one netted Stripe payout into clean GL journal lines
                 </h1>
 
-                <p className="text-sm text-muted sm:text-base leading-relaxed">
+                <p className="text-sm text-muted sm:text-base leading-relaxed max-w-xl">
                   A single payout is a bundle of charges, refunds, chargebacks, Stripe fees, Connect
                   transfers and FX adjustments. LedgerLink decomposes it into categorized journal lines
                   that <strong className="text-foreground">sum to the payout net exactly</strong> — ready
@@ -436,7 +449,7 @@ export default function LedgerLinkCalculator() {
 
           {/* Source picker & Elevated Work Surface */}
           <div className="mx-auto max-w-4xl">
-            {/* Apple-style Segmented Pill Control */}
+            {/* Apple-style Segmented Pill Control (with subtle unselected tab styling) */}
             <div className="mb-4 flex items-center justify-start">
               <div className="inline-flex rounded-xl bg-[#F1F5F9] p-1 shadow-inner border border-black/[0.04]">
                 <button
@@ -445,10 +458,10 @@ export default function LedgerLinkCalculator() {
                     setMode("json");
                     setError(null);
                   }}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-all sm:text-sm cursor-pointer ${
+                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm cursor-pointer transition-all ${
                     mode === "json"
                       ? "bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] font-semibold"
-                      : "text-muted hover:text-foreground"
+                      : "text-[#64748B] hover:text-[#0F172A] font-medium"
                   }`}
                 >
                   <Upload className="h-3.5 w-3.5" />
@@ -460,10 +473,10 @@ export default function LedgerLinkCalculator() {
                     setMode("key");
                     setError(null);
                   }}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-medium transition-all sm:text-sm cursor-pointer ${
+                  className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm cursor-pointer transition-all ${
                     mode === "key"
                       ? "bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] font-semibold"
-                      : "text-muted hover:text-foreground"
+                      : "text-[#64748B] hover:text-[#0F172A] font-medium"
                   }`}
                 >
                   <ShieldCheck className="h-3.5 w-3.5" />
@@ -472,9 +485,9 @@ export default function LedgerLinkCalculator() {
               </div>
             </div>
 
-            {/* Elevated Ghost Border Card */}
-            <Card className="rounded-2xl border-0 bg-card shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_8px_24px_-4px_rgba(15,23,42,0.04)]">
-              <CardHeader>
+            {/* Elevated Ghost Border Card with inner ring & deeper shadow */}
+            <Card className="rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
+              <CardHeader className="border-b border-border/70 pb-4">
                 <CardTitle className="flex items-center gap-2 text-base">
                   {mode === "json" ? (
                     <Upload className="h-4 w-4 text-primary" />
@@ -493,58 +506,60 @@ export default function LedgerLinkCalculator() {
                     : "LedgerLink never uses the factory Stripe account — provide your own read-only restricted key (rk_…) scoped to payouts & balance_transactions."}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-4 sm:p-6 space-y-4">
                 {mode === "json" ? (
                   <>
-                    <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => loadSample("small")}
-                          className="h-7 text-xs shadow-2xs"
-                        >
-                          Small sample
-                        </Button>
-                        <label className="inline-flex h-7 items-center gap-1.5 rounded border border-border px-2.5 text-xs font-medium text-foreground hover:bg-card cursor-pointer transition-colors shadow-2xs">
-                          <input
-                            type="file"
-                            accept="application/json,.json"
-                            className="sr-only"
-                            onChange={handleFileUpload}
-                          />
-                          <Upload className="h-3 w-3" />
-                          <span>Upload JSON file</span>
-                        </label>
-                      </div>
-                      <div className="text-[11px] text-subtle font-mono">
-                        {jsonText ? `${jsonText.split("\n").length} lines buffer` : "Awaiting input"}
-                      </div>
-                    </div>
-
-                    {/* Authentic IDE / Terminal Treatment with Line Gutter */}
-                    <div className="overflow-hidden rounded-xl border border-border/80 bg-[#F8FAFC] shadow-inner">
-                      {/* Editor Header Bar */}
-                      <div className="flex items-center justify-between border-b border-border/70 bg-card/75 px-3.5 py-2 text-xs backdrop-blur-xs">
+                    {/* Unified IDE / Terminal Box with Absorbed Controls & Sticky Gutter */}
+                    <div className="overflow-hidden rounded-xl border border-border/80 bg-[#F8FAFC] shadow-inner ring-1 ring-[#0F172A]/[0.05]">
+                      {/* Integrated Terminal Header Bar */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 bg-card/90 px-3.5 py-2.5 text-xs backdrop-blur-xs">
+                        {/* Left: macOS dots, filename, zero egress badge */}
                         <div className="flex items-center gap-2 font-mono text-[11px] text-muted">
                           <span className="flex items-center gap-1.5" aria-hidden="true">
-                            <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
-                            <span className="h-2 w-2 rounded-full bg-[#F59E0B]" />
-                            <span className="h-2 w-2 rounded-full bg-[#10B981]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />
                           </span>
                           <span className="text-border">|</span>
                           <span className="font-semibold text-foreground">stripe_payout_export.json</span>
+                          <span className="hidden sm:inline-flex items-center gap-1 rounded bg-[#10B981]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#047857]">
+                            <ShieldCheck className="h-3 w-3" />
+                            ZERO EGRESS
+                          </span>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-2 py-0.5 font-mono text-[10px] font-semibold text-muted shadow-2xs">
-                          <ShieldCheck className="h-3 w-3 text-success" />
-                          <span>CLIENT-SIDE ONLY • ZERO EGRESS</span>
-                        </span>
+
+                        {/* Right: Absorb Sample & Upload into header */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => loadSample("small")}
+                            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-muted hover:bg-black/[0.04] hover:text-foreground transition-colors cursor-pointer"
+                          >
+                            <Sparkles className="h-3 w-3 text-primary" />
+                            <span>Load sample</span>
+                          </button>
+
+                          <label className="inline-flex items-center gap-1 rounded border border-border/80 bg-card px-2 py-1 text-xs font-medium text-foreground hover:bg-black/[0.02] cursor-pointer transition-colors shadow-2xs">
+                            <input
+                              type="file"
+                              accept="application/json,.json"
+                              className="sr-only"
+                              onChange={handleFileUpload}
+                            />
+                            <Upload className="h-3 w-3 text-muted" />
+                            <span>Upload file</span>
+                          </label>
+
+                          <span className="text-[11px] font-mono text-subtle pl-1 hidden md:inline">
+                            {jsonText ? `${jsonText.split("\n").length} lines` : "Awaiting JSON"}
+                          </span>
+                        </div>
                       </div>
 
-                      {/* Editor Body with Gutter */}
-                      <div className="flex min-h-[190px] font-mono text-xs">
+                      {/* Editor Body with Gutter (Bounded max-height) */}
+                      <div className="flex font-mono text-xs max-h-[300px] overflow-y-auto">
                         <div
-                          className="select-none border-r border-border/60 bg-black/[0.02] px-2.5 py-3 text-right font-mono text-[11px] leading-[1.4rem] text-muted/40"
+                          className="select-none border-r border-border/60 bg-black/[0.02] px-2.5 py-3 text-right font-mono text-[11px] leading-[1.4rem] text-muted/40 sticky top-0"
                           aria-hidden="true"
                         >
                           <div>01</div>
@@ -556,32 +571,32 @@ export default function LedgerLinkCalculator() {
                           <div>07</div>
                           <div>08</div>
                           <div>09</div>
+                          <div>10</div>
                         </div>
                         <textarea
                           value={jsonText}
                           onChange={(e) => setJsonText(e.target.value)}
-                          placeholder='{"payout": {"id": "po_1...", "amount": 437821, "currency": "gbp"}, "balance_transactions": [...]}'
+                          placeholder='{"payout": {"id": "po_1...", "amount": 437821, "currency": "usd"}, "balance_transactions": [...]}'
                           aria-label="Stripe JSON export"
-                          className="w-full resize-y bg-transparent p-3 font-mono text-xs leading-[1.4rem] text-foreground placeholder:text-muted/50 focus:outline-hidden"
-                          rows={8}
+                          className="w-full resize-none bg-transparent p-3 font-mono text-xs leading-[1.4rem] text-foreground placeholder:text-muted/50 focus:outline-hidden min-h-[160px]"
+                          rows={7}
                         />
                       </div>
-                    </div>
 
-                    {/* Primary CTA with Tactile Feedback */}
-                    <div>
-                      <Button
+                      {/* Integrated Full-Width Bottom Action Bar */}
+                      <button
+                        type="button"
                         onClick={handleJson}
                         disabled={busy}
-                        className="gap-2 shadow-[0_2px_8px_rgba(79,70,229,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_12px_rgba(79,70,229,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 cursor-pointer font-semibold px-5"
+                        className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-[#4338CA] active:bg-[#3730A3] font-semibold text-sm text-white border-t border-primary/20 shadow-xs cursor-pointer transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none"
                       >
                         {busy ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <ArrowRightLeft className="h-4 w-4" />
                         )}
-                        <span>Reconcile</span>
-                      </Button>
+                        <span>Reconcile Payout Lines (Deterministic)</span>
+                      </button>
                     </div>
                   </>
                 ) : (
@@ -621,14 +636,14 @@ export default function LedgerLinkCalculator() {
                       <Button
                         onClick={handleKey}
                         disabled={busy}
-                        className="gap-2 shadow-[0_2px_8px_rgba(79,70,229,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_12px_rgba(79,70,229,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 cursor-pointer font-semibold px-5"
+                        className="w-full justify-center gap-2 py-3 shadow-[0_2px_8px_rgba(79,70,229,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_12px_rgba(79,70,229,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150 cursor-pointer font-semibold"
                       >
                         {busy ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <ShieldCheck className="h-4 w-4" />
                         )}
-                        <span>Reconcile (metered)</span>
+                        <span>Reconcile via Stripe Key (Metered)</span>
                       </Button>
                     </div>
                   </>
