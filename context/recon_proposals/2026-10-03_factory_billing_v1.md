@@ -2,7 +2,8 @@
 
 **Date:** 2026-10-03
 **Status:** APPROVED for build — owner instruction (Jorge), 2026-10-03. §5 (v1 scope guard) is binding.
-**D1–D3 fixed and live-verified in `7751fea`** (see `context/pending_approval.md`); V1.2–V1.4 remain open.
+**D1–D3 fixed and live-verified in `7751fea`; V1.2–V1.4 shipped and live-verified in `16c7c91`**
+(evidence in `context/pending_approval.md`).
 **Source signal:** Owner directive 2026-10-03 — *"I need to have a way for users to pay and check their
 payment/usage history… Every app in the software factory can use the Billing portal."* Preceded by a
 five-category audit of the existing billing surface. **This PRD supersedes that audit's phasing.** Every

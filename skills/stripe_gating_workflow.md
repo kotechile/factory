@@ -97,3 +97,23 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
   body its button sends and confirm amount/mode match the words on the card; a card that says "$0 base +
   $0.25/query" while the payload sends a flat `$25/mo` is a billing defect, not a copy nit.
 
+## 12. Usage ledger & spend cap (2026-10-03 — billing v1.2/v1.3/v1.4)
+
+- **Ledger in the table that already exists.** Usage rows go to `public.events`
+  (`event='agent_usage'`, `payload={customer_id,tool,cost_usd,meter_event_id}`), with the caps document in
+  `factory_config['billing_caps']`. PostgREST exposes no DDL, so designing for a table that already exists
+  beats requiring an owner-applied migration for no benefit (`supabase-persistence` §7).
+- **Enforce the cap BEFORE the engine runs, and after identity — never after the work.** An over-cap call
+  is an explicit 402 naming the cap and the reset instant; a billing-DB failure is an explicit 500, never a
+  silent allow (the §8 invariant applies to the cap exactly as it does to entitlement).
+- **A ledger write is not best-effort.** `track()` may swallow errors; the usage row may not — a lost row
+  silently under-counts the next cap check. Surface `usageRecorded` on the response so the failure is
+  visible instead of silent.
+- **Never sum a page.** PostgREST cannot aggregate, so the period total is computed in Node; read with
+  `count: exact` and refuse loudly when the count exceeds the read limit rather than reporting a truncated
+  total that under-enforces the cap.
+- **Sum money in integer cents**, never floats: repeated $0.25 charges drift otherwise.
+- **A cap without identity is advisory.** The published manifest marks `x-customer-id` optional, so only
+  identified callers are capped and anonymous calls stay free. Requiring identity is a contract change —
+  update `/.well-known/mcp.json` and its drift test in the same pass, never a quiet code tweak.
+

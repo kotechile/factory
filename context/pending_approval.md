@@ -23,8 +23,19 @@ authorised the three money-relevant defects only. Shipped and verified against t
   open:** create a Stripe Billing Meter + metered Price and set that env var, else the Agent CTA stays down.
 - Gate: tsc, eslint, tokens, vertical-sync, 144 unit tests, `next build`, billing Playwright e2e (2/2 incl.
   axe AA) all green locally; SOP patched (`skills/stripe_gating_workflow.md` §11).
-- **Still open for v1:** V1.2 (server-enforced cap), V1.3 (`GET /api/v1/billing/summary`), V1.4 (usage
-  section on `/billing`) — not dispatched.
+- **V1.2–V1.4 SHIPPED + LIVE-VERIFIED — `16c7c91`.** Owner follow-up "take those same pattern".
+  Ledger = `public.events` (`event='agent_usage'`), caps = `factory_config['billing_caps']` — no migration
+  needed. Cap enforced before the engine (402 at cap, explicit 500 on a billing-DB error);
+  `/api/v1/billing/summary` + `/api/v1/billing/cap`; `/billing` gained "Your Usage & Spend".
+  Live loop on a throwaway live customer: no id → **401**; unknown customer → **404**; fresh → **200**
+  (cap $50 default) → cap 0 → metered call → **402** (engine did not run) → cap 50 → metered call → **200**
+  (`usageRecorded:true`, $0.05) → summary → **usage $0.05 / 1 query**; bad cap value → **400**; `/billing`
+  **200**. Probe customer, its ledger row and its caps entry were then deleted (verified: **0**
+  `agent_usage` rows remain; the customer now 404s).
+  **Still open (owner/env):** no Stripe Billing Meter is configured for the agent event names
+  (`meteredUsageReported:false` on the live probe), so metered *invoicing* still needs the meter +
+  `STRIPE_AGENT_METER_PRICE_ID`. **D4** (identity required on the metered path) stays unshipped on purpose:
+  the published manifest advertises the id as optional, so this is a contract change for the owner to call.
 
 - **Item:** the factory's first customer-facing billing contract — a verified usage ledger + a read
   surface every app consumes. Full PRD: `context/recon_proposals/2026-10-03_factory_billing_v1.md`.
