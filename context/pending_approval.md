@@ -32,10 +32,23 @@ authorised the three money-relevant defects only. Shipped and verified against t
   (`usageRecorded:true`, $0.05) → summary → **usage $0.05 / 1 query**; bad cap value → **400**; `/billing`
   **200**. Probe customer, its ledger row and its caps entry were then deleted (verified: **0**
   `agent_usage` rows remain; the customer now 404s).
-  **Still open (owner/env):** no Stripe Billing Meter is configured for the agent event names
-  (`meteredUsageReported:false` on the live probe), so metered *invoicing* still needs the meter +
-  `STRIPE_AGENT_METER_PRICE_ID`. **D4** (identity required on the metered path) stays unshipped on purpose:
-  the published manifest advertises the id as optional, so this is a contract change for the owner to call.
+  **Metered invoicing — cents model shipped (`b45aeb5`), Stripe meter created.** A meter binds to ONE
+  event name, so per-tool event names could not invoice without a meter+price per tool. The app now reports
+  a single event (`factory_agent_usage`) with `value` = the charge in **integer cents**, against a **sum**
+  meter and a **$0.01/unit** metered Price. Created on the live account: meter
+  `mtr_61VVwvUGMDZ1f90bp41JaTDc3aAp0O5w` (active, sum), product `prod_VNJbbCEjZjVge2`, price
+  `price_1UMYy8JaTDc3aAp0mRZ6SFZ7` ($0.01/unit, monthly, metered). Live end-to-end: agent call **200** →
+  `meteredUsageReported:true`, `meteredCents:5`, `usageRecorded:true` → summary **$0.05 / 1 query** →
+  Stripe meter aggregation read back **5**. Probe customer, its ledger row and caps entry deleted
+  (verified afterwards: 0 probe customers, 0 `agent_usage` rows).
+  **Owner action left:** set `STRIPE_AGENT_METER_PRICE_ID=price_1UMYy8JaTDc3aAp0mRZ6SFZ7` in the Coolify
+  env to switch the Agent CTA back on (`STRIPE_METER_EVENT_NAME` is optional — the code default already
+  matches the meter). **D4** (identity required on the metered path) stays unshipped on purpose: the
+  published manifest advertises the id as optional, so that is a contract change for the owner to call.
+  **Flagged, not changed:** the published manifest still advertises a flat `rate_per_query_usd: 0.25`
+  while per-tool prices run $0.05–$0.50, and the `/billing` pricing matrix shows "$0.25 / query" on all
+  four products. Both are now inaccurate against the payload; editing a published contract is the owner's
+  call, so they are reported rather than edited.
 
 - **Item:** the factory's first customer-facing billing contract — a verified usage ledger + a read
   surface every app consumes. Full PRD: `context/recon_proposals/2026-10-03_factory_billing_v1.md`.
