@@ -4,6 +4,34 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-03 (15:30 sweep, every open item re-measured live) — **ITEM 1 IS RESOLVED: live payments
+are ON.** The founder (Jorge) replaced the live key slot's `mk_…` ID with the real secret ≈13:15 today; re-verified
+*(live, from inside the running container)* `STRIPE_MODE=live`, `STRIPE_SECRET_KEY_LIVE=sk_live_51UA…` (107 chars)
+→ `GET /v1/balance` **200 `livemode:true`** (was 401), and `POST /api/checkout` now returns **live** sessions
+(`app=ledgerlink` → 200 `cs_live_a1x7AzbQ…`, `app=caseproof` → 200 `cs_live_a1S8pBOv…`, app-less → 400 naming the
+inventory, `app=quarterline` → 400 "retired"; `/api/portal` 307). A live webhook is enabled at
+`/api/webhooks/stripe` (`invoice.payment_failed` added today). Revenue is still **$0 real** (4 `purchases`, all
+`cs_test_*`, all 09-02) and the one `subscriptions` row is still `active`/`livemode:false` (sandbox) — but the
+three finished products (all `beta`) can now actually take money, so their launch calls are the top open decision.
+**Crons jumped 32 → 58 active** (26 new `Evergreen Pipeline: <vertical>` jobs); the registry re-vendor landed
+in-repo (`4e88bdc`), `vertical-sync.mjs --check` exit 0 (26 verticals). **`hermes cron doctor` is still NOT clean
+— 14 issues across 14 jobs:** 12 are the stale 402 vertical stamps (last runs 2026-09-28 06:31 → 2026-09-30 08:01,
+next runs 2026-10-05 → 2026-10-10), and **two are live failures from today** — WordPress Draft Sweep 14:23 (kie.ai
+featured-image generation, 3/3 Internal Error) and `home_infrastructure_lifecycle_tco` 15:11 (output truncated,
+2nd in a row). Prod surfaces green: `/` 307 → `giniloh.com`, `/showcase` + all four products + `/embed/countdown`
+200, legacy `factory.aichieve.net` 503, manifest **v1.5.0 / 9 tools** sha256 `2843f352…` byte-identical to the
+tree, all **20** `/quarterline/calc/*` preset pages 200 (item 10 still open). `events` **1983 rows / 1225 sessions**
+(+62 — the whole 10-02 16:31 Build Watchdog Playwright run, 3 seconds, 41 fresh sessions across all five products;
+**zero rows on 2026-10-03**; last event 2026-10-02T16:31:58Z, last non-test event still 2026-09-23T14:11:42Z →
+**10 days with no visitor**). `agent_query` still **4** (all factory ship probes → organic 0 on day 33). Pressflow
+is now internal-only (`/api/articles.json` **401**, was 200; `/robots.txt` disallow-all; `/healthz` 200, container
+rebuilt ≈15:00); Supabase `articles` holds **19 rows** (was 16; three new dated 2026-10-03). The social queue
+**shrank 50 → 42 items, all `ready`, 0 published**, `updated_at` 2026-10-03T15:25:53Z. Item 11 leftovers unchanged
+(`ai-plugin.json` names the dead host, its `/openapi.json` 404s; `/robots.txt` + `/sitemap.xml` 404 with no
+producer). Item 7 unchanged: gateway process still the 2026-09-12 15:13 one (`1963330`), no visible symptom. Next
+Build Watchdog 2026-10-03 16:30; next Weekly Market Recon 2026-10-05 14:30; next Growth Watchdog 2026-10-09 17:00;
+next live gate is ledgerlink ≈2026-10-09._
+
 _Last updated: 2026-10-02 (15:30 sweep, every open item re-measured live) — **the provider outage is clearing but
 `hermes cron doctor` is still NOT clean: 15 jobs report a failed last run (17 → 15), and the 15 that remain are the
 weekly editorial vertical jobs whose last run fell inside the 09-28…09-30 `HTTP 402: Insufficient Balance` window
@@ -440,7 +468,8 @@ never-scanned rotation queue (first scan of this vertical). No candidate cleared
 
 ## OPEN — 2026-09-16 sweep (live-verified this run)
 
-1. **[P0 — founder, ~5 min]** `sk_live` in the deploy env **or** record test-mode as intended.
+1. **[RESOLVED 2026-10-03 — live mode + live key verified end-to-end (founder action, Jorge)]** `sk_live` in the deploy env **or** record test-mode as intended.
+   _2026-10-03 ~13:15: `STRIPE_MODE=live`, `STRIPE_SECRET_KEY_LIVE=sk_live_…` (107 chars), checkout → 200 `cs_live_…` (real live session), live webhook `we_1UIeO7…` enabled at `/api/webhooks/stripe`, `/v1/balance` auth 200. Revenue can now be collected. The `mk_…` key-ID that blocked this for ~3 weeks was replaced with the actual secret (after one wrong copy of the publishable key). Minor leftover fixed 2026-10-03: `invoice.payment_failed` added to the live webhook's enabled events (read-back verified) — the route's past-due handler now fires._
    Live today: `POST /api/checkout` → 200, `cs_test_a1UlRlIvfpCJFByrZEUjbNkIuUaYSgDuc3F9IQUziIosJCixXeST38wqhv`;
    `purchases` = 4 rows, all `cs_test_*`, all 2026-09-02; the only `subscriptions` row is `canceled`.
    Real collected revenue **$0**. Day-14 already scored an honest MISS (row in

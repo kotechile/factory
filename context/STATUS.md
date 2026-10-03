@@ -1,5 +1,23 @@
 # Factory Status Map
 
+_Last updated: 2026-10-03 (15:30 sweep, every surface re-measured live on `apps.giniloh.com` · **LIVE PAYMENTS
+ARE ON — item 1 is RESOLVED**: the founder put the real `sk_live_…` in the deploy env and set `STRIPE_MODE=live`
+(≈13:15); re-verified from inside the running container — `GET /v1/balance` **200 `livemode:true`** (was 401 for
+~3 weeks) and `POST /api/checkout` now returns live sessions (`app=ledgerlink` → 200 `cs_live_a1x7AzbQ…`,
+`app=caseproof` → 200 `cs_live_a1S8pBOv…`); the last structural blocker between the factory and its first real
+dollar is gone, though nothing has been charged yet (**revenue still $0 real**: 4 sandbox `purchases` all
+`cs_test_*` 09-02) · **the editorial fleet landed: crons 32 → 58 active** (26 new `Evergreen Pipeline: <vertical>`
+jobs), registry re-vendored in-repo (`4e88bdc`), `vertical-sync --check` exit 0 · **pressflow is now
+internal-only** (`/healthz` 200, `/robots.txt` disallow-all, `/api/articles.json` now **401**, container rebuilt
+≈15:00) while article production continues — Supabase `articles` **19 rows** (was 16; three dated 10-03) · **10
+days with no visitor of any kind** (last non-test event still 2026-09-23T14:11:42Z; the whole +62 rows since 10-02
+are the 10-02 16:31 Build Watchdog Playwright run, and 2026-10-03 has zero rows) · `hermes cron doctor` reports
+**14 issues / 14 jobs**: 12 stale 402 stamps (last runs 09-28→09-30, next runs 10-05→10-10) plus **two live
+failures today** — WordPress Draft Sweep 14:23 (kie.ai featured-image Internal Error ×3) and
+`home_infrastructure_lifecycle_tco` 15:11 (output truncated, 2 in a row) · the social queue **50 → 42 cards, 0
+ever published** · nothing built or shipped in this repo, **build line idle ≈11 days** since the 09-22 builds) ·
+canonical source of truth for the fleet's current state_
+
 _Last updated: 2026-10-02 (15:30 sweep, every surface re-measured live on `apps.giniloh.com` · **the provider
 outage is clearing, not cleared**: `hermes cron doctor` is still NOT clean — a failed last run is reported by 15
 jobs (down from 17), but the 15 are the weekly editorial vertical jobs whose last run fell inside the 09-28…09-30
