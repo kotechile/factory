@@ -6,8 +6,25 @@ build/ship actions ahead of the gate. Read this instead of re-deriving from jour
 
 ## APPROVED — 2026-10-03 (owner instruction, Jorge) → Factory Billing v1
 
-**[APPROVED — owner (Jorge), 2026-10-03. Build NOT dispatched yet.]** Verbatim owner instruction:
+**[APPROVED — owner (Jorge), 2026-10-03.]** Verbatim owner instruction:
 *"go ahead with your suggestion. I agree we do not need to overcomplicate this."*
+
+**[D1–D3 FIXED + LIVE-VERIFIED — `7751fea`, 2026-10-03 19:5x UTC.]** Owner follow-up "yes, fix these"
+authorised the three money-relevant defects only. Shipped and verified against the live deploy
+(container image tag == `7751fea`):
+- **D1** — `/api/portal` no longer resolves a customer from an email or from the newest active
+  subscription. Live: `POST {}` → **400**; `POST {email}` → **400** (was a portal-open); `GET` (no params)
+  and `GET?email=` → **307 `/billing?error=missing_customer_reference`** (was a Stripe portal session).
+- **D2** — `/api/checkout` prices from `PLAN_CATALOG`. Live: client `lineItems` → **400**; unknown plan →
+  **400** (names the catalog); `{plan:"factory_pro", amount:1}` → 200 `cs_live_a1c3FTi7…` whose **read-back
+  from Stripe is `unit_amount: 2900`** (was $0.01 on the live account). Probe session expired afterwards.
+- **D3** — the metered tier is metered or it fails loud. Live: `agent_metered` → **500** naming
+  `STRIPE_AGENT_METER_PRICE_ID` (was a silent flat $25/mo contradicting the card). **Owner action still
+  open:** create a Stripe Billing Meter + metered Price and set that env var, else the Agent CTA stays down.
+- Gate: tsc, eslint, tokens, vertical-sync, 144 unit tests, `next build`, billing Playwright e2e (2/2 incl.
+  axe AA) all green locally; SOP patched (`skills/stripe_gating_workflow.md` §11).
+- **Still open for v1:** V1.2 (server-enforced cap), V1.3 (`GET /api/v1/billing/summary`), V1.4 (usage
+  section on `/billing`) — not dispatched.
 
 - **Item:** the factory's first customer-facing billing contract — a verified usage ledger + a read
   surface every app consumes. Full PRD: `context/recon_proposals/2026-10-03_factory_billing_v1.md`.
