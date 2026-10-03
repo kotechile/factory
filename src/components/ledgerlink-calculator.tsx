@@ -32,6 +32,7 @@ import {
   ExternalLink,
   Code2,
   Terminal,
+  CreditCard,
 } from "lucide-react";
 
 function formatMoney(minor: number, currency: string): string {
@@ -515,12 +516,19 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
 
         {/* Footer Manifest Links */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4 text-xs text-muted">
-          <div className="flex items-center gap-1.5">
-            <span>Canonical manifest:</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/billing"
+              className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+            >
+              <CreditCard className="h-3.5 w-3.5" />
+              <span>Get Agent Key / Manage Billing (/billing)</span>
+            </Link>
+            <span className="text-border">|</span>
             <Link
               href="/.well-known/mcp.json"
               target="_blank"
-              className="inline-flex items-center gap-1 font-mono text-primary hover:underline"
+              className="inline-flex items-center gap-1 font-mono text-muted hover:text-foreground hover:underline"
             >
               <span>/.well-known/mcp.json</span>
               <ExternalLink className="h-3 w-3" />
@@ -681,6 +689,13 @@ export default function LedgerLinkCalculator() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              href="/billing"
+              className="hidden sm:inline-flex items-center gap-1 rounded-md border border-border/70 bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-black/[0.03] transition-colors shadow-2xs"
+            >
+              <CreditCard className="h-3.5 w-3.5 text-primary" />
+              <span>Billing</span>
+            </Link>
             <Badge variant="success" className="hidden gap-1 md:inline-flex">
               <ShieldCheck className="h-3.5 w-3.5" />
               <span>Σ net == payout net</span>

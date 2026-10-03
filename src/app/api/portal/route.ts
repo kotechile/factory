@@ -30,6 +30,18 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    if (!customerId && searchParams.get("email")) {
+      try {
+        const email = searchParams.get("email")!.trim().toLowerCase();
+        const customers = await stripe.customers.list({ email, limit: 1 });
+        if (customers.data.length > 0) {
+          customerId = customers.data[0].id;
+        }
+      } catch (err) {
+        console.warn("Could not find customer by email in GET:", err);
+      }
+    }
+
     if (!customerId) {
       // Look up customer from active subscription in Supabase
       try {
@@ -50,28 +62,26 @@ export async function GET(req: NextRequest) {
     }
 
     if (!customerId) {
-      // The portal sends the customer to the directory root. It used to hard-code the retired
-      // QuarterLine page, so a paying customer's billing link landed on a retired product.
-      return NextResponse.redirect(`${getOrigin(req)}/?error=no_customer_found`);
+      return NextResponse.redirect(`${getOrigin(req)}/billing?error=no_customer_found`);
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${getOrigin(req)}/`,
+      return_url: `${getOrigin(req)}/billing`,
     });
 
     return NextResponse.redirect(portalSession.url);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Failed to create portal session";
     console.error("Stripe portal error:", message);
-    return NextResponse.redirect(`${getOrigin(req)}/?error=portal_failed`);
+    return NextResponse.redirect(`${getOrigin(req)}/billing?error=portal_failed`);
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { sessionId } = body;
+    const { sessionId, email } = body;
     let { customerId } = body;
     const stripe = getStripe();
 
@@ -80,13 +90,30 @@ export async function POST(req: NextRequest) {
       customerId = typeof session.customer === "string" ? session.customer : session.customer?.id || null;
     }
 
+    if (!customerId && email) {
+      try {
+        const customers = await stripe.customers.list({
+          email: email.trim().toLowerCase(),
+          limit: 1,
+        });
+        if (customers.data.length > 0) {
+          customerId = customers.data[0].id;
+        }
+      } catch (err) {
+        console.warn("Could not find customer by email in POST:", err);
+      }
+    }
+
     if (!customerId) {
-      return NextResponse.json({ error: "Missing customerId or sessionId" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No customer account found with that ID or email address." },
+        { status: 404 },
+      );
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${getOrigin(req)}/`,
+      return_url: `${getOrigin(req)}/billing`,
     });
 
     return NextResponse.json({ url: portalSession.url });
