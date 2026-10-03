@@ -4,6 +4,32 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+## APPROVED — 2026-10-03 (owner instruction, Jorge) → Factory Billing v1
+
+**[APPROVED — owner (Jorge), 2026-10-03. Build NOT dispatched yet.]** Verbatim owner instruction:
+*"go ahead with your suggestion. I agree we do not need to overcomplicate this."*
+
+- **Item:** the factory's first customer-facing billing contract — a verified usage ledger + a read
+  surface every app consumes. Full PRD: `context/recon_proposals/2026-10-03_factory_billing_v1.md`.
+- **Approved scope:** the PRD **§4 v1 only** (V1.1 trust boundary, V1.2 server-enforced cap,
+  V1.3 `GET /api/v1/billing/summary`, V1.4 usage section on the shipped `/billing`, V1.5 metered-price
+  fix), bounded by **§5**.
+- **Owner-confirmed OUT of v1:** organizations / workspaces / seats / RBAC; external-app usage ingest
+  (`POST /api/v1/billing/usage`); in-app card capture; annual/tiered pricing; multi-product cart;
+  cancellation surveys. Stripe's hosted portal stays the only card/tax/invoice surface.
+- **Why now:** five defects were found reading the tree (PRD §1), two of them **live liabilities**:
+  (D1) `/api/portal` opens any customer's Stripe portal from an unverified email or no params —
+  `src/app/api/portal/route.ts`; (D2) `/api/checkout` prices from a client-supplied `amount` — `amount:1`
+  is a $0.01/mo subscription on the LIVE account; (D3) the `/billing` "Agent Metered Pass" card advertises
+  "$0 base + $0.25/query" but checks out a flat $25/mo recurring; (D4) usage attributed by a client-supplied
+  `x-stripe-customer-id` with no cap; (D5) single-tenant schema.
+- **Note — half of this shipped in parallel:** while this entry was being drafted, the owner pushed
+  `65a2407` (2026-10-03 19:10 UTC) creating `/billing` as a pricing/onboarding + portal-gateway page. It
+  has **no** usage meter, history or cap, and it *widened* D1 (added the email lookup). v1 V1.4 is now
+  "extend that page", not "build one".
+- **Rule 7:** all items are `src/` work. This entry + the PRD + its commit are the go/no-go record;
+  dispatch as a one-shot job against **PRD §4 scope guard only**, `verify-build.sh` green, push on green.
+
 _Last updated: 2026-10-03 (15:30 sweep, every open item re-measured live) — **ITEM 1 IS RESOLVED: live payments
 are ON.** The founder (Jorge) replaced the live key slot's `mk_…` ID with the real secret ≈13:15 today; re-verified
 *(live, from inside the running container)* `STRIPE_MODE=live`, `STRIPE_SECRET_KEY_LIVE=sk_live_51UA…` (107 chars)
