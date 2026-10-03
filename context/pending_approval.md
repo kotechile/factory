@@ -52,10 +52,18 @@ authorised the three money-relevant defects only. Shipped and verified against t
   `/facturgate` $0.05/$0.10/$0.25 · `/parcelproof` $0.05/$0.25 + $9 one-off · `/caseproof` $0.50 + $9
   one-off; the showcase shows a price line per card and a rate on each of the 10 catalog rows; the
   `/billing` matrix now reads "from $0.05 / query" instead of the wrong flat "$0.25 / query".
-  **Still flagged, not changed:** the published manifest advertises a flat `rate_per_query_usd: 0.25`
-  while per-tool prices run $0.05–$0.50 — editing a published contract is the owner's call. And the
-  macOS Playwright snapshot (`landing-chromium-darwin.png`) is now stale: the Linux baseline was
-  regenerated after inspecting the diff, but a macOS render can only be produced on a Mac.
+  **MCP pricing fixed — `0bc00d4`.** `/.well-known/mcp.json` no longer advertises a flat
+  `rate_per_query_usd: 0.25`; it publishes `unit`, `rate_range_usd` and `rates_by_tool` for all 9
+  advertised tools, derived from the pricing catalog by `meteredRatesByTool()` (which throws on an
+  unpriced tool). Version 1.5.0 → 2.0.0, because a consumer reading the removed field is a breaking
+  read, not a silent one. Live: v2.0.0, range $0.05–$0.50, 9 rates, byte-identical to the repo file
+  (`5e47d410…`). Two new drift guards: every advertised tool must carry a published rate equal to
+  the catalog's, and `rate_per_query_usd` must never come back. Also flipped every other surface
+  that asserted the flat rate, all derived now: the /billing hero and Agent card ("from $0.05 /
+  successful call"), the /billing metadata, the `agent_metered` checkout line, LedgerLink's
+  "METERED $0.25" badge (still $0.25 — that tool's real rate) and `context/mcp_usage_guide.md`.
+  **Still open:** the macOS Playwright snapshot (`landing-chromium-darwin.png`) is stale — the
+  baseline was regenerated on Linux only, and a macOS render can only be produced on a Mac.
 
 - **Item:** the factory's first customer-facing billing contract — a verified usage ledger + a read
   surface every app consumes. Full PRD: `context/recon_proposals/2026-10-03_factory_billing_v1.md`.

@@ -127,11 +127,15 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
 ## 13. Pricing surfaces (2026-10-03)
 
 - **One catalog, and every displayed price reads it.** The agent API's rate tables, the /billing pricing
-  matrix, each product page and the directory all render from `src/products/pricing.ts`. A price written
-  in a second place is how a flat "$0.25 / query" survived on a product page for five tools that charged
-  something else. Throwing lookups (`pricingFor`, `agentRateForTool`) for the sell/serve boundaries;
-  tolerant ones (`priceSummary`, `agentRateOrNull`) only for display, which must still render a retired
-  product.
+  matrix, each product page, the directory, and the published `/.well-known/mcp.json` all render from
+  `src/products/pricing.ts`. A price written in a second place is how a flat "$0.25 / query" survived in
+  the manifest AND on a product page for five tools that charged something else. Throwing lookups
+  (`pricingFor`, `agentRateForTool`) for the sell/serve boundaries; tolerant ones (`priceSummary`,
+  `agentRateOrNull`) only for display, which must still render a retired product.
+- **A published price change is a version bump, not a quiet edit.** Replacing a manifest field
+  (`rate_per_query_usd` → `rates_by_tool`) invalidates consumers reading the old key, so the manifest
+  version moved 1.5.0 → 2.0.0 and the drift test asserts the removed field can never reappear — a
+  consumer that silently keeps reading a deleted field is exactly the failure this prevents.
 - **Pair the catalog with a drift test.** Fail the build when an in-inventory product or one of its
   advertised tools has no price, when a price belongs to no registry product, or when the agent route
   stops sourcing its rates from the catalog — otherwise the next tool ships free and nobody notices.
