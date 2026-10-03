@@ -93,6 +93,13 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
   references a pre-created metered Price id + Billing Meter from env (`STRIPE_AGENT_METER_PRICE_ID`). When
   it is unset the request fails explicitly — never a silent flat subscription that contradicts the price
   advertised on the card.
+- **One meter, `value` = cents owed.** A Stripe meter is bound to ONE event name and a price to ONE unit
+  amount, so N per-tool prices cannot map to meters 1:1 without N meters and N prices. Report a single
+  event name whose `value` is the charge in **integer cents**, against a meter that SUMS the value and one
+  **$0.01/unit** metered Price — a $0.25 query reports 25. Per-tool detail belongs in our own ledger (the
+  surface the customer reads); Stripe only needs the money. Keep the event name env-overridable
+  (`STRIPE_METER_EVENT_NAME`) because it must match the meter EXACTLY, and refuse to report a
+  non-positive amount rather than send `value: 0` and bill nothing.
 - **Card copy is a claim about the checkout payload.** Before shipping a pricing card, read the request
   body its button sends and confirm amount/mode match the words on the card; a card that says "$0 base +
   $0.25/query" while the payload sends a flat `$25/mo` is a billing defect, not a copy nit.

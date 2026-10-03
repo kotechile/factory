@@ -5,6 +5,7 @@ import { reportMeteredUsage } from "@/lib/stripe/meter";
 import {
   type CapsDoc,
   type UsageSummary,
+  costToCents,
   currentPeriod,
   resolveMonthlyCap,
   summarizeUsage,
@@ -199,6 +200,8 @@ export interface MeteringResult {
   meteredUsageReported: boolean;
   meterEventId?: string;
   usageRecorded: boolean;
+  /** The amount reported to the Stripe meter, in integer cents (0 when nothing was reported). */
+  meteredValueCents: number;
 }
 
 /**
@@ -208,24 +211,30 @@ export interface MeteringResult {
  */
 export async function billSuccessfulCall(
   req: NextRequest,
-  entry: { tool: string; costUsd: number; eventName: string; product: string },
+  entry: { tool: string; costUsd: number; product: string },
 ): Promise<MeteringResult> {
   const customerId = customerIdFrom(req);
-  if (!customerId) return { meteredUsageReported: false, usageRecorded: false };
+  const meteredValueCents = costToCents(entry.costUsd);
+  if (!customerId) {
+    return { meteredUsageReported: false, usageRecorded: false, meteredValueCents };
+  }
 
   let meteredUsageReported = false;
   let meterEventId: string | undefined;
   if (isStripeConfigured()) {
-    try {
-      const meterResult = await reportMeteredUsage({
-        customerId,
-        eventName: entry.eventName,
-        value: 1,
-      });
-      meteredUsageReported = meterResult.success;
-      meterEventId = meterResult.eventId;
-    } catch (meterErr) {
-      console.error("Failed to record metered usage:", meterErr);
+    if (meteredValueCents <= 0) {
+      // A non-positive price would report value 0 and quietly bill nothing.
+      console.error(
+        `[billing] refusing to report a non-positive metered amount for tool '${entry.tool}' (cost ${entry.costUsd}).`,
+      );
+    } else {
+      try {
+        const meterResult = await reportMeteredUsage({ customerId, valueCents: meteredValueCents });
+        meteredUsageReported = meterResult.success;
+        meterEventId = meterResult.eventId;
+      } catch (meterErr) {
+        console.error("Failed to record metered usage:", meterErr);
+      }
     }
   }
 
@@ -242,5 +251,5 @@ export async function billSuccessfulCall(
     console.error("[billing] usage ledger write failed (cap will under-count this call):", ledgerErr);
   }
 
-  return { meteredUsageReported, meterEventId, usageRecorded };
+  return { meteredUsageReported, meterEventId, usageRecorded, meteredValueCents };
 }

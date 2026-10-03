@@ -67,21 +67,13 @@ const FACTURGATE_PRICE_USD: Record<string, number> = {
   check_eu_vat_id: 0.05,
 };
 
-const FACTURGATE_METER_EVENT: Record<string, string> = {
-  validate_einvoice: "agent_einvoice_validation",
-  convert_invoice_to_facturx: "agent_einvoice_conversion",
-  check_eu_vat_id: "agent_vat_id_check",
-};
+// Metering no longer uses a per-tool event name: Stripe binds a meter to ONE event name, so every
+// tool reports under one meter with `value` = the charge in cents (src/lib/stripe/meter.ts).
 
 /** ParcelProof pricing per the PRD §3 agent tier. */
 const PARCELAUDIT_PRICE_USD: Record<string, number> = {
   audit_carrier_invoice: 0.25,
   compute_billable_weight: 0.05,
-};
-
-const PARCELAUDIT_METER_EVENT: Record<string, string> = {
-  audit_carrier_invoice: "agent_parcel_audit",
-  compute_billable_weight: "agent_billable_weight",
 };
 
 interface ParcelproofAgentInput {
@@ -103,12 +95,6 @@ const CASEPROOF_PRICE_USD: Record<string, number> = {
   audit_automation_case: 0.5,
   compare_automation_bids: 0.5,
   after_tax_payback: 0.5,
-};
-
-const CASEPROOF_METER_EVENT: Record<string, string> = {
-  audit_automation_case: "agent_case_audit",
-  compare_automation_bids: "agent_case_comparison",
-  after_tax_payback: "agent_after_tax_payback",
 };
 
 interface CaseProofAgentInput {
@@ -374,7 +360,6 @@ export async function POST(req: NextRequest) {
       const metering = await billSuccessfulCall(req, {
         tool: "reconcile_stripe_payout",
         costUsd: 0.25, // 1 query @ $0.25
-        eventName: "agent_reconciliation",
         product: "ledgerlink",
       });
 
@@ -385,6 +370,7 @@ export async function POST(req: NextRequest) {
           meteredUsageReported: metering.meteredUsageReported,
           meterEventId: metering.meterEventId,
           usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
           costPerQueryUsd: 0.25,
         },
         computedAt: new Date().toISOString(),
@@ -421,7 +407,6 @@ export async function POST(req: NextRequest) {
       const metering = await billSuccessfulCall(req, {
         tool: toolName,
         costUsd: result.costPerQueryUsd,
-        eventName: FACTURGATE_METER_EVENT[toolName] ?? "agent_query",
         product: "facturgate",
       });
 
@@ -432,8 +417,8 @@ export async function POST(req: NextRequest) {
           meteredUsageReported: metering.meteredUsageReported,
           meterEventId: metering.meterEventId,
           usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
           costPerQueryUsd: result.costPerQueryUsd,
-          meterEventName: FACTURGATE_METER_EVENT[toolName],
         },
         computedAt: new Date().toISOString(),
       });
@@ -470,7 +455,6 @@ export async function POST(req: NextRequest) {
       const metering = await billSuccessfulCall(req, {
         tool: toolName,
         costUsd: result.costPerQueryUsd,
-        eventName: PARCELAUDIT_METER_EVENT[toolName] ?? "agent_query",
         product: "parcelproof",
       });
 
@@ -481,8 +465,8 @@ export async function POST(req: NextRequest) {
           meteredUsageReported: metering.meteredUsageReported,
           meterEventId: metering.meterEventId,
           usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
           costPerQueryUsd: result.costPerQueryUsd,
-          meterEventName: PARCELAUDIT_METER_EVENT[toolName],
         },
         computedAt: new Date().toISOString(),
       });
@@ -539,7 +523,6 @@ export async function POST(req: NextRequest) {
       const metering = await billSuccessfulCall(req, {
         tool: toolName,
         costUsd: costPerQueryUsd,
-        eventName: CASEPROOF_METER_EVENT[toolName] ?? "agent_query",
         product: "caseproof",
       });
 
@@ -550,8 +533,8 @@ export async function POST(req: NextRequest) {
           meteredUsageReported: metering.meteredUsageReported,
           meterEventId: metering.meterEventId,
           usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
           costPerQueryUsd,
-          meterEventName: CASEPROOF_METER_EVENT[toolName],
         },
         computedAt: new Date().toISOString(),
       });
@@ -593,7 +576,6 @@ export async function POST(req: NextRequest) {
     const metering = await billSuccessfulCall(req, {
       tool: toolName,
       costUsd: 0.25, // 1 query @ $0.25
-      eventName: "agent_tax_calculation",
       product: "factory",
     });
 
@@ -604,6 +586,7 @@ export async function POST(req: NextRequest) {
         meteredUsageReported: metering.meteredUsageReported,
         meterEventId: metering.meterEventId,
         usageRecorded: metering.usageRecorded,
+        meteredCents: metering.meteredValueCents,
         costPerQueryUsd: 0.25,
       },
       computedAt: new Date().toISOString(),

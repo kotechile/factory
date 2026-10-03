@@ -66,6 +66,16 @@ function toCents(usd: unknown): number {
 }
 
 /**
+ * USD → integer cents, for the Stripe meter's `value` in the "cents" model
+ * (src/lib/stripe/meter.ts). Returns 0 for a non-finite or non-positive price so the caller can
+ * refuse to report a meaningless amount; it never returns a fraction of a cent.
+ */
+export function costToCents(usd: number): number {
+  if (!Number.isFinite(usd) || usd <= 0) return 0;
+  return Math.round(usd * 100);
+}
+
+/**
  * Rolls ledger rows into a period summary. Money is summed in integer cents so repeated
  * $0.25 charges cannot accumulate floating-point drift, and the returned amount is a clean
  * 2-decimal figure.

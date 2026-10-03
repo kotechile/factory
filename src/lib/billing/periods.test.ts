@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   FALLBACK_MONTHLY_CAP_USD,
   capFraction,
+  costToCents,
   currentPeriod,
   remainingUsd,
   resolveMonthlyCap,
@@ -91,6 +92,28 @@ describe("summarizeUsage", () => {
       { created_at: "c", payload: { tool: "compute_billable_weight", cost_usd: 0.05 } },
     ]);
     expect(s.amountUsd).toBe(0.8);
+  });
+});
+
+describe("costToCents (the Stripe meter's `value`)", () => {
+  it("converts every per-tool price to integer cents", () => {
+    expect(costToCents(0.05)).toBe(5);
+    expect(costToCents(0.1)).toBe(10);
+    expect(costToCents(0.25)).toBe(25);
+    expect(costToCents(0.5)).toBe(50);
+    expect(costToCents(29)).toBe(2900);
+  });
+
+  it("returns 0 for a non-positive or non-finite price so the caller refuses to report it", () => {
+    expect(costToCents(0)).toBe(0);
+    expect(costToCents(-1)).toBe(0);
+    expect(costToCents(Number.NaN)).toBe(0);
+    expect(costToCents(Number.POSITIVE_INFINITY)).toBe(0);
+  });
+
+  it("never returns a fraction of a cent", () => {
+    expect(costToCents(0.333)).toBe(33);
+    expect(Number.isInteger(costToCents(0.333))).toBe(true);
   });
 });
 
