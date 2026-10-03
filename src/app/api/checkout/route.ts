@@ -10,6 +10,65 @@ import { activeProductSlugs, isRetiredProduct, products } from "@/products/regis
 const PRODUCT_SCOPED_PLANS = ["cpa_monthly", "pdf_audit_export"];
 
 /**
+ * Server-side price catalog — the ONLY source of a checkout price.
+ *
+ * SECURITY (2026-10-03): this route used to read `amount`, `currency`, `lineItems`, `productName`
+ * and `successUrl` straight from the request body and pass them to Stripe, so a caller could mint
+ * `{plan:"factory_pro", amount:1}` — a $0.01/month subscription on a LIVE account. Prices are now
+ * resolved from this table and the client cannot influence them: a client `amount` is ignored and
+ * client `lineItems` are rejected (rule 5 — fail loud, never trust a caller-supplied price).
+ * See context/pending_approval.md (billing v1, defect D2) and
+ * context/recon_proposals/2026-10-03_factory_billing_v1.md §1.
+ *
+ * A plan whose price is set by `meterPriceEnv` is billed by usage (a pre-created Stripe metered
+ * Price referenced by env). Stripe's Checkout does not accept an inline metered `price_data`
+ * (`recurring` exposes only `interval`), so a metered tier needs the Price id; when it is absent
+ * the request fails explicitly instead of silently charging a flat subscription (defect D3).
+ */
+interface PlanSpec {
+  /** Cents. Ignored when `meterPriceEnv` is set. */
+  amount: number;
+  mode: "subscription" | "payment";
+  name: string;
+  description: string;
+  taxCode: string;
+  /** When set, the plan is metered and billed via the Price id in this env var. */
+  meterPriceEnv?: string;
+}
+
+const PLAN_CATALOG: Record<string, PlanSpec> = {
+  pdf_audit_export: {
+    amount: 900,
+    mode: "payment",
+    name: "Report / Export",
+    description: "Single export of branded report / CSV",
+    taxCode: "txcd_10000000",
+  },
+  cpa_monthly: {
+    amount: 2900,
+    mode: "subscription",
+    name: "Pro Subscription",
+    description: "Full access to deterministic tools and export capabilities",
+    taxCode: "txcd_10202000",
+  },
+  factory_pro: {
+    amount: 2900,
+    mode: "subscription",
+    name: "Pro Access Pass",
+    description: "Unlimited web access, exports, and priority execution across all factory tools",
+    taxCode: "txcd_10202000",
+  },
+  agent_metered: {
+    amount: 0,
+    mode: "subscription",
+    name: "Agent Metered Access",
+    description: "Metered agent access across all WebMCP tools ($0.25/query, billed monthly on usage)",
+    taxCode: "txcd_10202000",
+    meterPriceEnv: "STRIPE_AGENT_METER_PRICE_ID",
+  },
+};
+
+/**
  * Resolves the product a checkout session is attributed to.
  *
  * Selling is always product-scoped, so a request that names no product cannot be attributed
@@ -82,15 +141,39 @@ export async function POST(req: NextRequest) {
       userId = "guest_user",
       email,
       app: requestedApp,
-      productName: customProductName,
-      productDescription: customProductDescription,
-      amount,
-      currency = "usd",
       successUrl: customSuccessUrl,
       cancelUrl: customCancelUrl,
       metadata: customMetadata = {},
-      lineItems: customLineItems,
     } = body;
+
+    // A caller may not hand us its own price (D2). Rejecting `lineItems` outright — rather than
+    // ignoring it — is the loud failure the factory rule asks for; nothing in the repo sends it.
+    if (body.lineItems !== undefined) {
+      return NextResponse.json(
+        { error: "Client-supplied 'lineItems' are not accepted. Prices come from the server catalog." },
+        { status: 400 },
+      );
+    }
+
+    const spec = PLAN_CATALOG[plan];
+    if (!spec) {
+      return NextResponse.json(
+        {
+          error:
+            `Unknown plan '${plan}'. Prices are server-defined; add the plan to PLAN_CATALOG ` +
+            `in src/app/api/checkout/route.ts.`,
+          plans: Object.keys(PLAN_CATALOG),
+        },
+        { status: 400 },
+      );
+    }
+
+    if (body.amount !== undefined) {
+      // The client's number is ignored — log it so a stale client is visible without breaking it.
+      console.warn(
+        `[checkout] ignoring client-supplied amount ${JSON.stringify(body.amount)} for plan '${plan}'; using the server catalog price.`,
+      );
+    }
 
     const origin = getOrigin(req);
 
@@ -105,53 +188,64 @@ export async function POST(req: NextRequest) {
     }
     const app = resolvedApp.app;
     const registeredProduct = products.find((p) => p.slug === app);
-    const appDisplayName = customProductName || registeredProduct?.name || "Factory Pro";
+    const productPrefix = registeredProduct ? `${registeredProduct.name} — ` : "";
+    const appDisplayName = registeredProduct?.name || spec.name;
 
-    const isSubscription = body.mode === "subscription" || plan.includes("monthly") || plan.includes("sub");
-    const mode = isSubscription ? "subscription" : "payment";
+    const mode = spec.mode;
 
-    let lineItems = customLineItems;
-    if (!lineItems) {
-      if (isSubscription) {
-        lineItems = [
+    let lineItems;
+    if (spec.meterPriceEnv) {
+      // Metered tier: the price (and its Billing Meter) is created in Stripe and referenced here.
+      // No inline price_data is possible for a metered price, and no flat fallback is offered —
+      // an unconfigured meter is an explicit failure, not a silent flat charge (D3).
+      const meterPriceId = process.env[spec.meterPriceEnv];
+      if (!meterPriceId) {
+        console.error(
+          `[checkout] plan '${plan}' needs ${spec.meterPriceEnv} (a Stripe metered Price id).`,
+        );
+        return NextResponse.json(
           {
-            price_data: {
-              currency,
-              product_data: {
-                name: customProductName || `${appDisplayName} Pro Subscription`,
-                description:
-                  customProductDescription ||
-                  registeredProduct?.description ||
-                  "Full access to deterministic tools and export capabilities",
-                tax_code: "txcd_10202000",
-              },
-              unit_amount: amount ?? 2900, // $29/month default
-              recurring: {
-                interval: "month" as const,
-              },
-            },
-            quantity: 1,
+            error:
+              `Agent metered billing is not configured: set ${spec.meterPriceEnv} to a Stripe ` +
+              `metered Price id (create a Billing Meter + a metered Price). No flat fallback is offered.`,
           },
-        ];
-      } else {
-        lineItems = [
-          {
-            price_data: {
-              currency,
-              product_data: {
-                name: customProductName || `${appDisplayName} Report / Export`,
-                description:
-                  customProductDescription ||
-                  registeredProduct?.description ||
-                  "Single export of branded report / CSV",
-                tax_code: "txcd_10000000",
-              },
-              unit_amount: amount ?? 900, // $9 one-off default
-            },
-            quantity: 1,
-          },
-        ];
+          { status: 500 },
+        );
       }
+      lineItems = [{ price: meterPriceId }];
+    } else if (mode === "subscription") {
+      lineItems = [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `${productPrefix}${spec.name}`,
+              description: spec.description,
+              tax_code: spec.taxCode,
+            },
+            unit_amount: spec.amount,
+            recurring: {
+              interval: "month" as const,
+            },
+          },
+          quantity: 1,
+        },
+      ];
+    } else {
+      lineItems = [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `${productPrefix}${spec.name}`,
+              description: spec.description,
+              tax_code: spec.taxCode,
+            },
+            unit_amount: spec.amount,
+          },
+          quantity: 1,
+        },
+      ];
     }
 
     const appPath = app === "factory" ? "" : app;

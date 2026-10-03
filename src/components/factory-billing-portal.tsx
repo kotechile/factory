@@ -81,20 +81,25 @@ export default function FactoryBillingPortal() {
     setPortalError(null);
 
     try {
-      const isCustomerId = lookupQuery.trim().startsWith("cus_");
-      const payload = isCustomerId
-        ? { customerId: lookupQuery.trim() }
-        : { email: lookupQuery.trim() };
+      // Only a Stripe customer id (a `cus_…` capability from the receipt email) opens a portal.
+      // The previous "email" path resolved any address to its Stripe customer and opened that
+      // customer's billing portal for whoever typed it (defect D1).
+      const value = lookupQuery.trim();
+      if (!/^cus_[A-Za-z0-9]+$/.test(value)) {
+        throw new Error(
+          "Enter the Stripe customer ID from your receipt email (it starts with cus_…).",
+        );
+      }
 
       const res = await fetch("/api/portal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ customerId: value }),
       });
 
       const data = await res.json();
       if (!res.ok || !data.url) {
-        throw new Error(data.error || "No active billing account found for this email or ID.");
+        throw new Error(data.error || "No billing account found for this customer ID.");
       }
 
       window.location.href = data.url;
@@ -107,24 +112,15 @@ export default function FactoryBillingPortal() {
   const handleCheckout = async (plan: "agent_metered" | "factory_pro") => {
     setCheckoutBusy(plan === "agent_metered" ? "agent" : "pro");
     try {
-      const isSubscription = true;
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // Price, mode and product name are resolved server-side from the plan catalog — the
+        // client no longer sends `amount`/`mode`/`productName` (a caller-supplied price is a
+        // live billing defect; see context/pending_approval.md billing v1, defect D2).
         body: JSON.stringify({
           plan,
           app: "billing",
-          mode: isSubscription ? "subscription" : "payment",
-          productName:
-            plan === "agent_metered"
-              ? "Autonomous Factory — Agent Metered Access"
-              : "Autonomous Factory — Pro Access Pass",
-          productDescription:
-            plan === "agent_metered"
-              ? "Metered agent access across all WebMCP tools ($0.25/query, billed monthly on usage)."
-              : "Full web access, unlimited audit exports, and priority server execution across all factory tools.",
-          amount: plan === "agent_metered" ? 2500 : 2900,
-          currency: "usd",
           successUrl: `${window.location.origin}/billing?session_id={CHECKOUT_SESSION_ID}&plan=${plan}&status=success`,
           cancelUrl: `${window.location.origin}/billing?canceled=true`,
         }),
@@ -373,7 +369,8 @@ export default function FactoryBillingPortal() {
                 </div>
                 <CardTitle className="text-xl font-bold mt-2">Manage Account</CardTitle>
                 <CardDescription className="text-xs">
-                  Update payment cards, view past invoices, download tax receipts, or modify plans.
+                  Update payment cards, view past invoices, download tax receipts, or modify plans —
+                  open it with the link in your receipt email.
                 </CardDescription>
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="text-lg font-bold text-foreground">Self-Service Gateway</span>
@@ -390,17 +387,20 @@ export default function FactoryBillingPortal() {
                       htmlFor="portal-query"
                       className="block text-xs font-semibold text-foreground mb-1"
                     >
-                      Email or Stripe Customer ID
+                      Stripe Customer ID
                     </label>
                     <input
                       id="portal-query"
                       type="text"
                       value={lookupQuery}
                       onChange={(e) => setLookupQuery(e.target.value)}
-                      placeholder="you@company.com or cus_..."
+                      placeholder="cus_..."
                       required
                       className="w-full rounded-xl border border-border/80 bg-background px-3 py-2 text-xs font-mono text-foreground placeholder:text-muted/60 focus:outline-hidden focus:ring-2 focus:ring-primary"
                     />
+                    <p className="mt-1 text-[11px] text-muted">
+                      Find it in your receipt email — the link there opens your portal directly.
+                    </p>
                   </div>
 
                   {portalError && (

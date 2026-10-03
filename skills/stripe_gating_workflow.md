@@ -75,3 +75,25 @@ Pre-wire subscription verification, PDF/report gating, and webhook handling into
 - **Revenue metrics must state their mode.** `scripts/growth-check.mjs` reports `stripe_mode` and
   refuses to present sandbox charges as revenue (`revenue_is_sandbox`). Any gate evaluation that
   reads a dollar amount has to say which mode produced it.
+
+## 11. Identity & pricing invariants (2026-10-03 — the billing-portal audit)
+
+- **A billing-portal session is a bearer capability; only ever resolve it from an explicit token the
+  customer already holds.** `/api/portal` accepts a `cus_…` customer id or a `cs_…` checkout session id
+  (both arrive in the customer's own emailed link) and nothing else. Never resolve a customer from an
+  **email address**, and never from **"the newest active subscription"** — both are enumerable, and either
+  one hands any caller another customer's payment methods, invoices and cancellation controls. An absent
+  reference is an explicit 400 (POST) / error redirect (GET), never a guess (rule 5).
+- **The server, never the client, decides the price.** `/api/checkout` resolves amount, mode and product
+  name from a server-side plan catalog (`PLAN_CATALOG`). A client `amount` is ignored and logged; client
+  `lineItems` are rejected outright. Forwarding `body.amount` to Stripe lets a caller buy anything at any
+  price — on a LIVE account that is a real charge, not a test.
+- **A "metered" tier must actually be metered.** Stripe Checkout does not accept an inline metered
+  `price_data` (the `recurring` object exposes only `interval`, no `usage_type`), so a metered plan
+  references a pre-created metered Price id + Billing Meter from env (`STRIPE_AGENT_METER_PRICE_ID`). When
+  it is unset the request fails explicitly — never a silent flat subscription that contradicts the price
+  advertised on the card.
+- **Card copy is a claim about the checkout payload.** Before shipping a pricing card, read the request
+  body its button sends and confirm amount/mode match the words on the card; a card that says "$0 base +
+  $0.25/query" while the payload sends a flat `$25/mo` is a billing defect, not a copy nit.
+
