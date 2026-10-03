@@ -29,6 +29,11 @@ them with near-zero marginal build cost.
    what I need from you, then raw numbers). Draft it to a file and pass
    `node scripts/check-slack-report.mjs <file>` before posting — exit 0 or fix it. A report the
    founder cannot understand is a failed delivery, not a formatting nit.
+9. **Editorial front-end standard (no plain MVPs).** Every user-facing product must follow
+   the Editorial Signature in `skills/ui_component_standards.md` (top horizon stripe, ambient
+   mathematical grid canvas, hero vector schematic flow artwork, live determinism pulse pill,
+   Apple-style segmented tabs, IDE data insets with line gutters and zero-egress badges, tactile
+   CTAs, layered ghost elevation borders). Plain, boxy, or flat front-ends are rejected.
 
 ## Runtime model note
 DeepSeek is still the only configured provider; as of 2026-09-12 the fleet runs it on two tiers.
@@ -53,7 +58,9 @@ Every product ships to a subpath of the single Coolify app (`apps.giniloh.com`):
 ### Adding a product (mechanical checklist)
 
 1. **Build** the deterministic engine in `src/lib/calc/<slug>/` (with known-answer test vectors).
-2. **Scaffold** the UI in `src/app/<slug>/page.tsx` (reuse `src/components/ui/*` primitives).
+2. **Scaffold** the UI in `src/app/<slug>/page.tsx` adhering strictly to `skills/ui_component_standards.md`
+   (top horizon stripe, ambient grid, hero schematic flow artwork, live status pill, Apple-style segmented tabs,
+   IDE data insets with zero-egress badge, tactile CTAs, layered ghost borders).
 3. **pSEO presets** (optional) in `src/lib/seo/<slug>/` + a `src/app/<slug>/calc/[slug]/page.tsx` route.
 4. **Register** the product in `src/products/registry.ts` (slug, name, status, description, route, webmcpTools, launchedAt, category).
 5. **WebMCP** — expose the tool via `navigator.modelContext.registerTool` (see `skills/webmcp_integration.md`).

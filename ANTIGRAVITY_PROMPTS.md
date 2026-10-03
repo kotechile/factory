@@ -74,7 +74,12 @@ Deliverables:
    no side effects) — implement the PRD's "Calculation / Logic Core".
 2. Jest test vectors matching the PRD's validation cases (known industry-standard
    inputs/outputs).
-3. UI: free interactive preview + gated export, per the two UI/stripe SOPs.
+3. UI: free interactive preview + gated export, adhering strictly to the
+   Editorial Signature in skills/ui_component_standards.md (top horizon stripe,
+   ambient mathematical dot grid, hero vector schematic flow artwork illustrating
+   the transform, live determinism pulse pill, Apple-style segmented tabs,
+   IDE data insets with line gutters and zero-egress badges, tactile CTAs,
+   layered ghost elevation borders). Plain or flat MVPs fail inspection.
 4. Stripe Checkout + metered agent tier + webhook handling per the PRD's
    "Monetization & Paywall Boundaries".
 5. WebMCP registerTool schema per skills/webmcp_integration.md, named

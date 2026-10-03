@@ -17,28 +17,79 @@ Standardize every UI surface so products ship accessible, responsive, and consis
 - Lucide Icons (never hand-drawn glyphs)
 - React Flow for node-based visual charts
 
-## 3. Component rules
+## 3. Editorial Signature & Aesthetic Excellence (Mandatory)
+Every factory product must ship with an authentic, high-craft editorial engineering aesthetic. Plain, flat, or boxy MVPs fail inspection. Every product UI must incorporate the following signature elements (reference implementation: `/ledgerlink`):
+
+1. **Architectural Horizon Stripe**:
+   - A micro-height (`h-[3.5px] w-full`) geometric gradient runner along the top viewport edge directly above the navigation bar.
+   - Tailored to the product's domain spectrum (e.g. electric financial: `#635BFF` via `#4338CA` to `#06B6D4`; logistics: `#EA580C` via `#D97706` to `#0284C7`; legal/compliance: `#4F46E5` via `#0284C7` to `#10B981`).
+
+2. **Ambient Technical Grid Canvas**:
+   - A faint, low-contrast mathematical dot-grid or ledger hairline grid across the top 240px–280px background behind the hero:
+     `[background-image:radial-gradient(#CBD5E1_0.75px,transparent_0.75px)] [background-size:16px_16px] opacity-60`
+   - Feathered downward into pure canvas background using a CSS mask gradient:
+     `[mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]`
+
+3. **Hero Visual Metaphor ("The Transformation Schematic")**:
+   - Never leave the hero headline as bare text in a void. Beside or directly integrated with the headline, place a responsive vector schematic diagram (SVG) making the deterministic core tangible at a glance.
+   - Show the incoming payload token (e.g. netted payout, raw EDI envelope, freight bill) passing through a glassmorphic prism, parser, or rule filter, fanning out into color-coded thread lines and categorized output nodes (Charges, Fees, Deductions, Balanced GL Net).
+   - Ensure the arithmetic on the diagram nodes sums exactly (mathematical fidelity).
+
+4. **Live Interactive Determinism Pill**:
+   - The top hero badge must be an interactive status tag emphasizing browser-local execution:
+     - Soft pulsing beacon dot (`#10B981` / emerald ping + static dot).
+     - Monospaced font treatment (`font-mono text-xs`).
+     - Explicit label: `BROWSER-LOCAL DETERMINISTIC` or `CLIENT-SIDE ENGINE`.
+
+5. **Apple-Style Segmented Tab Switcher**:
+   - Input mode switchers (e.g. JSON paste vs API key vs File upload) must use an Apple-style segmented control container (`bg-[#F1F5F9] p-1 rounded-xl shadow-inner border border-black/[0.04]`).
+   - Active tabs use an elevated white surface (`bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08)] font-semibold rounded-lg px-4 py-2`).
+   - Never use standard flat underlined text links.
+
+6. **IDE / Terminal Data Treatment**:
+   - Raw code, JSON, XML, or structured text inputs must receive an authentic IDE/Terminal treatment:
+     - Window chrome header bar with macOS control dots (`#EF4444`, `#F59E0B`, `#10B981`) and file title.
+     - Top-right zero-egress badge: `CLIENT-SIDE ONLY • ZERO EGRESS` with `ShieldCheck` icon.
+     - Left-hand line number gutter (`01`, `02`, `03`...) in `text-muted/40 font-mono select-none`.
+     - Soft cool-tint background (`bg-[#F8FAFC]` or `bg-background/80`).
+
+7. **Tactile CTAs**:
+   - Primary action buttons must provide tactile feedback:
+     - Active hover transform: `hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150`.
+     - Multi-layer shadow with top inner highlight: `shadow-[0_2px_8px_rgba(79,70,229,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_12px_rgba(79,70,229,0.45),inset_0_1px_0_rgba(255,255,255,0.25)]`.
+
+8. **Layered Ghost Border Elevation**:
+   - Eliminate heavy, opaque 1px borders (`border-border`) around white cards.
+   - Main surfaces and cards use pure white background (`bg-card`) with double hairline layered ghost shadows:
+     `shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_8px_24px_-4px_rgba(15,23,42,0.04)] border-0 rounded-2xl`
+   - Secondary summary metric cards use subtle backdrops (`bg-background/80 backdrop-blur-xs border border-border/80 shadow-2xs`).
+
+9. **Design Token Discipline**:
+   - Never use raw Tailwind color utilities in class names (e.g. `bg-slate-50`, `text-indigo-600`), which fail `scripts/check-design-tokens.mjs`.
+   - Use semantic design tokens (`primary`, `accent`, `muted`, `subtle`, `border`, `card`, `background`, `foreground`, `success`, `destructive`, `warning`) or arbitrary hex brackets (`bg-[#F8FAFC]`, `text-[#047857]`).
+
+## 4. Component rules
 - Every reusable primitive lives in `src/components/ui/`.
 - Use `clsx` + `tailwind-merge` via a `cn()` helper for conditional classes — never template-literal class soup.
 - Buttons/inputs/cards/forms are variants of a single primitive, not ad-hoc divs.
 
-## 4. Accessibility & contrast
+## 5. Accessibility & contrast
 - WCAG 2.1 AA contrast (≥4.5:1 body, ≥3:1 large text/UI).
 - All interactive elements are keyboard-focusable with a visible focus ring.
 - Labels are explicit; no placeholder-only inputs.
 - `aria-*` on any icon-only control.
 
-## 5. Responsive
+## 6. Responsive
 - Mobile-first; use Tailwind `sm/md/lg` breakpoints.
 - No fixed widths that break below a 360px viewport.
 
-## 6. Dark mode
+## 7. Dark mode
 - Use CSS variables (`--foreground`, `--accent`, etc.) where possible; honor `prefers-color-scheme`.
 
-## 7. Failure handling
+## 8. Failure handling
 - Toby flags contrast violations and non-reusable components in `self_improvement_eval.md`.
 
-## 8. Automated enforcement (the quality gate)
+## 9. Automated enforcement (the quality gate)
 Standards are enforced by `scripts/verify-build.sh`, which must pass before any push:
 - `tsc --noEmit` — strict type checking.
 - `eslint` — lint.
