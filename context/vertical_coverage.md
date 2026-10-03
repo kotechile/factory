@@ -35,8 +35,8 @@ own CI traffic.
 ## Inventory (generated)
 
 <!-- BEGIN:vertical-inventory (generated) -->
-_Generated 2026-10-01 by `scripts/vertical-sync.mjs` from the
-vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit ed90c8bb4c4c5ed77c2875bf35e909666c554543, fetched 2026-10-01T00:56:56.974Z) — 26 verticals. Do not hand-edit this block._
+_Generated 2026-10-03 by `scripts/vertical-sync.mjs` from the
+vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit 27c0418e1b282d061ccfccd42042da1168e105b3, fetched 2026-10-03T01:29:04.225Z) — 26 verticals. Do not hand-edit this block._
 
 | Vertical | Label | Editorial persona | Cadence | Sources | Decision-shaped angles |
 |---|---|---|---|---|---|

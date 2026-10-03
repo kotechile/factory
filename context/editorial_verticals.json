@@ -2,15 +2,18 @@
   "_note": "Vendored snapshot of the editorial factory's vertical registry. Regenerate with: node scripts/vertical-sync.mjs --vendor",
   "sourceRepo": "git@github.com:kotechile/Editorial-Factory.git",
   "sourcePath": "/root/editorial-factory/context/verticals.json",
-  "sourceRepoHead": "ac6fe1dfeea426826ce1e6d75e1d323bf9ef51c4",
-  "sourceFileCommit": "ed90c8bb4c4c5ed77c2875bf35e909666c554543",
-  "sourceSha256": "c7bdda3f6cba91a1b8c6fdf587f39a34ea089814412f4b3d4d66444e7b980cdc",
-  "fetchedAt": "2026-10-01T00:56:56.974Z",
+  "sourceRepoHead": "0be3d280e84e2ca1b81fd557264581d605e8cb5b",
+  "sourceFileCommit": "27c0418e1b282d061ccfccd42042da1168e105b3",
+  "sourceSha256": "41a4fba6205c54bffd200dc56003578a06e1d9c122c3fdff83e0093f764c2bba",
+  "fetchedAt": "2026-10-03T01:29:04.225Z",
   "verticals": [
     {
       "id": "agentic_ai",
       "label": "Agentic Runtime & Architecture",
       "cadence": "30 10 * * 1,4",
+      "news_enabled": true,
+      "evergreen_cadence": "30 17 * * 1,4",
+      "evergreen_enabled": true,
       "sources": [
         "arxiv",
         "github_trending",
@@ -33,6 +36,9 @@
       "id": "ai_observability_qa",
       "label": "Observability, Evals & Quality",
       "cadence": "30 10 * * 2",
+      "news_enabled": true,
+      "evergreen_cadence": "30 17 * * 2",
+      "evergreen_enabled": true,
       "sources": [
         "arxiv",
         "github_trending",
@@ -56,6 +62,9 @@
       "id": "agentic_resilience_failure",
       "label": "Resilience & Failure Engineering",
       "cadence": "30 10 * * 3",
+      "news_enabled": true,
+      "evergreen_cadence": "30 17 * * 3",
+      "evergreen_enabled": true,
       "sources": [
         "arxiv",
         "github_trending",
@@ -79,6 +88,9 @@
       "id": "enterprise_ai_governance",
       "label": "Enterprise AI Governance & Control Planes",
       "cadence": "0 11 * * 1",
+      "news_enabled": true,
+      "evergreen_cadence": "0 18 * * 1",
+      "evergreen_enabled": true,
       "sources": [
         "ciso_reports",
         "owasp_genai",
@@ -105,6 +117,9 @@
       "id": "nhil_infrastructure_ops",
       "label": "NHIL Infrastructure, NetOps & Power Strategy",
       "cadence": "0 11 * * 2",
+      "news_enabled": true,
+      "evergreen_cadence": "0 18 * * 2",
+      "evergreen_enabled": true,
       "sources": [
         "datacenter_knowledge",
         "open_compute_project",
@@ -128,6 +143,9 @@
       "id": "multi_agent_enterprise_fabric",
       "label": "Multi-Agent Orchestration & Enterprise Fabrics",
       "cadence": "0 11 * * 3",
+      "news_enabled": true,
+      "evergreen_cadence": "0 18 * * 3",
+      "evergreen_enabled": true,
       "sources": [
         "arxiv",
         "github_trending",
@@ -150,6 +168,9 @@
       "id": "enterprise_ai_finops",
       "label": "AI FinOps & Value Realization",
       "cadence": "0 11 * * 4",
+      "news_enabled": true,
+      "evergreen_cadence": "0 18 * * 4",
+      "evergreen_enabled": true,
       "sources": [
         "cloud_cost_reports",
         "finops_foundation",
@@ -172,6 +193,9 @@
       "id": "enterprise_tech_leadership",
       "label": "Technology & Architecture Decisions",
       "cadence": "30 11 * * 2",
+      "news_enabled": true,
+      "evergreen_cadence": "30 18 * * 2",
+      "evergreen_enabled": true,
       "sources": [
         "hacker_news",
         "substack_tech_leads",
@@ -191,6 +215,9 @@
       "id": "gpu_hardware",
       "label": "GPUs & AI Hardware",
       "cadence": "30 11 * * 3",
+      "news_enabled": true,
+      "evergreen_cadence": "30 18 * * 3",
+      "evergreen_enabled": true,
       "sources": [
         "arxiv",
         "github_trending",
@@ -211,6 +238,9 @@
       "id": "supply_chain",
       "label": "Supply Chain Orchestration & Physical Logistics",
       "cadence": "30 11 * * 4",
+      "news_enabled": true,
+      "evergreen_cadence": "30 18 * * 4",
+      "evergreen_enabled": true,
       "sources": [
         "supply_chain_intel",
         "freightwaves",
@@ -245,6 +275,9 @@
       "id": "home_equity_tco",
       "label": "Home Capital Allocation & TCO Economics",
       "cadence": "30 11 * * 1",
+      "news_enabled": true,
+      "evergreen_cadence": "30 18 * * 1",
+      "evergreen_enabled": true,
       "sources": [
         "home_lifestyle_intel",
         "greenbuildingadvisor",
@@ -267,6 +300,9 @@
       "id": "smart_home_telemetry",
       "label": "Local-First Smart Infrastructure & Telemetry",
       "cadence": "0 12 * * 2",
+      "news_enabled": true,
+      "evergreen_cadence": "0 19 * * 2",
+      "evergreen_enabled": true,
       "sources": [
         "home_lifestyle_intel",
         "home_assistant_community",
@@ -289,6 +325,9 @@
       "id": "home_ops_execution",
       "label": "Home Operations, Permitting & Contractor Contracts",
       "cadence": "0 12 * * 4",
+      "news_enabled": true,
+      "evergreen_cadence": "0 19 * * 4",
+      "evergreen_enabled": true,
       "sources": [
         "home_lifestyle_intel",
         "ashrae_standards",
@@ -311,6 +350,9 @@
       "id": "resilient_home_assets",
       "label": "Climate Hardening, Insurability & Grid Resilience",
       "cadence": "30 10 * * 5",
+      "news_enabled": true,
+      "evergreen_cadence": "0 18 * * 5",
+      "evergreen_enabled": true,
       "sources": [
         "home_lifestyle_intel",
         "ibhs_fortified",
@@ -333,6 +375,9 @@
       "id": "home_infrastructure_lifecycle_tco",
       "label": "Home Infrastructure & Major Asset Lifecycle TCO",
       "cadence": "0 12 * * 1",
+      "news_enabled": true,
+      "evergreen_cadence": "0 19 * * 1",
+      "evergreen_enabled": true,
       "sources": [
         "home_lifestyle_intel",
         "energy_star",
@@ -356,6 +401,9 @@
       "id": "workstation_compute_economics",
       "label": "Autonomous Tech Workstations & AI Compute Economics",
       "cadence": "30 12 * * 2",
+      "news_enabled": true,
+      "evergreen_cadence": "30 19 * * 2",
+      "evergreen_enabled": true,
       "sources": [
         "tomshardware",
         "puget_systems_benchmarks",
@@ -378,6 +426,9 @@
       "id": "enterprise_build_vs_buy",
       "label": "Enterprise Build-vs-Buy & Developer Tooling Architecture",
       "cadence": "0 12 * * 3",
+      "news_enabled": true,
+      "evergreen_cadence": "0 19 * * 3",
+      "evergreen_enabled": true,
       "sources": [
         "hacker_news",
         "substack_tech_leads",
@@ -399,6 +450,9 @@
       "id": "expat_cross_border_relocation",
       "label": "Advanced Expat, Cross-Border & Multi-Jurisdictional Relocation",
       "cadence": "30 12 * * 4",
+      "news_enabled": true,
+      "evergreen_cadence": "30 19 * * 4",
+      "evergreen_enabled": true,
       "sources": [
         "irs_international_bulletins",
         "oecd_tax_reports",
@@ -421,6 +475,9 @@
       "id": "career_velocity_equity_engineering",
       "label": "Career Velocity, Equity Liquidity & Offer Engineering",
       "cadence": "0 11 * * 5",
+      "news_enabled": true,
+      "evergreen_cadence": "30 18 * * 5",
+      "evergreen_enabled": true,
       "sources": [
         "levels_fyi",
         "carta_equity_reports",
@@ -442,6 +499,9 @@
       "id": "personal_microeconomics_tinkering_tax",
       "label": "Personal Asset Micro-Economics & 'Tinkering Tax' Audits",
       "cadence": "0 6 * * 6",
+      "news_enabled": true,
+      "evergreen_cadence": "30 17 * * 6",
+      "evergreen_enabled": true,
       "sources": [
         "home_lifestyle_intel",
         "reddit_selfhosted",
@@ -464,6 +524,9 @@
       "id": "meio_working_capital_tco",
       "label": "Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO",
       "cadence": "30 12 * * 1",
+      "news_enabled": true,
+      "evergreen_cadence": "30 19 * * 1",
+      "evergreen_enabled": true,
       "sources": [
         "supply_chain_intel",
         "freightwaves",
@@ -487,6 +550,9 @@
       "id": "control_tower_exception_orchestration",
       "label": "Control Tower Visibility & Real-Time Exception Orchestration",
       "cadence": "0 13 * * 2",
+      "news_enabled": true,
+      "evergreen_cadence": "0 20 * * 2",
+      "evergreen_enabled": true,
       "sources": [
         "supply_chain_intel",
         "freightwaves",
@@ -510,6 +576,9 @@
       "id": "warehouse_automation_robotics_capex",
       "label": "Warehouse Automation & Robotics CapEx Amortization",
       "cadence": "30 12 * * 3",
+      "news_enabled": true,
+      "evergreen_cadence": "30 19 * * 3",
+      "evergreen_enabled": true,
       "sources": [
         "supply_chain_intel",
         "modern_materials_handling",
@@ -533,6 +602,9 @@
       "id": "demand_sensing_advanced_sop",
       "label": "Demand Sensing & Advanced Sales & Operations Planning (S&OP)",
       "cadence": "0 13 * * 4",
+      "news_enabled": true,
+      "evergreen_cadence": "0 20 * * 4",
+      "evergreen_enabled": true,
       "sources": [
         "supply_chain_intel",
         "gartner_supply_chain",
@@ -555,6 +627,9 @@
       "id": "last_mile_routing_fleet_carbon",
       "label": "Last-Mile Route Optimization & Fleet Carbon Accounting",
       "cadence": "30 11 * * 5",
+      "news_enabled": true,
+      "evergreen_cadence": "0 19 * * 5",
+      "evergreen_enabled": true,
       "sources": [
         "supply_chain_intel",
         "freightwaves",
@@ -577,6 +652,9 @@
       "id": "supplier_risk_reshoring_decision",
       "label": "Supplier Risk Management & Reshoring/Nearshoring Decision Engines",
       "cadence": "30 6 * * 6",
+      "news_enabled": true,
+      "evergreen_cadence": "0 18 * * 6",
+      "evergreen_enabled": true,
       "sources": [
         "supply_chain_intel",
         "reshoring_initiative",
