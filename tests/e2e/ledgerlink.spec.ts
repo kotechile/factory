@@ -6,6 +6,7 @@ test("ledgerlink renders at /ledgerlink", async ({ page }) => {
   await expect(
     page.getByText("Turn one netted Stripe payout into clean GL journal lines"),
   ).toBeVisible();
+  await page.screenshot({ path: "test-results/ledgerlink-redesign.png", fullPage: true });
 });
 
 test("ledgerlink decomposes the worked example into a reconciled report", async ({ page }) => {
@@ -19,4 +20,5 @@ test("ledgerlink decomposes the worked example into a reconciled report", async 
   await expect(page.getByText("Reconciled")).toBeVisible();
   await expect(page.getByText(/Σ\(net\) == payout\.amount/)).toBeVisible();
   await expect(page.getByText("Decomposed GL Journal Lines")).toBeVisible();
+  await page.screenshot({ path: "test-results/ledgerlink-reconciled.png", fullPage: true });
 });
