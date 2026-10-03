@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -25,6 +26,12 @@ import {
   Sparkles,
   Upload,
   Calendar,
+  Bot,
+  Copy,
+  Check,
+  ExternalLink,
+  Code2,
+  Terminal,
 } from "lucide-react";
 
 function formatMoney(minor: number, currency: string): string {
@@ -252,6 +259,287 @@ function DisaggregationPrism() {
         </svg>
       </div>
     </div>
+  );
+}
+
+function McpGuideSection() {
+  const [activeTab, setActiveTab] = React.useState<"browser" | "curl" | "config">("browser");
+  const [copied, setCopied] = React.useState(false);
+
+  const snippets = {
+    browser: `// 1. In any browser with WebMCP support (auto-registered on page load):
+// The 'reconcile_stripe_payout' tool is mounted on navigator.modelContext
+const response = await navigator.modelContext.executeTool("reconcile_stripe_payout", {
+  account_id: "acct_1AaBbCc",
+  period: "2026-08",
+  export_json: JSON.stringify(stripePayoutExport)
+});
+
+console.log("Reconciliation Invariant Passed:", response.reconciled); // true
+console.log("Generated GL Journal Lines:", response.journalLines);`,
+
+    curl: `# 2. Direct HTTP / Metered Agent API call
+curl -X POST https://apps.giniloh.com/api/agent/calculate \\
+  -H "Content-Type: application/json" \\
+  -H "x-webmcp-tool: reconcile_stripe_payout" \\
+  -H "x-customer-id: cus_OptionalStripeCustomerId" \\
+  -d '{
+    "account_id": "acct_1AaBbCc",
+    "period": "2026-08",
+    "export_json": "{\\"payout\\": {\\"id\\": \\"po_1NqK2t...\\", \\"amount\\": 437821, \\"currency\\": \\"usd\\"}, \\"balance_transactions\\": [...]}"
+  }'`,
+
+    config: `// 3. Desktop Agent Configuration (Cursor, Claude Desktop, Windsurf, Cline)
+// Add to your mcpServers in claude_desktop_config.json or cursor settings:
+{
+  "mcpServers": {
+    "software-factory-tools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://apps.giniloh.com/.well-known/mcp.json"
+      ]
+    }
+  }
+}`,
+  };
+
+  const fileTitles = {
+    browser: "agent-browser-call.ts",
+    curl: "agent-recon-request.sh",
+    config: "claude_desktop_config.json",
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(snippets[activeTab]);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card className="rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
+      <CardHeader className="border-b border-border/70 pb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Bot className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base font-semibold text-foreground">
+                Agent Surface &amp; WebMCP Integration
+              </CardTitle>
+              <CardDescription className="text-xs">
+                How autonomous agents, LLMs, and accounting bots invoke this deterministic reconciler.
+              </CardDescription>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 font-mono text-[11px] font-semibold text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              reconcile_stripe_payout
+            </span>
+            <span className="rounded-full bg-[#10B981]/10 px-2.5 py-1 font-mono text-[11px] font-semibold text-[#047857]">
+              METERED $0.25
+            </span>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-4 sm:p-6 space-y-5">
+        {/* Apple-style Segmented Tab Control */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex rounded-xl bg-[#F1F5F9] p-1 shadow-inner border border-black/[0.04]">
+            <button
+              type="button"
+              onClick={() => setActiveTab("browser")}
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs sm:text-sm cursor-pointer transition-all ${
+                activeTab === "browser"
+                  ? "bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] font-semibold"
+                  : "text-[#64748B] hover:text-[#0F172A] font-medium"
+              }`}
+            >
+              <Code2 className="h-3.5 w-3.5" />
+              <span>In-Browser WebMCP</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("curl")}
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs sm:text-sm cursor-pointer transition-all ${
+                activeTab === "curl"
+                  ? "bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] font-semibold"
+                  : "text-[#64748B] hover:text-[#0F172A] font-medium"
+              }`}
+            >
+              <Terminal className="h-3.5 w-3.5" />
+              <span>HTTP / cURL API</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("config")}
+              className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-xs sm:text-sm cursor-pointer transition-all ${
+                activeTab === "config"
+                  ? "bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.04)] font-semibold"
+                  : "text-[#64748B] hover:text-[#0F172A] font-medium"
+              }`}
+            >
+              <Bot className="h-3.5 w-3.5" />
+              <span>MCP Client Config</span>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-black/[0.03] transition-colors cursor-pointer shadow-2xs"
+          >
+            {copied ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-[#10B981]" />
+                <span className="text-[#047857] font-semibold">Copied snippet!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5 text-muted" />
+                <span>Copy snippet</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* IDE Terminal Box with Gutter & Snippet */}
+        <div className="overflow-hidden rounded-xl border border-border/80 bg-[#F8FAFC] shadow-inner ring-1 ring-[#0F172A]/[0.05]">
+          <div className="flex items-center justify-between border-b border-border/70 bg-card/90 px-3.5 py-2 text-xs backdrop-blur-xs font-mono">
+            <div className="flex items-center gap-2 text-muted text-[11px]">
+              <span className="flex items-center gap-1.5" aria-hidden="true">
+                <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
+                <span className="h-2 w-2 rounded-full bg-[#F59E0B]" />
+                <span className="h-2 w-2 rounded-full bg-[#10B981]" />
+              </span>
+              <span className="text-border">|</span>
+              <span className="font-semibold text-foreground">{fileTitles[activeTab]}</span>
+            </div>
+            <span className="hidden sm:inline-flex items-center gap-1 rounded bg-black/[0.04] px-1.5 py-0.5 text-[10px] text-muted">
+              {activeTab === "browser"
+                ? "W3C navigator.modelContext"
+                : activeTab === "curl"
+                ? "POST /api/agent/calculate"
+                : "Standard MCP Server JSON"}
+            </span>
+          </div>
+
+          <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-foreground bg-[#F8FAFC]">
+            <code>{snippets[activeTab]}</code>
+          </pre>
+        </div>
+
+        {/* Parameters Grid */}
+        <div className="space-y-2 pt-1">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
+            JSON Schema Parameters Contract
+          </h4>
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <code className="font-mono text-xs font-bold text-foreground">account_id</code>
+                <span className="rounded bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive font-semibold">
+                  Required
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Stripe account id whose payout is being reconciled (e.g. <span className="font-mono text-subtle">acct_...</span>).
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <code className="font-mono text-xs font-bold text-foreground">period</code>
+                <span className="rounded bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive font-semibold">
+                  Required
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Reconciliation period (<span className="font-mono text-subtle">YYYY-MM</span>) or created range <span className="font-mono text-subtle">start:end</span>.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <code className="font-mono text-xs font-bold text-foreground">export_json</code>
+                <span className="rounded bg-black/[0.05] px-1.5 py-0.5 font-mono text-[10px] text-muted font-semibold">
+                  Optional*
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Pasted/uploaded Stripe export with payout and balance_transactions (*or provide key).
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <code className="font-mono text-xs font-bold text-foreground">stripe_restricted_key</code>
+                <span className="rounded bg-black/[0.05] px-1.5 py-0.5 font-mono text-[10px] text-muted font-semibold">
+                  Optional*
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Customer read-only restricted key (<span className="font-mono text-subtle">rk_...</span>) scoped to payouts.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <code className="font-mono text-xs font-bold text-foreground">payout_id</code>
+                <span className="rounded bg-black/[0.05] px-1.5 py-0.5 font-mono text-[10px] text-muted font-semibold">
+                  Optional
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Specific payout id (<span className="font-mono text-subtle">po_...</span>) to reconcile within the period.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border/70 bg-[#10B981]/5 p-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-xs font-bold text-[#047857]">Deterministic Output</span>
+                <span className="rounded bg-[#10B981]/20 px-1.5 py-0.5 font-mono text-[10px] text-[#047857] font-semibold">
+                  Invariant
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted">
+                Returns <code className="font-mono text-subtle">journalLines</code> where <code className="font-mono text-subtle">reconciled == true</code> and net matches payout.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Manifest Links */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4 text-xs text-muted">
+          <div className="flex items-center gap-1.5">
+            <span>Canonical manifest:</span>
+            <Link
+              href="/.well-known/mcp.json"
+              target="_blank"
+              className="inline-flex items-center gap-1 font-mono text-primary hover:underline"
+            >
+              <span>/.well-known/mcp.json</span>
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span>Fleet catalog:</span>
+            <Link
+              href="/showcase"
+              className="inline-flex items-center gap-1 font-medium text-foreground hover:text-primary transition-colors"
+            >
+              <span>Factory Showcase Directory</span>
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -814,6 +1102,9 @@ export default function LedgerLinkCalculator() {
             </CardContent>
           </Card>
         )}
+
+        {/* MCP & Agent Surface Integration Guide */}
+        <McpGuideSection />
         </main>
       </div>
     </div>

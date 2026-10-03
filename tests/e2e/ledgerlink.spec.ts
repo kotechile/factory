@@ -17,7 +17,7 @@ test("ledgerlink decomposes the worked example into a reconciled report", async 
 
   // Branded reconciliation report with the pass/fail invariant surfaced.
   await expect(page.getByText("Reconciliation Report")).toBeVisible();
-  await expect(page.getByText("Reconciled")).toBeVisible();
+  await expect(page.getByText("Reconciled", { exact: true })).toBeVisible();
   await expect(page.getByText(/Σ\(net\) == payout\.amount/)).toBeVisible();
   await expect(page.getByText("Decomposed GL Journal Lines")).toBeVisible();
   await page.screenshot({ path: "test-results/ledgerlink-reconciled.png", fullPage: true });
