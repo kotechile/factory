@@ -32,12 +32,17 @@ export default function ShowcasePage() {
               <div className="flex items-center gap-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-primary">
                   <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                  APPLICATION PORTAL • WEBMCP CATALOG
+                  PRO APPLICATION PORTAL • WEBMCP CATALOG
                 </span>
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                Factory Showcase
-              </h1>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                  Factory Showcase
+                </h1>
+                <span className="inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-0.5 font-mono text-xs font-bold text-card tracking-wider shadow-xs uppercase">
+                  PRO
+                </span>
+              </div>
               <p className="text-sm text-muted sm:text-base max-w-2xl leading-relaxed">
                 Deterministic micro-applications and calculators built by the Autonomous Product &amp; Software Factory.
                 Every utility runs client-side and exposes an automated WebMCP endpoint.
@@ -45,6 +50,10 @@ export default function ShowcasePage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2.5 shrink-0 pt-1">
+              <span className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 font-mono text-xs font-bold text-primary shadow-2xs">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                <span>FACTORY PRO</span>
+              </span>
               <Link
                 href="/billing"
                 className="inline-flex items-center gap-1.5 rounded-xl border border-border/80 bg-card px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-black/[0.03] transition-colors shadow-2xs"
