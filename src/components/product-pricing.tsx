@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CreditCard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SUITE_PRO_MONTHLY_USD, agentRatesForProduct, pricingFor } from "@/products/pricing";
@@ -96,13 +97,22 @@ export default function ProductPricing({ slug }: { slug: string }) {
         </table>
       </div>
 
-      <p className="text-xs text-subtle">
-        Agent calls are metered per successful call and billed monthly to your Stripe customer.{" "}
-        <Link className="underline" href="/billing">
-          Billing
-        </Link>{" "}
-        shows your usage, history and spend cap.
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+        <p className="text-xs text-subtle">
+          Agent calls are metered per successful call and billed monthly to your Stripe customer.{" "}
+          <Link className="underline hover:text-foreground" href="/billing">
+            Billing
+          </Link>{" "}
+          shows your usage, history and spend cap.
+        </p>
+        <Link
+          href="/billing"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 py-1.5 text-xs font-semibold text-primary hover:underline hover:bg-black/[0.03] transition-colors shadow-2xs"
+        >
+          <CreditCard className="h-3.5 w-3.5" />
+          <span>Manage Billing &amp; API Keys (/billing) →</span>
+        </Link>
+      </div>
     </section>
   );
 }
