@@ -241,79 +241,79 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
           <h4 className="text-xs font-semibold uppercase tracking-wider text-muted font-mono">
             JSON Schema Parameters Contract
           </h4>
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
+            <div className="rounded-xl border border-border/70 bg-card p-4 shadow-2xs">
+              <div className="flex items-center justify-between gap-3 mb-1.5">
                 <code className="font-mono text-xs font-bold text-foreground">invoice</code>
-                <span className="rounded bg-destructive/10 px-1.5 py-0.5 font-mono text-[10px] text-destructive font-semibold">
+                <span className="rounded bg-destructive/10 px-2 py-0.5 font-mono text-[10px] text-destructive font-semibold shrink-0">
                   Required*
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted">
-                Canonical invoice model as a JSON string (<span className="font-mono text-subtle">{`{ seller, buyer, invoice, lines }`}</span>). *Supply this or <span className="font-mono text-subtle">xml</span>.
+              <p className="text-xs text-muted leading-relaxed">
+                Canonical invoice payload as a JSON string containing seller, buyer, invoice header, and lines. *Supply this or <code className="font-mono text-subtle">xml</code>.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between">
+            <div className="rounded-xl border border-border/70 bg-card p-4 shadow-2xs">
+              <div className="flex items-center justify-between gap-3 mb-1.5">
                 <code className="font-mono text-xs font-bold text-foreground">xml</code>
-                <span className="rounded bg-black/[0.05] px-1.5 py-0.5 font-mono text-[10px] text-muted font-semibold">
+                <span className="rounded bg-black/[0.05] px-2 py-0.5 font-mono text-[10px] text-muted font-semibold shrink-0">
                   Optional*
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted">
-                Existing raw CII (<span className="font-mono text-subtle">CrossIndustryInvoice</span>) or UBL 2.1 XML document to validate as-is.
+              <p className="text-xs text-muted leading-relaxed">
+                Existing raw CII (<code className="font-mono text-subtle">CrossIndustryInvoice</code>) or UBL 2.1 XML document to validate as-is.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between">
+            <div className="rounded-xl border border-border/70 bg-card p-4 shadow-2xs">
+              <div className="flex items-center justify-between gap-3 mb-1.5">
                 <code className="font-mono text-xs font-bold text-foreground">target_country</code>
-                <span className="rounded bg-black/[0.05] px-1.5 py-0.5 font-mono text-[10px] text-muted font-semibold">
+                <span className="rounded bg-black/[0.05] px-2 py-0.5 font-mono text-[10px] text-muted font-semibold shrink-0">
                   Optional
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted">
-                National rule overlay &amp; rounding regime: <span className="font-mono text-subtle">FR</span> (CIUS-FR), <span className="font-mono text-subtle">DE</span> (XRechnung), <span className="font-mono text-subtle">BE</span> (Peppol), <span className="font-mono text-subtle">PL</span> (KSeF). Defaults to <span className="font-mono text-subtle">FR</span>.
+              <p className="text-xs text-muted leading-relaxed">
+                National rule overlay &amp; rounding regime: <code className="font-mono text-subtle">FR</code> (CIUS-FR), <code className="font-mono text-subtle">DE</code> (XRechnung), <code className="font-mono text-subtle">BE</code> (Peppol), <code className="font-mono text-subtle">PL</code> (KSeF). Defaults to <code className="font-mono text-subtle">FR</code>.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between">
+            <div className="rounded-xl border border-border/70 bg-card p-4 shadow-2xs">
+              <div className="flex items-center justify-between gap-3 mb-1.5">
                 <code className="font-mono text-xs font-bold text-foreground">target_format</code>
-                <span className="rounded bg-black/[0.05] px-1.5 py-0.5 font-mono text-[10px] text-muted font-semibold">
+                <span className="rounded bg-black/[0.05] px-2 py-0.5 font-mono text-[10px] text-muted font-semibold shrink-0">
                   Optional
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted">
-                Destination format: <span className="font-mono text-subtle">facturx</span> (CII EN 16931), <span className="font-mono text-subtle">cii</span> (standalone CII), or <span className="font-mono text-subtle">ubl</span> (UBL 2.1). Defaults to <span className="font-mono text-subtle">facturx</span>.
+              <p className="text-xs text-muted leading-relaxed">
+                Destination format: <code className="font-mono text-subtle">facturx</code> (CII EN 16931), <code className="font-mono text-subtle">cii</code> (standalone CII), or <code className="font-mono text-subtle">ubl</code> (UBL 2.1). Defaults to <code className="font-mono text-subtle">facturx</code>.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between gap-2">
+            <div className="rounded-xl border border-border/70 bg-card p-4 shadow-2xs">
+              <div className="flex items-center justify-between gap-3 mb-1.5">
                 <code className="font-mono text-xs font-bold text-foreground">vat_id, country</code>
-                <span className="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] text-primary font-semibold shrink-0">
+                <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-[10px] text-primary font-semibold shrink-0">
                   VAT Check
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted">
+              <p className="text-xs text-muted leading-relaxed">
                 For <code className="font-mono text-subtle">check_eu_vat_id</code>: VAT number and ISO country code verified against national algorithms (FR, DE, BE, PL, NL, IT).
               </p>
             </div>
 
-            <div className="rounded-xl border border-border/70 bg-[#10B981]/5 p-3 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1 font-mono text-xs font-bold text-[#047857]">
-                  <ShieldCheck className="h-3.5 w-3.5" />
+            <div className="rounded-xl border border-border/70 bg-[#10B981]/5 p-4 shadow-2xs">
+              <div className="flex items-center justify-between gap-3 mb-1.5">
+                <span className="flex items-center gap-1.5 font-mono text-xs font-bold text-[#047857]">
+                  <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
                   <span>Deterministic Output</span>
                 </span>
-                <span className="rounded bg-[#047857] px-1.5 py-0.5 font-mono text-[10px] text-[#FFFFFF] font-semibold">
+                <span className="rounded bg-[#047857] px-2 py-0.5 font-mono text-[10px] text-card font-semibold shrink-0">
                   Invariant
                 </span>
               </div>
-              <p className="mt-1 text-xs text-muted">
-                Returns readiness score (0-100), blocking &amp; advisory findings with exact rule IDs and fixes, cent-reconciled totals (<span className="font-mono text-subtle">delta == 0.00</span>), and emitted XML artifact.
+              <p className="text-xs text-muted leading-relaxed">
+                Returns readiness score (0-100), blocking &amp; advisory findings with exact rule IDs and fixes, cent-reconciled totals (<code className="font-mono text-subtle">delta == 0.00</code>), and emitted XML artifact.
               </p>
             </div>
           </div>
