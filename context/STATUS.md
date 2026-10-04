@@ -1,5 +1,23 @@
 # Factory Status Map
 
+_Last updated: 2026-10-04 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The build
+line restarted after ~11 idle days and every product is now live**: FacturGate (`1336823`), ParcelProof and
+CaseProof (`683796b`) all went `status: beta → live` in the owner's operator session, alongside the Factory
+Billing portal (`/billing`, v1→v1.4), the one pricing catalog, the `/showcase` redesign with lifecycle badging,
+and the Editorial Signature as shared primitives on every product page (`53e7f12`). **No product is `beta` any
+more — 4 `live` + 1 `retired`**; live `/showcase` renders `LIVE` ×4 / `BETA` ×0. **Money path re-verified live:**
+in-container `STRIPE_MODE=live`, `sk_live_…` (107 chars) → `/v1/balance` 200 `livemode:true`; `POST /api/checkout`
+returns live sessions for all four products (`cs_live_…`), app-less → 400, `quarterline` → 400 retired,
+`/api/portal` → 307. Manifest **v2.0.0 / 9 tools** sha256 `5e47d410…` byte-identical to the tree; all 20
+`/quarterline/calc/*` presets 200 (item 10 still open). **Traffic 1983 → 4492 events / 2886 sessions** — all of it
+the launch-day test runs and the owner's own clicks, still **no outside visitor (last unattributable non-test
+event 2026-09-23T14:11:42Z)**; `agent_query` 4 → 8 (all factory/billing probes). **Revenue still $0 real** (4
+sandbox `purchases`, all `cs_test_*` 09-02). Social queue 42 → 54 cards, 0 ever published. pressflow internal-only
+holds (`/api/articles.json` 401; container 23 files, Supabase `articles` 23 rows). Crons **58 active**; doctor
+**13 issues / 13 jobs** — 12 stale 402 vertical stamps + WordPress Draft Sweep failed 2026-10-04 14:24 (kie.ai
+featured-image Internal Error ×3) with a duplicate-slug CMS defect on two sites. `vertical-sync --check` exit 0
+(26). Item 7 gateway pid `1963330` (09-12) unchanged. _canonical source of truth for the fleet's current state_
+
 _Last updated: 2026-10-04 (ParcelProof + CaseProof launch — owner instruction, `683796b`) — **no product is
 `beta` any more: every shipped product is `live` (4) or `retired` (1).** The owner's launch call in the
 operator session promoted both remaining `beta` products in one commit: `parcelproof` and `caseproof`

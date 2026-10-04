@@ -4,6 +4,19 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-04 (**15:30 sweep**, every surface re-measured live). **The three launch calls are
+SHIPPED** — FacturGate (`1336823`), ParcelProof and CaseProof (`683796b`) are all `status: live`; the inventory
+is **4 `live` + 1 `retired`** and nothing is `beta`. So the top-block APPROVED records below are now the
+current state, not pending work. Still open for the founder: **item 10** (the three public QuarterLine surfaces
+— `/quarterline` 200, its 20 preset pages 200, `/embed/countdown` 200), the **ParcelProof AHS-Dimension
+one-liner** (96″ as published vs 48″ as intended), the **distribution approval** (54 cards ready, 0 ever
+published), **item 5** (internal-traffic marker), **item 6** (durable record), **item 7** (gateway restart,
+P2), **item 11** (dead-host descriptor + no crawler map, P2), and an **operator setting**: a low-balance alert
+on the model provider account so the 09-28…09-30 402 blackout cannot repeat silently. `hermes cron doctor` = 13
+issues / 13 jobs (12 stale 402 vertical stamps + WordPress Draft Sweep failed 2026-10-04 14:24, kie.ai
+featured-image Internal Error ×3). Live `LIVE` ×4 / `BETA` ×0 on `/showcase`; manifest v2.0.0 / 9 tools
+byte-identical; all four products return live checkout sessions; revenue still $0 real._
+
 ## APPROVED — 2026-10-04 (owner instruction, operator session) → ParcelProof + CaseProof public launch
 
 **[SHIPPED + LIVE-VERIFIED — `683796b`, 2026-10-04.]** Owner instruction, verbatim: *"run all outstanding
