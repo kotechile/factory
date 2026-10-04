@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BookOpen, ExternalLink } from "lucide-react";
 import CaseProofCalculator from "@/components/caseproof-calculator";
 import ProductPricing from "@/components/product-pricing";
 import { AgentSurfaceGuide } from "@/components/editorial/agent-surface-guide";
@@ -55,6 +56,18 @@ export default function Page() {
                 not carry. Paste the quote&apos;s own line items and your numbers, and CaseProof re-runs
                 the proposal through the same engine as your case — then says which assumptions have to
                 be confirmed <strong className="text-foreground">in writing before signature</strong>.
+                <span className="block pt-2">
+                  <a
+                    href="https://giniloh.com/caseproof-stop-signing-3m-warehouse-automation-deals-on-a-vendors/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/[0.04] px-3.5 py-1 text-xs font-medium text-foreground hover:bg-primary/[0.08] hover:border-primary/40 transition-colors shadow-2xs"
+                  >
+                    <BookOpen className="h-3 w-3 text-primary" />
+                    <span>Read Architectural Guide: Stop Signing $3M Warehouse Automation Deals on a Vendor&apos;s Spreadsheet</span>
+                    <ExternalLink className="h-2.5 w-2.5 text-subtle" />
+                  </a>
+                </span>
               </>
             }
             artwork={
@@ -195,6 +208,33 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
               <h2 className="text-base font-semibold text-foreground">
                 Rule and clause deep dives
               </h2>
+
+              {/* Featured Comprehensive Pillar Article */}
+              <div className="rounded-xl border border-primary/25 bg-primary/[0.03] p-4.5 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-primary">
+                      AUTHORITATIVE ESSAY &amp; WAREHOUSE PROCUREMENT BLUEPRINT
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    CaseProof: Stop Signing $3M Warehouse Automation Deals on a Vendor&apos;s Spreadsheet
+                  </h3>
+                  <p className="text-xs text-muted max-w-xl">
+                    How unstated WCS integration fees, unburdened labor rates, and aggressive throughput curves stretch 14-month payback models past 41 months—and how deterministic buyer-side auditing protects capital allocation.
+                  </p>
+                </div>
+                <a
+                  href="https://giniloh.com/caseproof-stop-signing-3m-warehouse-automation-deals-on-a-vendors/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-card hover:opacity-90 transition-opacity shadow-xs"
+                >
+                  <span>Read Full Article</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+
               <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {caseproofPresets.map((preset) => (
                   <li key={preset.slug}>
