@@ -19,6 +19,8 @@ import {
   type Severity,
 } from "@/lib/calc/parcelaudit";
 import { trackEvent } from "@/lib/telemetry-client";
+import { IdeTextarea } from "@/components/editorial/ide-textarea";
+import { TACTILE_CTA } from "@/components/editorial/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -172,7 +174,7 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-10 sm:px-6">
-      <Card>
+      <Card className="rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_8px_24px_-4px_rgba(15,23,42,0.04)]">
         <CardHeader>
           <CardTitle>1 &middot; Your two files</CardTitle>
           <CardDescription>
@@ -184,37 +186,37 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1.5 text-[13px] font-medium text-muted">
               Shipment records (CSV)
-              <textarea
+              <IdeTextarea
+                title="records.csv"
+                ariaLabel="Shipment records (CSV)"
                 value={recordsText}
-                onChange={(event) => editField(setRecordsText)(event.target.value)}
+                onChange={editField(setRecordsText)}
                 rows={8}
-                spellCheck={false}
                 placeholder="order_id,tracking,carrier,service,ship_date,length,width,height,actual_weight_lb,zone,residential,address_correction,promised_date,delivered_at"
-                className="w-full rounded border border-border bg-background p-3 font-mono text-xs leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               />
             </label>
             <label className="flex flex-col gap-1.5 text-[13px] font-medium text-muted">
               Invoice lines (CSV)
-              <textarea
+              <IdeTextarea
+                title="invoice.csv"
+                ariaLabel="Invoice lines (CSV)"
                 value={linesText}
-                onChange={(event) => editField(setLinesText)(event.target.value)}
+                onChange={editField(setLinesText)}
                 rows={8}
-                spellCheck={false}
                 placeholder="tracking,invoice_date,carrier,service,billed_weight_lb,zone,base_charge_usd,surcharges,total_usd"
-                className="w-full rounded border border-border bg-background p-3 font-mono text-xs leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               />
             </label>
           </div>
 
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-muted">
             Contract rate card (CSV) — optional, and the only way a line gets priced
-            <textarea
+            <IdeTextarea
+              title="contract-rate-card.csv"
+              ariaLabel="Contract rate card (CSV)"
               value={rateCardText}
-              onChange={(event) => editField(setRateCardText)(event.target.value)}
+              onChange={editField(setRateCardText)}
               rows={5}
-              spellCheck={false}
               placeholder="carrier,service,zone,min_weight_lb,max_weight_lb,rate_usd"
-              className="w-full rounded border border-border bg-background p-3 font-mono text-xs leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             />
           </label>
 
@@ -244,7 +246,7 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button onClick={runAudit} disabled={!recordsText.trim() || !linesText.trim()}>
+            <Button className={TACTILE_CTA} onClick={runAudit} disabled={!recordsText.trim() || !linesText.trim()}>
               <ShieldCheck className="mr-1.5 h-4 w-4" aria-hidden="true" />
               Audit invoice
             </Button>

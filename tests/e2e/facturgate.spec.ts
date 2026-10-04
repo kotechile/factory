@@ -4,9 +4,12 @@ import AxeBuilder from "@axe-core/playwright";
 test("facturgate renders at /facturgate", async ({ page }) => {
   await page.goto("/facturgate");
   await expect(page).toHaveTitle(/FacturGate/);
+  // The hero headline is the Editorial Signature's (the older name-as-heading copy moved to the
+  // sticky product header and the page title).
   await expect(
-    page.getByRole("heading", { name: "FacturGate — EU e-invoice pre-send gate" }),
+    page.getByRole("heading", { name: "Know an invoice will be rejected before it leaves" }),
   ).toBeVisible();
+  await expect(page.getByText("FacturGate").first()).toBeVisible();
 });
 
 test("facturgate scores the loaded FR example 100/100 without findings", async ({ page }) => {

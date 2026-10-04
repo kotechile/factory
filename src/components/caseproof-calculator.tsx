@@ -21,6 +21,8 @@ import {
   type CaseProofReport,
 } from "@/lib/calc/caseproof";
 import { trackEvent } from "@/lib/telemetry-client";
+import { IdeTextarea } from "@/components/editorial/ide-textarea";
+import { TACTILE_CTA } from "@/components/editorial/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -157,7 +159,7 @@ export default function CaseProofCalculator({ initialScenario = DEFAULT_SCENARIO
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-10 sm:px-6">
-      <Card>
+      <Card className="rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_8px_24px_-4px_rgba(15,23,42,0.04)]">
         <CardHeader>
           <CardTitle>1 &middot; The vendor&apos;s quote, line by line</CardTitle>
           <CardDescription>
@@ -169,16 +171,16 @@ export default function CaseProofCalculator({ initialScenario = DEFAULT_SCENARIO
         <CardContent className="space-y-4">
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-muted">
             Quote line items (CSV)
-            <textarea
+            <IdeTextarea
+              title="vendor-quote.csv"
+              ariaLabel="Quote line items (CSV)"
               value={quoteCsv}
-              onChange={(event) => {
-                setQuoteCsv(event.target.value);
+              onChange={(next) => {
+                setQuoteCsv(next);
                 setReport(null);
               }}
               rows={7}
-              spellCheck={false}
               placeholder="item,amount_usd,category,note"
-              className="w-full rounded border border-border bg-background p-3 font-mono text-xs leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             />
           </label>
           <div className="flex flex-wrap items-center gap-2">
@@ -200,7 +202,7 @@ export default function CaseProofCalculator({ initialScenario = DEFAULT_SCENARIO
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_8px_24px_-4px_rgba(15,23,42,0.04)]">
         <CardHeader>
           <CardTitle>2 &middot; Your case</CardTitle>
           <CardDescription>
@@ -212,19 +214,20 @@ export default function CaseProofCalculator({ initialScenario = DEFAULT_SCENARIO
         <CardContent className="space-y-4">
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-muted">
             Case (JSON)
-            <textarea
+            <IdeTextarea
+              title="buyer-case.json"
+              ariaLabel="Case (JSON)"
               value={caseJson}
-              onChange={(event) => {
-                setCaseJson(event.target.value);
+              onChange={(next) => {
+                setCaseJson(next);
                 setReport(null);
               }}
               rows={12}
-              spellCheck={false}
-              className="w-full rounded border border-border bg-background p-3 font-mono text-xs leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              placeholder='{ "baseline": { … }, "finance": { … }, "options": [ … ] }'
             />
           </label>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={runAudit} disabled={!caseJson.trim()}>
+            <Button className={TACTILE_CTA} onClick={runAudit} disabled={!caseJson.trim()}>
               <ShieldCheck className="mr-1.5 h-4 w-4" aria-hidden="true" />
               Audit the case
             </Button>

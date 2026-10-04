@@ -11,6 +11,8 @@ import {
 } from "@/lib/calc/einvoice";
 import { brokenFixtures, demoInvoice } from "@/lib/calc/einvoice/fixtures";
 import { trackEvent } from "@/lib/telemetry-client";
+import { IdeTextarea } from "@/components/editorial/ide-textarea";
+import { TACTILE_CTA } from "@/components/editorial/signature";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -184,22 +186,22 @@ export default function FacturGateCalculator({
 
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-muted">
             Canonical invoice model (JSON)
-            <textarea
+            <IdeTextarea
+              title="invoice.json"
+              ariaLabel="Canonical invoice model (JSON)"
               value={documentText}
-              onChange={(event) => setDocumentText(event.target.value)}
+              onChange={setDocumentText}
               rows={12}
-              spellCheck={false}
               placeholder='{ "seller": { … }, "buyer": { … }, "invoice": { … } }'
-              className="w-full rounded border border-border bg-background p-4 font-mono text-xs leading-relaxed text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             />
           </label>
 
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => run("validate")} disabled={!documentText.trim()}>
+            <Button className={TACTILE_CTA} onClick={() => run("validate")} disabled={!documentText.trim()}>
               <ShieldCheck className="mr-1.5 h-4 w-4" aria-hidden="true" />
               Validate &amp; score
             </Button>
-            <Button variant="accent" onClick={() => run("convert")} disabled={!documentText.trim()}>
+            <Button className={TACTILE_CTA} variant="accent" onClick={() => run("convert")} disabled={!documentText.trim()}>
               <Wand2 className="mr-1.5 h-4 w-4" aria-hidden="true" />
               Validate &amp; convert
             </Button>

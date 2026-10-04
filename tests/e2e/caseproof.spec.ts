@@ -4,9 +4,12 @@ import AxeBuilder from "@axe-core/playwright";
 test("caseproof renders at /caseproof", async ({ page }) => {
   await page.goto("/caseproof");
   await expect(page).toHaveTitle(/CaseProof/);
+  // The hero headline is the Editorial Signature's (the older name-as-heading copy moved to the
+  // sticky product header and the page title).
   await expect(
-    page.getByRole("heading", { name: /CaseProof — the buyer's side of a warehouse automation case/ }),
+    page.getByRole("heading", { name: "Re-run the vendor's own numbers before you sign" }),
   ).toBeVisible();
+  await expect(page.getByText("CaseProof").first()).toBeVisible();
 });
 
 test("caseproof reproduces the 14-month claim and audits it at 41 on the buyer's numbers", async ({ page }) => {

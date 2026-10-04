@@ -4,9 +4,12 @@ import AxeBuilder from "@axe-core/playwright";
 test("parcelproof renders at /parcelproof", async ({ page }) => {
   await page.goto("/parcelproof");
   await expect(page).toHaveTitle(/ParcelProof/);
+  // The hero headline is the Editorial Signature's (the older name-as-heading copy moved to the
+  // sticky product header and the page title).
   await expect(
-    page.getByRole("heading", { name: "ParcelProof — carrier invoice DIM-weight & surcharge audit" }),
+    page.getByRole("heading", { name: "Prove the weight before you dispute the charge" }),
   ).toBeVisible();
+  await expect(page.getByText("ParcelProof").first()).toBeVisible();
 });
 
 test("parcelproof audits the overcharge example and shows the claimable money", async ({ page }) => {
