@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BookOpen, ExternalLink } from "lucide-react";
 import ParcelProofCalculator from "@/components/parcelproof-calculator";
 import ProductPricing from "@/components/product-pricing";
 import { AgentSurfaceGuide } from "@/components/editorial/agent-surface-guide";
@@ -56,6 +57,18 @@ export default function Page() {
                 eligibility is re-checked with the trigger that failed, and the recovery is priced from
                 your own contract rate card — a line that cannot be priced is reported{" "}
                 <strong className="text-foreground">unverifiable, never guessed</strong>.
+                <span className="block pt-2">
+                  <a
+                    href="https://giniloh.com/parcelproof-stop-bleeding-28-on-carrier-invoices/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/[0.04] px-3.5 py-1 text-xs font-medium text-foreground hover:bg-primary/[0.08] hover:border-primary/40 transition-colors shadow-2xs"
+                  >
+                    <BookOpen className="h-3 w-3 text-primary" />
+                    <span>Read Architectural Guide: Stop Bleeding 28% on Carrier Invoices</span>
+                    <ExternalLink className="h-2.5 w-2.5 text-subtle" />
+                  </a>
+                </span>
               </>
             }
             artwork={
@@ -206,6 +219,33 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
               <h2 className="text-base font-semibold text-foreground">
                 Rule and carrier deep dives
               </h2>
+
+              {/* Featured Comprehensive Pillar Article */}
+              <div className="rounded-xl border border-primary/25 bg-primary/[0.03] p-4.5 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-primary">
+                      AUTHORITATIVE ESSAY &amp; FREIGHT AUDIT BLUEPRINT
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    ParcelProof: Stop Bleeding 28% on Carrier Invoices with Deterministic Audit
+                  </h3>
+                  <p className="text-xs text-muted max-w-xl">
+                    How carrier DIM divisors, late-delivery refund windows (UPS ≈30d, FedEx ≈21d), and accessorial surcharge triggers quietly drain margin—and how automated deterministic reconciliation recovers the loss.
+                  </p>
+                </div>
+                <a
+                  href="https://giniloh.com/parcelproof-stop-bleeding-28-on-carrier-invoices/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 shrink-0 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-card hover:opacity-90 transition-opacity shadow-xs"
+                >
+                  <span>Read Full Article</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+
               <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {parcelauditPresets.map((preset) => (
                   <li key={preset.slug}>
