@@ -81,4 +81,30 @@ describe("product pricing catalog", () => {
       expect(agentRatesForProduct(slug).constructor).toBe(Object);
     }
   });
+
+  it("keeps the product pages' advertised prices sourced from this catalog", () => {
+    // A price written a second time on a page advertises a rate nobody is charged. The product
+    // surfaces must read the catalog: the fee header, the agent-rate band and the footer rate line.
+    const guide = readFileSync(
+      path.join(process.cwd(), "src/components/facturgate-mcp-guide.tsx"),
+      "utf8",
+    );
+    expect(
+      guide,
+      "the FacturGate WebMCP guide must read its rate band from the pricing catalog",
+    ).toContain('agentRatesForProduct("facturgate")');
+    for (const tool of ["validate_einvoice", "convert_invoice_to_facturx", "check_eu_vat_id"]) {
+      expect(guide, `${tool} must be priced from the catalog, not inlined`).toContain(
+        `agentRateForTool("${tool}")`,
+      );
+    }
+
+    const page = readFileSync(path.join(process.cwd(), "src/app/facturgate/page.tsx"), "utf8");
+    expect(page, "the FacturGate page must read the suite price from the catalog").toContain(
+      "SUITE_PRO_MONTHLY_USD",
+    );
+    expect(page, "the FacturGate page must read its 'from $X/call' price from the catalog").toContain(
+      'lowestAgentRate("facturgate")',
+    );
+  });
 });

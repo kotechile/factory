@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { agentRateForTool } from "@/products/pricing";
+import { agentRateForTool, agentRatesForProduct } from "@/products/pricing";
 import {
   Bot,
   Check,
@@ -108,6 +108,12 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
     config: "claude_desktop_config.json",
   };
 
+  // The advertised rate band and the per-tool footer line are read from the pricing catalog — the
+  // same catalog the agent API charges from — so a displayed rate cannot drift from a charged one.
+  const rateEntries = Object.entries(agentRatesForProduct("facturgate")).sort((a, b) => a[1] - b[1]);
+  const lowestRate = rateEntries[0][1];
+  const highestRate = rateEntries[rateEntries.length - 1][1];
+
   const handleCopy = () => {
     navigator.clipboard.writeText(snippets[activeTab]);
     setCopied(true);
@@ -137,7 +143,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
               validate_einvoice
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-[#10B981]/10 px-2.5 py-1 font-mono text-[11px] font-semibold text-[#047857]">
-              METERED $0.05 – $0.25 / CALL
+              METERED ${lowestRate.toFixed(2)} – ${highestRate.toFixed(2)} / CALL
             </span>
           </div>
         </div>
@@ -334,11 +340,21 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
             </Link>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span>Fleet tools:</span>
-            <span className="font-mono text-xs text-foreground font-semibold">
-              check_eu_vat_id ($0.05) · validate_einvoice ($0.10) · convert_invoice_to_facturx ($0.25)
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <span className="inline-flex flex-wrap items-center gap-1.5">
+              <span>Fleet tools:</span>
+              <span className="font-mono text-xs text-foreground font-semibold">
+                {rateEntries.map(([tool, rate]) => `${tool} ($${rate.toFixed(2)})`).join(" · ")}
+              </span>
             </span>
+            <span className="text-border">|</span>
+            <Link
+              href="/showcase"
+              className="inline-flex items-center gap-1 font-medium text-foreground hover:text-primary transition-colors"
+            >
+              <span>Factory Showcase Directory</span>
+              <ExternalLink className="h-3 w-3" />
+            </Link>
           </div>
         </div>
       </CardContent>

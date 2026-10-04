@@ -41,6 +41,49 @@ test("facturgate emits the converted EN 16931 artifact", async ({ page }) => {
   await expect(page.getByRole("button", { name: /Download/ })).toBeVisible();
 });
 
+test("facturgate surfaces the pricing block and the billing entry point", async ({ page }) => {
+  await page.goto("/facturgate");
+
+  // The pricing block reads the catalog (src/products/pricing.ts) — same numbers the API charges.
+  await expect(page.getByRole("heading", { name: "Pricing" })).toBeVisible();
+  await expect(page.getByText("$29.00/month")).toBeVisible();
+  await expect(page.getByText("$0.10 per successful call")).toBeVisible();
+  await expect(page.getByText("$0.25 per successful call")).toBeVisible();
+
+  // A link to pricing, in the header and in the agent guide.
+  await expect(page.getByRole("link", { name: /Billing & Pricing/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Get Agent Key \/ Manage Billing/ })).toBeVisible();
+});
+
+test("facturgate documents the WebMCP agent surface with the manifest and showcase links", async ({
+  page,
+}) => {
+  await page.goto("/facturgate");
+
+  await expect(
+    page.getByRole("heading", { name: "Agent Surface & WebMCP Integration" }),
+  ).toBeVisible();
+  // The advertised band and the footer rate line are derived from the pricing catalog.
+  await expect(page.getByText("METERED $0.05 – $0.25 / CALL")).toBeVisible();
+  await expect(page.getByText(/check_eu_vat_id \(\$0\.05\) · validate_einvoice \(\$0\.10\)/)).toBeVisible();
+
+  await expect(page.getByRole("link", { name: "/.well-known/mcp.json" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Factory Showcase Directory/ })).toBeVisible();
+
+  // The snippet tabs switch, and the cURL tab names the metered endpoint and the tool selector.
+  await page.getByRole("button", { name: /HTTP \/ cURL API/ }).click();
+  await expect(page.getByText("POST /api/agent/calculate")).toBeVisible();
+  await expect(page.locator("pre code").first()).toContainText(
+    "x-webmcp-tool: validate_einvoice",
+  );
+
+  // The MCP client tab carries the server config an agent host needs.
+  await page.getByRole("button", { name: /MCP Client Config/ }).click();
+  await expect(page.locator("pre code").first()).toContainText(
+    "https://apps.giniloh.com/.well-known/mcp.json",
+  );
+});
+
 test("facturgate rule page renders its preset target", async ({ page }) => {
   await page.goto("/facturgate/calc/br-06-seller-name");
   await expect(page.getByRole("heading", { name: /BR-06 \/ BR-07/ })).toBeVisible();

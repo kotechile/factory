@@ -47,7 +47,7 @@ export const products: Product[] = [
     slug: "facturgate",
     name: "FacturGate",
     tagline: "EU E-Invoice Pre-Send Gate & Factur-X / UBL Converter",
-    status: "beta",
+    status: "live",
     description:
       "Deterministic EN 16931 + CIUS-FR pre-send gate and converter for EU e-invoicing: the exact blocking rule list with field paths and fixes, totals reconciled to the cent with the drift delta, a 0-100 readiness score, and an artifact at the EN 16931 profile (Factur-X/CII or UBL 2.1). No LLM, no invented defaults — an unreadable or incomplete document fails loudly with its rule id.",
     route: "/facturgate",

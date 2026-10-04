@@ -6,6 +6,7 @@ import FacturGateMcpGuide from "@/components/facturgate-mcp-guide";
 import FacturGateSchematic from "@/components/facturgate-schematic";
 import ProductPricing from "@/components/product-pricing";
 import { Badge } from "@/components/ui/badge";
+import { SUITE_PRO_MONTHLY_USD, lowestAgentRate } from "@/products/pricing";
 import { einvoicePresets } from "@/lib/seo/einvoice/presets";
 
 export const metadata: Metadata = {
@@ -13,6 +14,14 @@ export const metadata: Metadata = {
   description:
     "Deterministic EN 16931 + CIUS-FR pre-send validation for EU e-invoices: exact rule findings with field paths and fixes, totals reconciled to the cent, a 0-100 readiness score, and conversion to Factur-X (CII) or UBL 2.1.",
 };
+
+/**
+ * The prices FacturGate advertises come from the pricing catalog (src/products/pricing.ts) — the
+ * same numbers the checkout and the agent API charge. A price written a second time here would
+ * silently advertise a rate nobody is charged.
+ */
+const SUITE_PRO_USD = SUITE_PRO_MONTHLY_USD;
+const AGENT_FROM_USD = lowestAgentRate("facturgate");
 
 export default function Page() {
   return (
@@ -46,7 +55,7 @@ export default function Page() {
               <CreditCard className="h-3.5 w-3.5 text-primary" />
               <span>Billing &amp; Pricing</span>
               <span className="hidden sm:inline font-mono text-[11px] font-semibold text-primary">
-                ($29/mo · from $0.05/call)
+                (${SUITE_PRO_USD}/mo · from ${AGENT_FROM_USD.toFixed(2)}/call)
               </span>
             </Link>
             <Badge variant="success" className="hidden lg:inline-flex gap-1">
@@ -76,7 +85,13 @@ export default function Page() {
             >
               <CreditCard className="h-3 w-3 text-primary" />
               <span>
-                Free in browser · Agents from <strong className="font-mono text-foreground font-semibold">$0.05</strong>/call · <strong className="font-mono text-foreground font-semibold">$29</strong>/mo Pro
+                Free in browser · Agents from{" "}
+                <strong className="font-mono text-foreground font-semibold">
+                  ${AGENT_FROM_USD.toFixed(2)}
+                </strong>
+                /call ·{" "}
+                <strong className="font-mono text-foreground font-semibold">${SUITE_PRO_USD}</strong>
+                /mo Pro
               </span>
               <span className="text-subtle font-mono">→</span>
             </Link>
