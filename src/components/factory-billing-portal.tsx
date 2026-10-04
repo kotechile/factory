@@ -212,9 +212,9 @@ export default function FactoryBillingPortal() {
           {/* Pricing & Onboarding Cards Grid */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Card 1: Agent Metered Access */}
-            <Card className="flex flex-col rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
+            <Card className="flex flex-col rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.06)] overflow-hidden p-0">
               <div className="h-1.5 w-full bg-[#10B981]" />
-              <CardHeader className="pb-4">
+              <CardHeader className="p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <Badge variant="success" className="font-mono text-[10px]">
                     AGENT TIER
@@ -236,7 +236,7 @@ export default function FactoryBillingPortal() {
                 </p>
               </CardHeader>
 
-              <CardContent className="flex-1 flex flex-col justify-between space-y-6 pt-2">
+              <CardContent className="flex-1 flex flex-col justify-between space-y-6 p-6 pt-2">
                 <ul className="space-y-2.5 text-xs text-muted">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-[#10B981] shrink-0 mt-0.5" />
@@ -281,18 +281,21 @@ export default function FactoryBillingPortal() {
             </Card>
 
             {/* Card 2: Factory Pro Access */}
-            <Card className="flex flex-col rounded-2xl border-0 bg-card ring-1 ring-primary/30 shadow-[0_12px_32px_-8px_rgba(79,70,229,0.12)] overflow-hidden relative">
-              <div className="h-1.5 w-full bg-primary" />
-              <div className="absolute top-4 right-4">
-                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary">
+            <Card className="flex flex-col rounded-2xl border-0 bg-card ring-2 ring-primary/40 shadow-[0_16px_40px_-8px_rgba(79,70,229,0.16)] p-0 relative">
+              {/* Floating POPULAR pill perched above the top horizon line */}
+              <div className="absolute -top-3 right-6 z-20">
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white shadow-md ring-2 ring-background">
+                  <Sparkles className="h-3 w-3" />
                   POPULAR
                 </span>
               </div>
-              <CardHeader className="pb-4">
+              <div className="h-1.5 w-full bg-gradient-to-r from-primary via-[#6366F1] to-[#818CF8] rounded-t-2xl" />
+              <CardHeader className="p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <Badge variant="accent" className="font-mono text-[10px]">
                     WEB SUITE
                   </Badge>
+                  <Sparkles className="h-5 w-5 text-primary" />
                 </div>
                 <CardTitle className="text-xl font-bold mt-2">Factory Pro Suite</CardTitle>
                 <CardDescription className="text-xs">
@@ -307,7 +310,7 @@ export default function FactoryBillingPortal() {
                 </p>
               </CardHeader>
 
-              <CardContent className="flex-1 flex flex-col justify-between space-y-6 pt-2">
+              <CardContent className="flex-1 flex flex-col justify-between space-y-6 p-6 pt-2">
                 <ul className="space-y-2.5 text-xs text-muted">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
@@ -352,9 +355,9 @@ export default function FactoryBillingPortal() {
             </Card>
 
             {/* Card 3: Existing Customer Portal Gateway */}
-            <Card className="flex flex-col rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.06)] overflow-hidden">
+            <Card className="flex flex-col rounded-2xl border-0 bg-card ring-1 ring-[#0F172A]/[0.06] shadow-[0_12px_32px_-8px_rgba(15,23,42,0.06)] overflow-hidden p-0">
               <div className="h-1.5 w-full bg-[#06B6D4]" />
-              <CardHeader className="pb-4">
+              <CardHeader className="p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <Badge variant="outline" className="font-mono text-[10px]">
                     STRIPE PORTAL
@@ -374,7 +377,7 @@ export default function FactoryBillingPortal() {
                 </p>
               </CardHeader>
 
-              <CardContent className="flex-1 flex flex-col justify-between space-y-6 pt-2">
+              <CardContent className="flex-1 flex flex-col justify-between space-y-6 p-6 pt-2">
                 <form onSubmit={handlePortalLookup} className="space-y-3">
                   <div>
                     <label
