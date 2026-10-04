@@ -1,5 +1,30 @@
 # Factory Status Map
 
+_Last updated: 2026-10-04 (ParcelProof + CaseProof launch — owner instruction, `683796b`) — **no product is
+`beta` any more: every shipped product is `live` (4) or `retired` (1).** The owner's launch call in the
+operator session promoted both remaining `beta` products in one commit: `parcelproof` and `caseproof`
+`status: beta → live`. Verified, not assumed: both sit AFTER LedgerLink in registry order, so
+`defaultInventoryProduct` — the one product an unscoped, product-scoped request resolves to — is unchanged;
+both pages already carried the launch surface the older live product (LedgerLink) has (a `<ProductPricing>`
+block whose every number reads `src/products/pricing.ts`, plus an agent-surface block naming the product's
+WebMCP tools and linking the manifest), so no page change was needed. **Stripe verified live, probed from
+outside the container:** `{app:"parcelproof"}` → 200 `cs_live_a15V0gRS…`, `{app:"caseproof"}` → 200
+`cs_live_a1rZGxhvrX…`; app-less → 400 naming the inventory; `app=quarterline` → 400 "retired". Four new
+launch-surface e2e specs (2 per product). **Live `/showcase` now renders `LIVE` ×4 / `BETA` ×0.** **Two gate
+repairs landed with it:** (1) `playwright.config.ts` pins `snapshotPathTemplate` to ONE baseline — the
+default `-{platform}` suffix had split `/showcase` into a linux and a darwin file and the 09-04 showcase
+redesign refreshed only the darwin copy, so this host's gate was RED (46 passed / 1 failed) on an
+already-approved change before any of today's work; the darwin baseline is deleted (Linux is the deploy
+target and the only test host). (2) The `/showcase` baseline was re-derived for the badge change after
+READING the diff: one contiguous cluster, rows 822–844 × cols 359–790 (2694 px of 2,420,480 — the two status
+pills), nothing else moved. **Gate:** tsc / eslint (1 pre-existing warning) / tokens / vertical-sync /
+**171 vitest** / `next build` / **51 e2e** (47 + 4 new) / **visual-qa PASS on all four screenshots** — all
+green, whole suite now green. Note `visual-qa` failed `facturgate-qa.png` in a standalone run and passed on
+the identical image in the gate run plus 3 further runs (16 review calls, 4 of them on that image): the
+vision verdict is not reproducible run-to-run (recorded in
+`self_improvement_eval.md`), so a red there is a signal to falsify by measurement, never to restyle.
+**Revenue still $0 real** (nothing charged yet). _canonical source of truth for the fleet's current state_
+
 _Last updated: 2026-10-04 (FacturGate launch — owner instruction, `1336823`) — **the build line moved for the
 first time since 09-22, and the registry gained a `live` product:** FacturGate `status: beta → live` (the
 owner's launch call, in the operator session; it was the last thing pending on that product since 09-17).
@@ -157,8 +182,9 @@ calculators exist) and left the adversarial re-run + multi-quote comparison in s
 
 - `/` — 307 → `https://giniloh.com` (the primary brand site).
 - `/showcase` — Factory Showcase / directory (search, status badges, WebMCP agent catalog).
-- `/<slug>/` — each product's UI; `/ledgerlink/` is live, `/facturgate/` and `/parcelproof/` are beta,
-  `/quarterline/` is retired (registry status `killed` since 2026-09-19, `bc3d556`) but still served.
+- `/<slug>/` — each product's UI; `/ledgerlink/`, `/facturgate/`, `/parcelproof/` and `/caseproof/` are all
+  `live` (the last two promoted 2026-10-04, `683796b`), `/quarterline/` is retired (registry status `killed`
+  since 2026-09-19, `bc3d556`) but still served.
 - `/<slug>/calc/*` — per-product pSEO; `/api/*`, `/embed/*`, `/.well-known/*` are shared.
 - Payments are product-generic since `bc3d556`: `/api/checkout` and the Stripe webhook resolve the product
   from the request (`app`) or the registry, with the receipt email templated per product. **One residual
@@ -175,11 +201,12 @@ it** (measured 2026-09-20): the manifest still advertises its two tools (`calcul
 `calculate_quarterly_estimate`), and the default `pdf_audit_export` checkout still carries
 `app=quarterline` in the Stripe session metadata.
 
-## Beta product — FacturGate (built 2026-09-17, deliberately not launched)
+## Live product — FacturGate (built 2026-09-17, launched 2026-10-04)
 
 `https://apps.giniloh.com/facturgate` — EN 16931 / CIUS-FR e-invoice pre-send gate and
 Factur-X (CII) / UBL 2.1 converter, built from queue item 4 (`e77db64`, owner-approved 2026-09-17).
-Registry status is **beta**: the public launch call is the founder's, so nothing here claims traction.
+Registry status is **live** (owner launch call, `1336823`, 2026-10-04); the owner's review that
+released it, and the pricing wiring it required, are in `pending_approval.md`.
 
 - Engine `src/lib/calc/einvoice/` — 65 implemented rule checks (55 EN 16931 core ids + the 10
   `BR-FR-*` CIUS-FR overlay ids), totals recomputed from the lines in integer cents with an explicit
@@ -194,12 +221,13 @@ Registry status is **beta**: the public launch call is the founder's, so nothing
   EXTENDED-CTC-FR lifecycle fields, e-reporting/CDAR and national serializations (PL KSeF FA(3) XML)
   are P1; `check_eu_vat_id` is offline format + checksum — VIES status is not queried.
 
-## Beta product — CaseProof (built 2026-09-22, deliberately not launched)
+## Live product — CaseProof (built 2026-09-22, launched 2026-10-04)
 
 `https://apps.giniloh.com/caseproof` — the buyer's side of a warehouse-automation business case,
 built from approval item 9 (`78d0739`, owner-approved 2026-09-22, PRD `context/recon_proposals/2026-09-21_caseproof.md`,
-§5 v1 scope guard only). Registry status is **beta**: the public launch call is the founder's, so nothing
-here claims traction.
+§5 v1 scope guard only). Registry status is **live** (owner launch call, `683796b`, 2026-10-04) — it
+was arguably the strongest candidate on the price ladder ($0.50/call, the only product where the
+agent rate exceeds the page rate) and now carries a launch-surface e2e spec pair.
 
 - Engine `src/lib/calc/caseproof/` — pure, no I/O, no clock, no LLM: the **fully loaded** labour rate with its
   component breakdown (wage + employer payroll burden + benefits + FLSA overtime premium + turnover
@@ -226,11 +254,11 @@ here claims traction.
   taxable-business-income limitation and MACRS conventions are not modelled, and a paid decision-pack export
   / Stripe checkout is not wired (the CSV pack ships free).
 
-## Beta product — ParcelProof (built 2026-09-18, deliberately not launched)
+## Live product — ParcelProof (built 2026-09-18, launched 2026-10-04)
 
 `https://apps.giniloh.com/parcelproof` — carrier invoice DIM-weight / surcharge audit, built from
 queue item 4's ParcelProof half (`3584a62`, owner-approved 2026-09-18, docs `73cad11` + `19d9529`).
-Registry status is **beta**: the public launch call is the founder's, so nothing here claims traction.
+Registry status is **live** (owner launch call, `683796b`, 2026-10-04).
 
 - Engine `src/lib/calc/parcelaudit/` — billable weight recomputed as `max(actual, ceil(L)*ceil(W)*ceil(H)/divisor)`
   with the divisor resolved by carrier × service × ship date (UPS/FedEx 139; USPS 166 before 2026-07-12,
@@ -308,8 +336,9 @@ mirrors them.
    (`published/` 15 files, dir mtime 06:39), including the four deleted slugs and three published today. The
    deletion itself stays unattributable (no traefik access logs; pressflow logs only its startup banner). Supabase
    `articles` holds 10 rows against those 15 live files — five live articles have no row (new observation, P2).
-   **Three products are built and remain `beta`** (FacturGate,
-   ParcelProof, CaseProof) — the public launch calls are the founder's. The build line ran twice on 2026-09-22 (item 8
+   **The three products recorded as `beta` in this snapshot have since launched** (FacturGate 2026-10-04,
+   `1336823`; ParcelProof + CaseProof the same day, `683796b`) — no product is `beta` any more, so every
+   "public launch call is the founder's" note below is settled. The build line ran twice on 2026-09-22 (item 8
    `b6e6555`, item 9 `78d0739`) and nothing since; the open queue holds item 1 (the live payment key — one paste),
    item 5 (internal-traffic marker + migration), item 6 (durable record), item 7 (gateway restart, no visible symptom
    left; cron doctor clean), **item 10** (the three public QuarterLine surfaces — all 20 preset pages re-probed 200 on

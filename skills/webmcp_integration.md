@@ -112,17 +112,38 @@ that merely *agrees* today, so `src/products/pricing.test.ts` also asserts the c
 lookup (the same wiring guard the agent route has). A displayed rate that disagrees with the charged one
 is invisible until a customer is billed.
 
-**Rule for promoting a product's status (`beta` → `live`) (2026-10-04, FacturGate):** `status` in
-`registry.ts` is the only switch. `activeProducts` (the sell/advertise surfaces) already includes `beta`,
-so a promotion changes exactly two things: (a) the directory badge on `/showcase`, and (b) which product
-an unscoped, product-scoped request resolves to — `defaultInventoryProduct` is the first `live` entry in
-registry order, so promoting an entry EARLIER in the array than the current default silently moves it.
-Before flipping: the page must carry the agent-surface/MCP guide and the pricing block the older `live`
-products carry, and `POST /api/checkout` with that `app` must return a `cs_live_…` session (skill
-`stripe-go-live`). After flipping: re-run the gate — the `/showcase` Playwright snapshot IS a baseline to
-regenerate, so read the diff image before accepting it (it must be the badge and nothing else) — and close
-the launch decision in `context/pending_approval.md` in the same pass. The launch call is the founder's:
-an agent never promotes a product's status on its own.
+**Rule for promoting a product's status (`beta` → `live`) (2026-10-04, FacturGate, then ParcelProof +
+CaseProof in one commit):** `status` in `registry.ts` is the only switch. `activeProducts` (the
+sell/advertise surfaces) already includes `beta`, so a promotion changes exactly two things: (a) the
+directory badge on `/showcase`, and (b) which product an unscoped, product-scoped request resolves to —
+`defaultInventoryProduct` is the first `live` entry in registry order, so promoting an entry EARLIER in
+the array than the current default silently moves it. State that check explicitly per product ("both
+sit after LedgerLink, so the default is unchanged") — a promotion report that does not name the default
+has not verified the one blast radius a flipped status has.
+Before flipping: verify (do not assume) that the page carries the agent-surface/MCP guide and the
+pricing block the older `live` products carry — `<ProductPricing slug>` plus a paragraph naming the
+product's WebMCP tools and linking `/.well-known/mcp.json` is the shape LedgerLink (the older live
+product) has, so grep the page for it rather than rebuilding parity that already exists — and probe
+`POST /api/checkout` with that `app` for a `cs_live_…` session (skill `stripe-go-live`) from OUTSIDE the
+container: the repo's local `.env` is sandbox, so a local probe proves nothing about the live key.
+Add one launch-surface e2e spec pair per promoted product (pricing block + billing entry; agent surface
++ manifest link) so the promoted surface is what the gate asserts.
+After flipping: re-run the gate — the `/showcase` Playwright snapshot IS a baseline to regenerate, so
+read the diff image before accepting it (it must be the badge and nothing else; prove it by measuring,
+not by eye) — and close the launch decision in `context/pending_approval.md` in the same pass. The
+launch call is the founder's: an agent never promotes a product's status on its own.
+
+**Snapshot baselines are per-platform and the platform token is a trap (2026-10-04).** Playwright's
+default `snapshotPathTemplate` appends `-{platform}`, so `/showcase` had a `-linux` and a `-darwin`
+file; a UI redesign then refreshed only the darwin copy and left the Linux baseline stale, which read as
+this host's gate failing on a change the owner had already visually approved. `playwright.config.ts`
+now pins ONE baseline (`{testDir}/{testFilePath}-snapshots/{arg}{ext}`) and the darwin file is deleted,
+because the deploy target and the only test host are Linux — a baseline no run on the host can validate
+is worse than none. Keep it that way: on macOS, regenerate with `--update-snapshots` (the render differs
+by font) rather than reintroducing a second file. Corollary for the badge flip: because a promotion
+changes the render, regenerate the baseline as the LAST step before committing, and separate the
+redesign's diff from the badge's — regenerate once on the pre-flip tree, then run the snapshot test in
+COMPARE mode after the flip and measure the diff bounding box (it must be the pills only).
 
 ## 6. Failure handling
 - Broken MCP/WebMCP endpoints → Toby logs and patches this skill.

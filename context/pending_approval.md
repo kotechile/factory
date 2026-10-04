@@ -4,6 +4,59 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+## APPROVED — 2026-10-04 (owner instruction, operator session) → ParcelProof + CaseProof public launch
+
+**[SHIPPED + LIVE-VERIFIED — `683796b`, 2026-10-04.]** Owner instruction, verbatim: *"run all outstanding
+tests and make necessary changes to move these apps to live status.. in addition, since this app runs on a
+linux VPS it shouldn't be an issue to not having mac compatibility.. right?"* — the public launch call for
+BOTH remaining beta products is made: **`parcelproof` and `caseproof` `status: beta → live`**. No product is
+`beta` any more; the inventory is 4 `live` + 1 `retired`.
+
+- **Registry effect, stated explicitly because it is the one blast radius a status flip has:**
+  `defaultInventoryProduct` (the first `live` entry in registry order — what an unscoped, product-scoped
+  request resolves to) is **unchanged**, still LedgerLink. Both promoted entries sit AFTER it. The flip
+  changes the `/showcase` lifecycle badge (BETA pill → LIVE beacon) and nothing else.
+- **Page parity verified, not assumed — and no page change was needed.** Both pages already carry the
+  launch surface the older live product (LedgerLink) carries and more: `<ProductPricing slug>` (every
+  number read from `src/products/pricing.ts`, the catalog checkout and the agent API charge from) plus an
+  agent-surface block naming their WebMCP tools and linking `/.well-known/mcp.json`. Added 2
+  launch-surface e2e specs per product (pricing block + billing entry; agent surface + manifest link),
+  mirroring the FacturGate precedent. e2e 47 → **51**.
+- **Stripe verified live, probed from outside the container:** `POST /api/checkout
+  {app:"parcelproof", plan:"pdf_audit_export"}` → **200 `cs_live_a15V0gRS…`**; `{app:"caseproof"}` → **200
+  `cs_live_a1rZGxhvrX…`**; app-less → 400 naming the inventory (no product assumed); `app=quarterline` →
+  400 "retired". The repo's local `.env` is sandbox, so only the deployed probe evidences the live key.
+- **Deploy verified, not the push:** the app container
+  (`label=coolify.applicationId=14`) was replaced and now runs image
+  `af8yqbwrrnyyfgs9wcg0intj:683796b7361614f83280a2b4ce3f64f094e61b1c` == `git rev-parse HEAD`; live
+  `/showcase` renders `LIVE` ×4 / `BETA` ×0 (QuarterLine `RETIRED`), and `/parcelproof`, `/caseproof`,
+  `/billing`, `/.well-known/mcp.json` all 200.
+- **Two gate repairs landed with the launch.**
+  (1) **The per-platform snapshot trap.** `playwright.config.ts` now pins
+  `snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}"` and the Darwin baseline is
+  deleted. The default `-{platform}` suffix had split `/showcase` into a linux and a darwin file, and the
+  showcase redesign (`cd76993`, `8421aba`) refreshed **only the darwin copy** — so this host's gate was
+  RED (46 passed / 1 failed) on an already-approved change *before any of today's work*, and the failure
+  would have been misread as a regression in the redesign. Linux is the deploy target and the only test
+  host, so a second baseline is a file no run here can validate. Answer to the owner's question: correct,
+  macOS compatibility is not needed — and it is now impossible for the two platforms to diverge silently.
+  (2) **The `/showcase` baseline re-derived for the badge change after READING the diff**, measured rather
+  than eyeballed: one contiguous changed cluster, rows 822–844 × cols 359–790 (2694 px of 2,420,480 — the
+  two status pills), nothing else on the page moved.
+- **Gate:** tsc, eslint (1 pre-existing warning, `src/middleware.ts`), design tokens, vertical-sync,
+  **171 vitest**, `next build`, **51 Playwright e2e**, **visual-qa PASS on all four product screenshots**
+  — every step green. Baseline before any change: 46 passed / 1 failed (the stale Linux snapshot).
+- **`visual-qa` is not reproducible run-to-run — recorded, and it matters for how much a red means.** A
+  standalone run FAILed `facturgate-qa.png` (`text colliding in JSON schema parameters card`) on all three
+  attempts; the identical image then PASSed in the gate run and in 3 further consecutive runs — 16 review
+  calls on the same screenshot set, 4 of them on that image. So a red there is a signal to falsify by
+  measurement, never a licence to restyle a page — and a
+  green one is weak evidence. The exact failing capture could not be hashed (a Playwright run had already
+  cleared `test-results/`), so the cause is not pinned: verdict non-determinism, or the earlier capture
+  having been taken against a reused server. The open structural fix (viewport-height tiles per
+  screenshot, instead of one ~4× downscaled full-page image) stays the owner's call, now with a second
+  data point: it is not only false-positive-prone but non-reproducible in **both** directions.
+
 ## APPROVED — 2026-10-04 (owner instruction, operator session) → FacturGate public launch
 
 **[SHIPPED + LIVE-VERIFIED — `1336823`, 2026-10-04.]** Owner instruction, verbatim: *"review facturgate
