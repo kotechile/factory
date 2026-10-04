@@ -1,5 +1,20 @@
 # Factory Status Map
 
+_Last updated: 2026-10-04 (FacturGate launch — owner instruction, `1336823`) — **the build line moved for the
+first time since 09-22, and the registry gained a `live` product:** FacturGate `status: beta → live` (the
+owner's launch call, in the operator session; it was the last thing pending on that product since 09-17).
+Shipped with it: every price the page and its WebMCP guide advertise now reads the pricing catalog instead of
+a hand-typed copy (with a new wiring guard in `pricing.test.ts`), the agent-surface footer gained the
+`/showcase` link, and two e2e specs cover the launch surface. **Stripe verified live:** `{app:"facturgate"}`
+checkout → `cs_live_a14b6Sgn…` (one-off) and `cs_live_a1fWj2Ev…` (factory_pro); app-less → 400 naming the
+inventory; `app=quarterline` → 400 "retired"; manifest **v2.0.0 / 9 tools** byte-identical to the tree.
+**Gate:** tsc / eslint / tokens / vertical-sync / **171 vitest** / `next build` / **47 e2e** green;
+`visual-qa` RED on ParcelProof — an untouched surface, 3rd occurrence of the wrap-as-overlap false-positive
+class (measured against the DOM and the live baseline; recipe in `ui_component_standards.md`), whose
+structural fix is an open owner call. **ParcelProof and CaseProof stay `beta`** — the only two launch calls
+left, both able to take money since 10-03. **Revenue still $0 real** (nothing charged yet). _canonical source
+of truth for the fleet's current state_
+
 _Last updated: 2026-10-03 (15:30 sweep, every surface re-measured live on `apps.giniloh.com` · **LIVE PAYMENTS
 ARE ON — item 1 is RESOLVED**: the founder put the real `sk_live_…` in the deploy env and set `STRIPE_MODE=live`
 (≈13:15); re-verified from inside the running container — `GET /v1/balance` **200 `livemode:true`** (was 401 for

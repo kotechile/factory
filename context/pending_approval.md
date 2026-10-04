@@ -4,6 +4,38 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+## APPROVED — 2026-10-04 (owner instruction, operator session) → FacturGate public launch
+
+**[SHIPPED + LIVE-VERIFIED — `1336823`, 2026-10-04.]** Owner instruction, verbatim: *"review facturgate
+page. It should be in line with the web page of ledgerlin[k]... Inlude MCP instructions and link to
+pricing. When everything is fine including stripe integration please change status to live"* — the
+public launch call for FacturGate is made: **`status: beta → live`**.
+
+- **The page review (against the live `/ledgerlink`).** The MCP guide + pricing link the instruction asked
+  for had already landed in `dd4b536`; reviewing the deployed page against LedgerLink's found two gaps,
+  both closed in `1336823`: (a) every advertised number was a hand-typed literal (`($29/mo · from
+  $0.05/call)`, `METERED $0.05 – $0.25 / CALL`, a literal footer rate line) while checkout and the agent
+  API price from `src/products/pricing.ts` — all four now read the catalog, plus a new wiring guard in
+  `pricing.test.ts` so re-inlining a rate forks the build red instead of quietly forking the value;
+  (b) the guide's footer lacked the `/showcase` Fleet catalog link LedgerLink's carries — added.
+- **Stripe verified live, probed from outside the container:** `POST /api/checkout
+  {app:"facturgate", plan:"pdf_audit_export"}` → **200 `cs_live_a14b6Sgn…`**; `{plan:"factory_pro"}` →
+  **200 `cs_live_a1fWj2Ev…`**; app-less → 400 naming the inventory; `app=quarterline` → 400 "retired".
+  Manifest `/.well-known/mcp.json` **v2.0.0 / 9 tools**, facturgate rates $0.05/$0.10/$0.25,
+  byte-identical to the repo file (`5e47d410…`).
+- **Gate:** tsc, eslint (1 pre-existing warning), design tokens, vertical-sync, **171 vitest**, `next
+  build`, **47 Playwright e2e** green. `/showcase` visual snapshot re-derived for the badge change after
+  reading the diff (107 px, the one badge); Linux baseline only — the Darwin baseline stays stale.
+  `npm run visual-qa` is **RED on ParcelProof**, a surface this commit does not touch: the documented
+  vision-model false-positive class (3rd occurrence), settled by measurement (0 text-run collisions, 0
+  overflow, one 798×16px line) and by the flagged page's visible text being byte-identical to the live
+  baseline `dd4b536`; the falsification recipe is now in `skills/ui_component_standards.md`. The
+  structural fix — review viewport-height tiles instead of one ~4× downscaled full-page image — is an
+  **open owner call**, because it changes a gate.
+- **Registry effect:** `/showcase` shows FacturGate as `live`; LedgerLink remains the default inventory
+  product (first `live` in registry order, unchanged). **ParcelProof and CaseProof stay `beta`** — their
+  launch calls are the only two left, and both can already take money.
+
 ## APPROVED — 2026-10-03 (owner instruction, Jorge) → Factory Billing v1
 
 **[APPROVED — owner (Jorge), 2026-10-03.]** Verbatim owner instruction:

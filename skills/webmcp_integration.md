@@ -103,5 +103,26 @@ contradicted the verdict the cash model had just produced. Resolve once at the a
 that changes nothing must add no note). Symptom to recognise: a verdict that disagrees with its own
 findings.
 
+**Rule for advertising a price on a product surface (2026-10-04, FacturGate launch):** every number a
+product surface shows — the header fee line, the `METERED … / CALL` band, the footer rate list — must be
+READ from `src/products/pricing.ts` (`SUITE_PRO_MONTHLY_USD`, `lowestAgentRate(slug)`,
+`agentRatesForProduct(slug)`), never typed as a literal next to it. The catalog's drift suite fails the
+build when an in-inventory product or tool has no price, but it cannot see a second hand-written copy
+that merely *agrees* today, so `src/products/pricing.test.ts` also asserts the consumer still calls the
+lookup (the same wiring guard the agent route has). A displayed rate that disagrees with the charged one
+is invisible until a customer is billed.
+
+**Rule for promoting a product's status (`beta` → `live`) (2026-10-04, FacturGate):** `status` in
+`registry.ts` is the only switch. `activeProducts` (the sell/advertise surfaces) already includes `beta`,
+so a promotion changes exactly two things: (a) the directory badge on `/showcase`, and (b) which product
+an unscoped, product-scoped request resolves to — `defaultInventoryProduct` is the first `live` entry in
+registry order, so promoting an entry EARLIER in the array than the current default silently moves it.
+Before flipping: the page must carry the agent-surface/MCP guide and the pricing block the older `live`
+products carry, and `POST /api/checkout` with that `app` must return a `cs_live_…` session (skill
+`stripe-go-live`). After flipping: re-run the gate — the `/showcase` Playwright snapshot IS a baseline to
+regenerate, so read the diff image before accepting it (it must be the badge and nothing else) — and close
+the launch decision in `context/pending_approval.md` in the same pass. The launch call is the founder's:
+an agent never promotes a product's status on its own.
+
 ## 6. Failure handling
 - Broken MCP/WebMCP endpoints → Toby logs and patches this skill.

@@ -166,6 +166,27 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   clock: the pack now carries the case's own provenance (label, tax year, cited rule source), and a
   date belongs in the filename or on the page, never inside the audited artifact.
 
+- **2026-10-04 — `visual-qa` false-positive FAIL, 3rd occurrence of the wrap-as-overlap class, and the
+  5-minute falsification recipe (endpoint).** `gemini-3.1-pro-preview` returned `FAIL: text overlapping
+  in Pricing section description ("monthly" and "to" collide)` on ParcelProof — a surface the commit did
+  not touch — on both attempts. Root cause of the class: the gate sends a FULL-PAGE screenshot, and the
+  vision pipeline downscales it (1280×4732 → ~320 px wide), so the word spaces in 12 px type collapse and
+  evenly spaced words read as colliding. **Falsify before touching CSS** — four checks, all cheap:
+  (1) reproduce the captured state (the spec's own clicks), then walk
+  `document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)` and compute each text node's
+  `Range.getClientRects()`; report pairs intersecting by >2 px and elements with `scrollWidth >
+  clientWidth`; a scrollable container (`max-h-96 overflow-y-auto`, `overflow-x-auto` table wrapper)
+  reports *false* intersections because laid-out text extends past the clip — exclude it;
+  (2) compare the flagged page's rendered visible text against the live (baseline) deploy — identical
+  text means the flag cannot be this change's; (3) crop the flagged region of the saved PNG at native
+  resolution and read it yourself; (4) compare against the pre-change tree if any doubt remains. All four
+  said false positive here (0 collisions, 0 overflow, the paragraph is one 798×16 px line, visible text
+  identical to the deployed `dd4b536`). Because the screenshot is byte-identical run to run, the
+  3-attempt retry **cannot** clear a deterministic verdict — expect the gate to stay red on that image
+  until the reviewer's input resolution changes. The structural fix (open, owner's call, since it changes
+  a gate): review viewport-height tiles per screenshot instead of one downscaled full-page image. Never
+  restyle a page to satisfy this verdict.
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 
