@@ -40,11 +40,17 @@ Every factory product must ship with an authentic, high-craft editorial engineer
      - Soft pulsing beacon dot (`#10B981` / emerald ping + static dot).
      - Monospaced font treatment (`font-mono text-xs`).
      - Explicit label: `BROWSER-LOCAL DETERMINISTIC` or `CLIENT-SIDE ENGINE`.
+   - **Use the shared `<DeterminismPill>`** (`src/components/editorial/signature.tsx`), not a bespoke
+     pill: the secondary half must use `EDITORIAL_MUTED_TEXT` (`#5B6B80`), never `#64748B` — see the
+     2026-10-04 contrast entry in the resolved edge-cases below.
 
 5. **Apple-Style Segmented Tab Switcher**:
    - Input mode switchers (e.g. JSON paste vs API key vs File upload) must use an Apple-style segmented control container (`bg-[#F1F5F9] p-1 rounded-xl shadow-inner border border-black/[0.04]`).
    - Active tabs use an elevated white surface (`bg-card text-foreground shadow-[0_1px_3px_rgba(0,0,0,0.08)] font-semibold rounded-lg px-4 py-2`).
    - Never use standard flat underlined text links.
+   - **Use the shared `<AppleSegmentedTabs>`** (`src/components/editorial/apple-segmented-tabs.tsx`).
+     Inactive labels use `EDITORIAL_MUTED_TEXT` (`#5B6B80`) — slate-500 measures 4.34:1 on `#F1F5F9`
+     and fails WCAG AA.
 
 6. **IDE / Terminal Data Treatment**:
    - Raw code, JSON, XML, or structured text inputs must receive an authentic IDE/Terminal treatment:
@@ -52,6 +58,14 @@ Every factory product must ship with an authentic, high-craft editorial engineer
      - Top-right zero-egress badge: `CLIENT-SIDE ONLY • ZERO EGRESS` with `ShieldCheck` icon.
      - Left-hand line number gutter (`01`, `02`, `03`...) in `text-muted/40 font-mono select-none`.
      - Soft cool-tint background (`bg-[#F8FAFC]` or `bg-background/80`).
+   - **Use the shared `<IdeInset>` (read-only code) / `<IdeTextarea>` (editable raw input)** —
+     `src/components/editorial/`. For an *editable* field this is chrome around the existing
+     `<textarea>` (keeping its label, placeholder and behaviour), not a replacement for it.
+   - **The gutter is `#5B6B80`, not `text-muted/40`**: muted at 40% composites to ≈#B1B8C1, a 1.91:1
+     ratio, and axe fails it (this rule shipped a failing value — see the 2026-10-04 entry below).
+   - **A scrollable code region needs its own focus stop** (`tabIndex={0}` + `role="region"` +
+     `aria-label`), or axe fails `scrollable-region-focusable`: the snippet scrolls independently of
+     the page, so a keyboard user must be able to reach it.
 
 7. **Tactile CTAs**:
    - Primary action buttons must provide tactile feedback:
@@ -186,6 +200,38 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   until the reviewer's input resolution changes. The structural fix (open, owner's call, since it changes
   a gate): review viewport-height tiles per screenshot instead of one downscaled full-page image. Never
   restyle a page to satisfy this verdict.
+
+- **2026-10-04 — the Editorial Signature is now SHARED CODE, and three of its prescribed values were
+  wrong (WCAG + layout).** `src/components/editorial/` holds the signature as primitives
+  (`signature.tsx`: HorizonStripe / AmbientGrid / DeterminismPill / EditorialHero / GhostCard /
+  TACTILE_CTA / ProductHeader; `apple-segmented-tabs.tsx`; `ide-inset.tsx` + `ide-textarea.tsx`;
+  `prism-schematic.tsx`; `agent-surface-guide.tsx`), and ParcelProof, CaseProof and FacturGate now
+  render from it. Measuring the three newer products against the archetype before the change showed
+  0/9 of the signature markers on ParcelProof and CaseProof (and FacturGate on 3 of them via its own
+  inline copies) — rule 9 was an instruction, not a fact about the tree. Three defects the axe/visual
+  gates caught, all in markup copied verbatim from the archetype, which has **no axe test of its own**:
+  1. **The prescribed secondary text failed WCAG AA on the surfaces it was prescribed for.** `#64748B`
+     (slate-500) is 4.55:1 on the page (`#F8FAFC`) but **4.34:1 on `#F1F5F9`** (the segmented control)
+     and 4.38:1 on the pill (`#F1F5F9/90`) — the ratio that matters, because that is where the pill and
+     the tab labels sit. LedgerLink passes only because it is never axe-tested. One constant now:
+     `EDITORIAL_MUTED_TEXT = "text-[#5B6B80]"` (≥5.0:1 on all three), used by the pill, the tabs and
+     the gutter. The gutter rule above had the same class of bug: `text-muted/40` composites to ≈1.91:1.
+     **Rule: pick a contrast target for the surface the text actually sits on, not for the page.**
+  2. **`scrollable-region-focusable`**: a code snippet scrolls inside its own region, so the region
+     needs `tabIndex={0}` + `role="region"` + `aria-label` or keyboard users cannot reach the content.
+  3. **The parameter-card grid overflowed its own card** — a grid item's default `min-width` is
+     min-content, so one long unbreakable monospace token (a CSV header list) pushed the grid wider
+     than its container and spilled the description across the neighbouring column. Fix: `min-w-0` +
+     `[overflow-wrap:anywhere]` on the item, `break-all` on the `<code>`. **This one was a TRUE
+     positive reported by visual-qa** ("text overlapping in rate_card description") — falsified by
+     measuring the DOM first (18 overflowing blocks; the guide Card 1014px inside an 896px box), which
+     is the discipline the 09-04/09-13/09-14 entries above established for the opposite verdict.
+  4. The hero schematic's node label and its right-aligned value collided on one baseline; they now
+     stack in a single left-aligned column. Same "overlapping text" class, caught by reading the
+     rendered capture rather than by the gate.
+  Also: when a product's page copy changes, update its render spec in the same commit (the three
+  products' specs asserted a name-as-heading that the Editorial hero replaces — the repo's own
+  "keep assertions in sync with the rendered copy" rule, 2026-09-07).
 
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
