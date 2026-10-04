@@ -80,6 +80,29 @@ test("parcelproof dispute-window page renders for FedEx", async ({ page }) => {
   await expect(page.getByText("pp-clk-expired").first()).toBeVisible();
 });
 
+test("parcelproof surfaces the pricing block and the billing entry point", async ({ page }) => {
+  await page.goto("/parcelproof");
+
+  // The pricing block reads the catalog (src/products/pricing.ts) — the same numbers the API charges.
+  await expect(page.getByRole("heading", { name: "Pricing" })).toBeVisible();
+  await expect(page.getByText("$29.00/month")).toBeVisible();
+  await expect(page.getByText("$9.00 one-off")).toBeVisible();
+  await expect(page.getByText("$0.25 per successful call")).toBeVisible();
+  await expect(page.getByText("$0.05 per successful call")).toBeVisible();
+
+  await expect(page.getByRole("link", { name: /Manage Billing & API Keys/ })).toBeVisible();
+});
+
+test("parcelproof documents the WebMCP agent surface with the manifest link", async ({ page }) => {
+  await page.goto("/parcelproof");
+
+  const agentSurface = page.getByText(/Agent surface:/);
+  await expect(agentSurface).toBeVisible();
+  await expect(agentSurface).toContainText("audit_carrier_invoice");
+  await expect(agentSurface).toContainText("compute_billable_weight");
+  await expect(page.getByRole("link", { name: "/.well-known/mcp.json" }).first()).toBeVisible();
+});
+
 test("parcelproof passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {
   await page.goto("/parcelproof");
   await page.getByRole("button", { name: "Audit invoice", exact: true }).click();

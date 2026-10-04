@@ -89,6 +89,30 @@ test("caseproof exposes the decision pack once a case is audited", async ({ page
   await expect(page.getByRole("button", { name: /Decision pack \(CSV\)/ })).toBeVisible();
 });
 
+test("caseproof surfaces the pricing block and the billing entry point", async ({ page }) => {
+  await page.goto("/caseproof");
+
+  // The pricing block reads the catalog (src/products/pricing.ts) — the same numbers the API charges.
+  await expect(page.getByRole("heading", { name: "Pricing" })).toBeVisible();
+  await expect(page.getByText("$29.00/month")).toBeVisible();
+  await expect(page.getByText("$9.00 one-off")).toBeVisible();
+  // All three CaseProof tools are metered at the same rate, so the band appears once per row.
+  await expect(page.getByText("$0.50 per successful call").first()).toBeVisible();
+
+  await expect(page.getByRole("link", { name: /Manage Billing & API Keys/ })).toBeVisible();
+});
+
+test("caseproof documents the WebMCP agent surface with the manifest link", async ({ page }) => {
+  await page.goto("/caseproof");
+
+  const agentSurface = page.getByText(/Agent surface:/);
+  await expect(agentSurface).toBeVisible();
+  await expect(agentSurface).toContainText("audit_automation_case");
+  await expect(agentSurface).toContainText("compare_automation_bids");
+  await expect(agentSurface).toContainText("after_tax_payback");
+  await expect(page.getByRole("link", { name: "/.well-known/mcp.json" }).first()).toBeVisible();
+});
+
 test("caseproof passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {
   await page.goto("/caseproof");
   await page.getByRole("button", { name: "Audit the case" }).click();

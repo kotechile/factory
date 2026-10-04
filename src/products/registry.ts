@@ -60,7 +60,7 @@ export const products: Product[] = [
     slug: "parcelproof",
     name: "ParcelProof",
     tagline: "Carrier Invoice DIM-Weight & Surcharge Audit",
-    status: "beta",
+    status: "live",
     description:
       "Deterministic audit of UPS/FedEx/USPS parcel invoices against the shipment records behind them: billable weight recomputed with the carrier × service × ship-date divisor (USPS 166 → 139 on 2026-07-12) and the round-up rule, accessorial eligibility re-evaluated with the trigger that failed named, late-delivery refund eligibility and the per-line dispute window (UPS ≈30 / FedEx ≈21 days), and a per-line recovery ledger with a dispute CSV. No LLM and no invented rates: a line your contract rate card cannot price is reported unverifiable, never guessed.",
     route: "/parcelproof",
@@ -73,7 +73,7 @@ export const products: Product[] = [
     slug: "caseproof",
     name: "CaseProof",
     tagline: "Buyer-Side Audit of a Warehouse Automation Business Case",
-    status: "beta",
+    status: "live",
     description:
       "Re-runs a vendor's own quoted warehouse-automation numbers against the buyer's case: labour at the fully loaded rate (payroll burden, benefits, overtime, turnover replacement), the lines a quote omits (integration, facility work, maintenance, training, ramp and downtime), §179 then bonus depreciation by tax year, and 2–3 competing bids normalized onto one after-tax cash model with payback, IRR, NPV, the break-even of every assumption, and a ranked list to confirm in writing before signature. A cost line the case does not state is reported unstated and blocks a pass — never defaulted, never estimated.",
     route: "/caseproof",
