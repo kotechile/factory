@@ -11,6 +11,17 @@ export interface Product {
   launchedAt: string;
   category: string;
   visibility?: "public" | "internal";
+  /**
+   * True when this product's pipeline calls an LLM or a document-parsing service (e.g. LlamaParse) as an
+   * EXTRACTION layer, in front of its deterministic engine (owner, 2026-10-05 —
+   * `context/tech_stack_capabilities.md` §2). Absent means deterministic-only.
+   *
+   * It is a pricing declaration, not a description: `src/products/pricing.test.ts` fails the build when an
+   * LLM-backed product's metered rate undercuts the LLM floor, or when a deterministic product's rate
+   * exceeds the deterministic ceiling. Declare it in the PRD at recon time so the price and the class ship
+   * together instead of being reconciled later.
+   */
+  usesLlmPrimitive?: boolean;
 }
 
 // Single source of truth for every product the factory has shipped.

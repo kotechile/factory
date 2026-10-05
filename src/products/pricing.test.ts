@@ -4,11 +4,15 @@ import path from "node:path";
 
 import { activeProducts, products } from "@/products/registry";
 import {
+  DETERMINISTIC_RATE_BAND_USD,
+  LLM_RATE_BAND_USD,
   PRODUCT_PRICING,
   agentRateForTool,
   agentRatesForProduct,
   lowestAgentRate,
   pricingFor,
+  rateBandForProduct,
+  ratesOutsideTheirBand,
   unpricedProducts,
   unpricedTools,
 } from "./pricing";
@@ -66,6 +70,25 @@ describe("product pricing catalog", () => {
     expect(lowestAgentRate("parcelproof")).toBe(0.05);
     expect(lowestAgentRate("ledgerlink")).toBe(0.25);
     expect(lowestAgentRate("caseproof")).toBe(0.5);
+  });
+
+  it("keeps every metered rate inside its declared tool class's band", () => {
+    // Owner instruction 2026-10-05: LLM/document-parse-backed tools price higher than deterministic ones.
+    // The class is a declaration (registry `usesLlmPrimitive`), never inferred from the price, so an
+    // LLM-backed tool priced at deterministic rates — i.e. sold at a loss — fails the build here.
+    expect(ratesOutsideTheirBand()).toEqual([]);
+  });
+
+  it("keeps the LLM band above the deterministic band, both inside the plausibility ceiling", () => {
+    expect(LLM_RATE_BAND_USD.min).toBeGreaterThanOrEqual(DETERMINISTIC_RATE_BAND_USD.max);
+    expect(LLM_RATE_BAND_USD.max).toBeGreaterThan(LLM_RATE_BAND_USD.min);
+    expect(DETERMINISTIC_RATE_BAND_USD.min).toBeGreaterThan(0);
+    // The catalog's other guard treats a rate above $5 as a typo; the bands must sit under that.
+    expect(LLM_RATE_BAND_USD.max).toBeLessThanOrEqual(5);
+  });
+
+  it("refuses to decide a band for a product with no registry entry", () => {
+    expect(() => rateBandForProduct("not-a-product")).toThrow(/No registry entry/);
   });
 
   it("keeps the agent API's price tables sourced from this catalog", () => {

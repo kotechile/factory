@@ -20,6 +20,23 @@ export const SUITE_PRO_MONTHLY_USD = 29;
 /** The one-off export / report price used by the checkout catalog (plan `pdf_audit_export`). */
 export const ONE_OFF_EXPORT_USD = 9;
 
+/**
+ * Metered price bands by tool class (owner instruction, 2026-10-05: *"add more tools (at higher price
+ * maybe) to include LLM, llamaparse, etc."*).
+ *
+ * The class comes from the registry's `usesLlmPrimitive` declaration, never from the price — so a tool
+ * cannot be priced into a class it does not belong to, and a tool cannot be added without its class and
+ * its band being decided together (`src/products/pricing.test.ts`). $0.50 is deliberately the shared
+ * boundary: the deterministic ceiling and the LLM floor.
+ *
+ * The reasoning, so a future edit does not undo it: a deterministic tool has no marginal cost per call, so
+ * its price is set by buyer value; an LLM/parse-backed tool pays a real per-call cost, so its floor must
+ * cover a worst-case parse + generate + retries with margin. Pricing an LLM-backed tool at deterministic
+ * rates sells at a loss, which is what the floor exists to prevent.
+ */
+export const DETERMINISTIC_RATE_BAND_USD = { min: 0.05, max: 0.5 } as const;
+export const LLM_RATE_BAND_USD = { min: 0.5, max: 3 } as const;
+
 export interface ProductPricing {
   /** What the browser tier gives away, in one line. */
   freeTier: string;
@@ -165,6 +182,55 @@ export function unpricedTools(): { slug: string; tool: string }[] {
     }
   }
   return missing;
+}
+
+/**
+ * The metered band a product's tools must price inside, from the registry's declared tool class.
+ * Throws for a slug with no registry entry: an unknown product has no class, and guessing one would let a
+ * tool be priced into the wrong band (rule 5).
+ */
+export function rateBandForProduct(slug: string): {
+  min: number;
+  max: number;
+  class: "deterministic" | "llm";
+} {
+  const product = products.find((entry) => entry.slug === slug);
+  if (!product) {
+    throw new Error(`No registry entry for product '${slug}', so its rate band cannot be decided.`);
+  }
+  return product.usesLlmPrimitive
+    ? { ...LLM_RATE_BAND_USD, class: "llm" }
+    : { ...DETERMINISTIC_RATE_BAND_USD, class: "deterministic" };
+}
+
+/** Products whose metered rates sit outside their class's band — used by the drift guard. */
+export function ratesOutsideTheirBand(): {
+  slug: string;
+  tool: string;
+  rate: number;
+  class: "deterministic" | "llm";
+  min: number;
+  max: number;
+}[] {
+  const outside: {
+    slug: string;
+    tool: string;
+    rate: number;
+    class: "deterministic" | "llm";
+    min: number;
+    max: number;
+  }[] = [];
+  for (const product of products) {
+    const pricing = PRODUCT_PRICING[product.slug];
+    if (!pricing) continue;
+    const band = rateBandForProduct(product.slug);
+    for (const [tool, rate] of Object.entries(pricing.agentRates)) {
+      if (rate < band.min || rate > band.max) {
+        outside.push({ slug: product.slug, tool, rate, class: band.class, min: band.min, max: band.max });
+      }
+    }
+  }
+  return outside;
 }
 
 /** Products in the registry with no pricing entry at all. */
