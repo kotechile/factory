@@ -89,6 +89,10 @@ async function reviewScreenshot({ url, geminiKey, prompt, generationConfig, imag
       generationConfig,
     });
 
+  // The last raw response's shape, kept for the diagnostic below: an unrecognized verdict used to be
+  // undebuggable from the log (the text alone cannot tell a hallucination from a truncated response).
+  let lastMeta = null;
+
   const call = async () => {
     const res = await fetch(url, {
       method: "POST",
@@ -99,18 +103,30 @@ async function reviewScreenshot({ url, geminiKey, prompt, generationConfig, imag
       throw new Error(`Gemini API error ${res.status}: ${await res.text()}`);
     }
     const data = await res.json();
-    return (data.candidates?.[0]?.content?.parts ?? []).map((p) => p.text).join("\n");
+    const candidate = data.candidates?.[0];
+    lastMeta = { finishReason: candidate?.finishReason, usage: data.usageMetadata };
+    return (candidate?.content?.parts ?? []).map((p) => p.text).join("\n");
   };
 
   let verdict = await call();
   const MAX_ATTEMPTS = 3;
-  for (let attempt = 1; attempt < MAX_ATTEMPTS && /^FAIL/i.test(verdict.trim()); attempt++) {
+  // Retry on a FAIL **and** on an unrecognized verdict. A malformed answer (prose, a truncated
+  // response, a stray preamble) is model noise, exactly like a hallucinated FAIL — it is not a finding,
+  // and treating it as terminal makes the gate's result depend on which shape the model happened to
+  // emit. Fail-closed is unchanged: three consecutive non-PASS verdicts still fail the step.
+  const needsRetry = (v) => /^FAIL/i.test(v.trim()) || !/^PASS/i.test(v.trim());
+  for (let attempt = 1; attempt < MAX_ATTEMPTS && needsRetry(verdict); attempt++) {
     const waitMs = 1000 * 2 ** (attempt - 2);
     console.log(
-      `visual-qa: ${imagePath} — FAIL verdict on attempt ${attempt} (${model}) — retrying in ${waitMs}ms (backoff)…`,
+      `visual-qa: ${imagePath} — ${/^FAIL/i.test(verdict.trim()) ? "FAIL" : "unrecognized"} verdict on attempt ${attempt} (${model}) — retrying in ${waitMs}ms (backoff)…`,
     );
     await new Promise((r) => setTimeout(r, waitMs));
     verdict = await call();
+  }
+  if (!/^PASS/i.test(verdict.trim()) && !/^FAIL/i.test(verdict.trim())) {
+    console.log(
+      `visual-qa: ${imagePath} — unrecognized verdict after ${MAX_ATTEMPTS} attempts; last response finishReason=${lastMeta?.finishReason} usage=${JSON.stringify(lastMeta?.usage ?? {})}`,
+    );
   }
   return verdict;
 }
@@ -165,7 +181,12 @@ async function main() {
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  const generationConfig = { temperature: 0, maxOutputTokens: suggestMode ? 4096 : 2048 };
+  // Output budget for the gate call. Thinking tokens count against it, and this model's review of a dense
+  // full-page screenshot spent 1965 thinking tokens on its own — i.e. the old 2048 budget left the verdict
+  // one token from truncation, which is how a truncated, verdict-less response got read as a FAIL. 4096 is
+  // ~2x the measured peak: enough headroom for the whole answer, still bounded (a larger budget only makes
+  // the gate slower).
+  const generationConfig = { temperature: 0, maxOutputTokens: suggestMode ? 4096 : 4096 };
   if (suggestMode) generationConfig.responseMimeType = "application/json";
 
   const available = targets.filter((path) => existsSync(path));
