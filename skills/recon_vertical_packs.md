@@ -259,6 +259,18 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 - **Funnel risk:** overlaps the money/commerce cluster — treat as **adjacent, not new** (the buyer is
   sourcing, not finance). Requires ≥3 scenarios and a dated escalation to differentiate from the free
   calculators.
+- **First scan (measured 2026-10-05) — candidate dropped:** `multi-scenario tariff adjusted landed cost
+  comparison tool 2026 free spreadsheet decision` and `US tariff escalation November 2026 importers
+  re-quote sourcing` confirmed the pain (SupplyChainBrain, Thomson Reuters, Allianz, AAF, goflow/
+  Tax Foundation, gingercontrol) and the dated trigger — but the **free-incumbent check killed it**:
+  free origin-scenario simulators already weigh sourcing options (tariffstool scenario simulator,
+  CargoTrans "$0", Gateway Lines free AI calculator refreshed within 24–48h, ustariffrates, paidnice,
+  FreightFigures). A factory engine additionally needs a live duty-rate feed it cannot maintain in
+  ≤4h, and a stale rate table is a fabricated number (rule 5) — the engine degrades into the free
+  simulators. **Do not propose a landed-cost calculator here.** Re-open only for a *neutral buyer-side*
+  case (re-run a supplier's quoted landed cost against the buyer's own basis) on a dated escalation.
+  Dated triggers confirmed: §301 exclusions to **2026-11-10**; Chinese-rate escalation **to 44% by
+  Nov 2026**; 12.5% forced-labor duty since **2026-07-24**.
 
 ## enterprise_ai_finops
 - **Trigger surface:** FinOps Foundation (State of FinOps), provider invoice/pricing exports (OpenAI,
@@ -276,6 +288,15 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 - **Funnel risk:** read the 2026-09-14 rejection before scoring. The unclaimed slice is narrow and
   defensible: **provider invoice → internal tagged-usage ledger reconciliation** (the value is the
   variance report that survives an audit), not another gateway or dashboard.
+- **First scan (measured 2026-10-05) — candidate found:** `AI token cost attribution showback business
+  unit 2026 finops manual chargeback` and `reconcile OpenAI invoice against usage logs free 2026`
+  returned the pain from **non-seller** sources (FinOps Foundation *State of Tokenomics* Sept 2026;
+  *State of FinOps 2026* — 98% manage AI spend, granular monitoring the #1 requested capability;
+  tianpan.co; dev.to; Spendline's *AI Month Close*). Confirmed: free tools **log usage** (provider
+  dashboards, Costs API, Helicone/Langfuse) but do **not** reconcile the invoice; the paid layer is
+  sales-led enterprise. The self-serve **invoice ↔ tagged-usage variance report** is the unowned slice
+  → **SpendProof** proposed, class **LLM/parse-backed**, $1.50/call vs measured ≈$0.14 (clears 3×).
+  Record: `context/recon_proposals/2026-10-05_spendproof.md`.
 
 ## Stub packs — seed only (verify in the first scan)
 | Vertical | Trigger surface | Seed query shape | Known blocker / check first |

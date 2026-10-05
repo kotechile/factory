@@ -85,8 +85,8 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | `control_tower_exception_orchestration` | A — stub | Cost-of-late-shipment + build-vs-buy matrix; needs a dated trigger to score. |
 | `demand_sensing_advanced_sop` | A — stub | Forecast-accuracy → carrying-cost model; crowded by planning suites. |
 | `last_mile_routing_fleet_carbon` | A — stub | EV fleet 7-year TCO + scope-3 logistics carbon; sequence after the capex family. |
-| `supplier_risk_reshoring_decision` | A — pack (probed) | Tariff-adjusted landed cost = the 2026 sourcing metric. Partly owned by free calculators; dated trigger 2026-11 tariff escalation. |
-| `enterprise_ai_finops` | A — pack (probed) | Invoice ↔ attribution reconciliation. **Read the 2026-09-14 rejection first** (metering/governance is owned by Cloudflare/AWS/Stripe); attribution is a different layer. |
+| `supplier_risk_reshoring_decision` | A — **scanned 2026-10-05** (best 80) | Tariff-adjusted landed cost = the 2026 sourcing metric, but free origin-scenario simulators (tariffstool, CargoTrans, Gateway) are the incumbent and a factory engine needs a live duty-rate feed it cannot maintain (rule 5). Scan returned a buildable candidate and dropped it; re-open only for a *neutral buyer-side* landed-cost case (not an origin simulator) on a dated escalation. |
+| `enterprise_ai_finops` | A — **scanned 2026-10-05** (best 79, PRD at gate) | Invoice ↔ tagged-usage reconciliation. **Read the 2026-09-14 rejection first** (metering/governance is owned by Cloudflare/AWS/Stripe); attribution is a different layer. Free instrumentation logs usage; nobody self-serves the audit-survivable invoice-vs-ledger variance report. |
 | `enterprise_build_vs_buy` | A — stub | Internal-tooling maintenance-tax calculator with loaded salaries; strong buyer, thin public tooling. |
 | `workstation_compute_economics` | B/C — conditional | Build-vs-cloud GPU matrix; WTP is individual-engineer shaped. |
 | `enterprise_tech_leadership` | C — conditional | Topic vertical ("cloud repatriation", "AI ROI"); no single buyer to bill. |
@@ -127,13 +127,13 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | Vertical | Pack | Last scanned | Best score | Status | Note |
 |---|---|---|---|---|---|
 | warehouse_automation_robotics_capex | ✅ | 2026-09-21 | 78 (CaseProof) | **open — PRD at the approve gate** | First scan of this vertical. Free vendor ROI calculators found (ISD, Dexory, Kinexon, KUKA), so the recommended product is the *audit of the vendor's case*, not a calculator; runners-up: sustained-throughput validator 66, peak labour vs rented capacity 63. Dated triggers: 2026-12-31 placed-in-service for the 2026 write-off, 2027-01-01 wage floors. |
+| supplier_risk_reshoring_decision | ✅ | 2026-10-05 | 80 (SourceProof, dropped) | **scanned — no build** | First scan. Multi-scenario tariff-adjusted landed-cost engine + supplier-quote extraction. Dropped at the **free-incumbent rule**: free origin-scenario tariff simulators already exist (tariffstool, CargoTrans, Gateway Lines, +6), and the deterministic core needs a live duty-rate feed the 4-hour budget cannot maintain — a stale rate table is a fabricated number (rule 5). The ledger also flags the vertical **"adjacent, not new"** to the money cluster. Dated triggers: §301 exclusion expiry **2026-11-10**, Chinese-rate escalation **to 44% by Nov 2026**, 12.5% forced-labor duty since **2026-07-24**. Record: `context/recon_proposals/2026-10-05_spendproof.md` §4. |
+| enterprise_ai_finops | ✅ | 2026-10-05 | 79 (SpendProof) | **open — PRD at the approve gate** | First scan. Provider-invoice ↔ internal tagged-usage **reconciliation** (the audit-survivable variance report at close), LLM/parse extraction of the invoice in front of a deterministic variance engine. Unowned slice: free tools (provider dashboards, Helicone/Langfuse, Costs API) log usage but do **not** reconcile the invoice; the paid layer (Vantage/Amnic/Finout/CloudZero) is sales-led and enterprise-priced. Class **LLM/parse-backed**, $1.50/call vs measured ≈$0.14 (clears 3×). Record: `context/recon_proposals/2026-10-05_spendproof.md`. |
 
 ## Never scanned — rotation queue (highest priority first)
 
 | Vertical | Why it's plausible | First probe shape |
 |---|---|---|
-| supplier_risk_reshoring_decision | Tariff-adjusted landed cost; dated 2026 tariff escalation; spreadsheets are the incumbent | `total landed cost calculator tariff 2026 spreadsheet importers sourcing decision` |
-| enterprise_ai_finops | Finance-side reconciliation of provider invoices against tagged usage; FinOps Foundation names it the top tooling gap | `AI token cost attribution showback business unit 2026 finops manual chargeback` |
 | legal_ops | Court e-filing formats per jurisdiction, deadline calculation (rule-based, dated) | `court e-filing format rejection deadline calculation 2026 paralegal manual` |
 | agriculture_eudr | Geolocation due-diligence statements, batch → plot traceability | `EUDR due diligence statement geolocation upload supplier 2026 manual` |
 | energy_interval_data | Interval/Green Button data → tariff and demand-charge audit; submeter reconciliation | `Green Button interval data demand charge audit 2026 spreadsheet` |
