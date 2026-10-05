@@ -7,8 +7,10 @@ build/ship actions ahead of the gate. Read this instead of re-deriving from jour
 _Last updated: 2026-10-04 (**15:30 sweep**, every surface re-measured live). **The three launch calls are
 SHIPPED** — FacturGate (`1336823`), ParcelProof and CaseProof (`683796b`) are all `status: live`; the inventory
 is **4 `live` + 1 `retired`** and nothing is `beta`. So the top-block APPROVED records below are now the
-current state, not pending work. Still open for the founder: **item 10** (the three public QuarterLine surfaces
-— `/quarterline` 200, its 20 preset pages 200, `/embed/countdown` 200), the **ParcelProof AHS-Dimension
+current state, not pending work. **Item 10 is CLOSED** — on 2026-10-05 the owner retired all three public
+QuarterLine surfaces (`bc6c3de`, live-verified; 2026-10-05 entry at the top of this file), so the retired
+product no longer has a public page, indexable preset pages or an embed pointing at it. Still open for the
+founder: the **ParcelProof AHS-Dimension
 one-liner** (96″ as published vs 48″ as intended), the **distribution approval** (54 cards ready, 0 ever
 published), **item 5** (internal-traffic marker), **item 6** (durable record), **item 7** (gateway restart,
 P2), **item 11** (dead-host descriptor + no crawler map, P2), and an **operator setting**: a low-balance alert
@@ -16,6 +18,57 @@ on the model provider account so the 09-28…09-30 402 blackout cannot repeat si
 issues / 13 jobs (12 stale 402 vertical stamps + WordPress Draft Sweep failed 2026-10-04 14:24, kie.ai
 featured-image Internal Error ×3). Live `LIVE` ×4 / `BETA` ×0 on `/showcase`; manifest v2.0.0 / 9 tools
 byte-identical; all four products return live checkout sessions; revenue still $0 real._
+
+## APPROVED — 2026-10-05 (owner instruction, Jorge) → QuarterLine public surfaces retired (item 10)
+
+**[SHIPPED + LIVE-VERIFIED — `bc6c3de`, 2026-10-05.]** Owner instruction in `loop-ai`, verbatim:
+*"approve retire quarterline pages"*. Item 10 was the one thing the registry retirement (`bc3d556`) did not
+cover, held as an explicit publish/unpublish call; the call is made, and all three surfaces it named are retired
+in one pass. Nothing else in the queue was touched.
+
+- **(a) `/quarterline`** served the working calculator behind a "$9 export" CTA that can only 400 now that
+  checkout rejects the retired product — honest, but a dead end for a visitor. It now serves the **retirement
+  notice**, whose copy is DERIVED from the registry entry (no second hand-written copy of the name/description),
+  with a module-level guard that **fails the build** if the entry stops being `killed` (rule 5): reactivating the
+  product cannot leave behind a notice claiming a live product is gone. `robots: { index: false, follow: true }`
+  — the pSEO intent dies with the product, the record stays reachable — and the editorial shell
+  (HorizonStripe/AmbientGrid/GhostCard, rule 9). No calculator, no currency input, no export CTA.
+- **(b) The 20 `/quarterline/calc/*` preset pages** were still served and indexable. Retired through a
+  **config-level 301 to `/showcase`** in `next.config.ts`, and the route directory is **deleted** — so re-mounting
+  a calculator route is a visible change rather than a silent one. The legacy pre-subpath `/calc/:slug` redirect
+  now goes **straight** to the directory instead of chaining through the retired preset route (one hop, not two).
+  `src/lib/seo/presets.ts` stays as the enumerated record of what was published; its consumer is now the guard
+  test. An unknown slug under the retired prefix redirects too (no 404, no calculator).
+- **(c) `/embed/countdown`** still linked at the retired product: CTA and attribution repointed at the live
+  inventory. The route keeps serving (200) so a third-party embed cannot 404.
+- **Guards added, each proven to bite by injection before the commit:** the e2e guard asserts EVERY published
+  preset slug 301s to the directory (un-retired expectation injected → red), plus the unknown-slug and legacy
+  one-hop cases; the notice renders with no currency input and no export CTA and passes axe WCAG 2.1 AA; the
+  embed's CTA points at the directory and links to quarterline nowhere. The QuarterLine QA capture retired with
+  the surface it reviewed (visual-qa now reviews the three live products); the deterministic monospace check it
+  carried moved onto ParcelProof's audited money figure (**inverted expectation injected → red**). The
+  "decimal-input padding" check is **deleted, not moved**: the only surface it could observe was QuarterLine's
+  currency field, and padding is enforced by `check:tokens`. `visual-qa --suggest` no longer reaches into
+  `SCREENSHOTS[0]`; it names its target explicitly, so dropping an entry cannot silently retarget it.
+- **Gate:** `scripts/verify-build.sh` green end to end **on the rebased tree** (the branch had two incoming
+  docs commits; the second gate run is the one that counts) — tsc 0 / eslint 0 errors (1 pre-existing warning,
+  `src/middleware.ts`) / design tokens / `verticals:check` 26 / **171 vitest** / `next build` / **51 Playwright
+  e2e** / visual-qa PASS ×3.
+- **Live evidence, probed from outside the container after the deploy** (image tag
+  `af8yqbwrrnyyfgs9wcg0intj:bc6c3de0963352f77f63bbc78e1e3d9cfca8a5ef` == `git rev-parse HEAD`):
+  `/quarterline/calc/california-freelancer-tax-2026` → **308 → /showcase** (was 200 with the calculator),
+  `/quarterline/calc/nope` → **308 → /showcase** (was 404), legacy `/calc/texas-1099-estimated-tax` →
+  **308 → /showcase** in one hop, `/quarterline` → **200** `<title>QuarterLine — Retired</title>` +
+  `<meta name="robots" content="noindex, follow">`, 0 occurrences of "Export Report" and 0 of `inputmode` in the
+  payload, `/embed/countdown` → **200** with the directory CTA and **0** quarterline references, `/showcase` 200,
+  `/` 307 → giniloh.com, `/.well-known/mcp.json` 200 sha256 `5e47d410…` byte-identical to the tree. No telemetry
+  rows written (probes were plain HTTP GETs; the notice page tracks nothing).
+- **NOT retired by this call, reported rather than fixed silently:** (1) `/api/export/pdf` — the retired
+  product's paid export route is still wired (`src/app/api/export/pdf/route.ts`); entitlement-gated, so only a
+  legacy purchase row can reach it, but it is the last sellable-adjacent surface of a retired product and a
+  candidate for the same treatment. (2) `public/.well-known/ai-plugin.json` still advertises **QuarterLine** by
+  name against the dead `factory.aichieve.net` host (item 11): with the product retired, removing that descriptor
+  is now the cleaner fix than repointing it. Both await the founder.
 
 ## APPROVED — 2026-10-04 (owner instruction, operator session) → ParcelProof + CaseProof public launch
 
@@ -501,8 +554,11 @@ inventory row → exit 1.
 against `context/recon_proposals/2026-09-21_caseproof.md`, **PRD §5 v1 scope guard only**, registry status
 `beta` — the public launch call stays with the founder, as every build does.
 
-**Item 10 — NEW, opened by this ship (owner decision).** The registry retirement is now complete on the paid and
-agent surfaces, but three QuarterLine surfaces are still live for the public: (a) `/quarterline` still renders the
+**Item 10 — RESOLVED 2026-10-05 (`bc6c3de`, live-verified; full evidence in the 2026-10-05 entry at the top).**
+All three surfaces are retired by owner instruction: `/quarterline` serves the retirement notice (no calculator,
+no dead-end $9 CTA), the 20 `/quarterline/calc/*` preset pages 301 to the directory with the route deleted, and
+`/embed/countdown` is repointed at the live inventory. The three were, verbatim from this entry, the three
+QuarterLine surfaces still live for the public: (a) `/quarterline` still renders the
 working calculator with a "$9 export" CTA that now returns an explicit 400 error instead of selling (honest, but a
 dead end for a visitor); (b) the 20 `/quarterline/calc/*` preset pages are still served and indexable — 38
 `/calc/*` routes were 200 in the 09-21 sweep; (c) `/embed/countdown` still links to `/quarterline`. Nothing was

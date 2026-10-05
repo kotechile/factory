@@ -383,3 +383,34 @@ selector default is derived (`DEFAULT_AGENT_TOOL`), not a literal. Rules added:
    morning until someone re-ran the sync. Normalize the volatile token (here `_Generated <date> by`), keep every
    content row and the provenance line byte-compared, and prove both directions — date-only → exit 0, one character
    changed in a row → exit 1.
+
+### Resolved edge-case (2026-10-05) — retiring a product's PUBLIC surfaces (the sequel to 2026-09-20)
+
+The 09-20/09-22 pass retired the paid and agent surfaces and left three public ones as an owner call: the product
+page (a working calculator behind a CTA that could only 400), its pSEO preset pages (still served AND indexable),
+and an embed linking at it. The owner's call — *"approve retire quarterline pages"* — arrived weeks later, and the
+shape that shipped is the reusable one:
+
+1. **A retirement notice is a derived artifact, not new copy.** The retired page renders its name and description
+   from the registry entry, never a second hand-written copy, and carries a module-level guard that throws when the
+   entry stops being `killed` — so re-launching the product fails the build instead of leaving a notice that claims
+   a live product is gone. A notice maintained by hand is a false record waiting to happen.
+2. **Withdraw the URLs in `next.config.ts` and DELETE the route.** A config-level permanent redirect is
+   static, survives the standalone build, and makes re-mounting the route a visible diff; the deleted route
+   directory means the retired page cannot come back by accident. Retiring the public page while leaving the
+   legacy redirect pointing at it turns one hop into two — repoint the legacy source too.
+3. **Keep the enumerated slugs, and let the GUARD be their consumer.** The preset module stays as the record of
+   what was published and the e2e guard imports it: every published slug must 301, an unknown slug under the
+   retired prefix redirects instead of 404ing, and the notice must render with none of the retired UI. Prove it
+   bites by injecting the un-retired expectation once. Deleting the file instead would have thrown the URL
+   inventory away and left the guard with a hand-maintained list.
+4. **Repoint inbound links in the same pass; keep the surface alive if it is embedded elsewhere.** A third-party
+   embed should not 404 because a product retired — repoint its CTA at the inventory and strip the retired
+   product's name from its copy.
+5. **A retired surface takes its QA coverage with it, and the coverage that is NOT surface-specific moves.** The
+   vision-QA capture of the removed calculator retired with it; the deterministic check it happened to carry
+   (monospace figures) moved onto a live product's money figure rather than being dropped. The check whose only
+   subject was deleted (currency-input padding) was deleted with a reason, not silently.
+6. **Report what the retirement did not cover.** Two surfaces of the retired product outlived the call — a paid
+   export API route and a plugin descriptor advertising the product by name — and both are named in the record for
+   the owner rather than fixed under an instruction that said "pages".

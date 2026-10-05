@@ -9,7 +9,7 @@ more — 4 `live` + 1 `retired`**; live `/showcase` renders `LIVE` ×4 / `BETA` 
 in-container `STRIPE_MODE=live`, `sk_live_…` (107 chars) → `/v1/balance` 200 `livemode:true`; `POST /api/checkout`
 returns live sessions for all four products (`cs_live_…`), app-less → 400, `quarterline` → 400 retired,
 `/api/portal` → 307. Manifest **v2.0.0 / 9 tools** sha256 `5e47d410…` byte-identical to the tree; all 20
-`/quarterline/calc/*` presets 200 (item 10 still open). **Traffic 1983 → 4492 events / 2886 sessions** — all of it
+`/quarterline/calc/*` presets 200 (item 10 — **closed 2026-10-05, `bc6c3de`**: `/quarterline` serves the retirement notice and every preset URL 301s to `/showcase`). **Traffic 1983 → 4492 events / 2886 sessions** — all of it
 the launch-day test runs and the owner's own clicks, still **no outside visitor (last unattributable non-test
 event 2026-09-23T14:11:42Z)**; `agent_query` 4 → 8 (all factory/billing probes). **Revenue still $0 real** (4
 sandbox `purchases`, all `cs_test_*` 09-02). Social queue 42 → 54 cards, 0 ever published. pressflow internal-only
@@ -359,8 +359,9 @@ mirrors them.
    "public launch call is the founder's" note below is settled. The build line ran twice on 2026-09-22 (item 8
    `b6e6555`, item 9 `78d0739`) and nothing since; the open queue holds item 1 (the live payment key — one paste),
    item 5 (internal-traffic marker + migration), item 6 (durable record), item 7 (gateway restart, no visible symptom
-   left; cron doctor clean), **item 10** (the three public QuarterLine surfaces — all 20 preset pages re-probed 200 on
-   09-25) and **item 11** (the migration leftovers: a descriptor file naming the dead host + no crawler map).
+   left; cron doctor clean), **item 10** (the three public QuarterLine surfaces — **closed 2026-10-05,
+   `bc6c3de`:** notice page + every preset URL 301s to the directory + embed repointed) and **item 11** (the
+   migration leftovers: a descriptor file naming the dead host + no crawler map).
 2. Dynamic OG images — deferred (metadata OG ships; `@vercel/og` route is a later nicety).
 3. DeepSeek reliability — daily-sweep cron failed once ("can't reach model provider");
    monitor fleet-wide.
