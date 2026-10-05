@@ -5,10 +5,10 @@
 //   suggest (--suggest) — asks Gemini for structured UI/UX improvement suggestions
 //                         (JSON), appends them to context/design_backlog.md.
 //
-// Every shipped product surface is reviewed, not just QuarterLine: add the screenshot path
-// captured by tests/e2e/qa-screenshot.spec.ts to SCREENSHOTS when a product ships.
+// Every shipped product surface is reviewed, one tile at a time: add the product to REVIEWED_PRODUCTS
+// below and its capture to tests/e2e/qa-screenshot.spec.ts when a product ships.
 
-import { readFileSync, existsSync, appendFileSync } from "node:fs";
+import { readFileSync, existsSync, appendFileSync, readdirSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 // Minimal .env loader (no dependency): loads KEY=VALUE lines for local gate runs.
@@ -30,16 +30,45 @@ function loadEnvFile(path) {
 loadEnvFile(".env.local");
 loadEnvFile(".env");
 
-const SCREENSHOTS = [
-  "test-results/facturgate-qa.png",
-  "test-results/parcelproof-qa.png",
-  "test-results/caseproof-qa.png",
-];
-// `--suggest` reviews ONE surface; name it explicitly rather than indexing into SCREENSHOTS, so removing
-// an entry can never silently retarget the suggestion pass at a different product.
-const SUGGEST_TARGET = "test-results/facturgate-qa.png";
+// Every shipped product surface is reviewed — as FULL-RESOLUTION TILES, not one ~4x downscaled full-page
+// image (owner call, 2026-10-05: "approve tiles"; the shrunken page was the input the reviewer could not
+// read, and hallucinated "text overlapping" verdicts came from it). The tiles are written by
+// tests/e2e/qa-screenshot.spec.ts as test-results/<product>-qa-<n>.png; add a product here and a capture
+// there when it ships.
+const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof"];
+// `--suggest` reviews ONE surface; named explicitly (a tile of the flagship page) rather than indexed, so
+// removing a product can never silently retarget the suggestion pass at a different page.
+const SUGGEST_TARGET = "test-results/facturgate-qa-1.png";
+// Tiles are independent API calls; a handful in flight keeps the step to a couple of minutes.
+const TILE_CONCURRENCY = 4;
 const STYLEGUIDE = "skills/ui_component_standards.md";
 const BACKLOG = "context/design_backlog.md";
+
+/** The captured tiles for a product, in page order. */
+function tilesFor(product) {
+  if (!existsSync("test-results")) return [];
+  return readdirSync("test-results")
+    .filter((file) => new RegExp(`^${product}-qa-\\d+\\.png$`).test(file))
+    .sort(
+      (a, b) => Number(a.match(/(\d+)\.png$/)[1]) - Number(b.match(/(\d+)\.png$/)[1]),
+    )
+    .map((file) => `test-results/${file}`);
+}
+
+/** Promise pool: run `worker` over `items` with at most `limit` in flight, preserving order. */
+async function mapLimit(items, limit, worker) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  const runners = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, async () => {
+    for (;;) {
+      const index = cursor++;
+      if (index >= items.length) return;
+      results[index] = await worker(items[index], index);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
 
 // Note: font-family is intentionally NOT in the gate checklist — vision models
 // cannot reliably tell monospace from sans at small sizes; that is asserted
@@ -47,7 +76,7 @@ const BACKLOG = "context/design_backlog.md";
 const GATE_PROMPT = `You are reviewing a screenshot of a web app UI.
 
 Check for SIGNIFICANT issues only (minor polish does NOT fail):
-1. Spacing: text OVERLAPPING or COLLIDING with other text or borders. Do NOT flag padding itself — input, badge/pill, and card padding is already enforced by design tokens and verified programmatically.
+1. Spacing: text OVERLAPPING or COLLIDING with other text or borders. Do NOT flag padding itself — input, badge/pill, and card padding is already enforced by design tokens and verified programmatically. Do NOT flag a connector/leader line that merely ENDS NEAR a label, or a label whose text wraps onto a second line: only a line that visibly crosses over characters counts, and that geometry is asserted programmatically (tests/e2e/schematic-collision.spec.ts samples every connector against every label box), so a line-and-label spacing opinion here is noise.
 2. Layout: broken or misaligned grid; elements overlapping.
 3. Color: unreadable text (poor contrast); clashing/neon colors.
 4. Typography: broken hierarchy (everything the same size; no visual distinction between title/header/body).
@@ -166,14 +195,27 @@ async function main() {
     return 0;
   }
 
-  // Suggest mode stays scoped to one flagship surface.
-  const targets = suggestMode ? [SUGGEST_TARGET] : SCREENSHOTS;
-  const missing = targets.filter((path) => !existsSync(path));
-  if (missing.length === targets.length) {
-    console.error(
-      `visual-qa: screenshot not found at ${missing.join(", ")}. Run the Playwright e2e step first.`,
-    );
-    return 1;
+  // Suggest mode stays scoped to one surface; the gate reviews every tile of every reviewed product.
+  const perProduct = suggestMode
+    ? []
+    : REVIEWED_PRODUCTS.map((product) => ({ product, tiles: tilesFor(product) }));
+
+  if (suggestMode) {
+    if (!existsSync(SUGGEST_TARGET)) {
+      console.error(
+        `visual-qa: screenshot not found at ${SUGGEST_TARGET}. Run the Playwright e2e step first.`,
+      );
+      return 1;
+    }
+  } else {
+    const missing = perProduct.filter((entry) => entry.tiles.length === 0).map((e) => e.product);
+    if (missing.length > 0) {
+      console.error(
+        `visual-qa: no captured tiles for ${missing.join(", ")} — run the Playwright e2e step first ` +
+          `(tests/e2e/qa-screenshot.spec.ts writes test-results/<product>-qa-<n>.png).`,
+      );
+      return 1;
+    }
   }
 
   if (existsSync(STYLEGUIDE)) {
@@ -189,46 +231,63 @@ async function main() {
   const generationConfig = { temperature: 0, maxOutputTokens: suggestMode ? 4096 : 4096 };
   if (suggestMode) generationConfig.responseMimeType = "application/json";
 
-  const available = targets.filter((path) => existsSync(path));
-  for (const path of missing) {
-    console.warn(`visual-qa: skipping ${path} — not captured by the e2e run.`);
-  }
-
   if (!suggestMode) {
-    let failures = 0;
-    for (const imagePath of available) {
+    const jobs = perProduct.flatMap((entry) =>
+      entry.tiles.map((tile) => ({ product: entry.product, tile })),
+    );
+    console.log(
+      `visual-qa: reviewing ${jobs.length} tile(s) across ${perProduct.length} product(s), ${TILE_CONCURRENCY} at a time`,
+    );
+
+    const reviews = await mapLimit(jobs, TILE_CONCURRENCY, async ({ product, tile }) => {
       const verdict = await reviewScreenshot({
         url,
         geminiKey,
         prompt,
         generationConfig,
-        imagePath,
+        imagePath: tile,
         model,
       });
-      console.log(`\n=== Visual QA (${model}) — ${imagePath} ===\n${verdict.trim()}\n`);
-      if (/^FAIL/i.test(verdict.trim())) {
-        console.error(`visual-qa: FAIL — ${imagePath} review found issues. See report above.`);
-        failures += 1;
-      } else if (!/^PASS/i.test(verdict.trim())) {
-        console.error(
-          `visual-qa: ${imagePath} — unrecognized verdict, treating as FAIL (model did not follow the PASS/FAIL format).`,
-        );
-        failures += 1;
-      } else {
-        console.log(`visual-qa: PASS — ${imagePath}`);
+      return { product, tile, verdict: verdict.trim() };
+    });
+
+    let failures = 0;
+    for (const { product, tile, verdict } of reviews) {
+      console.log(`\n=== Visual QA (${model}) — ${tile} (${product}) ===\n${verdict}\n`);
+      if (/^PASS/i.test(verdict)) {
+        continue;
       }
+      if (/^FAIL/i.test(verdict)) {
+        console.error(`visual-qa: FAIL — ${tile} review found issues. See report above.`);
+      } else {
+        console.error(
+          `visual-qa: ${tile} — unrecognized verdict, treating as FAIL (model did not follow the PASS/FAIL format).`,
+        );
+      }
+      failures += 1;
     }
+
+    // Per-product summary: a product passes only if EVERY one of its tiles passed, so a defect on any
+    // screenful fails the step and the failing tile is named in the log.
+    for (const { product, tiles } of perProduct) {
+      const failed = reviews.filter((r) => r.product === product && !/^PASS/i.test(r.verdict));
+      console.log(
+        `visual-qa: ${product} — ${tiles.length - failed.length}/${tiles.length} tile(s) PASS` +
+          (failed.length ? ` — FAIL on ${failed.map((f) => f.tile).join(", ")}` : ""),
+      );
+    }
+
     return failures === 0 ? 0 : 1;
   }
 
-  const review = available[0] ? await reviewScreenshot({
+  const review = await reviewScreenshot({
     url,
     geminiKey,
     prompt,
     generationConfig,
-    imagePath: available[0],
+    imagePath: SUGGEST_TARGET,
     model,
-  }) : "";
+  });
 
   // --- Suggest mode: parse JSON, append to backlog ---
   let suggestions = [];

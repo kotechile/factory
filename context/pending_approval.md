@@ -19,6 +19,36 @@ issues / 13 jobs (12 stale 402 vertical stamps + WordPress Draft Sweep failed 20
 featured-image Internal Error ×3). Live `LIVE` ×4 / `BETA` ×0 on `/showcase`; manifest v2.0.0 / 9 tools
 byte-identical; all four products return live checkout sessions; revenue still $0 real._
 
+## APPROVED + LANDED — 2026-10-05 (owner instruction, Jorge) → the visual review reads full-resolution tiles
+
+Owner instruction, verbatim: *"approve tiles"* — the structural call this file had parked twice ("the fix
+changes a gate, so it stays the owner's call"), now made.
+
+- **The reviewer's input changed.** `scripts/visual-qa.mjs` no longer sends one ~4×-downscaled full-page image
+  per product (1280×6495 for ParcelProof) — the input its reviewer could not read, and the source of repeated
+  hallucinated "text overlapping" verdicts. It reviews every **full-resolution tile**
+  (`test-results/<product>-qa-<n>.png`, ≤6 per product, ~1280×900, cut from the full-page render with `clip`
+  so a sticky element appears once in its document position rather than in every band).
+  `tests/e2e/qa-screenshot.spec.ts` captures them; a product passes only if every tile passes; tiles are
+  reviewed 4 at a time (18 tiles in ~112 s); missing tiles fail the step instead of going silently unaudited.
+- **It justified itself on the first run.** With legible tiles the gate found a REAL defect on CaseProof's hero
+  that the shrunken review had never reported: the payload caption ("vendor lines, buyer basis", 26 characters)
+  overran its 146px card, and the dashed beam leaving that card ran through the text — confirmed by sampling
+  the beam's path against the label's box (28 of 241 samples inside it).
+- **Fixed and guarded.** `src/components/editorial/prism-caption.ts` wraps caller-supplied captions to the
+  card's usable width (pure, unit-tested against both shipped captions; the card also gained a minimum height
+  so a two-line caption fits). `tests/e2e/schematic-collision.spec.ts` samples every connector path against
+  every label box on all three product pages and fails on any crossing — **proven RED before the fix, GREEN
+  after**. With that geometry measured in code, the vision prompt no longer opines on "line near label" (a
+  class it flagged as overlap twice on measurement-clean pages): the same division of labour this file already
+  applies to fonts, padding and contrast.
+- **The gate's own two defects, landed in the same pass:** the truncated-verdict bug (thinking tokens consumed
+  the 2048 output budget, so a cut-off, verdict-less answer was read as a FAIL) and unrecognized verdicts now
+  retrying instead of failing terminally — both with the measurement recorded in the file.
+- **Gate:** `scripts/verify-build.sh` green — tsc 0 / eslint 0 errors / tokens / `verticals:check` 26 /
+  `recon:cadence` / **180 vitest** / `next build` / **54 Playwright e2e** (incl. the 3 new collision guards) /
+  **visual-qa 18/18 tiles PASS**.
+
 ## APPROVED + LANDED — 2026-10-05 (owner instruction, Jorge) → recon cadence ×2 + LLM/parse primitives at a higher price band
 
 Owner instruction in `loop-ai`, verbatim: *"Increase the number of verticals to two per week and also add more
