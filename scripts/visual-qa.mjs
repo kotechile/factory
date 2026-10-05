@@ -31,11 +31,13 @@ loadEnvFile(".env.local");
 loadEnvFile(".env");
 
 const SCREENSHOTS = [
-  "test-results/quarterline-qa.png",
   "test-results/facturgate-qa.png",
   "test-results/parcelproof-qa.png",
   "test-results/caseproof-qa.png",
 ];
+// `--suggest` reviews ONE surface; name it explicitly rather than indexing into SCREENSHOTS, so removing
+// an entry can never silently retarget the suggestion pass at a different product.
+const SUGGEST_TARGET = "test-results/facturgate-qa.png";
 const STYLEGUIDE = "skills/ui_component_standards.md";
 const BACKLOG = "context/design_backlog.md";
 
@@ -148,8 +150,8 @@ async function main() {
     return 0;
   }
 
-  // Suggest mode stays scoped to the flagship calculator surface.
-  const targets = suggestMode ? [SCREENSHOTS[0]] : SCREENSHOTS;
+  // Suggest mode stays scoped to one flagship surface.
+  const targets = suggestMode ? [SUGGEST_TARGET] : SCREENSHOTS;
   const missing = targets.filter((path) => !existsSync(path));
   if (missing.length === targets.length) {
     console.error(

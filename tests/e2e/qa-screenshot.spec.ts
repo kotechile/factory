@@ -1,12 +1,11 @@
 import { test, expect } from "@playwright/test";
 
-// Captures stable full-page screenshots for the Gemini vision-QA step
-// (scripts/visual-qa.mjs). Paths are deterministic (not platform-suffixed like
-// toHaveScreenshot snapshots).
-test("capture QuarterLine QA screenshot", async ({ page }) => {
-  await page.goto("/quarterline");
-  await page.screenshot({ path: "test-results/quarterline-qa.png", fullPage: true });
-});
+// Captures stable full-page screenshots for the Gemini vision-QA step (scripts/visual-qa.mjs).
+// Paths are deterministic (not platform-suffixed like toHaveScreenshot snapshots).
+//
+// QuarterLine has no capture any more: it is retired (2026-10-05) and its calculator no longer renders,
+// so the surface the review used to cover does not exist. The retirement notice is covered by the
+// deterministic axe + content assertions in landing.spec.ts instead of a vision review.
 
 // FacturGate is captured in its richest state: a validated, converted FR document (score card,
 // findings area, reconciliation, emitted artifact and the coverage disclosure).
@@ -25,6 +24,19 @@ test("capture ParcelProof QA screenshot", async ({ page }) => {
   await page.getByRole("button", { name: "Audit invoice", exact: true }).click();
   await expect(page.getByText("$71.50")).toBeVisible();
   await page.screenshot({ path: "test-results/parcelproof-qa.png", fullPage: true });
+
+  // Deterministic font check — vision models cannot reliably distinguish monospace from sans at small
+  // sizes, so the money figure is asserted programmatically instead. (This check used to run against
+  // QuarterLine's calculator; it moves to a live product's audited figure so the coverage is not lost
+  // with the retirement.)
+  const money = page.getByText("$71.50").first();
+  const isMonospace = await money.evaluate((node) => {
+    for (let el = node as HTMLElement | null; el; el = el.parentElement) {
+      if (getComputedStyle(el).fontFamily.toLowerCase().includes("mono")) return true;
+    }
+    return false;
+  });
+  expect(isMonospace).toBe(true);
 });
 
 // CaseProof is captured in its richest state: an audited case with money and a chain on it (the
@@ -36,23 +48,7 @@ test("capture CaseProof QA screenshot", async ({ page }) => {
   await page.screenshot({ path: "test-results/caseproof-qa.png", fullPage: true });
 });
 
-// Deterministic font check — vision models cannot reliably distinguish monospace
-// from sans at small sizes, so this is asserted programmatically instead.
-test("numbers use a monospace font", async ({ page }) => {
-  await page.goto("/quarterline");
-  const el = page.locator(".font-mono").first();
-  await expect(el).toBeVisible();
-  const fontFamily = await el.evaluate((node) => getComputedStyle(node).fontFamily);
-  expect(fontFamily.toLowerCase()).toContain("mono");
-});
-
-// Deterministic padding check — vision models flag 16px input padding as "flush",
-// so the minimum is asserted programmatically instead. Currency inputs use a "$"
-// prefix + comma mask (type="text", inputMode="decimal") with pl-8.
-test("currency inputs have adequate horizontal padding", async ({ page }) => {
-  await page.goto("/quarterline");
-  const input = page.locator('input[inputmode="decimal"]').first();
-  await expect(input).toBeVisible();
-  const paddingLeft = await input.evaluate((node) => parseFloat(getComputedStyle(node).paddingLeft));
-  expect(paddingLeft).toBeGreaterThanOrEqual(12);
-});
+// The "currency inputs have adequate horizontal padding" check that used to live here is deleted, not
+// moved: the only surface it could observe was QuarterLine's currency field, which is out of service
+// with the product. Padding is enforced by the design-token step (`npm run check:tokens`) and the
+// vision-QA prompt explicitly does not judge padding.

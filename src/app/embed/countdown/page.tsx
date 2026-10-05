@@ -33,14 +33,14 @@ export default function CountdownEmbed() {
           : `${days}d ${hours}h ${minutes}m ${seconds}s`}
       </div>
       <a
-        href="https://apps.giniloh.com/quarterline"
+        href="https://apps.giniloh.com/showcase"
         target="_blank"
         rel="noopener noreferrer"
         className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-card hover:opacity-90"
       >
-        Check Safe Harbor &rarr;
+        Browse the live tools &rarr;
       </a>
-      <div className="text-[10px] text-subtle">Powered by QuarterLine</div>
+      <div className="text-[10px] text-subtle">Powered by the Giniloh Product Factory</div>
     </div>
   );
 }
