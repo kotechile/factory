@@ -123,10 +123,16 @@ source of truth for the fleet's current state_
 | `echo` | `growth_engine.md` | GTM blueprints + distribution | deepseek-flash (V4.1 Flash) |
 | _(transient)_ | `seeder.md` | Ground-zero payload drafts | `delegate_task` subagent |
 
-Supporting profiles on the non-frontier tier (same `deepseek-flash`): `judge`, `publisher`, `radar`
-and the default profile. DeepSeek serves exactly two ids — `deepseek-flash` and `deepseek-v4-pro`;
-older `deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. Frontier crons
-(Build Watchdog, Growth Watchdog, the 5 Full-Pipeline editors) stay pinned to `deepseek-v4-pro`.
+Supporting profiles on the non-frontier tier (same `deepseek-flash`): `judge`, `publisher`, `radar`,
+`drafter`, `editor`, `verifier` and the default profile. DeepSeek serves exactly two ids —
+`deepseek-flash` and `deepseek-v4-pro`; older `deepseek-v4-flash*` ids are server-side aliases of
+`deepseek-flash`. **Fleet tier (owner, 2026-10-05: only key agents and processes use the pro tier).**
+Pro is now limited to the three frontier agents (`simon`, `phoebe`, `product-director`) and the two
+factory watchdogs (**Build Watchdog**, **Growth Watchdog**). The 52 editorial pipeline jobs
+(26 `Full Pipeline:` + 26 `Evergreen Pipeline:`) and the `drafter` / `editor` / `verifier` profiles
+were moved to `deepseek-flash` on 2026-10-05; the pin default in
+`editorial-factory/scripts/sync_crons.py` follows so a new vertical does not re-mint a pro job.
+(Pro was ~73% of the last 30 days' estimated spend before the cut.)
 
 ## Knowledge — 9 SOPs
 
@@ -134,13 +140,15 @@ older `deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. Fron
 `voice_content_engine` · `ui_component_standards` · `design_review` · `stripe_gating_workflow` ·
 `webmcp_integration` · `self_improvement_eval`
 
-## Heartbeat — the factory's 9 crons (31 jobs on the Simon gateway)
+## Heartbeat — cron fleet (58 jobs on the gateway: 4 factory, 52 editorial, 2 script-only)
 
-All nine factory jobs deliver to `slack:C0BTPDKQXU2:1788974638.867929`; the flash-tier jobs are pinned to
-`deepseek-flash` and the rest to `deepseek-v4-pro` (see the model note above). Across both repos the gateway
-carries **31 active jobs** at 2026-09-26 (22 with a last run, all `ok`; 9 registered verticals never run),
-`hermes cron doctor` clean. Newest: **Editorial Verify Gate** (`30 9 * * *`, created 2026-09-26T01:34, ran `ok`)
-— a daily `verify.sh` + pressflow-image-vs-HEAD check, silent when green.
+The factory's own jobs deliver to `slack:C0BTPDKQXU2:1788974638.867929`. Across both repos the gateway
+carries **58 jobs** at 2026-10-05 — 4 factory agent jobs (Weekly Market Recon, Daily Proactive Sweep,
+Build Watchdog, Growth Watchdog), 52 editorial pipeline jobs (26 news + 26 evergreen, reconciled from
+`editorial-factory/context/verticals.json` by `sync_crons.py`), and 2 script-only jobs (Editorial Verify
+Gate, WordPress Draft Sweep — `no_agent`, no model call). **Only Build Watchdog and Growth Watchdog are
+pinned to `deepseek-v4-pro`**; every other model-backed job runs `deepseek-flash` (see the model note
+above). The Editorial Verify Gate is a daily `verify.sh` + pressflow-image-vs-HEAD check, silent when green.
 
 ⚠️ **Gateway restart still owed (operator action, no visible symptom left).** The `cron/jobs.py` fire-claim fix is
 applied in the tree (`heartbeat_fire_claim` no longer takes the delivery-held `_fire_job_lock`) but the running
@@ -149,17 +157,16 @@ gateway process is still the one started **2026-09-12 15:13**. The last stale `I
 recurrence and nothing on the board is mislabelled. Restart `hermes_cli.main gateway run` while no cron run is in
 flight when convenient; see `hermes-cron-debugging/references/fire-claim-misreport.md`.
 
-| Job | Schedule | Model | Workdir |
+| Job | Schedule (UTC) | Model | Workdir |
 |---|---|---|---|
-| Weekly Market Recon | Mon 06:00 | deepseek-flash | `software-factory-core` |
-| Full Pipeline: agentic_ai | Mon + Thu 06:00 | deepseek-v4-pro | `editorial-factory` |
-| Full Pipeline: enterprise_tech_leadership | Tue 06:00 | deepseek-v4-pro | `editorial-factory` |
-| Full Pipeline: gpu_hardware | Wed 06:00 | deepseek-v4-pro | `editorial-factory` |
-| Full Pipeline: supply_chain | Thu 06:00 | deepseek-v4-pro | `editorial-factory` |
-| Full Pipeline: home_systems_reno | Fri 06:00 | deepseek-v4-pro | `editorial-factory` |
-| Daily Proactive Sweep | daily 08:00 | deepseek-flash | `software-factory-core` |
-| Build Watchdog (Toby) | daily 10:00 | deepseek-v4-pro | `software-factory-core` |
-| Growth Watchdog | Fri 17:00 | deepseek-v4-pro | `software-factory-core` |
+| Weekly Market Recon | Mon 14:30 | deepseek-flash | `software-factory-core` |
+| Daily Proactive Sweep | daily 15:30 | deepseek-flash | `software-factory-core` |
+| Build Watchdog (Toby) | daily 16:30 | **deepseek-v4-pro** | `software-factory-core` |
+| Growth Watchdog | Fri 17:00 | **deepseek-v4-pro** | `software-factory-core` |
+| Editorial Verify Gate | daily 14:00 | (script, no model) | `editorial-factory` |
+| WordPress Draft Sweep | daily 14:15 | (script, no model) | `editorial-factory` |
+| Full Pipeline: <26 verticals> | per registry, 10:30–13:00 | deepseek-flash | `editorial-factory` |
+| Evergreen Pipeline: <26 verticals> | per registry, 17:30–20:00 | deepseek-flash | `editorial-factory` |
 
 ## Closed loop
 
