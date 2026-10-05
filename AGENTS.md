@@ -13,10 +13,16 @@ them with near-zero marginal build cost.
 - `src/`         — product code (Next.js App Router, calc engines, UI primitives)
 
 ## Non-negotiable factory rules
-1. **Deterministic core only.** A product is in-scope only if its value is a deterministic
-   algorithm, multi-variable model, or structured document transform. No long-term human service.
-2. **Primitives fit.** Must build from Next.js + Tailwind + Supabase + Stripe + Resend. No native
-   hardware/mobile sensors.
+1. **Deterministic core only — with LLM extraction allowed in front of it (owner, 2026-10-05).** A product
+   is in-scope only if its value is a deterministic algorithm, multi-variable model, or structured document
+   transform. No long-term human service. LLM and document-parsing services (e.g. LlamaParse) may read
+   unstructured input into the structured record the engine then computes on, but **no number a product
+   reports or charges for may come from a model**, and an unreadable or missing input is an explicit finding
+   that blocks the verdict — never a guess (`context/tech_stack_capabilities.md` §2).
+2. **Primitives fit.** Must build from Next.js + Tailwind + Supabase + Stripe + Resend, plus the extended
+   primitives in `context/tech_stack_capabilities.md` (LLM APIs, document-parsing services) where they are
+   used as extraction only. No native hardware/mobile sensors. **LLM-backed tools price in the higher band**
+   ($0.50–$3.00/call) and must clear 3× their measured per-call cost (`context/company_goals.md`).
 3. **≤ 4-hour build budget** for MVP + test suite (via Google Antigravity).
 4. **WebMCP monetization.** Every tool exposes `navigator.modelContext.registerTool` for agents.
 5. **No silent fallbacks.** Failures surface explicit errors — never degraded substitutes.

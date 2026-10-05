@@ -143,6 +143,11 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | public_sector_grants | Grant/claim reporting formats, eligibility rules, submission windows | `grant reporting format rejection 2026 manual reconcile` |
 
 ## Rules
+- **Two verticals per sweep (owner, 2026-10-05).** A run declares `VERTICAL_A` and `VERTICAL_B` (two distinct
+  verticals, neither among the last two declared) and records a `last_scanned` row for each. The newest scan
+  date in this file must therefore carry **two** verticals; `node scripts/check-recon-cadence.mjs` (wired into
+  `scripts/verify-build.sh`) fails the build when it carries one — a run that scanned a single vertical is a
+  regression against the owner's cadence instruction, not a judgment call.
 - Update `last_scanned` and `best score` in the run that observes them (record hygiene rule 1).
 - Run `node scripts/vertical-sync.mjs --check` in CI/sweeps; after an editorial vertical change run
   `node scripts/vertical-sync.mjs --vendor` (the snapshot is vendored in `context/editorial_verticals.json`

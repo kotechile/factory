@@ -44,21 +44,27 @@ Never block the sweep on a single source outage.
 
 ## 3. Execution Protocol (Stage 0 → Stage 6)
 
-### Stage 0: Declare the vertical (before any search)
-Set `VERTICAL = <id>` at the top of the sweep and record it in the run report and in the PRD schema.
+### Stage 0: Declare the verticals (before any search)
+Set `VERTICAL_A` and `VERTICAL_B` at the top of the sweep and record **both** in the run report and in the PRD
+schema. **Two verticals per sweep** (owner instruction, 2026-10-05: *"Increase the number of verticals to two
+per week"*) — the sweep's throughput is verticals scanned per week, not candidates proposed per sweep.
 
-- **Rotation rule:** the declared vertical must not be one of the last **two** declared verticals.
-  Pick from the rotation queue in `context/vertical_coverage.md` (least-recently-scanned first,
-  `never` before everything else). The queue's inventory of the factory's 26 audience verticals is
+- **Rotation rule:** neither declared vertical may be one of the last **two** declared verticals, and
+  `VERTICAL_A` and `VERTICAL_B` must be two different verticals (one scan, one vertical, per slot). Pick from
+  the rotation queue in `context/vertical_coverage.md` (least-recently-scanned first, `never` before
+  everything else). The queue's inventory of the factory's 26 audience verticals is
   generated from a **vendored snapshot** of the editorial registry
   (`context/editorial_verticals.json`, provenance included) — re-vendor after an editorial vertical
   change with `node scripts/vertical-sync.mjs --vendor`, and let `--check` fail the run if the snapshot
   is stale, the inventory block is out of date, or a verdict row is missing. Every vertical in
   `skills/recon_vertical_packs.md` has a pack; add one when you open a new vertical.
+  `node scripts/check-recon-cadence.mjs` is the mechanical half of this rule: it fails the build if the
+  ledger's newest scan date carries fewer than two verticals.
 - **Freshness rule:** at least one of the top three scored candidates must come from the declared
-  vertical. If it produces nothing ≥60, say so explicitly with the queries that failed and the
+  verticals. If a vertical produces nothing ≥60, say so explicitly with the queries that failed and the
   in-window sources they returned — that is a valid, useful result (it retires a vertical cheaply).
-  Do not silently fall back to the money/document cluster to fill the quota.
+  Do not silently fall back to the money/document cluster to fill the quota. A sweep may legitimately
+  return a candidate from one slot and a retirement from the other; it may not skip a slot.
 - **Channel rule:** a new vertical earns a build slot only if a distribution channel for its buyer
   already exists (an owned audience, an existing editorial vertical, a community the factory can
   post into). Idea supply is not the factory's binding constraint — distribution is. Record the
@@ -156,8 +162,8 @@ Every candidate must pass all four gates:
 
 | Filter Gate | Criteria | Drop trigger |
 |---|---|---|
-| 1. Solution Archetype | Fits one: (a) Deterministic engine/calculator, (b) Transform/parser, (c) API-to-API bridge, (d) Headless asset generator | Requires continuous human-in-the-loop service or non-deterministic creative generation |
-| 2. Stack Feasibility | 100% buildable from Next.js App Router + Tailwind + Supabase + Stripe + Resend + pure TypeScript | Requires native binaries, custom hardware, or heavy GPU |
+| 1. Solution Archetype | Fits one: (a) Deterministic engine/calculator, (b) Transform/parser, (c) API-to-API bridge, (d) Headless asset generator, (e) **LLM/document-parse extraction in front of a deterministic engine** — the value is still the engine, and no reported number may come from the model (`context/tech_stack_capabilities.md` §2; owner, 2026-10-05) | Requires continuous human-in-the-loop service, non-deterministic creative generation, or a product whose whole value IS the model output |
+| 2. Stack Feasibility | 100% buildable from Next.js App Router + Tailwind + Supabase + Stripe + Resend + pure TypeScript, plus the extended primitives (LLM APIs, document-parsing services such as LlamaParse) where they are used as extraction only | Requires native binaries, custom hardware, heavy GPU, or an unpriceable per-call model cost |
 | 3. Rapid Build Horizon | MVP + test suite ≤ 4 hours via `agy` | Needs multi-tenant enterprise RBAC or long vendor approvals |
 | 4. Dual-Interface Utility | Solves a visual UI need AND exposes a REST/WebMCP programmatic hook | Pure UI eye-candy with no agentic monetizable endpoint |
 
@@ -165,16 +171,24 @@ Every candidate must pass all four gates:
 For top candidates, formulate:
 - **Growth vector:** embeddable responsive widget (`<iframe>`/web component), shareable URL state
   with base64-encoded params, or branded vector/PDF reports.
-- **Agentic monetization:** dedicated headless API or WebMCP endpoint, metered $0.05–$0.50/call.
+- **Agentic monetization:** dedicated headless API or WebMCP endpoint, metered **by tool class** (owner,
+  2026-10-05): deterministic tools **$0.05–$0.50/call**; LLM/document-parse-backed tools **$0.50–$3.00/call**,
+  and only if the rate clears **3× the measured per-call cost** (parse + generate + retries). State the class
+  in the PRD — it becomes `usesLlmPrimitive` in `src/products/registry.ts` at build time, and
+  `src/products/pricing.test.ts` fails the build if a tool's rate disagrees with its declared class
+  (`context/tech_stack_capabilities.md` §3).
 
 ### Stage 6: Output Generation & Persistence
 Write the top candidate(s) to `context/recon_proposals/YYYY-MM-DD_[product_name].md` using the
-schema below. Include the Signal Intensity Score and the declared **Vertical**.
+schema below. Include the Signal Intensity Score, the declared **Verticals** (`VERTICAL_A` and `VERTICAL_B`,
+naming which slot produced the candidate) and the tool class (deterministic or LLM/parse-backed) with its
+band and measured per-call cost.
 
 Then update `context/vertical_coverage.md` **in the same run** (record hygiene rule 1): set
-`last_scanned` for the declared vertical, append the pack entries you added or corrected, and
+`last_scanned` for **both** declared verticals, append the pack entries you added or corrected, and
 record any vertical retired for zero signal. A coverage ledger that lags the sweep is worse than
-none — the next sweep picks its vertical from it.
+none — the next sweep picks its verticals from it, and `scripts/check-recon-cadence.mjs` fails the build
+when the newest scan date carries fewer than two verticals (i.e. when a run scanned only one).
 
 ## 4. Standard PRD Candidate Output Schema
 

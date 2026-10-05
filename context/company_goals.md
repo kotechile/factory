@@ -9,9 +9,15 @@
 ## Margin & pricing thresholds
 - Web tier: free instant preview; paid $29/mo or $9 one-off export (Stripe).
 - Agent tier (WebMCP): $0.25/query via Stripe meter / API credits (range $0.10–$1.00).
-- Drop any candidate whose margin can't clear $0.25/query at plausible volume.
+- **LLM/parse-backed tools price higher (owner, 2026-10-05): $0.50–$3.00 per call**, and the candidate must
+  clear **3× its measured per-call cost** (parse + generate + retries) at plausible volume.
+- Drop any candidate whose margin can't clear $0.25/query at plausible volume (deterministic tools) or the
+  LLM margin rule (LLM-backed tools). Bands and the class declaration live in
+  `context/tech_stack_capabilities.md` §3 and are enforced by `src/products/pricing.test.ts`.
 
 ## Tech stack rules
+- The canonical primitives list is **`context/tech_stack_capabilities.md`** (deterministic core +
+  extraction-only LLM/document-parsing services + the price bands). When these two disagree, that file wins.
 - Frontend: Next.js (App Router, TypeScript).
 - Styling: Tailwind CSS + Lucide Icons + React Flow.
 - DB/Auth: Supabase (PostgreSQL + RLS).

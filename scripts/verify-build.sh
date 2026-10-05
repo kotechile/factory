@@ -5,6 +5,7 @@ npx tsc --noEmit
 npm run lint
 npm run check:tokens
 npm run verticals:check
+npm run recon:cadence
 npm run test
 npm run build
 npm run test:e2e

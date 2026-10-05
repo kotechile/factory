@@ -19,6 +19,56 @@ issues / 13 jobs (12 stale 402 vertical stamps + WordPress Draft Sweep failed 20
 featured-image Internal Error ×3). Live `LIVE` ×4 / `BETA` ×0 on `/showcase`; manifest v2.0.0 / 9 tools
 byte-identical; all four products return live checkout sessions; revenue still $0 real._
 
+## APPROVED + LANDED — 2026-10-05 (owner instruction, Jorge) → recon cadence ×2 + LLM/parse primitives at a higher price band
+
+Owner instruction in `loop-ai`, verbatim: *"Increase the number of verticals to two per week and also add more
+tools (at higher price maybe) to include LLM, llamaparse, etc."* Two policy changes to what the factory
+searches for and what it may build, plus the machinery that makes both mechanical rather than advisory.
+
+**1. Two verticals per sweep.** The weekly recon now declares `VERTICAL_A` and `VERTICAL_B` (two distinct
+verticals, neither among the last two declared) and must record a `last_scanned` row for **both**.
+- `skills/market_recon_last30days.md` Stage 0 rewritten (two slots, freshness rule per slot, "a sweep may
+  return a candidate from one slot and a retirement from the other; it may not skip a slot"), Stage 6 now
+  requires both verticals in the PRD and both rows in the ledger.
+- `context/vertical_coverage.md` rules state the cadence; `.agents/market_scout.md` (the persona that runs it)
+  gained the two-slot responsibility.
+- **New guard, in the build gate:** `scripts/check-recon-cadence.mjs` (`npm run recon:cadence`, wired into
+  `scripts/verify-build.sh`) fails when the ledger's newest scan date carries fewer than two verticals, and
+  when either the SOP or the ledger stops declaring the cadence. Baseline handling is deliberate — the newest
+  pre-change date (2026-09-28, one vertical) is reported and passed, because a guard that fails on its own
+  baseline is last month's `verticals:check` false-red repeating. **Proven to bite by injection:** one
+  vertical on a post-change date → exit 1 naming the date and the fix; two on the same date → exit 0; the
+  SOP's cadence marker removed → exit 1 naming the file.
+- The cron job's own prompt was updated in the same pass (a two-vertical sweep with both ledger rows), so the
+  unattended run and the SOP agree.
+
+**2. LLM / document-parse primitives, priced higher.** The factory may now build products whose pipeline calls
+an LLM or a document-parsing service (LlamaParse named) — as an **extraction layer in front of the
+deterministic engine**, never as the thing that produces a reported number.
+- **New canonical file `context/tech_stack_capabilities.md`** (it did not exist, though the recon SOP has
+  listed it as a prerequisite for weeks — a dangling reference now fixed): the deterministic core's
+  invariants, the three newly allowed primitive classes with what each may and may NOT do, and the price
+  bands. `context/company_goals.md` and `AGENTS.md` rules 1–2 now point at it; the recon SOP's Stage 4
+  filters 1–2 and Stage 5 monetization line carry the new archetype and the class-based pricing.
+- **The invariants that keep rule 1 intact:** no number a product reports or charges for may come from a
+  model; extraction failure is an explicit finding that blocks the verdict, never a default; the moat must
+  still be the deterministic computation ("the model does the whole thing" is a filter-1 drop); the model
+  call must be priced in.
+- **Bands, enforced in code, not just documented:** `src/products/pricing.ts` gained
+  `DETERMINISTIC_RATE_BAND_USD` ($0.05–$0.50, unchanged) and `LLM_RATE_BAND_USD` ($0.50–$3.00, the higher
+  band the owner asked for), with the class read from a **declaration** — the new registry field
+  `usesLlmPrimitive` — never inferred from the price. `src/products/pricing.test.ts` fails the build when a
+  deterministic tool exceeds its ceiling or an LLM-backed tool undercuts its floor.
+  **Proven to bite by injection:** a deterministic tool priced $0.75 → red (`ratesOutsideTheirBand`);
+  `usesLlmPrimitive: true` on a tool priced $0.25 → red. The margin rule (3× measured per-call cost) is the
+  recon-side half and lands in the PRD when a candidate is proposed.
+- **Nothing was built from the new primitives yet, on purpose.** No product was specified in the instruction,
+  so this pass changes *what the search may propose* and *how it must be priced*; the next sweeps can now
+  propose LLM/parse-backed candidates with a class and a band. The first such PRD must state the measured
+  per-call cost (parse + generate + retries) that its rate has to clear.
+
+**Gate:** `scripts/verify-build.sh` green end to end after both changes.
+
 ## APPROVED — 2026-10-05 (owner instruction, Jorge) → QuarterLine public surfaces retired (item 10)
 
 **[SHIPPED + LIVE-VERIFIED — `bc6c3de`, 2026-10-05.]** Owner instruction in `loop-ai`, verbatim:
