@@ -4,6 +4,32 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-05 (**15:30 sweep**, every open item re-measured live). **The build line has no approved
+work left and exactly one candidate waiting: the 2026-10-05 weekly recon recommends SpendProof (signal 79/100,
+PRD `context/recon_proposals/2026-10-05_spendproof.md`) — an LLM-parse-backed product that reconciles an AI
+provider invoice against the organization's own tagged-usage ledger, declared `usesLlmPrimitive: true` and
+priced in the $0.50–$3.00 band at a recommended $1.50/call. Reply `@Simon approve SpendProof` to start the
+build; nothing else product-side is approved. **Item 10 is CLOSED (`bc6c3de`, live-verified)**: `/quarterline`
+serves the retirement notice, all **20** `/quarterline/calc/*` preset URLs **308 → /showcase**, and
+`/embed/countdown` is repointed at the live inventory. Also landed today (owner session): the visual review
+now reads **full-resolution tiles** (`4f66600`, finding and fixing a real CaseProof hero caption/beam
+collision in `7b7e767`), and the policy pass for **two verticals per sweep + LLM/parse primitives at the
+higher band** (`60ae0b9` docs, `2678217` code; new `context/tech_stack_capabilities.md`,
+`scripts/check-recon-cadence.mjs`, and a declared-class pricing guard). Still open for the founder: the
+**ParcelProof AHS-Dimension one-liner** (96″ as published vs 48″ as intended, 17th day), the **distribution
+approval** (12 product-promotion cards ready, 0 ever published), **item 5** (internal-traffic marker),
+**item 6** (durable record), **item 7** (gateway restart, P2), **item 11** (dead-host descriptor + no crawler
+map, P2), and an **operator setting**: a low-balance alert on the model provider account. `hermes cron doctor`
+= **12 issues / 12 jobs** (10 stale 402 vertical stamps with last runs 2026-09-29 06:01 → 2026-09-30 08:01 and
+next runs 10-05 → 10-10, plus two live editorial failures from today: **Editorial Verify Gate** 14:01, a
+`wp_draft` mapping test in `/root/editorial-factory` HEAD `11be376`; and **WordPress Draft Sweep** 14:16, the
+same duplicate slug on BOTH giniloh.com and wellroost.com). Live `/showcase` `LIVE` ×4 / `RETIRED` ×1;
+manifest v2.0.0 / 9 tools sha256 `5e47d410…` byte-identical; all four products return live checkout sessions;
+revenue still **$0 real**. Traffic `events` 4492 → **5266** / sessions 2886 → **3337**, all factory e2e runs
+and the owner's own clicks (last outside visitor 2026-09-23T14:11:42Z → 12 days). `agent_query` still **8**
+(organic 0 on day 35). App image `13478a9…` == HEAD == `origin/main`. Item 7: gateway pid still `1963330`
+(2026-09-12)._
+
 _Last updated: 2026-10-04 (**15:30 sweep**, every surface re-measured live). **The three launch calls are
 SHIPPED** — FacturGate (`1336823`), ParcelProof and CaseProof (`683796b`) are all `status: live`; the inventory
 is **4 `live` + 1 `retired`** and nothing is `beta`. So the top-block APPROVED records below are now the

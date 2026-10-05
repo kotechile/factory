@@ -1,5 +1,25 @@
 # Factory Status Map
 
+_Last updated: 2026-10-05 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The
+approved backlog is empty and the weekly recon has put one build candidate in front of the founder**:
+SpendProof (79/100, `context/recon_proposals/2026-10-05_spendproof.md`) — an AI-invoice↔tagged-usage-ledger
+reconciliation with an LLM extraction layer declared `usesLlmPrimitive: true` and priced in the $0.50–$3.00
+band; awaiting `@Simon approve`. **Item 10 CLOSED** (`bc6c3de`): `/quarterline` is a retirement notice, all
+**20** preset URLs **308 → /showcase**, `/embed/countdown` repointed. Owner session also landed the
+full-resolution-tile visual gate (`4f66600`, which found and fixed a real CaseProof hero collision, `7b7e767`)
+and the two-verticals/LLM-primitive policy pass (`60ae0b9`, `2678217`). Surfaces green (`/` 307 → giniloh.com,
+`/showcase` + 4 products + `/quarterline` + `/billing` + `/embed/countdown` 200, legacy 503); manifest
+**v2.0.0 / 9 tools** sha256 `5e47d410…` byte-identical; item 8 holds (4 live checkout sessions, app-less 400,
+`quarterline` 400, portal 307); `STRIPE_MODE=live`, `sk_live_…` → `/v1/balance` 200. Traffic **4492 → 5266
+events / 2886 → 3337 sessions** — all factory e2e runs and the owner's clicks, **no outside visitor (last
+2026-09-23T14:11:42Z → 12 days)**; `agent_query` still 8. Revenue **$0 real**. Social queue rewritten 54 → **12
+product-promotion cards**, 0 ever published. pressflow internal-only (`/api/articles.json` 401; container 23
+files, Supabase `articles` 26 rows). Crons **58 active**; doctor **12 issues / 12 jobs** = 10 stale 402 stamps
++ Editorial Verify Gate (10-05 14:01) + WordPress Draft Sweep (10-05 14:16, duplicate slug on two sites).
+`vertical-sync --check` exit 0 (26); `recon:cadence` exit 0 (2 verticals on 2026-10-05). App image
+`13478a9…` == HEAD. Item 7 gateway pid `1963330` (09-12). _canonical source of truth for the fleet's current
+state_
+
 _Last updated: 2026-10-04 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The build
 line restarted after ~11 idle days and every product is now live**: FacturGate (`1336823`), ParcelProof and
 CaseProof (`683796b`) all went `status: beta → live` in the owner's operator session, alongside the Factory
