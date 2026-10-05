@@ -1,4 +1,5 @@
 import * as React from "react";
+import { wrapCaption } from "@/components/editorial/prism-caption";
 
 /**
  * §3.3 — "The Transformation Schematic", generalized from LedgerLink's DisaggregationPrism.
@@ -85,15 +86,34 @@ export function PrismSchematic({
           </linearGradient>
         </defs>
 
-        {/* Incoming payload */}
+        {/* Incoming payload. The caption is caller-supplied, so it is WRAPPED to the card's usable width:
+            a longer caption used to spill past the card's right edge and the dashed beam out of that edge
+            ran straight through it (CaseProof, measured 2026-10-05 — see prism-caption.ts). */}
         <g>
-          <rect x="18" y={top + 6} width="146" height={Math.min(84, nodes.length * rowHeight - 6)} rx="10" fill="#F1F5F9" stroke="#CBD5E1" />
+          <rect
+            x="18"
+            y={top + 6}
+            width="146"
+            height={Math.max(62, Math.min(84, nodes.length * rowHeight - 6))}
+            rx="10"
+            fill="#F1F5F9"
+            stroke="#CBD5E1"
+          />
           <text x="34" y={top + 32} className="fill-[#0F172A]" fontSize="11" fontFamily="ui-monospace, monospace" fontWeight="600">
             {inputLabel}
           </text>
-          <text x="34" y={top + 50} className="fill-[#475569]" fontSize="9.5" fontFamily="ui-monospace, monospace">
-            {inputDetail}
-          </text>
+          {wrapCaption(inputDetail).map((line, index) => (
+            <text
+              key={line}
+              x="34"
+              y={top + 48 + index * 11}
+              className="fill-[#475569]"
+              fontSize="9.5"
+              fontFamily="ui-monospace, monospace"
+            >
+              {line}
+            </text>
+          ))}
         </g>
 
         {/* Beam into the prism */}

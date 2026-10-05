@@ -111,7 +111,7 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
 - `test` (vitest) — deterministic calc engines must ship known-answer test vectors in `src/lib/calc/*.test.ts`.
 - `build` — production build.
 - **`test:e2e` (Playwright)** — visual regression (`toHaveScreenshot`) + WCAG 2.1 AA accessibility (`@axe-core/playwright`).
-- **`visual-qa` (Gemini vision)** — sends a rendered screenshot to Gemini for a style-guide review. The Gemini key/model/prompt live in Supabase `factory_config` (`supabase/schema.sql`), so they can be tuned without a redeploy. **Every product surface is reviewed, not just the flagship:** `scripts/visual-qa.mjs` holds a `SCREENSHOTS` list and `tests/e2e/qa-screenshot.spec.ts` captures each product in its richest state (assert-then-capture, so the capture itself fails loudly if the UI never reaches that state). When a product ships, add its capture *and* its path to that list in the same commit — a product with no screenshot is silently unaudited.
+- **`visual-qa` (Gemini vision)** — sends rendered screenshots to Gemini for a style-guide review. The Gemini key/model/prompt live in Supabase `factory_config` (`supabase/schema.sql`), so they can be tuned without a redeploy. **Every product surface is reviewed, not just the flagship, and each is reviewed as FULL-RESOLUTION TILES** (owner call, 2026-10-05): `scripts/visual-qa.mjs` holds `REVIEWED_PRODUCTS` and reviews every `test-results/<product>-qa-<n>.png` tile, and `tests/e2e/qa-screenshot.spec.ts` captures each product in its richest state as ≤6 viewport-height bands cut from the full-page render (assert-then-capture, so the capture itself fails loudly if the UI never reaches that state). A product passes only if every one of its tiles passes; when a product ships, add its capture *and* its name to that list in the same commit — a product with no tiles fails the step loudly rather than going silently unaudited. Tiles replaced one ~4×-downscaled full-page image per product, which the reviewer could not read (it hallucinated "text overlapping" on pages that measure clean, and truncated verdicts read as failures).
 
 > **Route deletion leaves a stale route validator.** Deleting or renaming a route file (e.g. `src/app/api/*/route.ts`) does not regenerate the gitignored `.next/types/` files, so the next `tsc --noEmit` fails with `TS2307: Cannot find module '…/route.js'` from `.next/types/validator.ts`. This is a *stale build artifact*, not a code regression: `rm -rf .next/types` (or `.next`) and re-run — `next build` regenerates the validator from the live route tree. Rule: after deleting/renaming any route, clear `.next/types` before running `scripts/verify-build.sh`.
 
@@ -232,6 +232,29 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   Also: when a product's page copy changes, update its render spec in the same commit (the three
   products' specs asserted a name-as-heading that the Editorial hero replaces — the repo's own
   "keep assertions in sync with the rendered copy" rule, 2026-09-07).
+
+- **2026-10-05 — `visual-qa` truncated its own verdict, and a shrunken page hid a real defect (gate).**
+  Two findings in one day, both from the same root: the reviewer's INPUT and its BUDGET.
+  1. **The verdict was being cut off mid-sentence and read as a failure.** Thinking tokens count against
+     `maxOutputTokens`: the model spent 1965 of a 2048 budget thinking about one dense full-page
+     screenshot, so the answer sometimes arrived as a prose tail with no `PASS`/`FAIL` line — which the
+     runner scored as a FAIL on a page that measures clean. Fixed by budgeting 4096 (2× the measured
+     peak), retrying an *unrecognized* verdict as well as a FAIL (fail-closed unchanged), and logging
+     `finishReason` + usage whenever a verdict is malformed. Recognise the signature: a verdict that
+     starts mid-sentence, and `thoughtsTokenCount` ≈ the budget.
+  2. **The input was one ~4×-downscaled full-page image per product** (1280×6495 for ParcelProof), which
+     the reviewer cannot read — the source of repeated "text overlapping" hallucination. It now reviews
+     **full-resolution viewport-height tiles** (≤6 per product, cut from the full-page render so no band
+     contains a scrolled sticky element twice). Owner call: *"approve tiles"*.
+  Consequence, measured the same day: with legible tiles the gate immediately found a REAL defect the
+  shrunken review had missed — CaseProof's payload caption ("vendor lines, buyer basis", 26 chars) overran
+  its 146px card and the dashed beam leaving that card ran through the text. Fixed by wrapping
+  caller-supplied captions to the card's usable width (`src/components/editorial/prism-caption.ts`, unit
+  tested against both shipped captions) and **guarded deterministically**: `tests/e2e/schematic-collision.spec.ts`
+  samples every connector path (`getPointAtLength` → `getScreenCTM`) against every label box and fails on any
+  crossing — the guard was proven RED before the fix (28 of 241 samples inside the label) and GREEN after.
+  With the geometry measured in code, the vision prompt no longer opines on "line near label" (a class it
+  flagged as overlap twice); proximity is not overlap, and only the sampler decides.
 
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
