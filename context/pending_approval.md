@@ -4,6 +4,30 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-06 (**15:30 sweep**, every open item re-measured live). **Nothing moved in the factory
+in 24 h** — no commit, no build, no product change (`HEAD == origin/main == 867a419`, app image `867a419d…` ==
+HEAD, `/showcase` 200). **The build line has no approved work and exactly one candidate waiting: the
+2026-10-05 weekly recon recommends SpendProof (signal 79/100, PRD `context/recon_proposals/2026-10-05_spendproof.md`)
+— an LLM-parse-backed product that reconciles an AI provider invoice against the organization's own tagged-usage
+ledger, declared `usesLlmPrimitive: true` and priced in the $0.50–$3.00 band at a recommended $1.50/call. Reply
+`@Simon approve SpendProof` to start the build. The one change today is our own gate: `hermes cron doctor`
+improved **12 → 6 issues** — the **WordPress Draft Sweep ran `ok` 10-06 14:16** (duplicate-slug defect cleared)
+and five stale 402 stamps cleared by their own next run — leaving **Editorial Verify Gate red a second day**
+(10-06 14:01, editorial HEAD `efcbe1f`; the writer's social-voice check fails **3 problems across 194 checks**,
+`skills/claude_humanizer.md` §3.8/§3.9) plus 5 stale 402 vertical stamps (next runs 10-07). Still open for the
+founder: the **ParcelProof AHS-Dimension one-liner** (UPS 96″ as published vs 48″ as intended, 18th day), the
+**distribution approval** (12 product-promotion cards ready, 0 ever published), **item 5** (internal-traffic
+marker), **item 6** (durable record), **item 7** (gateway restart, P2), **item 11** (dead-host descriptor + no
+crawler map, P2), and two **operator settings**: a low-balance alert on the model provider account, and
+`STRIPE_AGENT_METER_PRICE_ID` (unset, so `agent_metered` checkout is **400** even though the Stripe meter +
+Price exist). Live `/showcase` `LIVE` ×4 / `RETIRED` ×1; manifest v2.0.0 / 9 tools sha256 `5e47d410…`
+byte-identical; all four products return live checkout sessions; revenue still **$0 real**. Traffic `events`
+5266 → **5350** / sessions 3337 → **3385**, all 10-05 and 0 rows on 10-06 (last outside visitor
+2026-09-23T14:11:42Z → 13 days). `agent_query` still **8** (organic 0 on day 36). Social queue unchanged at
+**12** product-promotion cards, `updated_at` 2026-10-06T13:07:32Z, 0 published. pressflow internal-only
+(`/api/articles.json` 401; container 33 files; Supabase `articles` 36 rows). App image `867a419d…` == HEAD.
+Item 7: gateway pid still `1963330` (2026-09-12)._
+
 _Last updated: 2026-10-05 (**15:30 sweep**, every open item re-measured live). **The build line has no approved
 work left and exactly one candidate waiting: the 2026-10-05 weekly recon recommends SpendProof (signal 79/100,
 PRD `context/recon_proposals/2026-10-05_spendproof.md`) — an LLM-parse-backed product that reconciles an AI

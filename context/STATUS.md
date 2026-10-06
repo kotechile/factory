@@ -1,5 +1,26 @@
 # Factory Status Map
 
+_Last updated: 2026-10-06 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **Nothing
+moved in the factory in 24 h**: `HEAD == origin/main == 867a419` (tree clean), app image `867a419d…` == HEAD,
+`/showcase` 200, no build, no product change; the build line has **nothing approved** and only SpendProof
+(79/100, `context/recon_proposals/2026-10-05_spendproof.md`) ahead of it, awaiting `@Simon approve`. **The one
+live change is our own editorial gate**: `hermes cron doctor` improved **12 → 6 issues** — **WordPress Draft
+Sweep ran `ok` 10-06 14:16** (the duplicate-slug defect is cleared) and five stale 402 stamps cleared by
+their own next run — leaving **Editorial Verify Gate red a second day** (10-06 14:01, editorial HEAD
+`efcbe1f`, the writer's social-voice check: 3 problems / 194 checks, `skills/claude_humanizer.md` §3.8) plus
+5 stale 402 vertical stamps (next runs 10-07). Surfaces green (`/` 307 → giniloh.com, `/showcase` + 4 products
++ `/quarterline` + `/billing` + `/embed/countdown` 200, legacy 503); manifest **v2.0.0 / 9 tools** sha256
+`5e47d410…` byte-identical; item 8 holds (4 live checkout sessions, app-less 400, `quarterline` 400, portal
+307); `STRIPE_MODE=live`, `sk_live_…` → `/v1/balance` 200 — but `agent_metered` checkout is **400**
+(`STRIPE_AGENT_METER_PRICE_ID` unset; the meter + Price exist). Traffic **5266 → 5350 events / 3337 → 3385
+sessions**, all 10-05 (0 rows on 10-06) — **no outside visitor (last 2026-09-23T14:11:42Z → 13 days)**;
+`agent_query` still 8 (organic 0, day 36). Revenue **$0 real** (4 `cs_test_` purchases 09-02, 1 sandbox
+subscription). Social queue unchanged at **12 product-promotion cards**, 0 ever published, re-seeded
+10-06T13:07:32Z. pressflow internal-only (`/api/articles.json` 401; container 33 files, Supabase `articles`
+36 rows — the editorial engine shipped 10 new pieces). `vertical-sync --check` exit 0 (26); `recon:cadence`
+exit 0 (2 verticals on 2026-10-05). Item 10 CLOSED, re-verified (presets 308 → /showcase). Item 7 gateway pid
+`1963330` (09-12). _canonical source of truth for the fleet's current state_
+
 _Last updated: 2026-10-05 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The
 approved backlog is empty and the weekly recon has put one build candidate in front of the founder**:
 SpendProof (79/100, `context/recon_proposals/2026-10-05_spendproof.md`) — an AI-invoice↔tagged-usage-ledger
