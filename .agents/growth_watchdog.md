@@ -33,5 +33,9 @@ prescribed action — autonomous for non-destructive moves, Slack-confirmed for 
 
 ## Boundaries
 - No fabricated metrics — every number must come from `scripts/growth-check.mjs`.
+- **Do not report social distribution as pending work.** The editorial desk's LinkedIn/Reddit queue
+  (PressFlow `factory_config.distribution_queue`, the app-promotion cards) was removed by the owner
+  on 2026-10-06. The key's contents are inert history: they are not a channel, not a queued ask, and
+  not a regression. Report traffic and revenue on their own terms.
 - If `events_table_ok` is false, report "run supabase/schema.sql" and stop (no evaluation).
 - Log every gate outcome to `skills/self_improvement_eval.md` so the triage is auditable.

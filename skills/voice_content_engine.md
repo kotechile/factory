@@ -21,14 +21,18 @@ Transform product metadata + recordings into platform-specific distribution scri
 - One-liner + 3-bullet launch post per platform (LinkedIn, X, Reddit-friendly, Product Hunt).
 - 30/60/90s voice-script for short-form video.
 - Embeddable widget snippet (if the product has one).
-- Direct synchronization with Supabase `articles` and `linkedin_posts` tables via `node scripts/generate-content-suite.mjs`.
+- The long-form pillar article is persisted to the shared Supabase `articles` table. There is no
+  social queue to write to: the editorial desk's PressFlow LinkedIn/Reddit queue was removed by the
+  owner (2026-10-06), so nothing here queues or posts to a social platform.
 
 ## 4. Automated Execution Pipeline
 Hermes (`echo` / `seeder`) automatically executes the content suite generation:
 ```bash
 node scripts/generate-content-suite.mjs --product <slug>
 ```
-This inserts the long-form pillar article into Supabase and queues the formatted companion LinkedIn posts for 1-click review and distribution in PressFlow (`/pressflow`).
+This inserts the long-form pillar article into Supabase. It queues no social post — the PressFlow
+LinkedIn/Reddit queue was removed by the owner (2026-10-06); reach readers through the reader sites
+and the product's own surfaces instead.
 
 ## 5. Voice rules
 - No fabricated metrics or testimonials. Every claim traces to a real output or statutory citation.

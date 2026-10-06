@@ -92,7 +92,7 @@ Real run, 2026-09-18. The founder's reply to the posted version was "I do not un
 | internal-traffic marker | a tag that separates our own test visits from real people |
 | pSEO expansion, `/calc/*` presets | extra landing pages for long-tail searches |
 | `agent_query` | a call made to the product by an AI agent |
-| distribution queue 36/36 ready | 36 posts written and waiting; none published |
+| live image behind HEAD | the deploy has not picked up the latest commit yet |
 | blocked-on-traffic | it cannot be tested until real visitors exist |
 | Day 7 / 14 / 30 gate | the 7-, 14- and 30-day checkpoints after launch |
 
