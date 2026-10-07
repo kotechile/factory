@@ -1,5 +1,29 @@
 # Factory Status Map
 
+_Last updated: 2026-10-07 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The owner
+removed the social-distribution workstream and nothing else moved.** `HEAD == origin/main == 8a96080` ("docs:
+the editorial LinkedIn/Reddit queue is gone (owner, 2026-10-06)", tree clean), app image `8a96080a…` == HEAD,
+`/showcase` 200; no product commit and no build in 24 h, and the build line has **nothing approved** with only
+SpendProof (79/100, `context/recon_proposals/2026-10-05_spendproof.md`) ahead of it, awaiting `@Simon approve`.
+The editorial desk's LinkedIn/Reddit queue and its prepared cards are **owner-removed** — the stale
+`factory_config.distribution_queue` key (12 cards, rewritten 2026-10-06T20:08:26Z) is inert history, **not a
+queued ask**. `hermes cron doctor` improved **6 → 1 issue**: all five stale 402 vertical stamps cleared by their
+own next run and **WordPress Draft Sweep ran `ok` 10-07 14:16** (third green day), leaving **Editorial Verify
+Gate red a THIRD day on a third check** (10-07 14:01, editorial HEAD `64d3043`, article voice **2 problems /
+124 checks** §3.9 — the social-voice class is gone with the channel; the gate also flags its own deploy one
+commit behind). Surfaces green (`/` 307 → giniloh.com, `/showcase` + 4 products + `/quarterline` + `/billing` +
+`/embed/countdown` 200, legacy 503); manifest **v2.0.0 / 9 tools** sha256 `5e47d410…` byte-identical; item 8
+holds (4 live checkout sessions, app-less 400, `quarterline` 400, portal 307); `STRIPE_MODE=live`, `sk_live_…` →
+`/v1/balance` 200 — but `agent_metered` checkout is **500** (`STRIPE_AGENT_METER_PRICE_ID` unset; the meter +
+Price exist). Traffic **5350 → 5437 events / 3385 → 3434 sessions**, all 10-06: 85 the 16:31 Build Watchdog run
++ **2 directory page views at 22:17/22:24Z from the owner's own browser session** (first seen 09-22, six minutes
+before his 22:30 commit) → **still no provable outside visitor (day 37)**; `agent_query` still 8 (organic 0,
+day 37). Revenue **$0 real** (4 `cs_test_` purchases 09-02, 1 sandbox subscription). pressflow internal-only
+(`/api/articles.json` 401; container 35 files, image `5dd08918` one commit behind editorial HEAD; Supabase
+`articles` 47 rows — the editorial engine shipped 11 new pieces). `vertical-sync --check` exit 0 (26);
+`recon:cadence` exit 0 (2 verticals on 2026-10-05). Item 10 CLOSED, re-verified (presets 308 → /showcase).
+Item 7 gateway pid `1963330` (09-12). _canonical source of truth for the fleet's current state_
+
 _Last updated: 2026-10-06 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **Nothing
 moved in the factory in 24 h**: `HEAD == origin/main == 867a419` (tree clean), app image `867a419d…` == HEAD,
 `/showcase` 200, no build, no product change; the build line has **nothing approved** and only SpendProof

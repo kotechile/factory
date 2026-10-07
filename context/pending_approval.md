@@ -4,6 +4,33 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-07 (**15:30 sweep**, every open item re-measured live). **The owner closed the social
+distribution ask and nothing else moved.** `HEAD == origin/main == 8a96080` ("docs: the editorial
+LinkedIn/Reddit queue is gone (owner, 2026-10-06)") — the editorial desk's LinkedIn/Reddit channel and its
+prepared cards are **removed by owner decision**; the stale `factory_config.distribution_queue` key (12 cards,
+rewritten 2026-10-06T20:08:26Z) is inert history, **not a queued ask**, and the factory SOPs no longer point at
+it. **The build line still has no approved work and exactly one candidate waiting: SpendProof (signal 79/100,
+PRD `context/recon_proposals/2026-10-05_spendproof.md`)** — an LLM-parse-backed product that reconciles an AI
+provider invoice against the organization's own tagged-usage ledger, declared `usesLlmPrimitive: true` and priced
+in the $0.50–$3.00 band at a recommended $1.50/call. Reply `@Simon approve SpendProof` to start the build.
+`hermes cron doctor` improved **6 → 1 issue**: the five stale 402 stamps all cleared by their own next run and
+**WordPress Draft Sweep ran `ok` 10-07 14:16** (third green day), leaving **Editorial Verify Gate red a THIRD
+day on a third check** (10-07 14:01, editorial HEAD `64d3043`; the writer's **article-voice** gate reports **2
+problems across 124 checks**, `skills/claude_humanizer.md` §3.9 — the social-voice class is gone because the
+channel it checked was removed; the gate also flags its own deploy one commit behind, live image `5dd08918`).
+Still open for the founder: the **ParcelProof AHS-Dimension one-liner** (UPS 96″ as published vs 48″ as
+intended, 19th day), **item 5** (internal-traffic marker — tonight's two directory views came from the owner's
+own browser, proving the point), **item 6** (durable record), **item 7** (gateway restart, P2), **item 11**
+(dead-host descriptor + no crawler map, P2), and two **operator settings**: a low-balance alert on the model
+provider account, and `STRIPE_AGENT_METER_PRICE_ID` (unset, so `agent_metered` checkout is **500** even though
+the Stripe meter + Price exist). Live `/showcase` `LIVE` ×4 / `RETIRED` ×1; manifest v2.0.0 / 9 tools sha256
+`5e47d410…` byte-identical; all four products return live checkout sessions; revenue still **$0 real**. Traffic
+`events` 5350 → **5437** / sessions 3385 → **3434**, all 10-06 (85 the Build Watchdog run + 2 owner directory
+views at 22:17/22:24Z; 0 rows on 10-07) — **no provable outside visitor (day 37)**. `agent_query` still **8**
+(organic 0 on day 37). pressflow internal-only (`/api/articles.json` 401; container 35 files, image `5dd08918`
+one commit behind editorial HEAD; Supabase `articles` 47 rows). App image `8a96080a…` == HEAD. Item 7: gateway
+pid still `1963330` (2026-09-12)._
+
 _Last updated: 2026-10-06 (**15:30 sweep**, every open item re-measured live). **Nothing moved in the factory
 in 24 h** — no commit, no build, no product change (`HEAD == origin/main == 867a419`, app image `867a419d…` ==
 HEAD, `/showcase` 200). **The build line has no approved work and exactly one candidate waiting: the
