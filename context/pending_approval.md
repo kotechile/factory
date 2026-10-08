@@ -4,6 +4,29 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-08 (**15:30 sweep**, every open item re-measured live). **The factory built nothing and the
+one red cron healed.** `HEAD == origin/main == 0cc2d57` (yesterday's sweep docs commit; tree clean) — no product
+commit, no build, no registry change in 24 h. **The build line still has no approved work and exactly one
+candidate waiting: SpendProof (signal 79/100, PRD `context/recon_proposals/2026-10-05_spendproof.md`)** — an
+LLM-parse-backed product that reconciles an AI provider invoice against the organization's own tagged-usage
+ledger, declared `usesLlmPrimitive: true` and priced in the $0.50–$3.00 band at a recommended $1.50/call. Reply
+`@Simon approve SpendProof` to start the build (third full day waiting). **`hermes cron doctor` is now CLEAN — 0
+issues across 58 jobs**: **Editorial Verify Gate ran `ok` 10-08 14:00** after three red days (the fleet's own
+self-heal landed in the editorial repo, `afce7b5`), and **WordPress Draft Sweep ran `ok` 10-08 14:16** (fourth
+green day). The editorial desk shipped **9 new pieces** (Supabase `articles` 47 → 56; pressflow
+`/app/published` 35 → 56 files) and its container is now `2e79053d…` == editorial HEAD `2e79053` — the
+one-commit deploy lag is closed. Still open for the founder: the **ParcelProof AHS-Dimension one-liner** (UPS
+96″ as published vs 48″ as intended, 20th day), **item 5** (internal-traffic marker), **item 6** (durable
+record), **item 7** (gateway restart, P2), **item 11** (dead-host descriptor + no crawler map, P2), and two
+**operator settings**: a low-balance alert on the model provider account, and `STRIPE_AGENT_METER_PRICE_ID`
+(unset, so `agent_metered` checkout is **500** even though the Stripe meter + Price exist). Live `/showcase`
+`LIVE` ×4 / `RETIRED` ×1; manifest v2.0.0 / 9 tools sha256 `5e47d410…` byte-identical; all four products return
+live checkout sessions; revenue still **$0 real**. Traffic `events` 5437 → **5527** / sessions 3434 → **3484**,
+all 10-07 (88 the Build Watchdog run + 2 owner directory views at 17:58/19:28Z; 0 rows on 10-08) — **no provable
+outside visitor (day 38)**. `agent_query` still **8** (organic 0 on day 38). pressflow internal-only
+(`/api/articles.json` 401; container 56 files, image `2e79053d…` == editorial HEAD). App image `0cc2d57d…` ==
+HEAD. Item 7: gateway pid still `1963330` (2026-09-12)._
+
 _Last updated: 2026-10-07 (**15:30 sweep**, every open item re-measured live). **The owner closed the social
 distribution ask and nothing else moved.** `HEAD == origin/main == 8a96080` ("docs: the editorial
 LinkedIn/Reddit queue is gone (owner, 2026-10-06)") — the editorial desk's LinkedIn/Reddit channel and its

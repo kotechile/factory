@@ -1,5 +1,26 @@
 # Factory Status Map
 
+_Last updated: 2026-10-08 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The factory
+built nothing and nothing moved; the one red cron healed.** `HEAD == origin/main == 0cc2d57` (yesterday's sweep
+docs commit; tree clean), app image `0cc2d57d…` == HEAD, `/showcase` 200; no product commit and no build in 24 h,
+and the build line has **nothing approved** with only SpendProof (79/100,
+`context/recon_proposals/2026-10-05_spendproof.md`) ahead of it, awaiting `@Simon approve` for a third full day.
+**`hermes cron doctor` is now CLEAN — 0 issues across 58 jobs**: **Editorial Verify Gate ran `ok` 10-08 14:00**
+after three red days (the fleet's own self-heal landed in the editorial repo), and **WordPress Draft Sweep ran
+`ok` 10-08 14:16** (fourth green day). The editorial desk shipped **9 new pieces** (Supabase `articles` 47 → 56;
+pressflow `/app/published` 35 → 56 files) and its container is now `2e79053d…` == editorial HEAD `2e79053` —
+**the one-commit deploy lag is closed.** Still open for the founder: the **ParcelProof AHS-Dimension one-liner**
+(UPS 96″ as published vs 48″ as intended, 20th day), **item 5** (internal-traffic marker — last night's two
+directory views came from the owner's own browser, proving the point), **item 6** (durable record), **item 7**
+(gateway restart, P2), **item 11** (dead-host descriptor + no crawler map, P2), and two **operator settings**: a
+low-balance alert on the model provider account, and `STRIPE_AGENT_METER_PRICE_ID` (unset, so `agent_metered`
+checkout is **500** even though the Stripe meter + Price exist). Live `/showcase` `LIVE` ×4 / `RETIRED` ×1;
+manifest v2.0.0 / 9 tools sha256 `5e47d410…` byte-identical; all four products return live checkout sessions;
+revenue still **$0 real**. Traffic `events` 5437 → **5527** / sessions 3434 → **3484**, all 10-07 (88 the Build
+Watchdog run + 2 owner directory views at 17:58/19:28Z; 0 rows on 10-08) — **no provable outside visitor (day
+38)**. `agent_query` still **8** (organic 0 on day 38). pressflow internal-only (`/api/articles.json` 401;
+container 56 files, image `2e79053d…` == editorial HEAD). Item 7: gateway pid still `1963330` (2026-09-12)._
+
 _Last updated: 2026-10-07 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The owner
 removed the social-distribution workstream and nothing else moved.** `HEAD == origin/main == 8a96080` ("docs:
 the editorial LinkedIn/Reddit queue is gone (owner, 2026-10-06)", tree clean), app image `8a96080a…` == HEAD,
