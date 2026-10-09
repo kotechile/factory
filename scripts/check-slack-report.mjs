@@ -9,6 +9,9 @@
  * Exit 0 = the draft follows the human-readable contract. Exit 1 = fix the errors listed.
  * The "Numbers, for the record" section is exempt from the language/word rules: that is the
  * one place raw machine output is allowed to live.
+ *
+ * The delivered message must BE the gated file (skills/slack_reporting.md §3 rule 12): a preamble
+ * before the headline is an error here because it means the founder read an ungated message.
  */
 
 import { readFileSync } from "node:fs";
@@ -19,10 +22,14 @@ const MAX_EMOJI_LINES = 3;
 const REQUIRED = [
   ["bottom line", /^bottom line\b/],
   ["what changed", /^what changed\b/],
+  ["what's live for you", /^what['’]?s live\b/],
   ["what i did", /^what i did\b/],
   ["what i need from you", /^what i need from you\b/],
   ["numbers, for the record", /^(numbers|the numbers)\b[\s\S]{0,40}\b(record|audit)\b/],
 ];
+
+// located by name, not index, so inserting a section cannot silently repoint it
+const RECORD = REQUIRED.find(([name]) => name.startsWith("numbers"));
 
 const JARGON = [
   "approval item",
@@ -46,10 +53,21 @@ const JARGON = [
   "hs/day",
   "ticket",
   "quarterline-scoped script",
+  // model/provider plumbing — the founder is not choosing models
+  "frontier",
+  "deepseek",
+  "tier",
+  "tokens",
+  // engineering nouns that mean nothing to the reader
+  "cron",
+  "pipeline",
+  "commit",
+  "deploy",
+  "repo",
 ];
 
 const TECHNICAL = [
-  ["a snake_case database field or event name", /\b[a-z][a-z0-9]*_[a-z0-9_]+\b/],
+  ["a snake_case database field or event name", /\b[a-z][a-z0-9]*_[a-z0-9_]+/],
   ["a commit or session id", /\b(?:[0-9a-f]{7,40})\b/],
   ["a file path or script name", /\b[\w.-]+\.(?:mjs|ts|tsx|md|json|sql|sh|py)\b|\b(?:scripts|src|context|skills|\.agents)\/[\w./-]+/],
   ["a JSON-ish key", /\b[a-z]+[A-Z][a-zA-Z]*\b\s*[:=]/],
@@ -86,7 +104,7 @@ function main() {
   let recordIdx = -1;
   for (let i = 0; i < lines.length; i++) {
     const lab = labelOf(lines[i]);
-    if (REQUIRED[4][1].test(lab)) {
+    if (RECORD[1].test(lab)) {
       recordIdx = i;
       break;
     }
@@ -120,7 +138,7 @@ function main() {
     if (chunk.length === 0) add(errors, `section "${name}" is empty`, found + 1);
   }
 
-  // --- E2/E3: headline
+  // --- E2/E3: headline, and nothing in front of it
   const first = bodyLines.findIndex((l) => l.trim().length > 0);
   if (first === -1) {
     add(errors, "empty message", 1);
@@ -132,6 +150,18 @@ function main() {
     if (head.length > 120) add(errors, `headline is ${head.length} chars — keep it under 120`, first + 1);
     if (!/\d{4}-\d{2}-\d{2}|\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b/i.test(head))
       add(warnings, "headline has no date — a reader cannot tell when this is from", first + 1);
+
+    // the delivered message IS the report: anything between the headline and the Bottom line is a preamble
+    const blIdx = bodyLines.findIndex((l) => /^bottom line\b/.test(labelOf(l)));
+    if (blIdx > first) {
+      const between = bodyLines.slice(first + 1, blIdx).filter((l) => l.trim().length > 0);
+      if (between.length)
+        add(
+          errors,
+          `preamble before the headline — the message must open with the headline, then the Bottom line (the founder reads the ungated text otherwise)`,
+          first + 1,
+        );
+    }
   }
 
   // --- E4: body word budget (appendix exempt)

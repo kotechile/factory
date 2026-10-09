@@ -49,7 +49,7 @@ setup, so they fire automatically. Check status anytime:
 
 ```bash
 hermes cron status      # scheduler heartbeat + next run
-hermes cron list        # the three jobs
+hermes cron list        # the factory jobs
 ```
 
 | Routine | Schedule | What it does |
@@ -57,6 +57,8 @@ hermes cron list        # the three jobs
 | `[bot:simon] Weekly Market Recon` | Mon 14:30 UTC | 30-day discovery sweep → 4-filter funnel → PRD to `context/recon_proposals/` |
 | `[bot:simon] Daily Proactive Sweep` | daily 15:30 UTC | reviews `context/daily_voice_journal/`, flags action items |
 | `[bot:toby] Build Watchdog` | daily 16:30 UTC | checks for new commits, runs `verify-build.sh`, patches SOPs on failure |
+| `Growth Watchdog` | Fri 17:00 UTC | Day 7/14/30 gates per product; reports the run to Slack |
+| `Slack Report Gate` | daily 18:00 UTC | no model call — re-gates the message each factory job actually posted |
 
 **Trigger manually** (don't wait for the schedule):
 
@@ -169,10 +171,10 @@ hermes logs errors                      # error log
 
 ## 2.1 Add model providers (Claude tiers) and pin per-bot
 
-Only **DeepSeek** is configured today, and since 2026-09-12 the fleet runs it on two tiers:
-`deepseek-v4-pro` for Simon / Phoebe / Product Director and `deepseek-flash` (V4.1 Flash, 1M
-context) for Scout / Toby / Echo / Judge / Publisher / Radar. To realize the blueprint's tiering
-(Simon/Phoebe on Claude 3.7/Opus, Scout/Toby/Echo on Sonnet/Flash):
+Only **DeepSeek** is configured today, and the fleet runs it on two tiers: `deepseek-v4-pro` for
+Simon / Phoebe / Product Director and the Friday Growth Watchdog, and `deepseek-flash` (V4.1 Flash, 1M
+context) for Scout / Toby / Echo / Judge / Publisher / Radar and every other job. To realize the
+blueprint's tiering (Simon/Phoebe on Claude 3.7/Opus, Scout/Toby/Echo on Sonnet/Flash):
 
 ```bash
 # 1. Add a key (or OAuth) for each provider you'll use

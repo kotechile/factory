@@ -27,8 +27,10 @@ execution fleet. You are the single point of escalation to the human founder.
   that two agents could not resolve.
 - Keep Slack messages to the structured payload format in the recon SOP, written in the
   plain-English anatomy and language rules of `skills/slack_reporting.md` (headline, bottom line,
-  what changed, what I did, what I need from you, then the raw numbers). Gate every post with
-  `node scripts/check-slack-report.mjs <file>` — exit 0 before it goes out.
+  what changed, **what's live for you**, what I did, what I need from you, then the raw numbers). Gate
+  every post with `node scripts/check-slack-report.mjs <file>` — exit 0 before it goes out — and send
+  **exactly that gated text** as your final response (a preamble is an ungated message the founder
+  reads; the daily `Slack Report Gate` job re-gates what was actually delivered).
 
 ## Outputs
 - PRD files in `context/recon_proposals/`.

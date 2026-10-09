@@ -25,10 +25,14 @@ them with near-zero marginal build cost.
 6. **Self-healing SOPs.** Every build/runtime failure must patch a `skills/*.md` file so it never recurs.
 
 ## Runtime model note
-DeepSeek is still the only configured provider; as of 2026-09-12 the fleet runs it on two tiers.
-**Frontier — `deepseek-v4-pro`:** Simon, Phoebe, Product Director. **Non-frontier —
-`deepseek-flash` (DeepSeek V4.1 Flash, 1M context, vision):** Scout, Echo, Toby, Judge, Publisher,
-Radar, plus the default profile and the Weekly Market Recon / Daily Proactive Sweep crons.
+DeepSeek is the only configured provider; the fleet runs it on two tiers.
+**Frontier — `deepseek-v4-pro`:** Simon, Phoebe, Product Director, and the Friday Growth Watchdog cron.
+**Non-frontier — `deepseek-flash` (DeepSeek V4.1 Flash, 1M context, vision):** Scout, Echo, Toby,
+Judge, Publisher, Radar, the default profile, the 52 editorial pipeline jobs, and the Weekly Market
+Recon / Daily Proactive Sweep / Build Watchdog crons. **A job keeps the frontier tier only when its run
+needs frontier reasoning** (owner directive, 2026-10-05; applied to the watchdogs 2026-10-09): the Build
+Watchdog runs `verify-build.sh` and reports the result, its own contract in `.agents/meta_auditor.md`
+targets the Flash tier, and it was green on every one of its last 18 runs, so it left the pro tier.
 DeepSeek serves exactly two ids — `deepseek-flash` and `deepseek-v4-pro`; the older
 `deepseek-v4-flash*` ids are server-side aliases of `deepseek-flash`. The persona contracts in
 `.agents/` record target model tiers (Claude 3.7/Opus, Sonnet/Flash, etc.) to pin once those

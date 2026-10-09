@@ -1,7 +1,8 @@
 # Toby — Meta-Auditor & Build Watchdog
 
 **Profile / Bot:** `toby`
-**Target model tier:** Claude Sonnet / Flash (currently inherited: deepseek-flash)
+**Target model tier:** Claude Sonnet / Flash (currently inherited: `deepseek-flash` — the Build
+Watchdog cron was demoted from `deepseek-v4-pro` on 2026-10-09, matching this contract)
 **Reports to:** Simon
 
 ## Mission

@@ -1,5 +1,21 @@
 # Factory Status Map
 
+_Last updated: 2026-10-09 (**fleet change + Slack writing standard** — agent-run on owner instruction).
+**The Build Watchdog left the frontier tier** (`deepseek-v4-pro` → `deepseek-flash`): it runs
+`scripts/verify-build.sh` and reports the result, it was green on every one of its last 18 runs, and
+`.agents/meta_auditor.md` already named the Flash tier as its target. The pro tier is now the three
+frontier agents plus the **Friday Growth Watchdog** only. **The #loop-ai writing standard gained two
+rules** (`skills/slack_reporting.md` → v1.1.0): a required **`What's live for you`** section that names
+what the founder can use right now and flags anything new, and "the text you send IS the file you
+gated" — on 10-08 the Daily Proactive Sweep reported a clean gate (exit 0, 250 body words) and still
+delivered a 261-character preamble carrying a commit id and a script name, because the gate ran on a
+scratch draft the founder never saw. Two of the last two factory reports failed the gate on the text
+that actually landed. A new **`Slack Report Gate`** job (daily 18:00 UTC, `--no-agent --script`, no
+model call) re-gates the message each factory job actually sent and stays silent unless one breaks the
+standard. Gateway carries **59 jobs**. `AGENTS.md`'s model note is unchanged — that file is
+write-protected and the edit was blocked (same as 10-05); it does not contradict the new tiering, it
+simply never mentioned the watchdogs' tier._
+
 _Last updated: 2026-10-08 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The factory
 built nothing and nothing moved; the one red cron healed.** `HEAD == origin/main == 0cc2d57` (yesterday's sweep
 docs commit; tree clean), app image `0cc2d57d…` == HEAD, `/showcase` 200; no product commit and no build in 24 h,
@@ -212,13 +228,18 @@ source of truth for the fleet's current state_
 Supporting profiles on the non-frontier tier (same `deepseek-flash`): `judge`, `publisher`, `radar`,
 `drafter`, `editor`, `verifier` and the default profile. DeepSeek serves exactly two ids —
 `deepseek-flash` and `deepseek-v4-pro`; older `deepseek-v4-flash*` ids are server-side aliases of
-`deepseek-flash`. **Fleet tier (owner, 2026-10-05: only key agents and processes use the pro tier).**
-Pro is now limited to the three frontier agents (`simon`, `phoebe`, `product-director`) and the two
-factory watchdogs (**Build Watchdog**, **Growth Watchdog**). The 52 editorial pipeline jobs
+`deepseek-flash`. **Fleet tier (owner, 2026-10-05: only key agents and processes use the pro tier;
+extended 2026-10-09).** Pro is limited to the three frontier agents (`simon`, `phoebe`,
+`product-director`) and **one** factory watchdog — the Friday **Growth Watchdog**, whose run makes the
+Day 7/14/30 judgement calls. The **Build Watchdog was demoted to `deepseek-flash` on 2026-10-09**: it
+runs `scripts/verify-build.sh` and reports the result, it was green on every one of its last 18 runs,
+and its own contract (`meta_auditor.md`) targets the Flash tier. The 52 editorial pipeline jobs
 (26 `Full Pipeline:` + 26 `Evergreen Pipeline:`) and the `drafter` / `editor` / `verifier` profiles
 were moved to `deepseek-flash` on 2026-10-05; the pin default in
 `editorial-factory/scripts/sync_crons.py` follows so a new vertical does not re-mint a pro job.
-(Pro was ~73% of the last 30 days' estimated spend before the cut.)
+(Pro was ~73% of the 30 days' estimated spend before the 2026-10-05 cut; after the 2026-10-09 demotion
+the pro tier is one weekly run — the Build Watchdog's daily run was ~$0.04/run, so the saving is small
+and the point is tier honesty, not cost.)
 
 ## Knowledge — 9 SOPs
 
@@ -226,15 +247,17 @@ were moved to `deepseek-flash` on 2026-10-05; the pin default in
 `voice_content_engine` · `ui_component_standards` · `design_review` · `stripe_gating_workflow` ·
 `webmcp_integration` · `self_improvement_eval`
 
-## Heartbeat — cron fleet (58 jobs on the gateway: 4 factory, 52 editorial, 2 script-only)
+## Heartbeat — cron fleet (59 jobs on the gateway: 4 factory agent jobs, 52 editorial, 3 script-only)
 
-The factory's own jobs deliver to `slack:C0BTPDKQXU2:1788974638.867929`. Across both repos the gateway
-carries **58 jobs** at 2026-10-05 — 4 factory agent jobs (Weekly Market Recon, Daily Proactive Sweep,
-Build Watchdog, Growth Watchdog), 52 editorial pipeline jobs (26 news + 26 evergreen, reconciled from
-`editorial-factory/context/verticals.json` by `sync_crons.py`), and 2 script-only jobs (Editorial Verify
-Gate, WordPress Draft Sweep — `no_agent`, no model call). **Only Build Watchdog and Growth Watchdog are
-pinned to `deepseek-v4-pro`**; every other model-backed job runs `deepseek-flash` (see the model note
-above). The Editorial Verify Gate is a daily `verify.sh` + pressflow-image-vs-HEAD check, silent when green.
+The factory's own jobs deliver to `slack:C0BTPDKQXU2:1788974638.867929`. The gateway carries **59 jobs**
+at 2026-10-09 — 4 factory agent jobs (Weekly Market Recon, Daily Proactive Sweep, Build Watchdog, Growth
+Watchdog), 52 editorial pipeline jobs (26 news + 26 evergreen, reconciled from
+`editorial-factory/context/verticals.json` by `sync_crons.py`), and 3 script-only jobs (Editorial Verify
+Gate, WordPress Draft Sweep, Slack Report Gate — `no_agent`, no model call). **Only the Friday Growth
+Watchdog is pinned to `deepseek-v4-pro`**; every other model-backed job runs `deepseek-flash` (see the
+model note above). The Editorial Verify Gate is a daily `verify.sh` + pressflow-image-vs-HEAD check,
+silent when green; the Slack Report Gate re-gates the message each factory job actually delivered
+(`scripts/check-slack-posts.mjs`) and is silent unless a report broke the writing standard.
 
 ⚠️ **Gateway restart still owed (operator action, no visible symptom left).** The `cron/jobs.py` fire-claim fix is
 applied in the tree (`heartbeat_fire_claim` no longer takes the delivery-held `_fire_job_lock`) but the running
@@ -247,10 +270,11 @@ flight when convenient; see `hermes-cron-debugging/references/fire-claim-misrepo
 |---|---|---|---|
 | Weekly Market Recon | Mon 14:30 | deepseek-flash | `software-factory-core` |
 | Daily Proactive Sweep | daily 15:30 | deepseek-flash | `software-factory-core` |
-| Build Watchdog (Toby) | daily 16:30 | **deepseek-v4-pro** | `software-factory-core` |
+| Build Watchdog (Toby) | daily 16:30 | deepseek-flash | `software-factory-core` |
 | Growth Watchdog | Fri 17:00 | **deepseek-v4-pro** | `software-factory-core` |
 | Editorial Verify Gate | daily 14:00 | (script, no model) | `editorial-factory` |
 | WordPress Draft Sweep | daily 14:15 | (script, no model) | `editorial-factory` |
+| Slack Report Gate | daily 18:00 | (script, no model) | `software-factory-core` |
 | Full Pipeline: <26 verticals> | per registry, 10:30–13:00 | deepseek-flash | `editorial-factory` |
 | Evergreen Pipeline: <26 verticals> | per registry, 17:30–20:00 | deepseek-flash | `editorial-factory` |
 

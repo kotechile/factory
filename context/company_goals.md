@@ -30,8 +30,10 @@
 ## Runtime fleet (Hermes)
 - Bots: simon, scout, phoebe, toby, product-director, echo.
 - Current model: the fleet is tiered (owner, 2026-10-05). Frontier `deepseek-v4-pro` = simon, phoebe,
-  product-director + the Build/Growth Watchdog crons; everything else (`deepseek-flash`) includes the
-  editorial pipeline fleet. Target tiers in `.agents/` pin per-bot once Anthropic/OpenRouter keys are added.
+  product-director + the Friday Growth Watchdog cron; everything else (`deepseek-flash`) includes the
+  editorial pipeline fleet and the Build Watchdog (demoted 2026-10-09 — it runs a script and reports
+  the result, and its own contract targets the Flash tier). Target tiers in `.agents/` pin per-bot once
+  Anthropic/OpenRouter keys are added.
 - Fleet workers (Coder/QA/Copywriter) = transient delegate_task subagents, not persistent bots.
 
 ## Hard rules
