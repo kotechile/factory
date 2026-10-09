@@ -1,5 +1,18 @@
 # Factory Status Map
 
+_Last updated: 2026-10-09 (**SpendProof APPROVED — the build line restarts**, owner instruction verbatim
+*"approve spendproof and reactivate the build line"*). The build line was idle for four days with **nothing
+approved**; the approval is the reactivation (no job was ever disabled — all 59 are `active`). SpendProof
+(signal 79/100, PRD `context/recon_proposals/2026-10-05_spendproof.md`) is dispatched as a one-shot job against
+its **v1 scope only** (§2 engine + extraction posture + §3 pricing; the record in `context/pending_approval.md`
+carries the contract), registry status **`beta`** — the public launch call stays with the founder. At approval:
+`HEAD == origin/main == 23ce146`, app image `23ce1466…` == HEAD, `/showcase` 200. **Two open items the approval
+does not cover, both the founder's:** the deploy env has **no model or document-parse key** (SpendProof is the
+first LLM/parse-backed product; the code must fail loudly without it), and the `agent_metered` checkout is still
+**500** (`STRIPE_AGENT_METER_PRICE_ID` unset). Also unchanged: the product host has **no crawler map**
+(`/robots.txt` and `/sitemap.xml` 404 on `apps.giniloh.com` — re-probed this turn), so nothing shipped becomes
+discoverable; revenue **$0 real**; no provable outside visitor (day 39)._
+
 _Last updated: 2026-10-09 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The factory
 built nothing for a fourth day; two internal housekeeping changes landed this morning from the owner's
 instruction.** `HEAD == origin/main == b337f77` (two non-product commits, 08:52–08:53 UTC), app image `b337f770…`

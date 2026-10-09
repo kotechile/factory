@@ -4,6 +4,20 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-09 (**owner approval — SpendProof is APPROVED and the build line restarts**). Verbatim
+owner instruction: *"approve spendproof and reactivate the build line"*. SpendProof (signal 79/100, PRD
+`context/recon_proposals/2026-10-05_spendproof.md`) is dispatched as a one-shot job; the APPROVED record below
+carries its v1 scope and the two things the approval does **not** cover. **There is no disabled build job to
+switch back on** — the fleet is 59 `active` jobs, and the line was idle because nothing was approved, so the
+approval itself is the reactivation. State at approval: `HEAD == origin/main == 23ce146`, app image `23ce1466…`
+== HEAD, `/showcase` 200, tree clean apart from one other writer's WIP. **Still open for the founder, unchanged:**
+the deploy env has **no model or document-parse key** (SpendProof is the first LLM/parse-backed product — the code
+must fail loudly without it, the key is the owner's to add), the `agent_metered` checkout is still **500**
+(`STRIPE_AGENT_METER_PRICE_ID` unset), the product host still has **no crawler map** (`/robots.txt` + `/sitemap.xml`
+both 404 on `apps.giniloh.com`), the **ParcelProof AHS-Dimension one-liner** (21st day), **item 5** (internal-traffic
+marker), **item 6** (durable record), **item 7** (gateway restart, P2), **item 11** (dead-host descriptor, P2).
+Revenue still **$0 real**; no provable outside visitor (day 39)._
+
 _Last updated: 2026-10-09 (**15:30 sweep**, every open item re-measured live). **The factory built nothing for a
 fourth day; two internal housekeeping changes landed this morning from the owner's instruction.**
 `HEAD == origin/main == b337f77` (two non-product commits, 08:52–08:53 UTC; tree clean), app image `b337f770…` ==
@@ -148,6 +162,52 @@ on the model provider account so the 09-28…09-30 402 blackout cannot repeat si
 issues / 13 jobs (12 stale 402 vertical stamps + WordPress Draft Sweep failed 2026-10-04 14:24, kie.ai
 featured-image Internal Error ×3). Live `LIVE` ×4 / `BETA` ×0 on `/showcase`; manifest v2.0.0 / 9 tools
 byte-identical; all four products return live checkout sessions; revenue still $0 real._
+
+## APPROVED — 2026-10-09 (owner instruction, Jorge) → **SpendProof build; the build line restarts**
+
+Owner instruction, verbatim: *"approve spendproof and reactivate the build line"* — this ends the fourth full
+day of an idle build line. SpendProof is the candidate this queue has carried since 2026-10-05 (signal 79/100,
+PRD `context/recon_proposals/2026-10-05_spendproof.md`). **There is no disabled job to switch back on:** all 59
+fleet jobs are `active` and the Watchdogs ran `ok` today; the line was idle because nothing was approved, so the
+approval itself is the reactivation.
+
+- **Approved scope (v1) — the PRD's §2 engine, §2 extraction posture and §3 pricing, and nothing else.**
+  Engine `src/lib/calc/spendproof/` (pure TypeScript, fixture-testable, no network): rate-card recompute from the
+  invoice's own declared unit price; the variance engine classifying rounding / period-boundary overlap /
+  missing-or-late usage / untagged spend / price drift per attribution bucket; the balancing invariants
+  (`Σ(invoice line items) == invoice total`; `Σ(recomputed) ≈ invoice total` within a declared tolerance; every
+  bucket that does not reconcile reported `unmatched`; untagged usage an explicit `unattributed` finding that
+  blocks a clean close); the close-ready report emitter. The **extraction layer sits in FRONT of the engine and
+  extracts only** — document parse + LLM structured field extraction filling the declared field set
+  `{provider, period, service, model, quantity, unit_price, amount, sku}`, every field labelled `extracted` on the
+  page and in the artifact, any unsure field or unreadable region `unreadable`/`unstated` and **blocking the
+  verdict** (rule 5). Route `src/app/spendproof/` on the Editorial Signature
+  (`skills/ui_component_standards.md`); registry entry in `src/products/registry.ts` with
+  **`usesLlmPrimitive: true`**, category Finance, WebMCP tool `reconcile_ai_invoice`; pricing catalog entry
+  `$1.50/call` (LLM/parse band $0.50–$3.00 — `src/products/pricing.test.ts` fails the build if the declared class
+  and the price disagree); telemetry `track(..., "spendproof")`; the PRD's five test vectors (clean pair → zero
+  findings; mid-period rate change → price drift, no false variance; dropped usage rows → undershoot + `unmatched`;
+  untagged batch → `unattributed` that blocks a pass; unreadable region → blocks, never guesses).
+- **Deliberately NOT in v1:** multi-provider saved rate cards, a scheduled close, any live rate/duty feed lookup,
+  Pro-suite entitlement changes, paid-tier work beyond the free preview + the one-off close pack. Parked behind the
+  PRD, not dropped.
+- **Launch status: `beta`.** The public launch call stays with the founder, as every build does.
+- **Open credential — the owner's action, not the build's.** Re-read this turn from the app container's own env
+  (`af8yqbwrrnyyfgs9wcg0intj-20261009T153227`): the deploy carries `STRIPE_*`, `SUPABASE_*`, `RESEND_API_KEY`,
+  `EDITORIAL_SECRET` and `GSC_*`, and **no model key and no document-parse key** (no `GEMINI_*`/`GOOGLE_*`/
+  `OPENAI_*`/`ANTHROPIC_*`/`LLAMAPARSE_*`). SpendProof is the **first** LLM/parse-backed product in the inventory,
+  so its extraction step cannot run on the deploy until one exists. This does not block the build: the code must
+  read the key from the deploy env and **fail loudly when it is absent** (no stub, no fabricated field, no
+  degraded substitute), and the extraction test asserts that explicit failure path. **No approval ever covers a
+  credential.**
+- **What this approval does NOT cover (both stay open for the founder):** the `agent_metered` checkout is still
+  **500** (`STRIPE_AGENT_METER_PRICE_ID` unset although the Meter + Price exist) — a different item, and the
+  agent-native money rail stays dead; and the product host still has **no crawler map** (`apps.giniloh.com`
+  `/robots.txt` and `/sitemap.xml` both 404, re-probed this turn), so nothing new this build ships becomes
+  discoverable. Approving SpendProof does not fix the money path.
+- **Dispatch:** one-shot cron job on the `approval-gated-shipping` skill, PRD v1 scope only, registry `beta`,
+  the full `scripts/verify-build.sh` gate, push only on green — see DISPATCH below for the job id and the fired
+  execution.
 
 ## APPROVED + LANDED — 2026-10-05 (owner instruction, Jorge) → the visual review reads full-resolution tiles
 
