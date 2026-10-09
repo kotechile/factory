@@ -1,5 +1,30 @@
 # Factory Status Map
 
+_Last updated: 2026-10-09 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`. **The factory
+built nothing for a fourth day; two internal housekeeping changes landed this morning from the owner's
+instruction.** `HEAD == origin/main == b337f77` (two non-product commits, 08:52–08:53 UTC), app image `b337f770…`
+== HEAD, `/showcase` 200; no product commit, no build, no registry change, and the build line has **nothing
+approved** with only SpendProof (79/100, `context/recon_proposals/2026-10-05_spendproof.md`) ahead of it,
+awaiting `@Simon approve` for a fourth full day. **The two changes:** (1) the **Build Watchdog left the pro
+tier** (`deepseek-v4-pro` → `deepseek-flash`) — it runs `scripts/verify-build.sh` and reports the result; pro is
+now the three frontier agents plus the Friday Growth Watchdog only; (2) the **Slack writing standard is now
+enforced** (`skills/slack_reporting.md` v1.1.0 — a required `What's live for you` section, and "the text you
+send IS the file you gated") via a new **`Slack Report Gate`** job (18:00 UTC, script-only,
+`scripts/check-slack-posts.mjs`) that re-gates what each factory job actually delivered. `hermes cron doctor` is
+**CLEAN for a second day — 0 issues across 59 jobs** (+1 = the new gate): Editorial Verify Gate `ok` 10-09 14:00
+(second green day) and WordPress Draft Sweep `ok` 10-09 14:16 (fifth green day). The editorial desk shipped **9
+new pieces** (Supabase `articles` 56 → 65; pressflow `/app/published` 56 → 65 files; container `99933819…` ==
+editorial HEAD `9993381`). Still open for the founder: the **ParcelProof AHS-Dimension one-liner** (UPS 96 as
+published vs 48 as intended, 21st day), **item 5** (internal-traffic marker), **item 6** (durable record),
+**item 7** (gateway restart, P2), **item 11** (dead-host descriptor + no crawler map, P2), and two **operator
+settings**: a low-balance alert on the model provider account, and `STRIPE_AGENT_METER_PRICE_ID` (unset, so
+`agent_metered` checkout is **500** though the meter + Price exist). Live `/showcase` `LIVE` ×4 / `RETIRED` ×1;
+manifest v2.0.0 / 9 tools sha256 `5e47d410…` byte-identical; all four products return live checkout sessions;
+revenue still **$0 real**. Traffic `events` 5527 → **5789** / sessions 3484 → **3633** — 261 the 10-08 16:31
+Build Watchdog run and **1 unattributable page view today at 09:34:36Z** — **no provable outside visitor (day
+39)**. `agent_query` still **8** (organic 0 on day 39). pressflow internal-only (`/api/articles.json` 401; 65
+files). Item 10 CLOSED, re-verified (presets 308 → /showcase). Item 7: gateway pid still `1963330` (2026-09-12)._
+
 _Last updated: 2026-10-09 (**fleet change + Slack writing standard** — agent-run on owner instruction).
 **The Build Watchdog left the frontier tier** (`deepseek-v4-pro` → `deepseek-flash`): it runs
 `scripts/verify-build.sh` and reports the result, it was green on every one of its last 18 runs, and
