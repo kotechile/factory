@@ -209,6 +209,27 @@ approval itself is the reactivation.
   the full `scripts/verify-build.sh` gate, push only on green — see DISPATCH below for the job id and the fired
   execution.
 
+## DISPATCH — 2026-10-09 (approval: SpendProof)
+
+- **Job:** `4b16d0e2e7f2` — "SpendProof build (approved 2026-10-09)", one-shot (`in 2m`), workdir
+  `/root/software-factory-core`, `deliver=origin` (this thread), `attach_to_session=true`, skill
+  `approval-gated-shipping`.
+- **Fired:** 2026-10-09 23:52:47 UTC, execution `d20e2f8c45a74c178f4b0c2318e8616a` — verified via
+  `hermes cron list` (`Execution: running …`, `Repeat: 1/1`), not from `jobs.json` (which keeps
+  `last_run_at: null` until the run completes).
+- **The approval record it reads is `c1470e2`** (`docs(approval): SpendProof APPROVED …`), already on `main`
+  before the job was created — the prompt tells it the gate is satisfied there.
+- **The dispatched prompt constrains the job to:** the v1 scope in the APPROVED record only; registry status
+  `beta`; the full `scripts/verify-build.sh` gate; push **only** on green; stage-by-name (another writer's WIP
+  `skills/self_improvement_eval.md` stays unstaged); restore-a-clean-tree-and-report on a root cause it cannot
+  fix; deploy verification by container image tag == `git rev-parse --short HEAD` with side-effect-free probes;
+  fail-loudly-when-the-key-is-absent for the extraction layer; the durable-record update; and a report that
+  passes `scripts/check-slack-report.mjs` before it is posted.
+- **Known limitation (recorded, not hidden):** `cronjob_manage action='create'` ignores `model`/`provider` —
+  the job persisted with `model: null`, so it runs on the **default fleet tier** (`deepseek-flash`) rather than
+  the frontier builder tier the repo's "Runtime model note" assigns to Product Director work. One build slot is
+  running; nothing else was dispatched in parallel.
+
 ## APPROVED + LANDED — 2026-10-05 (owner instruction, Jorge) → the visual review reads full-resolution tiles
 
 Owner instruction, verbatim: *"approve tiles"* — the structural call this file had parked twice ("the fix
