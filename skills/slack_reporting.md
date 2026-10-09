@@ -99,6 +99,11 @@ Real run, 2026-09-18. The founder's reply to the posted version was "I do not un
   today; the three asks name the decision, the reply and the cost of inaction; every id and event name
   moved into the record line.
 
+Second worked example — the tight case, 2026-10-08: the daily sweep is the densest report the fleet
+writes (four asks, a live-product inventory, a change list and a full live probe), and it still fits:
+`tests/fixtures/slack-reporting/good-2026-10-08-daily-sweep.md`, gate clean at exactly 250 body words.
+When a draft does not fit, cut the explanation, never the ask.
+
 ## 5. Glossary — say this, not that
 | Internal wording | Write instead |
 |---|---|
