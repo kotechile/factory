@@ -35,6 +35,15 @@ loadEnvFile(".env");
 // read, and hallucinated "text overlapping" verdicts came from it). The tiles are written by
 // tests/e2e/qa-screenshot.spec.ts as test-results/<product>-qa-<n>.png; add a product here and a capture
 // there when it ships.
+//
+// Two classes are EXCLUDED from the prompt below because a deterministic guard decides them in code and a
+// vision verdict on them is noise that fails a clean build: a connector/leader line merely ending near a
+// label (tests/e2e/schematic-collision.spec.ts), and two adjacent TEXT runs in a flex row/table row/code
+// header (tests/e2e/text-geometry.spec.ts). The second was excluded on 2026-10-10 after
+// `caseproof-qa-5` failed the gate three consecutive times on "text overlapping in IDE header (W3C
+// navigator.modelContext and CLIENT-SIDE ONLY badge)" — a tile this file's own history already records as
+// a false positive — while measurement at 1280x900 on that exact page state found the two runs at x=647
+// (156 wide, right edge 803) and x=839: ZERO intersecting rects and 36 px of clear space between them.
 const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof", "spendproof"];
 // `--suggest` reviews ONE surface; named explicitly (a tile of the flagship page) rather than indexed, so
 // removing a product can never silently retarget the suggestion pass at a different page.
@@ -76,7 +85,7 @@ async function mapLimit(items, limit, worker) {
 const GATE_PROMPT = `You are reviewing a screenshot of a web app UI.
 
 Check for SIGNIFICANT issues only (minor polish does NOT fail):
-1. Spacing: text OVERLAPPING or COLLIDING with other text or borders. Do NOT flag padding itself — input, badge/pill, and card padding is already enforced by design tokens and verified programmatically. Do NOT flag a connector/leader line that merely ENDS NEAR a label, or a label whose text wraps onto a second line: only a line that visibly crosses over characters counts, and that geometry is asserted programmatically (tests/e2e/schematic-collision.spec.ts samples every connector against every label box), so a line-and-label spacing opinion here is noise.
+1. Spacing: text OVERLAPPING or COLLIDING with other text or borders. Do NOT flag padding itself — input, badge/pill, and card padding is already enforced by design tokens and verified programmatically. Do NOT flag a connector/leader line that merely ENDS NEAR a label, or a label whose text wraps onto a second line: only a line that visibly crosses over characters counts, and that geometry is asserted programmatically (tests/e2e/schematic-collision.spec.ts samples every connector against every label box), so a line-and-label spacing opinion here is noise. Do NOT flag two adjacent pieces of TEXT in a flex row, a table row or a code-inset header (a file title beside a chrome badge, a figure beside a pill): rows either fit with their gap or they wrap, and that geometry is asserted programmatically too (tests/e2e/text-geometry.spec.ts intersects every text run's client rects on every product page), so a text-versus-text opinion here is noise. Do flag a text run that visibly runs under or over another one.
 2. Layout: broken or misaligned grid; elements overlapping.
 3. Color: unreadable text (poor contrast); clashing/neon colors.
 4. Typography: broken hierarchy (everything the same size; no visual distinction between title/header/body).
