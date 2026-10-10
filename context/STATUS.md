@@ -1,5 +1,16 @@
 # Factory Status Map
 
+_Last updated: 2026-10-10 (**the three approved items are live**). ParcelProof's UPS AHS-Dimension trigger was
+96 in where both carriers use **48 in** (96 is the Large Package/oversize figure) — a one-way money bug: any UPS
+parcel with a longest side between 48 in and 96 in had a legitimate accessorial reported as recoverable. Fixed
+(`38153e0`) with the tariff basis recorded in the file, the PRD line corrected, a boundary known-answer vector and a
+paired-constant guard; proven live by reading the constant out of the deployed container's own server bundle
+(`fedex:48` present, `ups:96` absent) and by the live rule page's published copy. The product host now serves
+`/robots.txt` and `/sitemap.xml` (30 URLs, derived from the registry + preset modules, retired product absent), and
+the reader site carries one contextual product CTA on the 52 of 86 articles that honestly have a matching tool.
+Gate green end to end: 219 vitest / 77 e2e / visual-qa 24/24. Revenue **$0 real**; no provable outside visitor.
+Details and evidence in `context/pending_approval.md`.
+
 _Last updated: 2026-10-10 (**owner approved the ParcelProof threshold fix, the reader-page product wiring and the
 product-host crawler map; all three are being landed**). The threshold defect was a genuine one-way money bug on a
 live product: UPS's AHS-Dimension trigger was carried as a longest side > 96 in (the Large Package / oversize figure)

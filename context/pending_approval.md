@@ -4,6 +4,32 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-10 (**the three approved items are LANDED and verified live; the ParcelProof trigger is
+closed**). ParcelProof `38153e0` (code) / `ba6c5c1` (this record): `AHS_DIMENSION_LONGEST_SIDE_IN.ups` 96 → **48**
+(both carriers 48; 96 belongs to the separate Large Package/oversize rule), the PRD tariff line corrected in place
+with sources, the published pSEO bullet fixed, a new known-answer vector for the band the mix-up got wrong (a 60 in
+UPS parcel: AHS-Dimension eligible, oversize not met) and a paired-constant test. **Live proof, not the gate:** the
+running container (`af8yqbwrrnyyfgs9wcg0intj:38153e0…` == HEAD) contains `fedex:48` in its own server bundle and
+**no `ups:96` anywhere** under `/app/.next/server`; the live rule page
+`/parcelproof/calc/ahs-dimension-trigger` now publishes "UPS and FedEx both trigger AHS-Dimension above a 48″
+longest side … the 96″ figure belongs to the separate Large Package/oversize rule". **Crawler map live:**
+`/robots.txt` **200** and `/sitemap.xml` **200** on the product host (both were 404) — 30 URLs, the 5 in-inventory
+product pages plus 24 rule pages, `quarterline` absent by construction. **Reader wiring live** (separate repo
+`kotechile/giniloh`, `30c1d59`, app 12, image `30c1d590…` == HEAD): 52 of 86 live articles now carry one contextual
+CTA to the tool that answers them — verified on the live pages (a customs-money article → ParcelProof, an AI-spend
+article → SpendProof, the payout article → LedgerLink, the FacturGate launch note → FacturGate), and a career
+article and a calculator page render **no** card. **Defect found and fixed in the same pass:** the reader sitemap
+had been publishing five CAPITALISED product URLs (`/LedgerLink`, …) since the tools shipped — all **404**, because
+Next routes are case-sensitive; the live sitemap now lists the real lowercase routes and no capitalised one.
+The gate's own e2e run wrote 115 telemetry rows (23:33:50–23:34:22Z); they were deleted through the REST API and
+the count verified back to the pre-run **6481**, so the growth metric cannot read our tests as usage. One operator
+item found, not fixable from here: submitting `https://apps.giniloh.com/sitemap.xml` in Search Console returns
+**403** for the fleet's service account (read-only on the domain property) — the owner can add it in one click, and
+the `Sitemap:` line in the new `robots.txt` already exposes it to Google. **Still open for the owner, unchanged:**
+items **5** (internal-traffic marker), **6** (durable record), **7** (P2), **11** (P2 — its crawler-map half is what
+landed today), the provider low-balance alert, and the social/video channel he runs by hand. Revenue **$0 real**; no
+provable outside visitor.
+
 _Last updated: 2026-10-10 (**three owner decisions; the fleet is landing the two build items**). Owner
 instruction, verbatim: *"fix the Parcelproof inconsistency ( ships UPS AHS-Dimension as 96 in when the PRD says 48
 (23rd day open))"* — then, against the advisory's numbered list — *"1. DONE: ... Search Console: submit

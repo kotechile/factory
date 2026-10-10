@@ -414,3 +414,57 @@ shape that shipped is the reusable one:
 6. **Report what the retirement did not cover.** Two surfaces of the retired product outlived the call — a paid
    export API route and a plugin descriptor advertising the product by name — and both are named in the record for
    the owner rather than fixed under an instruction that said "pages".
+
+### Resolved edge-case (2026-10-10) — a tariff threshold read across two rule classes
+
+ParcelProof carried UPS's **AHS-Dimension** trigger as a longest side > 96 in for 23 days. The figure is real but
+belongs to a different rule: 96 in is the **Large Package / oversize** trigger (longest side > 96 in AND
+length+girth > 130 in). Both carriers assess Additional Handling – Dimension above **48 in**. The sourcing chain,
+the failure mode and the repair:
+
+1. **The PRD's tariff table was the defect, and the code's fidelity to it was not a defence.** The recon pass took
+   the pair ("FedEx fires at 48″ vs UPS 96″") from a secondary brokerage blog, which had read the oversize row
+   across into the additional-handling row. A carrier-rule number that decides money is not accepted from a summary:
+   cross-check it against the *rule class* (which fee is this?), not just the carrier, and prefer the carrier's own
+   service guide or a tariff summary that prints the full criterion list — the 2026 listings show AHS-Dimension at
+   48 in with four sibling triggers (second-longest > 30 in, L+G > 105 in, cubic > 10,368 in³, weight > 50 lb) and
+   Large Package at 96 in / 130 in / 17,280 in³ / 110 lb. Seeing 96 in next to a $29–$40 accessorial, and 48 in
+   nowhere, is the tell.
+2. **The bug was one-way and silent: it produced disputes, not crashes.** For any UPS parcel with a longest side
+   between 48 in and 96 in — an ordinary large box — the audit called a legitimate accessorial ineligible and
+   reported the fee as recoverable. Every gate was green, because the engine faithfully applied the number it was
+   given. A wrong *value* in a money engine is invisible to a gate that only checks structure: what catches it is a
+   known-answer vector that lands **in the band between the two thresholds**, plus a paired-constant assertion
+   (`AHS 48/48/—` vs `OVERSIZE 96`) so the two rules cannot be swapped back without the build going red.
+3. **Fix the entry, not just the code.** The PRD is the durable record someone else reads, so the tariff line is
+   corrected in place with the sources and the failure class. Silence there re-arms the same defect for the next
+   product built on the same table.
+4. **When the advisory's own claim is wrong, say so in the record.** The item as first reported to the owner read
+   "the PRD says 48" — the PRD said 96. The owner approved the fix either way, but the durable record now carries
+   the correction, because a record that mis-states which artifact was wrong sends the next reader to the wrong file.
+
+### Resolved edge-case (2026-10-10) — the host served no crawler map, and the reader sitemap advertised 404s
+
+The product host answered **404 for `/robots.txt` and `/sitemap.xml`** while five products and 24 rule pages were
+indexable-but-unmapped: Search Console showed `/showcase` indexed (average position 5) and `/spendproof` /
+`/ledgerlink` as "URL is unknown to Google". Fixing it surfaced a second, older defect on the *reader* side.
+
+1. **A discovery artifact is DERIVED, never hand-listed.** `/sitemap.xml` reads the registry's in-inventory set plus
+   each product's own preset modules, so a retirement drops out by construction and a new product appears with its
+   entry. A hand-written list would have advertised the retired product the day it was killed — the same class as
+   the pinned `5e47d410…` manifest hash.
+2. **Assert the retirement case against a product this repo actually retired** (here `quarterline`, which is still in
+   `products` so the directory can render its notice) rather than a hypothetical: the guard then fails the moment
+   someone derives the map from `products` instead of `activeProducts`. Prove it bites by making exactly that edit.
+3. **A published URL must match the live route's CASE.** The reader sitemap had been handing Google five capitalised
+   product URLs (`/LedgerLink`, `/ParcelProof`, …) since the tools shipped. Next routes are case-sensitive, so all
+   five answered 404 — a sitemap is a promise that the URL resolves, and five dead ones also make the whole file
+   less trustworthy. The validator now throws at build time on a capital letter in a product path, which is what a
+   wrong-case URL needs: a build failure, not a weekly crawl report nobody reads.
+4. **A `404` robots.txt is not a crawl block — do not report it as one.** Google crawled and indexed `/showcase`
+   anyway. The honest finding is "unmapped and unlinked", not "invisible": the map is what turns an indexable page
+   into a discoverable one, and the links are what give it a reason to be crawled at all.
+5. **Wiring the corpus to the money path is worth more than another article, and it must stay honest.** 52 of 86
+   live articles have a tool that genuinely answers them and now carry one contextual CTA; career and
+   personal-finance pages and all 1,029 career-calculator pages render nothing, because the products are B2B ops
+   tools and a fabricated match spends the one visit the page earns. Say the coverage split out loud in the report.
