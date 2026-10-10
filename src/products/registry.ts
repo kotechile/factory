@@ -93,6 +93,20 @@ export const products: Product[] = [
     category: "Industrial",
     visibility: "public",
   },
+  {
+    slug: "spendproof",
+    name: "SpendProof",
+    tagline: "AI Provider Invoice ↔ Tagged-Usage Reconciliation",
+    status: "beta",
+    description:
+      "Reconciles an AI provider invoice against your own tagged-usage ledger: every line is recomputed at the rate the invoice itself declares, each variance is classified as rounding, a period-boundary overlap, missing or late usage, untagged spend or a mid-period rate change, and a clean close is withheld whenever a bucket does not reconcile or usage carries no tag. The invoice document is read by a model as DECLARED fields only — every field is labelled extracted/unreadable/unstated, an unreadable region blocks the verdict, and no number in the report comes from a model.",
+    route: "/spendproof",
+    webmcpTools: ["reconcile_ai_invoice"],
+    launchedAt: "2026-10-09",
+    category: "Finance",
+    usesLlmPrimitive: true,
+    visibility: "public",
+  },
 ];
 
 /**

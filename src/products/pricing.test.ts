@@ -79,6 +79,19 @@ describe("product pricing catalog", () => {
     expect(ratesOutsideTheirBand()).toEqual([]);
   });
 
+  it("prices SpendProof in the LLM band, from its declared class and the PRD's measured cost", () => {
+    // The factory's first LLM/parse-backed product. Its declared class is `usesLlmPrimitive`, so the
+    // catalog must put every one of its tools in the higher band; and the rate has to clear the PRD's
+    // measured per-call cost (parse + generate + retries ≈ $0.14) by the 3× margin rule.
+    const band = rateBandForProduct("spendproof");
+    expect(band.class).toBe("llm");
+    const rate = agentRateForTool("reconcile_ai_invoice");
+    expect(rate).toBeGreaterThanOrEqual(band.min);
+    expect(rate).toBeLessThanOrEqual(band.max);
+    const MEASURED_PER_CALL_COST_USD = 0.14;
+    expect(rate).toBeGreaterThanOrEqual(MEASURED_PER_CALL_COST_USD * 3);
+  });
+
   it("keeps the LLM band above the deterministic band, both inside the plausibility ceiling", () => {
     expect(LLM_RATE_BAND_USD.min).toBeGreaterThanOrEqual(DETERMINISTIC_RATE_BAND_USD.max);
     expect(LLM_RATE_BAND_USD.max).toBeGreaterThan(LLM_RATE_BAND_USD.min);
@@ -96,7 +109,7 @@ describe("product pricing catalog", () => {
       path.join(process.cwd(), "src/app/api/agent/calculate/route.ts"),
       "utf8",
     );
-    for (const slug of ["facturgate", "parcelproof", "caseproof"]) {
+    for (const slug of ["facturgate", "parcelproof", "caseproof", "spendproof"]) {
       expect(
         route,
         `the agent route must read '${slug}' rates from the pricing catalog, not inline them`,

@@ -127,12 +127,15 @@ export function buildMcpManifest(): McpManifest {
       "(apps.giniloh.com), one product subpath per tool: Stripe payout -> GL reconciliation " +
       "(LedgerLink), EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU " +
       "VAT-id checks (FacturGate), carrier invoice DIM-weight / surcharge auditing with " +
-      "billable-weight computation (ParcelProof), and buyer-side warehouse-automation case " +
-      "auditing with multi-bid comparison and after-tax payback (CaseProof). Products retired in " +
-      "the registry are not listed.",
+      "billable-weight computation (ParcelProof), buyer-side warehouse-automation case " +
+      "auditing with multi-bid comparison and after-tax payback (CaseProof), and AI provider " +
+      "invoice -> tagged-usage reconciliation with a variance classification (SpendProof). " +
+      "Products retired in the registry are not listed.",
     // 2.0.0: the flat rate_per_query_usd was replaced by per-tool rates — a consumer reading the
     // old field must re-read pricing, so this is a breaking change, not a silent one.
-    version: "2.0.0",
+    // 2.1.0: SpendProof's reconcile_ai_invoice added (a new product's tool, so the published
+    // tool list grows; additive, but the list IS the contract an agent reads).
+    version: "2.1.0",
     endpoint: "https://apps.giniloh.com/api/agent/calculate",
     tool_selector: {
       header: "x-webmcp-tool",

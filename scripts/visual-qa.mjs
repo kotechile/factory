@@ -35,7 +35,7 @@ loadEnvFile(".env");
 // read, and hallucinated "text overlapping" verdicts came from it). The tiles are written by
 // tests/e2e/qa-screenshot.spec.ts as test-results/<product>-qa-<n>.png; add a product here and a capture
 // there when it ships.
-const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof"];
+const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof", "spendproof"];
 // `--suggest` reviews ONE surface; named explicitly (a tile of the flagship page) rather than indexed, so
 // removing a product can never silently retarget the suggestion pass at a different page.
 const SUGGEST_TARGET = "test-results/facturgate-qa-1.png";

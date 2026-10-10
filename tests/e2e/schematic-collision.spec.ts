@@ -36,6 +36,13 @@ const PAGES = [
       await page.getByText("41 months · 3.4 yr").first().waitFor();
     },
   },
+  {
+    path: "/spendproof",
+    setup: async (page: import("@playwright/test").Page) => {
+      await page.getByRole("button", { name: "Reconcile the period" }).click();
+      await page.getByText("CLOSE WITHHELD").waitFor();
+    },
+  },
 ];
 
 for (const { path, setup } of PAGES) {

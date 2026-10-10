@@ -34,6 +34,18 @@ import {
   compareBids,
   readCaseInput,
 } from "@/lib/calc/caseproof";
+import {
+  ExtractionUnavailableError,
+  SpendProofFieldError,
+  extractStructuredFields,
+  parseDocumentText,
+  parseLedgerCsv,
+  reconcileInvoice,
+  resolveExtractionCredentials,
+  toInvoiceFromExtraction,
+  type ExtractionCredentials,
+  type ExtractionTransport,
+} from "@/lib/calc/spendproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
 import { agentRateForTool, agentRatesForProduct } from "@/products/pricing";
@@ -90,6 +102,52 @@ interface ParcelproofAgentInput {
 
 /** CaseProof rates, from the pricing catalog ($0.50 per agent call on the audit tier). */
 const CASEPROOF_PRICE_USD = agentRatesForProduct("caseproof");
+
+/**
+ * SpendProof rates, from the pricing catalog — the factory's LLM/parse-backed class, priced in the
+ * higher band because the extraction layer pays a real per-call cost (parse + generate + retries).
+ */
+const SPENDPROOF_PRICE_USD = agentRatesForProduct("spendproof");
+
+/**
+ * The network boundary for the extraction layer, supplied by the route (the engine folder holds no
+ * `fetch`, so the deterministic core stays fixture-testable offline).
+ */
+const serviceExtractionTransport: ExtractionTransport = async (request) => {
+  const response = await fetch(request.url, {
+    method: request.method,
+    headers: request.headers,
+    body: request.body,
+  });
+  return { ok: response.ok, status: response.status, text: () => response.text() };
+};
+
+/**
+ * Resolves the extraction credentials, or returns the explicit refusal to send.
+ *
+ * SpendProof is the first product whose pipeline needs a model key and a document-parse key, and the
+ * deploy carries neither until the owner adds one. This is the loud door: no stub, no fabricated
+ * field, no degraded substitute (rule 5). It runs BEFORE the cap gate and before any `track()` /
+ * metering, so an unconfigured deploy never looks like a served call.
+ */
+function resolveSpendProofCredentials():
+  | { ok: true; credentials: ExtractionCredentials }
+  | { ok: false; body: Record<string, unknown> } {
+  try {
+    return { ok: true, credentials: resolveExtractionCredentials() };
+  } catch (error) {
+    if (!(error instanceof ExtractionUnavailableError)) throw error;
+    return {
+      ok: false,
+      body: {
+        error: error.message,
+        code: error.code,
+        ruleId: error.ruleId,
+        missing: error.missing,
+      },
+    };
+  }
+}
 
 interface CaseProofAgentInput {
   case?: unknown;
@@ -518,6 +576,110 @@ export async function POST(req: NextRequest) {
         tool: toolName,
         costUsd: costPerQueryUsd,
         product: "caseproof",
+      });
+
+      return NextResponse.json({
+        success: true,
+        data,
+        metering: {
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
+          costPerQueryUsd,
+        },
+        computedAt: new Date().toISOString(),
+      });
+    }
+
+    // --- SpendProof: reconcile_ai_invoice (an LLM/parse-backed extraction layer in front of the
+    // deterministic engine). The extraction reads the invoice document into the DECLARED field set;
+    // the reconciliation itself is the deterministic engine, and no number in its report comes from
+    // the model. An unconfigured deploy is an explicit 503 naming the missing env vars, before the
+    // cap gate and before any telemetry — never a stub, a fabricated field or a degraded substitute.
+    if (toolName in SPENDPROOF_PRICE_USD) {
+      const resolved = resolveSpendProofCredentials();
+      if (!resolved.ok) {
+        return NextResponse.json(resolved.body, { status: 503 });
+      }
+
+      // Cap gate runs BEFORE the tool (V1.2).
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
+      const body = (await req.json()) as {
+        invoice?: unknown;
+        ledger?: unknown;
+        tolerance_bps?: unknown;
+      };
+
+      let data: unknown;
+      const costPerQueryUsd = SPENDPROOF_PRICE_USD[toolName] ?? 1.5;
+      try {
+        const documentText = requiredString(body.invoice, "invoice");
+        const ledgerCsv = requiredString(body.ledger, "ledger");
+        const ledgerIngest = parseLedgerCsv(ledgerCsv);
+
+        const parsedText = await parseDocumentText({
+          documentText,
+          documentName: "provider-invoice",
+          credentials: resolved.credentials,
+          transport: serviceExtractionTransport,
+        });
+        const record = await extractStructuredFields({
+          documentText: parsedText,
+          credentials: resolved.credentials,
+          transport: serviceExtractionTransport,
+        });
+        const extracted = toInvoiceFromExtraction(record);
+        if (extracted.blocked || !extracted.invoice) {
+          // An unreadable region or an unstated field withholds the verdict (rule 5) — with the
+          // blocking finding named, never a reconciled guess.
+          return NextResponse.json(
+            {
+              error:
+                "The invoice could not be read as declared fields, so the verdict is withheld and nothing was reconciled.",
+              ruleId: extracted.findings[0]?.ruleId,
+              findings: extracted.findings,
+              labels: extracted.labels,
+            },
+            { status: 422 },
+          );
+        }
+
+        const report = reconcileInvoice({
+          invoice: extracted.invoice,
+          ledger: ledgerIngest.ledger,
+          ...(typeof body.tolerance_bps === "number" ? { toleranceBps: body.tolerance_bps } : {}),
+        });
+        data = {
+          report,
+          extraction: {
+            labels: extracted.labels,
+            unreadableRegions: record.unreadableRegions,
+            note: "Every field above was read off the invoice and is labelled; the report's numbers were computed by the deterministic engine.",
+          },
+        };
+      } catch (toolError) {
+        if (toolError instanceof SpendProofFieldError) {
+          // An unreadable ledger or a malformed cell: explicit, with the rule id and field path.
+          return NextResponse.json(
+            { error: toolError.message, ruleId: toolError.ruleId, fieldPath: toolError.fieldPath },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json(
+          { error: toolError instanceof Error ? toolError.message : "SpendProof request failed" },
+          { status: 400 },
+        );
+      }
+
+      await track("agent_query", { tool: toolName }, "spendproof");
+
+      const metering = await billSuccessfulCall(req, {
+        tool: toolName,
+        costUsd: costPerQueryUsd,
+        product: "spendproof",
       });
 
       return NextResponse.json({

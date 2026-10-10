@@ -85,6 +85,27 @@ test("capture CaseProof QA tiles", async ({ page }) => {
   await captureTiles(page, "caseproof");
 });
 
+// SpendProof is captured in its richest state: a reconciled period with money on it, the close
+// WITHHELD, the findings (with their rule ids) and the per-bucket trail.
+test("capture SpendProof QA tiles", async ({ page }) => {
+  await page.goto("/spendproof");
+  await page.getByRole("button", { name: "Reconcile the period" }).click();
+  await expect(page.getByText("CLOSE WITHHELD")).toBeVisible();
+  await expect(page.getByText("$2.70").first()).toBeVisible();
+  await captureTiles(page, "spendproof");
+
+  // Same deterministic font check as ParcelProof's money figure: a vision model cannot reliably
+  // distinguish monospace from sans at small sizes, so the audited number is asserted in code.
+  const money = page.getByText("$2.70").first();
+  const isMonospace = await money.evaluate((node) => {
+    for (let el = node as HTMLElement | null; el; el = el.parentElement) {
+      if (getComputedStyle(el).fontFamily.toLowerCase().includes("mono")) return true;
+    }
+    return false;
+  });
+  expect(isMonospace).toBe(true);
+});
+
 // The "currency inputs have adequate horizontal padding" check that used to live here is deleted, not
 // moved: the only surface it could observe was QuarterLine's currency field, which is out of service
 // with the product. Padding is enforced by the design-token step (`npm run check:tokens`) and the

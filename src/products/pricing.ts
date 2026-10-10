@@ -86,6 +86,15 @@ export const PRODUCT_PRICING: Record<string, ProductPricing> = {
       after_tax_payback: 0.5,
     },
   },
+  spendproof: {
+    freeTier:
+      "Reconcile one invoice against your tagged-usage ledger and read every variance — free, in your browser",
+    exportUsd: ONE_OFF_EXPORT_USD,
+    exportLabel: "Close pack — the per-bucket variance trail and the findings for one period",
+    // LLM/parse-backed class: the rate must clear the $0.14 measured per-call extraction cost 3×
+    // (the PRD's margin rule) and sit in the $0.50–$3.00 band — pricing.test.ts enforces both.
+    agentRates: { reconcile_ai_invoice: 1.5 },
+  },
   quarterline: {
     // Retired: kept so the legacy agent tools still price, and so tool lookups never dangle.
     freeTier: "Retired product — kept on the trail only",

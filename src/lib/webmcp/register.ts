@@ -689,12 +689,89 @@ export const afterTaxPaybackTool: WebMCPToolDefinition<CaseProofAgentParams, unk
 };
 
 /**
+ * SpendProof (AI provider invoice ↔ tagged-usage reconciliation) tool.
+ *
+ * Server-backed and metered like the others, but this one is the factory's FIRST LLM/parse-backed
+ * tool: the invoice arrives as a document and the extraction layer in front of the engine reads it
+ * into the declared field set. That layer needs a model key and a document-parse key from the deploy
+ * env; with neither present the call fails loudly (503) instead of arriving as a fabricated field or
+ * a degraded substitute (rule 5). No number in the report comes from the model.
+ */
+async function runSpendProofAgentCall<TResult>(toolName: string, params: unknown): Promise<TResult> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent call failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: TResult;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent call failed: invalid response");
+  }
+  return json.data;
+}
+
+export interface ReconcileAiInvoiceParams {
+  /**
+   * The provider invoice, as the document text (PDF text layer, HTML or CSV export). The extraction
+   * layer reads it into the declared field set {provider, period, service, model, quantity,
+   * unit_price, amount, sku}; every field is labelled extracted/unreadable/unstated.
+   */
+  invoice: string;
+  /** Your tagged-usage ledger as CSV text: bucket,service,model,sku,quantity,timestamp */
+  ledger: string;
+  /** Optional reconciliation tolerance in basis points of the invoice total (default 50 = 0.5%). */
+  tolerance_bps?: number;
+}
+
+export const reconcileAiInvoiceTool: WebMCPToolDefinition<ReconcileAiInvoiceParams, unknown> = {
+  name: "reconcile_ai_invoice",
+  description:
+    "Reconciles an AI provider invoice against the organization's own tagged-usage ledger: every line is recomputed from the ledger at the rate the invoice ITSELF declares, each variance is classified as rounding, a period-boundary overlap, missing or late usage, untagged spend or a mid-period rate change, and a clean close is withheld whenever a bucket does not reconcile or usage carries no tag. The invoice document is read as DECLARED fields only (a model may read the document; no number in the report comes from it) — a field it is unsure of, or an unreadable region, blocks the verdict instead of being estimated.",
+  parameters: {
+    type: "object",
+    properties: {
+      invoice: {
+        type: "string",
+        description:
+          "The provider invoice as document text (PDF text layer, HTML or CSV export). Read into the declared field set {provider, period, service, model, quantity, unit_price, amount, sku}; every field is labelled extracted/unreadable/unstated and a non-extracted field withholds the verdict.",
+      },
+      ledger: {
+        type: "string",
+        description:
+          "Your tagged-usage ledger as CSV text: bucket,service,model,sku,quantity,timestamp. A blank bucket is the unattributed case and blocks a clean close rather than being dropped.",
+      },
+      tolerance_bps: {
+        type: "number",
+        description:
+          "Reconciliation tolerance in basis points of the invoice total. Defaults to 50 (0.5%), the practitioner threshold this product publishes.",
+      },
+    },
+    required: ["invoice", "ledger"],
+  },
+  handler: (params) => runSpendProofAgentCall<unknown>("reconcile_ai_invoice", params),
+};
+
+/**
  * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
  *
  * Single source of truth: the agent allowlist (./agentTools.ts) and the published
  * agent-discovery listing (./manifest.ts) both read from it, so a tool name can never be
  * advertised or accepted without a real definition here. Add a tool by adding its
  * definition above and listing it here + in src/products/registry.ts.
+ *
+ * Order matters for one thing only: `DEFAULT_AGENT_TOOL` is the first ADVERTISED tool in this list,
+ * so a new tool is appended (never prepended) unless the default is meant to move.
  */
 export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   calculateQbiDeductionTool,
@@ -708,6 +785,7 @@ export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   auditAutomationCaseTool,
   compareAutomationBidsTool,
   afterTaxPaybackTool,
+  reconcileAiInvoiceTool,
 ].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
@@ -725,6 +803,7 @@ export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(auditAutomationCaseTool);
   registerWebMCPTool(compareAutomationBidsTool);
   registerWebMCPTool(afterTaxPaybackTool);
+  registerWebMCPTool(reconcileAiInvoiceTool);
 }
 
 
