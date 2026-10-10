@@ -198,9 +198,10 @@ export function roundUpInput(rateCard: RateCard | null = CONTRACT_RATE_CARD): Au
 
 /**
  * Vector 3 — AHS-Dimension billed on a 40″ parcel.
- * The PRD's tariff table puts FedEx's trigger at a longest side > 48 in and UPS's at > 96 in, so a
- * 40 in parcel is ineligible at both carriers; the third line (100 in at UPS) proves eligibility is
- * evaluated from the trigger rather than hardcoded, and produces no finding.
+ * Both carriers trigger AHS-Dimension above a 48 in longest side (UPS 48 in, FedEx 48 in — see the
+ * threshold note in surcharges.ts), so a 40 in parcel is ineligible at both; the third line (100 in
+ * at UPS) proves eligibility is evaluated from the trigger rather than hardcoded, and produces no
+ * finding.
  */
 export function ahsDimensionInput(rateCard: RateCard | null = CONTRACT_RATE_CARD): AuditInput {
   return {
@@ -277,6 +278,48 @@ export function ahsDimensionInput(rateCard: RateCard | null = CONTRACT_RATE_CARD
         baseChargeCents: 5200,
         surcharges: [{ code: "AHS-DIM", amountCents: 2950 }],
         totalCents: 8150,
+        invoiceDate: "2026-09-10",
+      }),
+    ],
+  };
+}
+
+/**
+ * Vector 9 — the AHS-Dimension / oversize boundary at UPS (the threshold-mix-up case).
+ * UPS assesses Additional Handling - Dimension above a 48 in longest side, and Large Package /
+ * oversize at a 96 in longest side AND a 130 in length+girth, so a 60 in parcel sits in the band
+ * between the two rules: the AHS-Dimension charge is legitimate (no dispute) and the oversize rule is
+ * not met. Under the old single-value reading (UPS AHS at 96 in) this line was reported as a
+ * recoverable overcharge.
+ */
+export function ahsDimensionUpsBoundaryInput(rateCard: RateCard | null = CONTRACT_RATE_CARD): AuditInput {
+  return {
+    asOfDate: "2026-09-18",
+    ...(rateCard ? { rateCard } : {}),
+    shipmentRecords: [
+      record({
+        orderId: "SO-3901",
+        tracking: "1Z999AA10123456701",
+        carrier: "ups",
+        service: "ups_ground",
+        shipDate: "2026-08-05",
+        dims: { length: 60, width: 8, height: 8 },
+        actualWeightLb: 18,
+        zone: "3",
+        promisedDate: "2026-08-08",
+        deliveredAt: "2026-08-08",
+      }),
+    ],
+    invoiceLines: [
+      line({
+        tracking: "1Z999AA10123456701",
+        carrier: "ups",
+        service: "ups_ground",
+        billedWeightLb: 28,
+        zone: "3",
+        baseChargeCents: 1450,
+        surcharges: [{ code: "AHS-DIM", amountCents: 2950 }],
+        totalCents: 4400,
         invoiceDate: "2026-09-10",
       }),
     ],

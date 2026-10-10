@@ -9,6 +9,8 @@
  *     under-bill, never an invented recovery;
  *  3. AHS-Dimension billed on a 40″ parcel, with the trigger that failed named — and an eligible
  *     100″ parcel that produces no flag at all;
+ *  3b. the oversize/AHS boundary at UPS (60″ parcel): AHS-Dimension eligible on the 48″ trigger,
+ *     oversize not met on the 96″ trigger, and the two constants pinned as a pair;
  *  4. a late-delivery refund inside vs outside the money-back window;
  *  5. the dispute clock: open / expiring / expired;
  *  6. a clean invoice that must produce ZERO flags;
@@ -24,6 +26,8 @@ import {
   auditCarrierInvoice,
   auditInvoiceCsv,
   buildDisputeCsv,
+  AHS_DIMENSION_LONGEST_SIDE_IN,
+  OVERSIZE_LONGEST_SIDE_IN,
   computeBillableWeight,
   disputeWindowFor,
   parseInvoiceLinesCsv,
@@ -36,6 +40,7 @@ import {
   AUDIT_SCENARIOS,
   CONTRACT_RATE_CARD_CSV,
   ahsDimensionInput,
+  ahsDimensionUpsBoundaryInput,
   cleanInput,
   dateOutOfRangeInput,
   disputeClockInput,
@@ -259,13 +264,13 @@ describe("ParcelProof — recovery audit", () => {
     expect(fedex.evidence.longestSideIn).toBe(40);
     expect(report.lines[0].recomputedTotalCents).toBe(1900);
 
-    // UPS: 40″ does not exceed the 96″ trigger the PRD assigns to UPS either.
+    // UPS: 40″ does not exceed the 48″ trigger either (both carriers trigger AHS-Dimension at 48″).
     const ups = report.lines[1].findings[0] as AuditFinding;
     expect(ups.deltaCents).toBe(2950);
-    expect(ups.trigger).toContain("exceeds 96 in (UPS)");
+    expect(ups.trigger).toContain("exceeds 48 in (UPS)");
     expect(report.lines[1].recomputedTotalCents).toBe(1450);
 
-    // The control: a 100″ parcel IS eligible at UPS (trigger > 96″) and produces no finding.
+    // The control: a 100″ parcel IS eligible at UPS (trigger > 48″) and produces no finding.
     const eligible = report.lines[2];
     expect(eligible.findings).toEqual([]);
     expect(eligible.surcharges).toEqual([
@@ -275,12 +280,43 @@ describe("ParcelProof — recovery audit", () => {
         amountCents: 2950,
         eligible: true,
         verdict: "eligible",
-        trigger: "AHS-Dimension applies when the longest side exceeds 96 in (UPS); this parcel's longest rounded side is 100 in",
+        trigger: "AHS-Dimension applies when the longest side exceeds 48 in (UPS); this parcel's longest rounded side is 100 in",
       },
     ]);
     expect(eligible.deltaCents).toBe(0);
 
     expect(report.summary.recoverableTotalCents).toBe(5900);
+  });
+
+  it("pins the AHS-Dimension trigger separately from the oversize trigger (48 in vs 96 in)", () => {
+    // The mix-up this guard exists for: 96 in is the Large Package / oversize trigger, 48 in is
+    // AHS-Dimension at BOTH carriers (UPS's 2026 tariff table). Pinning them as a PAIR is what makes
+    // a silent swap impossible — the old single-value reading made a legitimate UPS AHS charge look
+    // recoverable on every parcel between 48 in and 96 in.
+    expect(AHS_DIMENSION_LONGEST_SIDE_IN).toEqual({ ups: 48, fedex: 48, usps: null });
+    expect(OVERSIZE_LONGEST_SIDE_IN).toBe(96);
+  });
+
+  it("treats a 60 in UPS parcel as AHS-Dimension-eligible (48 in trigger) and not oversize (96 in)", () => {
+    const report = auditCarrierInvoice(ahsDimensionUpsBoundaryInput());
+
+    // A legitimate accessorial is not a dispute: no finding at all on this line.
+    expect(shape(report.findings)).toEqual([]);
+
+    const line = report.lines[0];
+    expect(line.surcharges).toEqual([
+      {
+        code: "AHS-DIM",
+        kind: "ahs_dimension",
+        amountCents: 2950,
+        eligible: true,
+        verdict: "eligible",
+        trigger:
+          "AHS-Dimension applies when the longest side exceeds 48 in (UPS); this parcel's longest rounded side is 60 in",
+      },
+    ]);
+    expect(line.deltaCents).toBe(0);
+    expect(line.recomputedTotalCents).toBe(4400);
   });
 
   it("refunds a late delivery inside the money-back window and refuses outside it", () => {

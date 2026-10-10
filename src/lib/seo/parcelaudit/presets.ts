@@ -77,7 +77,7 @@ export const parcelauditPresets: ParcelauditSeoPreset[] = [
       "AHS-Dimension is one of the largest per-package accessorials in 2026 tariffs, and it is assessed on a dimension trigger: the package's longest side. When the parcel on the invoice does not exceed the trigger, the charge has no basis — and the audit names the condition that failed rather than asserting a discrepancy.",
     bullets: [
       "Evaluates the longest rounded side against the carrier's own trigger and shows both numbers.",
-      "V1 thresholds: FedEx 48″ and UPS 96″ (the PRD's tariff table — the trigger lives in one line of code and is published).",
+      "V1 thresholds: UPS and FedEx both trigger AHS-Dimension above a 48″ longest side (2026 tariff table — the trigger lives in one line of code, is published, and the 96″ figure belongs to the separate Large Package/oversize rule).",
       "Also checks AHS-Weight, oversize, residential and address-correction eligibility, and reports USPS accessorials it cannot assess as unsupported.",
     ],
     scenario: "overcharge",

@@ -8,7 +8,7 @@
  * v1 triggers (PRD §2, and the tariff numbers the PRD cites):
  * | kind                  | UPS              | FedEx            | USPS |
  * |-----------------------|------------------|------------------|------|
- * | AHS-Dimension         | longest side > 96 in | longest side > 48 in | not assessed |
+ * | AHS-Dimension         | longest side > 48 in | longest side > 48 in | not assessed |
  * | AHS-Weight            | actual weight > 50 lb | actual weight > 50 lb | not assessed |
  * | Oversize / Large Pkg  | longest side > 96 in AND length+girth > 130 in | same | not assessed |
  * | Residential           | record says residential | same | not assessed |
@@ -19,10 +19,15 @@
  * supplied) is reported **unverifiable** — never guessed in either direction, and never passed
  * silently (factory rule 5).
  *
- * Note on the two AHS-Dimension thresholds: the PRD assigns 96 in to UPS and 48 in to FedEx, so
- * FedEx's trigger is strictly more aggressive than UPS's and a 40 in parcel is ineligible at both.
- * The table below is exactly the PRD's, with each carrier's number in one place so a corrected
- * tariff is a one-line change.
+ * Threshold basis (corrected 2026-10-10, owner-approved): BOTH carriers assess Additional Handling -
+ * Dimension above a **48 in** longest side. The 96 in figure the first PRD draft carried was the
+ * Large Package / oversize trigger (longest side > 96 in AND length+girth > 130 in), read across from
+ * the wrong row of the tariff table. The old value was a one-way money bug on this product: for any
+ * UPS parcel whose longest side fell between 48 in and 96 in the audit called a legitimate
+ * AHS-Dimension charge ineligible and reported it as recoverable, i.e. it told a shipper to dispute
+ * money they owed. The two rules stay separate constants (`AHS_DIMENSION_LONGEST_SIDE_IN` here,
+ * `OVERSIZE_LONGEST_SIDE_IN` below) and `parcelaudit.test.ts` pins them as a pair so the mix-up
+ * cannot come back silently.
  */
 import type {
   Carrier,
@@ -50,7 +55,7 @@ export const SURCHARGE_KINDS: readonly SurchargeKind[] = [
 
 /** Longest-side trigger, in inches; `null` = the carrier does not assess this surcharge in v1. */
 export const AHS_DIMENSION_LONGEST_SIDE_IN: Record<Carrier, number | null> = {
-  ups: 96,
+  ups: 48,
   fedex: 48,
   usps: null,
 };

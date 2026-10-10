@@ -22,6 +22,18 @@
   - `types.ts` — `ShipmentRecord { orderId, tracking, carrier, service, shipDate, dims{l,w,h}, actualWeight, zone, declaredValue, accessorials[], promisedDate, deliveredAt }` and `InvoiceLine { tracking, billedWeight, billedDims?, zone, baseCharge, surcharges[{code, amount}], fuelPct?, total }`.
   - `dimWeight.ts` — `billableWeight = max(actual, ceil(L)×ceil(W)×ceil(H)/divisor)`; divisor resolved by **carrier × service × date** (UPS 139, FedEx 139, USPS 166 before 2026-07-12 → 139 from 2026-07-12), round-up rule applied, cubic-inch thresholds enforced (FedEx Ground / USPS: >1,728 cu in).
   - `surcharges.ts` — accessorial eligibility recomputed from the record: AHS-Dimension trigger (UPS longest side > 96″, FedEx > 48″), AHS-Weight, oversize, residential, address-correction flags; surcharges billed with no eligibility basis are flagged with the trigger that failed.
+
+  > **Correction (2026-10-10, owner-approved fix).** This line carried the tariffs wrong: it read
+  > UPS's Large Package / oversize trigger (longest side > 96″ AND length+girth > 130″) across into
+  > AHS-Dimension. **Both carriers assess Additional Handling – Dimension above a 48″ longest side**
+  > (UPS 48″/FedEx 48″; the 96″ figure is the oversize rule). Shipped as a one-way money bug —
+  > a UPS parcel with a longest side between 48″ and 96″ had a legitimate AHS-Dimension charge
+  > reported as recoverable. Fixed in `surcharges.ts` (`AHS_DIMENSION_LONGEST_SIDE_IN.ups` 96 → 48)
+  > and pinned by a known-answer vector plus a paired-constant assertion in `parcelaudit.test.ts`.
+  > Sources (independent 2026 tariff summaries, same reading of both carriers' tables):
+  > UPS/FedEx additional-handling dimension = longest side > 48″ (second-longest > 30″, L+G > 105″,
+  > cubic > 10,368 in³, weight > 50 lb); Large Package / Oversize = longest side > 96″,
+  > L+G > 130″, cubic > 17,280 in³, weight > 110 lb.
   - `serviceCommitment.ts` — late-delivery refund eligibility from `promisedDate` vs `deliveredAt` per service commitment, with the money-back window applied.
   - `disputeClock.ts` — per-line dispute-window status from invoice date (UPS ≈30 days, FedEx ≈21 days) → `expiring` / `expired` / `open`, so recovery effort goes where the clock still permits.
   - `rateCard.ts` — optional customer-supplied contract rate card (CSV): when present, base-charge and zone are recomputed; when absent the line is reported as **`unverifiable-rate`** — flagged, never guessed and never silently passed.
