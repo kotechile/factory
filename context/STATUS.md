@@ -1,5 +1,17 @@
 # Factory Status Map
 
+_Last updated: 2026-10-10 (**owner approved the ParcelProof threshold fix, the reader-page product wiring and the
+product-host crawler map; all three are being landed**). The threshold defect was a genuine one-way money bug on a
+live product: UPS's AHS-Dimension trigger was carried as a longest side > 96 in (the Large Package / oversize figure)
+when both carriers assess it above **48 in**, so for any UPS parcel between 48 in and 96 in the audit reported a
+legitimate accessorial as recoverable money. The PRD's tariff table carried the same error and is corrected in place.
+The crawler map (`/robots.txt` + `/sitemap.xml`, both 404 until now) is derived from the registry and each product's
+own pSEO preset modules so a retirement cannot leave a stale URL behind; the reader-site corpus gains a contextual
+CTA to the matching tool on the 52 of 86 articles that honestly have one, and the reader sitemap's five capitalised
+product URLs (all 404s — Next routes are case-sensitive) are corrected to the real routes. Revenue **$0 real**; no
+provable outside visitor. Evidence and commit hashes in the code commit; the approval record is in
+`context/pending_approval.md`.
+
 _Last updated: 2026-10-10 (**SpendProof is LIVE and its extraction half WORKS — verified against the live
 services**). Owner instruction *"env variables are now created in Coolify.. Please review and change status"*, then
 *"full fix"*. Product `6f325f5`, gate repair `4dfe3c1`; app container `af8yqbwrrnyyfgs9wcg0intj-20261010T194129`

@@ -4,6 +4,37 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-10 (**three owner decisions; the fleet is landing the two build items**). Owner
+instruction, verbatim: *"fix the Parcelproof inconsistency ( ships UPS AHS-Dimension as 96 in when the PRD says 48
+(23rd day open))"* — then, against the advisory's numbered list — *"1. DONE: ... Search Console: submit
+giniloh.com/sitemap.xml and wellroost.com/sitemap.xml, and request indexing for the 5 product pages"*, *"2. APPROVED
+PLEASE DO [wire the pages that are already indexed to the matching product]"*, *"3. APPROVED PLEASE DO [give the
+product host a crawler map so the five product pages get crawled]"*. Items 4–6 are answered, not deferred: he will
+add the provider low-balance alert himself, runs the social/video work by hand ("I WILL WORK ON THIS MANUALLY THEN",
+"I cannot spend right now"), and holds affiliate/ads until traffic builds ("I WILL WAIT UNTIL TRAFFIC BUILDS").
+**Correction recorded with the approval:** the advisory said "the PRD says 48" for UPS — the PRD's own tariff table
+said **96 in for UPS / 48 in for FedEx** (the defect was the PRD's table, not the code's fidelity to it). The correct
+rule, from both carriers' 2026 tables: **AHS-Dimension fires above a 48 in longest side at UPS and FedEx alike**; the
+96 in figure belongs to the separate Large Package / oversize rule (longest side > 96 in AND length+girth > 130 in).
+As published, the product called a legitimate UPS AHS-Dimension charge ineligible for every parcel between 48 in and
+96 in — it told a shipper to dispute money they owed. Being landed in this session, evidence in the code commit:
+(A) `AHS_DIMENSION_LONGEST_SIDE_IN.ups` 96 → 48 with the tariff basis in the file, the PRD line corrected in place,
+the pSEO bullet fixed, plus a known-answer boundary vector (a 60 in UPS parcel: AHS-Dimension eligible, oversize not
+met) and a paired-constant assertion so the two rules cannot be swapped again; (B) `/robots.txt` + `/sitemap.xml` on
+the product host, derived from the registry and each product's own preset modules (a retired product drops out by
+construction), with a drift-guard test and an e2e served-surface test; (C) the reader-site corpus (separate repo
+`kotechile/giniloh`) gains a contextual CTA to the matching product on the pages that honestly have one — 52 of 86
+live articles (carrier/customs money → ParcelProof, AI bills → SpendProof, the automation case → CaseProof, the four
+launch notes → their own tool); career and personal-finance pages get nothing rather than a fabricated match, and the
+1,029 career-occupation calculator pages have no matching product in inventory. **Defect found while wiring (C):**
+the reader sitemap has been advertising five CAPITALISED product URLs (`/LedgerLink`, `/ParcelProof`, …) that answer
+**404** — Next routes are case-sensitive — so Google was fed five dead product URLs from every reader page's sitemap;
+corrected to the real lowercase routes in the same commit. **Still open for the owner:** the provider low-balance
+alert (his), the social/video channel (his, manual), affiliate/ads (deferred until traffic builds), the agent tool
+staying text-in, and unchanged: **item 5** (internal-traffic marker), **item 6** (durable record), **item 7** (P2),
+**item 11** (P2 — the crawler-map half of it is what (B) closes). Revenue still **$0 real**; no provable outside
+visitor.
+
 _Last updated: 2026-10-10 (**SpendProof is LIVE and the extraction half WORKS — verified live, not just green**).
 Owner instruction, verbatim: *"env variables are now created in Coolify.. Please review and change status"* → then,
 after the defect report, *"full fix"*. Code `6f325f5`, gate repair `4dfe3c1`, app container
