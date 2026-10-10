@@ -147,3 +147,38 @@ COMPARE mode after the flip and measure the diff bounding box (it must be the pi
 
 ## 6. Failure handling
 - Broken MCP/WebMCP endpoints → Toby logs and patches this skill.
+
+## 7. The first LLM/parse-backed tool (2026-10-09, SpendProof)
+
+A tool whose pipeline needs a model or a document parse (owner policy 2026-10-05,
+`context/tech_stack_capabilities.md` §2) carries FOUR extra contracts on top of everything above.
+Skipping any one of them is how the posture breaks:
+
+1. **The key is read from the deploy env, server-side, and the refusal is LOUD.** Resolve the
+   credentials in one function that throws naming every missing variable, and return that refusal
+   **before the cap gate and before any `track()`/metering** — so an unconfigured deploy can never look
+   like a serviced call and a probe writes no telemetry row. A stub, a fabricated field or a degraded
+   substitute is the one thing the posture forbids: assert the failure path in the test instead
+   (`expect(() => resolveExtractionCredentials({})).toThrow(ExtractionUnavailableError)`), and probe the
+   live 503 post-deploy rather than faking a key.
+2. **Extraction is declared, and it BLOCKS.** Fill a declared field set, carry
+   `extracted`/`unreadable`/`unstated` per field, label it on the page AND in the artifact, and return
+   **no record at all** when any field is not `extracted`. Never derive the number under audit — a
+   refusal to compute `amount` from `quantity × unit_price` is the rule, not a nicety: the amount is
+   the evidence the reconciliation exists to check.
+3. **The network sits behind an injected transport.** Keep `fetch` out of the engine folder and let the
+   route supply a transport function. That is what keeps the deterministic core fixture-testable
+   offline and makes the extraction contract testable without a model key.
+4. **The class decides the price, and the price must clear the measured cost.** `usesLlmPrimitive: true`
+   in `registry.ts` puts every tool of that product in the $0.50–$3.00 band; pair it with a test that
+   asserts the rate is at least 3× the PRD's measured per-call cost, or the product ships at a loss.
+
+When the tool list grows, three mechanical traps:
+
+- **APPEND to `WEBMCP_TOOL_SUMMARIES`.** `DEFAULT_AGENT_TOOL` is the first ADVERTISED tool in the list,
+  so prepending a new tool silently moves the selector default.
+- **Bump the manifest version and `npm run mcp:sync`** — the published tool list IS the contract an
+  agent reads, and `manifest.test.ts` fails the build on drift (including the published file).
+- **Add the slug to the `pricing.test.ts` wiring list** so no page can re-inline a rate that the API
+  charges differently, and add the product to `REVIEWED_PRODUCTS` in `scripts/visual-qa.mjs` **plus** a
+  capture in `tests/e2e/qa-screenshot.spec.ts` — a product with no tiles fails the step loudly.

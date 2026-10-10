@@ -233,6 +233,27 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   products' specs asserted a name-as-heading that the Editorial hero replaces — the repo's own
   "keep assertions in sync with the rendered copy" rule, 2026-09-07).
 
+- **2026-10-09 — `visual-qa` flagged three separate "text overlaps" classes on two products in one
+  build, and ALL THREE were false positives settled by measurement.** SpendProof shipped the factory's
+  first LLM/parse-backed product; the gate's first run flagged `spendproof-qa-4.png` ("placeholder text
+  overlaps line numbers in text area"), the second flagged `spendproof-qa-3.png` ("'+$0.30' overlaps
+  with 'unmatched' badge in the per-bucket trail row") **and** two CaseProof tiles it had passed the run
+  before ("dashed line overlaps text 'basis' in schematic diagram", "text overlapping in IDE header").
+  Measured on the rendered DOM at 1280×900 in each page's richest state: **315 measurable text runs on
+  SpendProof, 665 on CaseProof, 353 on ParcelProof, 356 on FacturGate — 0 intersecting pairs, 0
+  overflowing boxes.** The models' claims are structural impossibilities: a flex row with `gap-3` either
+  fits or wraps (flex items cannot overlap), and the placeholder sits ~14px right of the gutter's
+  divider. **Rule: this class is now measured in code, not by a model** —
+  `tests/e2e/text-geometry.spec.ts` intersects every unclipped text run's client rects on all four
+  product pages AND asserts the IDE field's text origin sits right of the gutter's content edge (the
+  two classes above), with a vacuity guard so a page that stopped being measurable fails loudly. Two
+  measurement traps it encodes: a `truncate` title or an `overflow-*` wrapper reports its UNCLIPPED
+  layout, which invents intersections that are never painted (skip them), and `html`/`body` always
+  report `scrollWidth > clientWidth`, which would skip the whole page. **A red vision verdict on this
+  class is a re-run, not a restyle** — and the tiles are re-cut per run (band stride follows page
+  height), so two runs of the "same" screenshot are not the same crop and the verdicts legitimately
+  differ.
+
 - **2026-10-05 — `visual-qa` truncated its own verdict, and a shrunken page hid a real defect (gate).**
   Two findings in one day, both from the same root: the reviewer's INPUT and its BUDGET.
   1. **The verdict was being cut off mid-sentence and read as a failure.** Thinking tokens count against

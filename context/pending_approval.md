@@ -4,6 +4,23 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-10 (**SpendProof is BUILT and LANDED — the build line is running again**). Code
+commit `536de2a` (28 files, staged by name; the other writer's `skills/self_improvement_eval.md` stayed
+unstaged). `bash scripts/verify-build.sh` **green end to end**: tsc 0 / eslint 0 errors / design tokens /
+`verticals:check` 26 / `recon:cadence` / **201 vitest** (20 new known-answer tests carrying the PRD's five
+vectors) / `next build` / **75 Playwright e2e** (11 new SpendProof specs + a new text-geometry guard) /
+**visual-qa 24/24 tiles PASS**. Deploy verified, not the push: app container
+`af8yqbwrrnyyfgs9wcg0intj-20261010T003137` runs image `af8yqbwrrnyyfgs9wcg0intj:536de2a2c528…` ==
+`git rev-parse HEAD`; `/showcase` **200** (SpendProof card, `BETA` ×1, `LIVE` ×4, `RETIRED` ×1) and
+`/spendproof` **200**; `/.well-known/mcp.json` **200 v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical
+to the tree (selector default unchanged, `reconcile_ai_invoice` $1.50); the 400 rejection path and the
+**503 extraction door** both return before any telemetry write, and a headless render of the live page shows
+`CLOSE WITHHELD` with blockers `sp-untagged-spend · sp-bucket-unmatched` and 0 page errors. **Still open for
+the owner, unchanged: the deploy carries no model key and no document-parse key**, so
+`reconcile_ai_invoice` answers **503** naming the missing variables (the loud door, not a stub) — the
+credential is the owner's action; and the product host still has **no crawler map** (`/robots.txt` +
+`/sitemap.xml` 404, re-probed this turn).
+
 _Last updated: 2026-10-09 (**owner approval — SpendProof is APPROVED and the build line restarts**). Verbatim
 owner instruction: *"approve spendproof and reactivate the build line"*. SpendProof (signal 79/100, PRD
 `context/recon_proposals/2026-10-05_spendproof.md`) is dispatched as a one-shot job; the APPROVED record below
@@ -229,6 +246,43 @@ approval itself is the reactivation.
   the job persisted with `model: null`, so it runs on the **default fleet tier** (`deepseek-flash`) rather than
   the frontier builder tier the repo's "Runtime model note" assigns to Product Director work. One build slot is
   running; nothing else was dispatched in parallel.
+
+## BUILT + LANDED — 2026-10-10 (execution of the 2026-10-09 approval) → SpendProof
+
+The dispatched job (`4b16d0e2e7f2`, execution `d20e2f8c45a74c178f4b0c2318e8616a`) is **done and on
+`main`**. Code commit **`536de2a`** — 28 files staged by name, v1 scope only, registry `beta`.
+
+- **Gate:** `bash scripts/verify-build.sh` green end to end (tsc 0 / eslint 0 errors / tokens /
+  `verticals:check` 26 / `recon:cadence` / **201 vitest** / `next build` / **75 Playwright e2e** /
+  **visual-qa 24/24 tiles PASS**). The `/showcase` baseline was an INTENDED re-derivation, made after
+  reading the measured diff: five changed bands — the Finance chip count, the product count, the new card,
+  the tool count and the new catalog row — and nothing else moved.
+- **Deployed and verified, not the push:** container `af8yqbwrrnyyfgs9wcg0intj-20261010T003137`, image
+  `af8yqbwrrnyyfgs9wcg0intj:536de2a2c528d0b7882f099fed8bcc442fc4b166` == `git rev-parse HEAD`.
+  Live: `/showcase` 200 (SpendProof card, `BETA` ×1 / `LIVE` ×4 / `RETIRED` ×1), `/spendproof` 200,
+  `/.well-known/mcp.json` 200 **v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical to the tree
+  (selector default still `reconcile_stripe_payout`), `x-webmcp-tool: not_a_tool` → **400**,
+  `x-webmcp-tool: reconcile_ai_invoice` → **503** naming both missing env vars, `POST
+  /api/spendproof/extract` → **503** likewise. A headless render of the live `/spendproof` shows
+  `CLOSE WITHHELD`, `$2.70` recomputed, 2 findings, blockers `sp-untagged-spend · sp-bucket-unmatched`,
+  0 page errors.
+- **No telemetry was written by any probe.** All probes are rejection paths or plain GETs, and the live
+  headless render had `/api/events` intercepted. The 147 rows the build's OWN Playwright runs wrote under
+  `product=spendproof` (ids 6048–6599, 00:06:22→00:26:51, `page_view`/`reconcile_click` only) were
+  deleted through PostgREST and verified back to **0**; `agent_query` is unchanged at **8**.
+- **Two gate-classes recorded in the owning SOPs, both settled by measurement rather than by a model:**
+  `skills/ui_component_standards.md` gained the 2026-10-09 entry (three "text overlaps" verdicts across
+  two products, all false positives at 315/665/353/356 unclipped text runs with 0 intersections —
+  `tests/e2e/text-geometry.spec.ts` now decides that class in code, incl. the placeholder-vs-gutter
+  geometry), and `skills/webmcp_integration.md` §7 records the four contracts an LLM/parse-backed tool
+  owes (env-keyed loud refusal ordered before the cap gate and any telemetry; declared-and-blocking
+  extraction that never derives the audited number; transport injected so the core stays offline-testable;
+  class-checked pricing with the 3× measured-cost test) plus the three traps when the tool list grows.
+- **Still open for the owner (unchanged by this build):** the deploy needs a model key and a
+  document-parse key (`SPENDPROOF_EXTRACTION_MODEL_KEY`/`GEMINI_API_KEY` and
+  `SPENDPROOF_PARSE_KEY`/`LLAMAPARSE_API_KEY`) before `reconcile_ai_invoice` can serve a call — no
+  approval covers a credential; the `agent_metered` checkout is still 500
+  (`STRIPE_AGENT_METER_PRICE_ID` unset); and the product host still has no crawler map.
 
 ## APPROVED + LANDED — 2026-10-05 (owner instruction, Jorge) → the visual review reads full-resolution tiles
 
