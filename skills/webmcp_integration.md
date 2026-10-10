@@ -160,7 +160,10 @@ Skipping any one of them is how the posture breaks:
    like a serviced call and a probe writes no telemetry row. A stub, a fabricated field or a degraded
    substitute is the one thing the posture forbids: assert the failure path in the test instead
    (`expect(() => resolveExtractionCredentials({})).toThrow(ExtractionUnavailableError)`), and probe the
-   live 503 post-deploy rather than faking a key.
+   live 503 post-deploy rather than faking a key. **Require only the keys the path actually uses:** the
+   model key is unconditional, but a document-parse key is needed only when a DOCUMENT is sent — a pasted
+   text needs no parse service, and demanding a parse key there refuses work that does not use it. Put the
+   loud door for the conditional key on the path that needs it (`requireParseKey`), not in the resolver.
 2. **Extraction is declared, and it BLOCKS.** Fill a declared field set, carry
    `extracted`/`unreadable`/`unstated` per field, label it on the page AND in the artifact, and return
    **no record at all** when any field is not `extracted`. Never derive the number under audit — a
@@ -182,3 +185,36 @@ When the tool list grows, three mechanical traps:
 - **Add the slug to the `pricing.test.ts` wiring list** so no page can re-inline a rate that the API
   charges differently, and add the product to `REVIEWED_PRODUCTS` in `scripts/visual-qa.mjs` **plus** a
   capture in `tests/e2e/qa-screenshot.spec.ts` — a product with no tiles fails the step loudly.
+
+### The three contracts a DOCUMENT pipeline owes (measured against the live services, SpendProof)
+
+Contracts 1–4 above hold whether the input is text or a file. A path that reads a real DOCUMENT adds
+three more, and all three were shipped wrong in the first LLM/parse-backed product — a stubbed
+transport and a faked key cannot reveal any of them, so prove each with a fake transport AND once
+against the live service:
+
+5. **A parse service's contract is the one its API actually implements — measure it, never infer it.**
+   A document parser is not one call. Measure the live flow and encode it: `POST /upload` as
+   **multipart** (`file` field, `Content-Type` left to `fetch` so the boundary matches) →
+   `{id, status:"PENDING"}`; `GET /job/{id}` polled to `SUCCESS`/`ERROR` on a bounded deadline; then
+   `GET /job/{id}/result/markdown` for the text. Three traps: a JSON body carrying the document answers
+   `400` naming the fields the service does accept (`file`/`input_url`/`input_s3_path`); **the upload
+   response is a RECEIPT, not the text**, so treating it as the parsed document feeds the model
+   `{"id":…,"status":"PENDING"}` and every field comes back `unstated`; and hand-setting the multipart
+   `Content-Type` breaks the boundary. Fetch `markdown` rather than `text` so an invoice's line-item
+   table survives to the model. A poll that fails, errors or never finishes must withhold the verdict —
+   never fall back to the caller's raw text.
+6. **Widen the injected transport to carry METHOD and UPLOAD — never call `fetch` from the engine.**
+   `{ url, method: "GET" | "POST", headers, body?, upload? {field, filename, contentType, bytes} }`
+   keeps the core offline-testable and makes the whole three-step flow assertable in a unit test: walk
+   upload → poll → result against a stub and assert the model is handed the PARSED text, not the receipt.
+7. **The prompt, the parser and the record are ONE contract — assert they agree.** A prompt written as a
+   flat per-line field list (`service, model, quantity, unit_price, amount`) in front of a parser that
+   reads a whole record (`{provider, period:{start,end}, currency, totalMicroUsd, lines[], unreadableRegions[]}`)
+   makes the model answer **one object per line** — a top-level JSON array — and a parser that slices from
+   the first `{` to the last `}` then fabricates invalid JSON out of `{…},{…}`. Render the prompt FROM the
+   record's key list, spell out the UNITS in it (money is an integer count of micro-USD: 1 USD = 1,000,000),
+   include a worked example whose numbers are internally consistent, and add a test asserting every record
+   key still appears in the prompt. Read the model's payload **as JSON first**, accept a single-record
+   array, and refuse an array of several records LOUDLY instead of merging them — merging is the reader
+   inventing the invoice.

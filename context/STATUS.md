@@ -1,5 +1,25 @@
 # Factory Status Map
 
+_Last updated: 2026-10-10 (**SpendProof is LIVE and its extraction half WORKS — verified against the live
+services**). Owner instruction *"env variables are now created in Coolify.. Please review and change status"*, then
+*"full fix"*. Product `6f325f5`, gate repair `4dfe3c1`; app container `af8yqbwrrnyyfgs9wcg0intj-20261010T194129`
+runs image `4dfe3c1…` == HEAD. Registry **5 live + 0 beta + 1 killed**; live `/showcase` **LIVE ×5 / BETA ×0 /
+RETIRED ×1**; `/spendproof` 200. The three credentials are in the running container (read back:
+`GEMINI_API_KEY`, `LLAMAPARSE_API_KEY`, `STRIPE_AGENT_METER_PRICE_ID`), both keys validated live, and
+**`agent_metered` checkout is 500 → 200 `cs_live_…`** — that open item is CLOSED. The extraction half was dead in
+three ways (a JSON parse POST where the service requires a multipart upload and an async
+upload→poll→`/result/markdown` flow; a prompt asking for a per-line shape while the parser read a whole record; no
+units stated while the record is integer micro-USD) — all fixed and **live-verified**: `POST
+/api/spendproof/extract` **200** with 22/22 fields labelled `extracted` (text) and **200** for a real PDF
+(document), rule-id **400**s for neither/both inputs. Gate green end to end (**213 vitest** / **75 e2e** /
+**visual-qa 24/24**); the `/showcase` baseline re-derived after reading the diff (one 62×23 px region — the BETA→LIVE
+badge). A **gate repair** landed separately (`4dfe3c1`): `visual-qa` failed `caseproof-qa-5` three times on a
+false positive the deterministic text-geometry guard already decides (measured: 0 intersecting rects, 36 px of clear
+space), so the reviewer no longer opines on that class. The 357 telemetry rows the gate's own e2e runs wrote were
+deleted (verified back to row id 6723). **Still open for the owner:** no crawler map (`/robots.txt` + `/sitemap.xml`
+404); the agent tool stays text-in (PDF is the HTTP route + page); **item 5**, **item 6**, **item 7** (P2), **item
+11** (P2), the **ParcelProof AHS-Dimension one-liner** (23rd day); revenue **$0 real**, no provable outside visitor.
+
 _Last updated: 2026-10-10 (**SpendProof is BUILT and LIVE in beta — the build line restarted overnight**).
 Approval 2026-10-09 23:50 UTC (`c1470e2`), build fired 23:53 (`ed2ee8b`), shipped 2026-10-10 00:31
 (`536de2a`, 28 files), landing record 00:36 (`04b699d`). `HEAD == origin/main == 04b699d`; app container
@@ -492,8 +512,14 @@ Registry status is **live** (owner launch call, `683796b`, 2026-10-04).
 
 ## Environment
 
-Coolify env vars **added** (Supabase URL/service-role/anon, Stripe, Resend). Local `.env`
-mirrors them.
+Coolify env vars **added** (Supabase URL/service-role/anon, Stripe, Resend) plus, on 2026-10-10, the
+two keys the first LLM/parse-backed product needs — `GEMINI_API_KEY` (the extraction model, default
+`gemini-3.1-pro-preview`) and `LLAMAPARSE_API_KEY` (the document parse) — and
+`STRIPE_AGENT_METER_PRICE_ID=price_1UMYy8JaTDc3aAp0mRZ6SFZ7`, which switched the `agent_metered`
+checkout back on (it now returns a live session). The alternate names `SPENDPROOF_EXTRACTION_MODEL_KEY`
+/ `SPENDPROOF_PARSE_KEY` are accepted in the same precedence, and `SPENDPROOF_EXTRACTION_MODEL`
+overrides the model. A Coolify env change reaches the container only on a redeploy. Local `.env`
+mirrors the rest.
 
 ## Remaining / dormant
 

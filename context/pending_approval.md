@@ -4,6 +4,46 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-10 (**SpendProof is LIVE and the extraction half WORKS — verified live, not just green**).
+Owner instruction, verbatim: *"env variables are now created in Coolify.. Please review and change status"* → then,
+after the defect report, *"full fix"*. Code `6f325f5`, gate repair `4dfe3c1`, app container
+`af8yqbwrrnyyfgs9wcg0intj-20261010T194129` runs image `af8yqbwrrnyyfgs9wcg0intj:4dfe3c1…` == `git rev-parse HEAD`.
+Registry **5 live + 0 beta + 1 killed**; live `/showcase` renders **LIVE ×5 / BETA ×0 / RETIRED ×1**, `/spendproof`
+200. **The three credentials the owner added are in the RUNNING container** (read back from it, not from the
+dashboard: `GEMINI_API_KEY` 39 chars, `LLAMAPARSE_API_KEY` 52 chars, `STRIPE_AGENT_METER_PRICE_ID` `price_1UMYy8…`),
+and both were validated against the live services before anything shipped (Gemini `/v1beta/models` **200** with
+`gemini-3.1-pro-preview` present; LlamaParse `/api/parsing/upload` authenticated). The Coolify env change needed a
+redeploy to reach the container — app 14 was redeployed for it. **`agent_metered` checkout went 500 → 200 live
+session** (`cs_live_…`): that open item is CLOSED, the agent money rail is no longer dead. **The extraction half was
+dead in three ways, none of which a stubbed transport or a faked key can reveal:** (1) the parse call was a JSON POST
+where the service requires a **multipart `file`** upload and is **asynchronous** (`upload → {id,status:PENDING} → poll
+GET /job/{id} → GET /job/{id}/result/markdown`) — the upload response is a RECEIPT and the old code fed it to the model
+as the invoice; (2) the prompt asked for a flat **per-line** field list while the parser read a whole **record**, so
+the model answered ONE OBJECT PER LINE (a top-level array) and the parser's first-`{`-to-last-`}` slice fabricated
+invalid JSON out of `{…},{…}`; (3) the prompt never stated the units while the record is **integer micro-USD** — a
+dollar amount read as micro-USD is off by 1e6 in a money product. All three fixed (`skills/webmcp_integration.md` §7
+gained contracts 5–7). **Live-verified end to end, not by the gate:** `POST /api/spendproof/extract` with
+`documentText` → **200**, **22/22 fields labelled `extracted`** (provider, period, currency, amount + 3 lines × 6);
+with a real PDF as `documentBase64` → **200** through the parse flow; neither input or both inputs → **400** with a
+rule id (`sp-document-missing` / `sp-document-ambiguous`); `POST /api/agent/calculate` `reconcile_ai_invoice` now
+reaches input validation instead of the credential door. `verify-build.sh` green end to end (**213 vitest** / **75
+Playwright e2e** / **visual-qa 24/24 tiles PASS**), and the `/showcase` baseline re-derived after READING the diff
+(one contiguous 62×23 px region at (1098,822), 1347 px of 2,485,760 — the BETA pill becoming the LIVE badge).
+**`visual-qa` failed `caseproof-qa-5` on three consecutive attempts** on an untouched product ("text overlapping in
+IDE header (W3C navigator.modelContext and CLIENT-SIDE ONLY badge)") — a tile `tests/e2e/text-geometry.spec.ts`
+already names as a false positive of that reviewer; measured at 1280×900 on the audited page state: the two runs sit
+at x=647 (156 wide) and x=839, **0 intersecting rects, 36 px of clear space**. Landed as its own commit (`4dfe3c1`):
+the reviewer prompt no longer opines on the text-in-a-row class the deterministic guard decides, with the measurement
+recorded in the file. **The 357 telemetry rows the gate's own e2e runs wrote** (19:24:28→19:38:13Z) were deleted and
+verified back to the pre-run row (id 6723, 18:49:51Z), so the growth metric cannot read our tests as usage.
+**Still open for the owner:** the product host has **no crawler map** (`/robots.txt` + `/sitemap.xml` **404** on
+`apps.giniloh.com`, re-probed this turn), so nothing shipped becomes discoverable; `reconcile_ai_invoice` stays
+**text-in** (its published agent contract) — the PDF path is the HTTP route and the page, and widening the agent
+contract is a manifest version bump for the owner to call; and unchanged: the **ParcelProof AHS-Dimension one-liner**
+(23rd day), **item 5**, **item 6**, **item 7** (P2), **item 11** (P2). One nit, reported not hidden: an invalid
+`documentBase64` answers **502** (a service-refusal class) where a **400** would be the honest class for a caller's
+malformed input — the message is explicit and nothing was extracted.
+
 _Last updated: 2026-10-10 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`; the line is
 running again). **SpendProof is BUILT and LIVE in beta.** Approval `c1470e2` (2026-10-09 23:50 UTC) → build job
 `ed2ee8b` (23:53) → ship `536de2a` (2026-10-10 00:31, 28 files) → landing record `04b699d` (00:36);
@@ -201,6 +241,58 @@ on the model provider account so the 09-28…09-30 402 blackout cannot repeat si
 issues / 13 jobs (12 stale 402 vertical stamps + WordPress Draft Sweep failed 2026-10-04 14:24, kie.ai
 featured-image Internal Error ×3). Live `LIVE` ×4 / `BETA` ×0 on `/showcase`; manifest v2.0.0 / 9 tools
 byte-identical; all four products return live checkout sessions; revenue still $0 real._
+
+## APPROVED + SHIPPED — 2026-10-10 (owner instruction, Jorge) → **SpendProof goes LIVE; the document pipeline fixed**
+
+**[SHIPPED + LIVE-VERIFIED — `6f325f5` (product) + `4dfe3c1` (gate repair).]** Owner instruction, verbatim:
+*"env variables are now created in Coolify.. Please review and change status"* — answered first with a review that
+found the credential was not the only problem, then *"full fix"* for the three defects it named.
+
+- **What the review found (all measured live, not read from the docs).** The credentials were correct and in the
+  Coolify env for app 14 (`GEMINI_API_KEY` 39 chars, `LLAMAPARSE_API_KEY` 52 chars,
+  `STRIPE_AGENT_METER_PRICE_ID` `price_1UMYy8…`, all `is_runtime`), and both keys validated against their services
+  — but `POST /api/spendproof/extract` answered **502 "The document-parse service rejected the invoice (HTTP 400)"**,
+  so the launch would have shipped a product whose headline feature errors for every user. The status flip was held
+  and the defect reported.
+- **Approved scope:** the full fix — the document path done properly (multipart upload + job polling) so real PDF
+  invoices work, not the minimal "skip the parse for text" shortcut.
+- **Shipped.** The parse flow is the measured three-step one (`upload` → `poll /job/{id}` → `/result/markdown`) with
+  a bounded poll that withholds the verdict on ERROR/timeout/failed poll; the injected transport carries a `method`
+  and a multipart `upload`; pasted TEXT is returned as-is without calling the parse service (so a text run no longer
+  requires a parse key, while a DOCUMENT still refuses loudly by name); the prompt is rendered from the record's own
+  key list with the units spelled out and a consistent worked example; the model payload is read AS JSON FIRST (a
+  single-record array accepted, an array of several records refused, never merged); the route takes `documentText`
+  XOR `documentBase64` with rule-id 400s and a size ceiling instead of truncation; the page gained a PDF/scan upload
+  control; the agent tool is repointed at the new entry point, unchanged in its text-in contract.
+- **Registry:** `spendproof` `beta` → **`live`** (the owner's launch call). It sits last in registry order, so
+  `defaultInventoryProduct` is unchanged (still LedgerLink), and the published manifest already advertised the tool —
+  v2.1.0 / 10 tools, no version bump.
+- **Gate:** `scripts/verify-build.sh` green end to end — tsc 0 / eslint 0 errors / tokens / `verticals:check` 26 /
+  `recon:cadence` / **213 vitest** (12 new) / `next build` / **75 Playwright e2e** / **visual-qa 24/24 tiles PASS**.
+  The `/showcase` baseline was re-derived after READING the diff: one contiguous 62×23 px region at (1098,822),
+  1347 px of 2,485,760 (0.054%) — the BETA pill becoming the LIVE badge, same row band as the 2026-10-04 change.
+- **Live, after the deploy (not the push):** container `af8yqbwrrnyyfgs9wcg0intj-20261010T194129` runs image
+  `af8yqbwrrnyyfgs9wcg0intj:4dfe3c1…` == `git rev-parse HEAD`; `/showcase` **200** with **LIVE ×5 / BETA ×0 /
+  RETIRED ×1**; `/spendproof` **200** with the upload control in the served HTML; `POST
+  /api/spendproof/extract` **200** with 22/22 fields labelled `extracted` (text) and **200** with a real PDF as
+  `documentBase64` (document path); neither input → **400 `sp-document-missing`**, both inputs → **400
+  `sp-document-ambiguous`**. Nothing wrote telemetry: all probes are rejection paths or plain GETs, and the route
+  writes nothing on any path. The 357 rows the gate's own Playwright runs wrote were deleted through PostgREST and
+  verified back to the pre-run row id 6723 (18:49:51Z).
+- **A gate repair landed with it, as its own commit — reported because it changes a gate.** `visual-qa` failed
+  `caseproof-qa-5` on three consecutive attempts on a product this pass does not touch, with a verdict
+  `tests/e2e/text-geometry.spec.ts` already names as a false positive of that reviewer. Measured at 1280×900 on the
+  audited page state (Range client rects, i.e. painted text runs): "W3C navigator.modelContext" at x=647 w=156 and
+  "CLIENT-SIDE ONLY • ZERO EGRESS" at x=839 on the same row — **0 intersecting rects, 36 px of clear space**. The
+  reviewer prompt no longer flags two adjacent text runs in a flex row/table row/code-inset header (it still flags a
+  run that visibly crosses another) and names the deterministic guard, the same shape as the existing
+  connector/line-near-label exclusion, with the measurement recorded in the file.
+- **Not covered by this call, reported rather than folded in:** the product host still has **no crawler map**
+  (`/robots.txt` + `/sitemap.xml` 404, re-probed), so nothing shipped becomes discoverable; `reconcile_ai_invoice`
+  stays text-in — widening the agent contract to accept a document is a manifest version bump, the owner's call; and
+  an invalid `documentBase64` answers 502 where 400 would be the honest class (explicit message, nothing extracted).
+- **Still open for the owner, unchanged:** the **ParcelProof AHS-Dimension one-liner** (23rd day), **item 5**, **item
+  6**, **item 7** (P2), **item 11** (P2).
 
 ## APPROVED — 2026-10-09 (owner instruction, Jorge) → **SpendProof build; the build line restarts**
 
