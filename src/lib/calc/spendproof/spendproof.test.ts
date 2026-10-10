@@ -1,23 +1,38 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  EXTRACTION_RECORD_EXAMPLE,
+  EXTRACTION_RECORD_KEYS,
   IMPLEMENTED_RULE_IDS,
+  PARSE_MAX_DOCUMENT_BYTES,
+  PARSE_UPLOAD_ENDPOINT,
   SPENDPROOF_SCENARIOS,
   ExtractionUnavailableError,
   buildCoverage,
+  buildExtractionPrompt,
   chargeFromDeclaredRate,
+  decodeBase64Document,
+  extractStructuredFields,
   formatMicros,
   labelledFields,
+  parseDocumentToText,
+  parseJobEndpoint,
   parseLedgerCsv,
+  parseResultEndpoint,
   parseUsdToMicros,
   readExtractionPayload,
+  readStructuredJsonFromModelResponse,
   reconcileCsv,
   reconcileInvoice,
+  requireParseKey,
   resolveExtractionCredentials,
   roundingToleranceMicros,
   scenarioByKey,
   toInvoiceFromExtraction,
   type ExtractedInvoiceRecord,
+  type ExtractionTransport,
+  type ExtractionTransportRequest,
+  type ExtractionTransportResponse,
   type ScenarioKey,
 } from "./index";
 
@@ -136,10 +151,13 @@ describe("SpendProof — the PRD's five vectors", () => {
 
   it("vector 5: an unreadable invoice region blocks the verdict — it is never guessed", () => {
     // (a) The deploy has no key: the extraction refuses loudly, naming the variables. No stub, no
-    // fabricated field, no degraded substitute.
+    // fabricated field, no degraded substitute. A TEXT run needs only the model key; a DOCUMENT run
+    // is where the parse key is required, and that is where the loud door now stands.
     expect(() => resolveExtractionCredentials({})).toThrow(ExtractionUnavailableError);
+    const modelOnly = resolveExtractionCredentials({ GEMINI_API_KEY: "present-but-not-enough" });
+    expect(modelOnly.parseKey).toBeNull();
     try {
-      resolveExtractionCredentials({ GEMINI_API_KEY: "present-but-not-enough" });
+      requireParseKey(modelOnly);
       throw new Error("expected the missing document-parse key to be named");
     } catch (error) {
       expect(error).toBeInstanceOf(ExtractionUnavailableError);
@@ -414,12 +432,64 @@ describe("SpendProof — money and rate arithmetic", () => {
   });
 });
 
+/** A transport stub — this file makes no network call. It records every request it is handed. */
+function stubTransport(
+  answer: (
+    request: ExtractionTransportRequest,
+    index: number,
+  ) => ExtractionTransportResponse | Promise<ExtractionTransportResponse>,
+): { transport: ExtractionTransport; calls: ExtractionTransportRequest[] } {
+  const calls: ExtractionTransportRequest[] = [];
+  const transport: ExtractionTransport = async (request) => {
+    calls.push(request);
+    return answer(request, calls.length - 1);
+  };
+  return { transport, calls };
+}
+
+function jsonResponse(body: unknown, status = 200): ExtractionTransportResponse {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => JSON.stringify(body),
+  };
+}
+
+/** The document-parse service's response at each of its three steps, measured against the live API. */
+const PARSE_UPLOAD_RECEIPT = { id: "job-7", status: "PENDING", error_code: null, error_message: null };
+const PARSED_MARKDOWN =
+  "# Invoice\n\n| service | amount |\n| --- | --- |\n| Responses API | 180.00 |\n";
+const MODEL_ANSWER = {
+  candidates: [
+    {
+      content: {
+        parts: [
+          {
+            text: JSON.stringify({
+              provider: { value: "openai", provenance: "extracted" },
+              lines: [],
+            }),
+          },
+        ],
+      },
+    },
+  ],
+};
+
+const CREDENTIALS = { modelKey: "model", parseKey: "parse", model: "gemini-3.1-pro-preview" };
+
 describe("SpendProof — extraction contract", () => {
-  it("declares the field set and refuses to resolve half a credential pair", () => {
+  it("requires the model key, and leaves the parse key optional for a text run", () => {
     expect(() => resolveExtractionCredentials({})).toThrow(ExtractionUnavailableError);
     expect(() =>
       resolveExtractionCredentials({ SPENDPROOF_PARSE_KEY: "parse-only" }),
     ).toThrow(/SPENDPROOF_EXTRACTION_MODEL_KEY/);
+    // A text run does not touch the parse service, so requiring the parse key would refuse work that
+    // does not use it. The document path is where the loud door lives (requireParseKey below).
+    const textOnly = resolveExtractionCredentials({ GEMINI_API_KEY: "model" });
+    expect(textOnly.modelKey).toBe("model");
+    expect(textOnly.parseKey).toBeNull();
+    expect(() => requireParseKey(textOnly)).toThrow(/SPENDPROOF_PARSE_KEY/);
     const resolved = resolveExtractionCredentials({
       GEMINI_API_KEY: "model",
       LLAMAPARSE_API_KEY: "parse",
@@ -437,5 +507,214 @@ describe("SpendProof — extraction contract", () => {
     const result = toInvoiceFromExtraction(record);
     expect(result.blocked).toBe(true);
     expect(result.invoice).toBeNull();
+  });
+
+  it("returns pasted text as-is without calling the parse service", async () => {
+    const { transport, calls } = stubTransport(() => jsonResponse({}));
+    const text = await parseDocumentToText({
+      document: { text: "  OpenAI LLC invoice  ", name: "provider-invoice" },
+      credentials: { modelKey: "model", parseKey: null, model: "gemini-3.1-pro-preview" },
+      transport,
+    });
+    expect(text).toBe("OpenAI LLC invoice");
+    // A paid third-party call that adds nothing is a defect: zero transport calls for text input.
+    expect(calls).toEqual([]);
+  });
+
+  it("walks upload -> poll -> result for a document, and feeds the model the PARSED text, never the job receipt", async () => {
+    let polls = 0;
+    const { transport, calls } = stubTransport((request) => {
+      if (request.url === PARSE_UPLOAD_ENDPOINT) return jsonResponse(PARSE_UPLOAD_RECEIPT);
+      if (request.url === parseJobEndpoint("job-7")) {
+        polls += 1;
+        return jsonResponse({ status: polls < 2 ? "PENDING" : "SUCCESS" });
+      }
+      if (request.url === parseResultEndpoint("job-7")) return jsonResponse({ markdown: PARSED_MARKDOWN });
+      return jsonResponse(MODEL_ANSWER);
+    });
+
+    const parsed = await parseDocumentToText({
+      document: {
+        base64: Buffer.from("%PDF-1.4 invoice bytes").toString("base64"),
+        name: "invoice.pdf",
+        contentType: "application/pdf",
+      },
+      credentials: CREDENTIALS,
+      transport,
+      pollIntervalMs: 0,
+    });
+
+    expect(parsed).toBe(PARSED_MARKDOWN);
+    expect(polls).toBe(2);
+
+    // Step 1 is a MULTIPART FILE UPLOAD. A JSON body here is exactly the defect this guards.
+    const upload = calls[0];
+    expect(upload.method).toBe("POST");
+    expect(upload.upload?.field).toBe("file");
+    expect(upload.upload?.filename).toBe("invoice.pdf");
+    expect(upload.upload?.contentType).toBe("application/pdf");
+    expect(Buffer.from(upload.upload?.bytes ?? []).toString()).toBe("%PDF-1.4 invoice bytes");
+    expect(upload.body).toBeUndefined();
+    // …and the request carries NO content-type of its own: `fetch` sets it with the multipart boundary.
+    expect(Object.keys(upload.headers)).toEqual(["Authorization"]);
+    expect(calls[1].method).toBe("GET");
+    expect(calls[2].url).toBe(parseJobEndpoint("job-7"));
+    expect(calls[3].url).toBe(parseResultEndpoint("job-7"));
+
+    // The model must be asked to read the invoice, not the receipt that says a job was queued.
+    const record = await extractStructuredFields({
+      documentText: parsed,
+      credentials: CREDENTIALS,
+      transport,
+    });
+    const modelCall = calls[calls.length - 1];
+    const sent = JSON.parse(String(modelCall.body)).contents[0].parts[0].text as string;
+    expect(sent).toContain("Responses API");
+    expect(sent).not.toContain("PENDING");
+    expect(sent).not.toContain("job-7");
+    expect(record.provider.value).toBe("openai");
+  });
+
+  it("refuses a document it cannot parse instead of substituting the document's bytes for its text", async () => {
+    const { transport, calls } = stubTransport((request) => {
+      if (request.url === PARSE_UPLOAD_ENDPOINT) {
+        return jsonResponse({ id: "job-9", status: "PENDING" });
+      }
+      return jsonResponse({ status: "ERROR", error_message: "the scan is corrupt" });
+    });
+    await expect(
+      parseDocumentToText({
+        document: { base64: Buffer.from("not a pdf").toString("base64"), name: "broken.pdf" },
+        credentials: CREDENTIALS,
+        transport,
+        pollIntervalMs: 0,
+      }),
+    ).rejects.toThrow(/could not read the invoice \(the scan is corrupt\)/);
+    // It stopped at the job status — it never asked the model to read the raw bytes.
+    expect(calls).toHaveLength(2);
+  });
+
+  it("withholds the verdict when the parse never finishes, naming the last status", async () => {
+    const { transport } = stubTransport((request) =>
+      request.url === PARSE_UPLOAD_ENDPOINT
+        ? jsonResponse({ id: "job-11", status: "PENDING" })
+        : jsonResponse({ status: "PENDING" }),
+    );
+    await expect(
+      parseDocumentToText({
+        document: { base64: Buffer.from("slow").toString("base64"), name: "slow.pdf" },
+        credentials: CREDENTIALS,
+        transport,
+        pollIntervalMs: 0,
+        maxPollAttempts: 4,
+      }),
+    ).rejects.toThrow(/last status PENDING after 4 polls/);
+  });
+
+  it("refuses a document when the deploy has no parse key, naming the variable", async () => {
+    const { transport, calls } = stubTransport(() => jsonResponse({}));
+    await expect(
+      parseDocumentToText({
+        document: { base64: Buffer.from("pdf").toString("base64"), name: "invoice.pdf" },
+        credentials: { modelKey: "model", parseKey: null, model: "gemini-3.1-pro-preview" },
+        transport,
+      }),
+    ).rejects.toThrow(/SPENDPROOF_PARSE_KEY or LLAMAPARSE_API_KEY/);
+    expect(calls).toEqual([]);
+  });
+
+  it("refuses malformed base64 and a document above the declared ceiling — it never truncates", async () => {
+    expect(() => decodeBase64Document("not*base64!")).toThrow(/not valid base64/);
+    const overCeiling = Buffer.alloc(PARSE_MAX_DOCUMENT_BYTES + 1, 0x41).toString("base64");
+    const { transport } = stubTransport(() => jsonResponse(PARSE_UPLOAD_RECEIPT));
+    await expect(
+      parseDocumentToText({
+        document: { base64: overCeiling, name: "huge.pdf" },
+        credentials: CREDENTIALS,
+        transport,
+      }),
+    ).rejects.toThrow(/above the 8388608-byte ceiling/);
+  });
+
+  it("refuses a parse result that carries no text", async () => {
+    const { transport } = stubTransport((request) => {
+      if (request.url === PARSE_UPLOAD_ENDPOINT) return jsonResponse({ id: "job-12", status: "PENDING" });
+      if (request.url === parseJobEndpoint("job-12")) return jsonResponse({ status: "SUCCESS" });
+      return jsonResponse({ markdown: "   " });
+    });
+    await expect(
+      parseDocumentToText({
+        document: { base64: Buffer.from("pdf").toString("base64"), name: "empty.pdf" },
+        credentials: CREDENTIALS,
+        transport,
+        pollIntervalMs: 0,
+      }),
+    ).rejects.toThrow(/returned no text for the invoice/);
+  });
+
+  it("asks the model for the exact record the parser reads, with the units spelled out", () => {
+    const prompt = buildExtractionPrompt("DOCUMENT-BODY");
+    // One source for the shape: every key the parser reads must be named in the prompt.
+    for (const key of EXTRACTION_RECORD_KEYS) {
+      expect(prompt).toContain(key.replace(/^line\./, ""));
+    }
+    expect(prompt).toContain("micro-USD");
+    expect(prompt).toContain("ONE JSON object");
+    expect(prompt).toContain('"lines"');
+    // The worked example has to teach the unit conversion, or the model answers in dollars.
+    expect(EXTRACTION_RECORD_EXAMPLE).toContain("270000000");
+    expect(EXTRACTION_RECORD_EXAMPLE).toContain("150000");
+    expect(prompt.trimEnd().endsWith("DOCUMENT-BODY")).toBe(true);
+  });
+
+  it("reads a single object, a one-record array, and an object wrapped in prose", () => {
+    const record = { provider: { value: "openai", provenance: "extracted" } };
+    const envelope = (text: string) =>
+      JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] });
+    expect(readStructuredJsonFromModelResponse(envelope(JSON.stringify(record)))).toEqual(record);
+    expect(readStructuredJsonFromModelResponse(envelope(JSON.stringify([record])))).toEqual(record);
+    expect(
+      readStructuredJsonFromModelResponse(
+        envelope("Here you go:\n```json\n" + JSON.stringify(record) + "\n```"),
+      ),
+    ).toEqual(record);
+  });
+
+  it("refuses an array of records instead of merging them — the per-line answer this model actually gives", () => {
+    const perLine = [1, 2, 3].map((n) => ({ service: { value: `line${n}`, provenance: "extracted" } }));
+    const envelope = JSON.stringify({
+      candidates: [{ content: { parts: [{ text: JSON.stringify(perLine) }] } }],
+    });
+    expect(() => readStructuredJsonFromModelResponse(envelope)).toThrow(
+      /returned 3 records where ONE invoice record was required/,
+    );
+  });
+
+  it("refuses a non-record payload and a body that is not JSON at all", () => {
+    const envelope = (text: string) =>
+      JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] });
+    expect(() => readStructuredJsonFromModelResponse(envelope('"just a string"'))).toThrow(
+      /not an invoice record/,
+    );
+    expect(() => readStructuredJsonFromModelResponse("not json at all")).toThrow(
+      /body that is not JSON/,
+    );
+  });
+
+  it("carries the model's micro-USD record into the engine unconverted, and still blocks on an unstated field", () => {
+    const record = readExtractionPayload(JSON.parse(EXTRACTION_RECORD_EXAMPLE)) as ExtractedInvoiceRecord;
+    expect(record.totalMicroUsd).toEqual({ value: 270_000_000, provenance: "extracted" });
+    expect(record.period.value).toEqual({ start: "2026-09-01", end: "2026-09-30" });
+    expect(record.lines[0].unitPriceMicroUsdPerThousandUnits).toEqual({
+      value: 150_000,
+      provenance: "extracted",
+    });
+    expect(record.lines[0].amountMicroUsd).toEqual({ value: 180_000_000, provenance: "extracted" });
+    // The example's `sku` is deliberately null+unstated: it teaches the model that a value it cannot
+    // find is `unstated`, and the engine then withholds the verdict rather than inventing a SKU.
+    expect(record.lines[0].sku).toEqual({ value: null, provenance: "unstated" });
+    const result = toInvoiceFromExtraction(record);
+    expect(result.blocked).toBe(true);
+    expect(result.findings.some((finding) => finding.scope === "line1.sku")).toBe(true);
   });
 });

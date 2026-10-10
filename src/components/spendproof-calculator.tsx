@@ -35,6 +35,7 @@ import {
   Download,
   FileSpreadsheet,
   FileText,
+  FileUp,
   RefreshCw,
   ScanLine,
   ShieldCheck,
@@ -52,6 +53,19 @@ type ExtractionState =
   | { kind: "loading" }
   | { kind: "blocked"; message: string; missing: string[] }
   | { kind: "labels"; labels: string[]; note: string };
+
+/** A document the page read off the file picker, ready to post as base64. */
+type DocumentFile = { name: string; contentType: string; base64: string };
+
+/** Base64 without blowing the argument limit on a multi-megabyte PDF (chunked, not one spread). */
+function base64FromBytes(bytes: Uint8Array): string {
+  let binary = "";
+  const chunk = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunk));
+  }
+  return window.btoa(binary);
+}
 
 function scenarioText(key: ScenarioKey) {
   const scenario = scenarioByKey(key);
@@ -76,6 +90,7 @@ export default function SpendProofCalculator({
   const [unmapped, setUnmapped] = React.useState<UnmappedColumns>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [documentText, setDocumentText] = React.useState(INVOICE_DOCUMENT_EXAMPLE);
+  const [documentFile, setDocumentFile] = React.useState<DocumentFile | null>(null);
   const [extraction, setExtraction] = React.useState<ExtractionState>({ kind: "idle" });
 
   React.useEffect(() => {
@@ -160,14 +175,41 @@ export default function SpendProofCalculator({
     );
   };
 
+  const readDocumentFile = async (file: File) => {
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      setDocumentFile({
+        name: file.name,
+        contentType: file.type || "application/pdf",
+        base64: base64FromBytes(bytes),
+      });
+      setExtraction({ kind: "idle" });
+      setError(null);
+    } catch (readError) {
+      setError(
+        `Could not read ${file.name}: ${readError instanceof Error ? readError.message : "unknown error"}`,
+      );
+    }
+  };
+
   const runExtraction = async () => {
-    if (!documentText.trim()) return;
+    // A chosen document wins over the box: it is the thing the reader asked to be read.
+    const request = documentFile
+      ? {
+          documentBase64: documentFile.base64,
+          documentName: documentFile.name,
+          documentMimeType: documentFile.contentType,
+        }
+      : documentText.trim()
+        ? { documentText, documentName: "provider-invoice" }
+        : null;
+    if (!request) return;
     setExtraction({ kind: "loading" });
     try {
       const response = await fetch("/api/spendproof/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ documentText, documentName: "provider-invoice" }),
+        body: JSON.stringify(request),
       });
       const body = (await response.json()) as {
         ok?: boolean;
@@ -587,11 +629,13 @@ export default function SpendProofCalculator({
               5 &middot; Read a PDF invoice (extraction)
             </CardTitle>
             <CardDescription>
-              Paste the invoice&apos;s document text. A document parse plus a model read it into the
-              declared field set &mdash; every field is labelled <code className="font-mono">extracted</code>,{" "}
+              Upload the invoice PDF (or a scan) &mdash; a document parse turns it into text, then a
+              model reads that text into the declared field set. Every field is labelled{" "}
+              <code className="font-mono">extracted</code>,{" "}
               <code className="font-mono">unreadable</code> or <code className="font-mono">unstated</code>,
               and anything that is not <code className="font-mono">extracted</code> withholds the
-              verdict. The model reads the document; it never computes a figure.
+              verdict. The model reads the document; it never computes a figure. Pasting the text
+              instead skips the parse service entirely.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -606,16 +650,43 @@ export default function SpendProofCalculator({
               placeholder="Paste the invoice's text (or the provider's PDF text layer) here…"
             />
             <div className="flex flex-wrap items-center gap-2">
+              <label className="flex cursor-pointer items-center gap-2 rounded border border-border bg-background px-3 py-2 text-xs text-muted hover:text-foreground">
+                <FileUp className="h-4 w-4" aria-hidden="true" />
+                {documentFile ? "Replace the invoice file" : "Upload the invoice PDF"}
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff,.txt,application/pdf,image/*"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void readDocumentFile(file);
+                  }}
+                />
+              </label>
+              {documentFile ? (
+                <span className="flex items-center gap-2 rounded border border-border bg-background px-3 py-2 text-xs text-foreground">
+                  <FileText className="h-4 w-4" aria-hidden="true" />
+                  {documentFile.name}
+                  <Button variant="ghost" size="sm" onClick={() => setDocumentFile(null)}>
+                    Remove file
+                  </Button>
+                </span>
+              ) : null}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 className={TACTILE_CTA}
                 onClick={() => void runExtraction()}
-                disabled={!documentText.trim() || extraction.kind === "loading"}
+                disabled={(!documentText.trim() && !documentFile) || extraction.kind === "loading"}
               >
                 <ScanLine className="mr-1.5 h-4 w-4" aria-hidden="true" />
                 {extraction.kind === "loading" ? "Extracting…" : "Extract declared fields"}
               </Button>
               <span className="text-xs text-subtle">
+                {documentFile
+                  ? `${documentFile.name} will be parsed and read.`
+                  : "The pasted text will be read directly."}{" "}
                 The extraction keys live server-side only and are never sent to this page.
               </span>
             </div>

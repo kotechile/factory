@@ -38,7 +38,7 @@ import {
   ExtractionUnavailableError,
   SpendProofFieldError,
   extractStructuredFields,
-  parseDocumentText,
+  parseDocumentToText,
   parseLedgerCsv,
   reconcileInvoice,
   resolveExtractionCredentials,
@@ -125,10 +125,11 @@ const serviceExtractionTransport: ExtractionTransport = async (request) => {
 /**
  * Resolves the extraction credentials, or returns the explicit refusal to send.
  *
- * SpendProof is the first product whose pipeline needs a model key and a document-parse key, and the
- * deploy carries neither until the owner adds one. This is the loud door: no stub, no fabricated
- * field, no degraded substitute (rule 5). It runs BEFORE the cap gate and before any `track()` /
- * metering, so an unconfigured deploy never looks like a served call.
+ * SpendProof is the first product whose pipeline needs a model key, and the deploy carries none
+ * until the owner adds one (a document-parse key is needed only when a DOCUMENT is sent; this tool's
+ * `invoice` is text, so it needs no parse service at all). This is the loud door: no stub, no
+ * fabricated field, no degraded substitute (rule 5). It runs BEFORE the cap gate and before any
+ * `track()` / metering, so an unconfigured deploy never looks like a served call.
  */
 function resolveSpendProofCredentials():
   | { ok: true; credentials: ExtractionCredentials }
@@ -620,9 +621,8 @@ export async function POST(req: NextRequest) {
         const ledgerCsv = requiredString(body.ledger, "ledger");
         const ledgerIngest = parseLedgerCsv(ledgerCsv);
 
-        const parsedText = await parseDocumentText({
-          documentText,
-          documentName: "provider-invoice",
+        const parsedText = await parseDocumentToText({
+          document: { text: documentText, name: "provider-invoice" },
           credentials: resolved.credentials,
           transport: serviceExtractionTransport,
         });
