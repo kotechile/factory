@@ -1,5 +1,21 @@
 # Factory Status Map
 
+_Last updated: 2026-10-10 (**SpendProof is BUILT and LIVE in beta — the build line restarted overnight**).
+Approval 2026-10-09 23:50 UTC (`c1470e2`), build fired 23:53 (`ed2ee8b`), shipped 2026-10-10 00:31
+(`536de2a`, 28 files), landing record 00:36 (`04b699d`). `HEAD == origin/main == 04b699d`; app container
+`af8yqbwrrnyyfgs9wcg0intj-20261010T003655` runs image `04b699dc…` == HEAD; `/showcase` 200; `/spendproof`
+200 (live render `CLOSE WITHHELD`). Registry **4 live + 1 beta (spendproof) + 1 killed**; `verify-build.sh`
+green in one pass (201 vitest / 75 Playwright / visual-qa 24/24). `/.well-known/mcp.json` **v2.1.0 / 10 tools**
+sha256 `698801c5…` byte-identical (new `reconcile_ai_invoice` $1.50). **Two open items on the product, both the
+owner's:** the deploy carries **no model key and no document-parse key**, so `POST /api/spendproof/extract`
+answers **503** naming the missing variables (the loud door), and the `agent_metered` checkout is still **500**
+(`STRIPE_AGENT_METER_PRICE_ID` unset). `hermes cron doctor` **1 issue / 59 jobs** — Editorial Verify Gate FAIL
+10-10 14:01 (live site image `99933819` vs editorial HEAD `eaa303d`, deploy behind), **CLOSED** by 15:27
+(pressflow container image `ab44d141` == editorial HEAD `ab44d14`). Revenue **$0 real**; **no provable outside
+visitor (day 40)**; events 5789 → 6363 (+574, all our own test runs: 82 watchdog 10-09 16:31 + 492 SpendProof
+e2e 10-10 00:05–00:26); articles 65 → 70. Still open for the founder: the **ParcelProof AHS-Dimension one-liner**
+(22nd day), **item 5**, **item 6**, **item 7** (P2), **item 11** (P2), plus the two operator settings.
+
 _Last updated: 2026-10-09 (**SpendProof APPROVED — the build line restarts**, owner instruction verbatim
 *"approve spendproof and reactivate the build line"*). The build line was idle for four days with **nothing
 approved**; the approval is the reactivation (no job was ever disabled — all 59 are `active`). SpendProof

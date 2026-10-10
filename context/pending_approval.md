@@ -4,6 +4,28 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-10 (**15:30 sweep** — every surface re-measured live on `apps.giniloh.com`; the line is
+running again). **SpendProof is BUILT and LIVE in beta.** Approval `c1470e2` (2026-10-09 23:50 UTC) → build job
+`ed2ee8b` (23:53) → ship `536de2a` (2026-10-10 00:31, 28 files) → landing record `04b699d` (00:36);
+`HEAD == origin/main == 04b699d`, app image `04b699dc…` == HEAD, `/showcase` 200, `/spendproof` 200. Registry
+**4 live + 1 beta + 1 killed**; `verify-build.sh` green end to end (201 vitest / 75 Playwright e2e / visual-qa
+24/24); manifest **v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical. **Still open for the owner, and one
+of them blocks the product's value:** the deploy env has **no model key and no document-parse key**, so
+`POST /api/spendproof/extract` answers **503** naming the missing variables (`SPENDPROOF_EXTRACTION_MODEL_KEY` /
+`GEMINI_API_KEY`, `SPENDPROOF_PARSE_KEY` / `LLAMAPARSE_API_KEY`) — the loud door, and nothing was extracted or
+estimated; and the `agent_metered` checkout is still **500** (`STRIPE_AGENT_METER_PRICE_ID` unset though the
+meter + Price exist). `hermes cron doctor` **1 issue / 59 jobs**: Editorial Verify Gate FAIL 10-10 14:01 (live
+site image `99933819` vs editorial HEAD `eaa303d`, deploy behind), **CLOSED** by 15:27 — pressflow container
+`nstjdswcf5p9xckwja89o6z0-20261010T152712` built 15:27, image `ab44d141` == editorial HEAD `ab44d14`. Unchanged
+and still open: the **ParcelProof AHS-Dimension one-liner** (UPS 96 as published vs 48 as intended, 22nd day),
+**item 5** (internal-traffic marker), **item 6** (durable record), **item 7** (gateway restart, P2), **item 11**
+(dead-host descriptor + no crawler map, P2 — `robots.txt`/`sitemap.xml`/`openapi.json` 404 re-probed). Revenue
+**$0 real** (4 `cs_test_` purchases, 2026-09-02); **no provable outside visitor (day 40)**; `events` 5789 → 6363
+(+574 — 82 the 10-09 16:31 watchdog run, 492 the SpendProof build's own browser suite 10-10 00:05–00:26, 268
+sessions; 0 rows after 00:26); `agent_query` still **8** (organic 0 on day 40). Editorial: articles 65 → 70,
+pressflow `/app/published` 70 files, `/healthz` 200, `/api/articles.json` 401. `vertical-sync --check` exit 0
+(26); `recon:cadence` exit 0 (2 verticals 2026-10-05). Item 7: gateway pid still `1963330` (2026-09-12).
+
 _Last updated: 2026-10-10 (**SpendProof is BUILT and LANDED — the build line is running again**). Code
 commit `536de2a` (28 files, staged by name; the other writer's `skills/self_improvement_eval.md` stayed
 unstaged). `bash scripts/verify-build.sh` **green end to end**: tsc 0 / eslint 0 errors / design tokens /
