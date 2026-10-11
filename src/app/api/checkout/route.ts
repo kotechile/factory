@@ -62,6 +62,27 @@ const PLAN_CATALOG: Record<string, PlanSpec> = {
     description: "Unlimited web access, exports, and priority execution across all factory tools",
     taxCode: "txcd_10202000",
   },
+  supply_chain_pro: {
+    amount: 2900,
+    mode: "subscription",
+    name: "Supply Chain Pro Suite",
+    description: "Unlimited ParcelProof & CaseProof browser audits and decision packs",
+    taxCode: "txcd_10202000",
+  },
+  finance_compliance_pro: {
+    amount: 2900,
+    mode: "subscription",
+    name: "Finance & Compliance Pro Suite",
+    description: "Unlimited LedgerLink GL exports and FacturGate EU e-invoicing artifacts",
+    taxCode: "txcd_10202000",
+  },
+  spendproof_pro: {
+    amount: 3900,
+    mode: "subscription",
+    name: "SpendProof Pro (AI FinOps)",
+    description: "Standalone AI provider invoice ↔ tagged-usage reconciler with extraction quota",
+    taxCode: "txcd_10202000",
+  },
   agent_metered: {
     amount: 0,
     mode: "subscription",

@@ -246,3 +246,75 @@ export function ratesOutsideTheirBand(): {
 export function unpricedProducts(): string[] {
   return products.filter((product) => !PRODUCT_PRICING[product.slug]).map((p) => p.slug);
 }
+
+
+export interface VerticalSuite {
+  id: "supply_chain" | "finance_compliance" | "ai_finops";
+  planKey: "supply_chain_pro" | "finance_compliance_pro" | "spendproof_pro";
+  name: string;
+  shortName: string;
+  badge: string;
+  priceUsd: number;
+  description: string;
+  tagline: string;
+  apps: string[];
+  cogsProfile: string;
+  features: string[];
+}
+
+export const VERTICAL_SUITES: VerticalSuite[] = [
+  {
+    id: "supply_chain",
+    planKey: "supply_chain_pro",
+    name: "Supply Chain Pro Suite",
+    shortName: "Supply Chain",
+    badge: "SUPPLY CHAIN",
+    priceUsd: 29,
+    description: "For logistics analysts, freight managers, and warehouse automation buyers.",
+    tagline: "Unlimited deterministic freight, carrier DIM weight & warehouse automation audits",
+    apps: ["parcelproof", "caseproof"],
+    cogsProfile: "$0 LLM COGS (Pure deterministic arithmetic)",
+    features: [
+      "ParcelProof: carrier DIM weight recompute & surcharge audit exports",
+      "CaseProof: warehouse automation Capex, payback & NPV decision packs",
+      "Strict deterministic guarantees: zero-egress, $0 variable AI cost",
+      "Cancel anytime self-serve via Stripe Billing Portal",
+    ],
+  },
+  {
+    id: "finance_compliance",
+    planKey: "finance_compliance_pro",
+    name: "Finance & Compliance Pro Suite",
+    shortName: "Finance & Compliance",
+    badge: "FINANCE & COMPLIANCE",
+    priceUsd: 29,
+    description: "For accountants, bookkeepers, and corporate controllers.",
+    tagline: "Deterministic Stripe payout GL decomposition & EU EN 16931 e-invoicing pre-send gate",
+    apps: ["ledgerlink", "facturgate"],
+    cogsProfile: "$0 LLM COGS (Pure deterministic arithmetic)",
+    features: [
+      "LedgerLink: Stripe payout decomposition into categorized GL journal CSVs",
+      "FacturGate: EN 16931 & CIUS-FR EU e-invoice validation + Factur-X / UBL 2.1 artifacts",
+      "Strict deterministic guarantees: zero-egress, ASC 606 & EN 16931 compliance",
+      "Cancel anytime self-serve via Stripe Billing Portal",
+    ],
+  },
+  {
+    id: "ai_finops",
+    planKey: "spendproof_pro",
+    name: "SpendProof Pro (AI FinOps)",
+    shortName: "SpendProof AI",
+    badge: "AI FINOPS",
+    priceUsd: 39,
+    description: "For FinOps engineers, tech leads, and AI budget owners.",
+    tagline: "Standalone AI provider invoice ↔ tagged-usage reconciler with extraction quota",
+    apps: ["spendproof"],
+    cogsProfile: "Isolated tier with dedicated LlamaParse & LLM extraction quota",
+    features: [
+      "SpendProof: AI provider invoice ↔ tagged-usage variance close pack",
+      "LlamaParse document parsing & frontier LLM extraction quota included",
+      "Variance classification: rate drops, prompt caching deltas & untagged keys",
+      "Cancel anytime self-serve via Stripe Billing Portal",
+    ],
+  },
+];

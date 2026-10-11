@@ -12,6 +12,9 @@ import {
   Sparkles,
   ArrowRight,
   Receipt,
+  Scale,
+  FileText,
+  Lock,
   AlertTriangle,
   Zap,
 } from "lucide-react";
@@ -20,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { trackEvent } from "@/lib/telemetry-client";
 import BillingUsage from "@/components/billing-usage";
 import { activeProducts } from "@/products/registry";
-import { PRODUCT_PRICING, agentRateRange } from "@/products/pricing";
+import { PRODUCT_PRICING, agentRateRange, VERTICAL_SUITES } from "@/products/pricing";
 
 /** The metered range for copy that must not hardcode a rate (the old flat "$0.25/query"). */
 const AGENT_RATE_RANGE = agentRateRange();
@@ -59,6 +62,8 @@ export default function FactoryBillingPortal() {
   const [busyPortal, setBusyPortal] = React.useState(false);
   const [portalError, setPortalError] = React.useState<string | null>(null);
   const [checkoutBusy, setCheckoutBusy] = React.useState<"agent" | "pro" | null>(null);
+  const [selectedSuiteId, setSelectedSuiteId] = React.useState<"supply_chain" | "finance_compliance" | "ai_finops">("supply_chain");
+  const currentSuite = VERTICAL_SUITES.find((s) => s.id === selectedSuiteId) ?? VERTICAL_SUITES[0];
 
   React.useEffect(() => {
     trackEvent("page_view", undefined, "billing");
@@ -100,7 +105,7 @@ export default function FactoryBillingPortal() {
     }
   };
 
-  const handleCheckout = async (plan: "agent_metered" | "factory_pro") => {
+  const handleCheckout = async (plan: "agent_metered" | "factory_pro" | "supply_chain_pro" | "finance_compliance_pro" | "spendproof_pro") => {
     setCheckoutBusy(plan === "agent_metered" ? "agent" : "pro");
     try {
       const res = await fetch("/api/checkout", {
@@ -204,7 +209,7 @@ export default function FactoryBillingPortal() {
 
             <p className="text-sm text-muted sm:text-base leading-relaxed">
               Register a card to receive an <code className="font-mono text-foreground font-semibold">x-customer-id</code> for
-              usage-based WebMCP tool execution (from ${AGENT_RATE_RANGE.min.toFixed(2)} a call), subscribe to Factory Pro, or
+              usage-based WebMCP tool execution (from ${AGENT_RATE_RANGE.min.toFixed(2)} a call), subscribe to a vertical Pro suite (from $29/mo), or
               manage existing invoices via Stripe.
             </p>
           </div>
@@ -277,10 +282,13 @@ export default function FactoryBillingPortal() {
                   )}
                   <span>Get Agent API Access</span>
                 </button>
+                <p className="text-[11px] text-muted text-center mt-2">
+                  Usage-based monthly invoicing via Stripe. Cancel anytime.
+                </p>
               </CardContent>
             </Card>
 
-            {/* Card 2: Factory Pro Access */}
+            {/* Card 2: Vertical Pro Suites (Factory Pro Access) */}
             <Card className="flex flex-col rounded-2xl border-0 bg-card ring-2 ring-primary/40 shadow-[0_16px_40px_-8px_rgba(79,70,229,0.16)] p-0 relative">
               {/* Floating POPULAR pill perched above the top horizon line */}
               <div className="absolute -top-3 right-6 z-20">
@@ -293,54 +301,60 @@ export default function FactoryBillingPortal() {
               <CardHeader className="p-6 pb-4">
                 <div className="flex items-center justify-between">
                   <Badge variant="accent" className="font-mono text-[10px]">
-                    WEB SUITE
+                    {currentSuite.badge}
                   </Badge>
                   <Sparkles className="h-5 w-5 text-primary" />
                 </div>
                 <CardTitle className="text-xl font-bold mt-2">Factory Pro Suite</CardTitle>
                 <CardDescription className="text-xs">
-                  For accountants, logistics analysts, and procurement officers using browser tools.
+                  {currentSuite.description}
                 </CardDescription>
+
+                {/* Vertical Suite Selector Tabs */}
+                <div className="mt-3 flex items-center gap-1 rounded-xl bg-[#F1F5F9] p-1 border border-border/60" role="tablist" aria-label="Vertical pricing suites">
+                  {VERTICAL_SUITES.map((suite) => {
+                    const isSelected = suite.id === currentSuite.id;
+                    return (
+                      <button
+                        key={suite.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={isSelected}
+                        onClick={() => setSelectedSuiteId(suite.id)}
+                        className={`flex-1 rounded-lg py-1.5 px-2 text-[11px] font-semibold transition-all cursor-pointer text-center ${
+                          isSelected
+                            ? "bg-white text-foreground shadow-xs ring-1 ring-border/80"
+                            : "text-muted hover:text-foreground hover:bg-white/50"
+                        }`}
+                      >
+                        {suite.shortName}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-extrabold font-mono text-foreground">$29.00</span>
+                  <span className="text-3xl font-extrabold font-mono text-foreground">${currentSuite.priceUsd.toFixed(2)}</span>
                   <span className="text-xs text-muted font-medium">/ month</span>
                 </div>
                 <p className="text-[11px] text-primary font-medium mt-1">
-                  All micro-SaaS calculators included
+                  {currentSuite.tagline}
                 </p>
               </CardHeader>
 
               <CardContent className="flex-1 flex flex-col justify-between space-y-6 p-6 pt-2">
                 <ul className="space-y-2.5 text-xs text-muted">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <span>
-                      Unlimited browser calculations &amp; exports across all live products.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <span>
-                      Branded PDF decision packs, Xero/QuickBooks CSVs, and Factur-X XML.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <span>
-                      Automatic updates for changing regulatory rates (tax brackets, carrier divisors).
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <span>
-                      Cancel anytime self-serve via the Stripe Billing Portal.
-                    </span>
-                  </li>
+                  {currentSuite.features.map((feat, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
                 </ul>
 
                 <button
                   type="button"
-                  onClick={() => handleCheckout("factory_pro")}
+                  onClick={() => handleCheckout(currentSuite.planKey)}
                   disabled={Boolean(checkoutBusy)}
                   className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-[#4338CA] active:bg-[#3730A3] py-3 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50"
                 >
@@ -349,8 +363,11 @@ export default function FactoryBillingPortal() {
                   ) : (
                     <Sparkles className="h-4 w-4" />
                   )}
-                  <span>Subscribe to Factory Pro ($29/mo)</span>
+                  <span>Subscribe to {currentSuite.name} (${currentSuite.priceUsd}/mo)</span>
                 </button>
+                <p className="text-[11px] text-muted text-center mt-2">
+                  Billed monthly via Stripe. Cancel anytime self-serve via portal.
+                </p>
               </CardContent>
             </Card>
 
@@ -434,6 +451,70 @@ export default function FactoryBillingPortal() {
             </Card>
           </div>
 
+          {/* Vertical Suites by Industry */}
+          <div className="space-y-4 pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Vertical Pro Suites by Industry</h3>
+                <p className="text-xs text-muted">
+                  Segmented toolkits for logistics, corporate finance, and AI FinOps with isolated COGS profiles.
+                </p>
+              </div>
+              <Badge variant="outline" className="hidden sm:inline-flex gap-1 font-mono text-[10px]">
+                <Sparkles className="h-3 w-3 text-primary" />
+                <span>3 INDUSTRY SUITES</span>
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {VERTICAL_SUITES.map((suite) => (
+                <div
+                  key={suite.id}
+                  className={`rounded-2xl border p-5 bg-card transition-all flex flex-col justify-between ${
+                    suite.id === currentSuite.id
+                      ? "border-primary/50 shadow-md ring-1 ring-primary/30"
+                      : "border-border/80 shadow-2xs hover:border-border"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Badge variant={suite.id === "ai_finops" ? "accent" : "outline"} className="font-mono text-[10px]">
+                        {suite.badge}
+                      </Badge>
+                      <span className="font-mono font-bold text-sm text-foreground">${suite.priceUsd}/mo</span>
+                    </div>
+                    <h4 className="font-bold text-sm text-foreground mt-2">{suite.name}</h4>
+                    <p className="text-xs text-muted mt-1 leading-relaxed">{suite.tagline}</p>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {suite.apps.map((appSlug) => (
+                        <Link
+                          key={appSlug}
+                          href={`/${appSlug}`}
+                          className="inline-flex items-center gap-1 rounded-md bg-[#F1F5F9] px-2 py-0.5 font-mono text-[10px] font-semibold text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                        >
+                          {appSlug} →
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
+                    <span className="text-[11px] text-muted font-medium">{suite.cogsProfile}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedSuiteId(suite.id);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                      className="text-xs font-semibold text-primary hover:underline cursor-pointer"
+                    >
+                      Select Plan
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Pricing Transparency Matrix */}
           <div className="space-y-4 pt-4">
             <div className="flex items-center justify-between">
@@ -491,6 +572,65 @@ export default function FactoryBillingPortal() {
 
           {/* V1.4 — this customer's own usage, spend cap and per-query audit log */}
           <BillingUsage />
+
+          {/* Legal Disclaimers & Operating Conditions */}
+          <div className="space-y-4 pt-6 border-t border-border/60">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Legal Disclaimers &amp; Operating Terms</h3>
+                <p className="text-xs text-muted">
+                  Regulatory boundaries, dispute recovery policies, and zero-retention privacy guarantees.
+                </p>
+              </div>
+              <Badge variant="outline" className="hidden sm:inline-flex gap-1 font-mono text-[10px]">
+                <Scale className="h-3 w-3 text-muted" />
+                <span>STATUTORY &amp; LEGAL NOTICES</span>
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-2xs space-y-2.5">
+                <div className="flex items-center gap-2 text-foreground font-semibold text-xs">
+                  <div className="p-1.5 rounded-lg bg-warning/10 text-warning">
+                    <Scale className="h-4 w-4" />
+                  </div>
+                  <span>Non-Advisory Tax &amp; Legal Notice</span>
+                </div>
+                <p className="text-[11px] text-muted leading-relaxed">
+                  All utilities (LedgerLink, FacturGate, CaseProof, ParcelProof, SpendProof) provide deterministic computational modeling and schema validations based strictly on customer inputs and published regulatory standards. Outputs do not constitute certified public accounting (CPA), legal counsel, tax advisory, or customs brokerage services. Users remain solely responsible for validating all figures prior to filing returns, booking journal entries, or executing contracts.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-2xs space-y-2.5">
+                <div className="flex items-center gap-2 text-foreground font-semibold text-xs">
+                  <div className="p-1.5 rounded-lg bg-primary/10 text-primary">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <span>Disputes &amp; Platform Trademarks</span>
+                </div>
+                <p className="text-[11px] text-muted leading-relaxed">
+                  Audit findings reflect publicly published carrier tariffs (UPS, FedEx, USPS) and cloud provider rate schedules. Actual dispute resolutions and refunds remain subject to carrier and provider discretion. This platform is independently developed and is not affiliated with, endorsed by, or sponsored by Stripe, UPS, FedEx, USPS, OpenAI, Anthropic, or the European Commission. All marks belong to their respective holders.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-2xs space-y-2.5">
+                <div className="flex items-center gap-2 text-foreground font-semibold text-xs">
+                  <div className="p-1.5 rounded-lg bg-success/10 text-success">
+                    <Lock className="h-4 w-4" />
+                  </div>
+                  <span>Zero-Retention Privacy &amp; Terms</span>
+                </div>
+                <p className="text-[11px] text-muted leading-relaxed">
+                  Customer financial records, accounting payloads, and invoice documents are processed in secure runtime memory with strict zero-model-training guarantees. Subscriptions renew monthly via Stripe Billing with self-service cancellation available anytime via the Stripe Customer Portal. Access remains active through the end of the paid billing period. Metered agent calls bill monthly on verified successful executions.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-[#F8FAFC] border border-border/60 p-3.5 text-center text-[11px] text-muted">
+              Autonomous Product &amp; Software Factory • apps.giniloh.com • Powered by ASC 606 &amp; EN 16931 deterministic engines.
+            </div>
+          </div>
+
         </main>
       </div>
     </div>
