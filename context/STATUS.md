@@ -1,5 +1,13 @@
 # Factory Status Map
 
+_Last updated: 2026-10-11 (**canonical tags fixed on all 30 advertised pages**). Root cause: no `metadataBase`, so the
+24 rule pages served a relative canonical (ignored by Google — it is why Search Console showed "User-declared
+canonical: None") and the five product pages plus the directory declared none at all. `src/lib/seo/canonical.ts` now
+emits the absolute URL and refuses any path that is not in the crawl map; an e2e loop over the crawl map asserts
+every advertised page canonicalises to itself (proven to bite). The owner's submission is confirmed from Search
+Console: `https://apps.giniloh.com/sitemap.xml` registered 2026-10-10T23:59:40Z, downloaded, 0 errors, 30 URLs.
+Revenue **$0 real**; no provable outside visitor.
+
 _Last updated: 2026-10-10 (**the three approved items are live**). ParcelProof's UPS AHS-Dimension trigger was
 96 in where both carriers use **48 in** (96 is the Large Package/oversize figure) — a one-way money bug: any UPS
 parcel with a longest side between 48 in and 96 in had a legitimate accessorial reported as recoverable. Fixed

@@ -468,3 +468,12 @@ indexable-but-unmapped: Search Console showed `/showcase` indexed (average posit
    live articles have a tool that genuinely answers them and now carry one contextual CTA; career and
    personal-finance pages and all 1,029 career-calculator pages render nothing, because the products are B2B ops
    tools and a fabricated match spends the one visit the page earns. Say the coverage split out loud in the report.
+6. **A canonical is only a canonical when it is ABSOLUTE — and a missing `metadataBase` breaks every one of them
+   at once.** The 24 rule pages carried `alternates: { canonical: '/<product>/calc/<slug>' }` while the root layout
+   set no `metadataBase`, so the served HTML said `href="/<product>/calc/<slug>"`: a relative canonical, which
+   Google ignores. Search Console read "User-declared canonical: None" on every page, and the five product pages
+   and the directory declared no canonical at all. Fix in two layers: `metadataBase` at the root AND the absolute
+   URL emitted from one validated helper (`src/lib/seo/canonical.ts`, which throws unless the path is in the crawl
+   map and is lowercase). Then guard the WIRING, not the helper: an e2e that loops the crawl map and asserts every
+   advertised URL serves a canonical equal to itself — proven by removing one page's canonical and watching it fail.
+   A helper with no wiring assertion is exactly how 27 pages shipped a canonical nobody could use.

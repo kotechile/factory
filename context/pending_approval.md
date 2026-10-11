@@ -4,6 +4,24 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-11 (**canonicals fixed — the field the owner's Search Console panel showed empty**). Owner
+instruction, verbatim: *"please fix the no canonical tags issue"*. Two defects, one root cause: the root layout set
+no `metadataBase`, so (a) the 24 rule pages emitted a **relative** canonical (`href="/<product>/calc/<slug>"` — read
+out of the live HTML, not the tree), which Google ignores, and (b) the directory and the five product pages declared
+no canonical at all. Code `94d6341` (canonicals) and `4b1e213` (a separate gate repair, below): `src/lib/seo/canonical.ts` emits the absolute production URL and throws unless
+the path is in the crawl map and lowercase; `metadataBase` is set at the root; all 30 advertised pages go through it.
+Guard: a vitest contract (absolute, advertised-only, no capitals) plus an e2e that loops the crawl map and asserts
+every advertised URL serves a canonical equal to itself — proven to bite by removing `/showcase`'s canonical and
+watching that test fail. The gate then went red ONCE on two vision tiles (`parcelproof-qa-1`, `spendproof-qa-4`: "text overlapping in IDE inset (content overlaps line numbers)"); it did not reproduce on the immediate re-run (24/24, exit 0), and measurement at 1280×900 over every painted text run (`Range.getClientRects()`, pairwise) found /parcelproof with **zero** intersecting runs (242 scanned) and /spendproof's only intersecting pair in a code-inset title bar — the class `tests/e2e/text-geometry.spec.ts` decides and passes. No page was restyled to satisfy the model; the reviewer's prompt was narrowed instead, with the measurement recorded in `scripts/visual-qa.mjs`, as its own commit. **Owner-side, verified in Search Console's own API:** `https://apps.giniloh.com/sitemap.xml`
+is now registered on the `sc-domain:giniloh.com` property — **lastSubmitted 2026-10-10T23:59:40Z, lastDownloaded
+23:59:41Z, 0 errors, 0 warnings, 30 URLs submitted** — and `https://giniloh.com/sitemap.xml` was re-submitted
+23:02:24Z (its live body carries the corrected lowercase product URLs). Note the honest reading of the panel he
+pasted: `Crawled as: Google Inspection Tool smartphone` means that fetch was the *inspection tool*, not Googlebot —
+it proves the page is unblocked but does not index it, which is why all five product pages still read "URL is
+unknown to Google" in the index-status API while `/showcase` is indexed (last Googlebot crawl 2026-10-10T17:11Z).
+**Still open for the owner, unchanged:** items **5**, **6**, **7** (P2), **11** (P2), the provider low-balance alert,
+and the social/video channel he runs by hand. Revenue **$0 real**; no provable outside visitor.
+
 _Last updated: 2026-10-10 (**the three approved items are LANDED and verified live; the ParcelProof trigger is
 closed**). ParcelProof `38153e0` (code) / `ba6c5c1` (this record): `AHS_DIMENSION_LONGEST_SIDE_IN.ups` 96 → **48**
 (both carriers 48; 96 belongs to the separate Large Package/oversize rule), the PRD tariff line corrected in place
