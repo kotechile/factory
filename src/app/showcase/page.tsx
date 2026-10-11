@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import { CreditCard, ExternalLink } from "lucide-react";
 import DirectoryList from "@/components/directory-list";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/showcase"),
   title: "Factory Showcase — Micro-Tool Directory",
   description:
     "Live micro-tools built by the Autonomous Product & Software Factory. Deterministic calculators, each exposing a WebMCP endpoint for agents.",

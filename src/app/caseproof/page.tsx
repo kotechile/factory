@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import { BookOpen, ExternalLink } from "lucide-react";
 import CaseProofCalculator from "@/components/caseproof-calculator";
@@ -16,6 +17,7 @@ import { SUITE_PRO_MONTHLY_USD, lowestAgentRate } from "@/products/pricing";
 import { caseproofPresets } from "@/lib/seo/caseproof/presets";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/caseproof"),
   title: "CaseProof — Buyer-Side Audit of a Warehouse Automation Business Case",
   description:
     "Re-runs a vendor's own quoted warehouse-automation numbers against the buyer's case: labour at the fully loaded rate, the lines a quote omits, §179 and bonus depreciation by tax year, 2–3 competing bids on one cash model, and the break-even of every assumption to confirm before signature. An unstated line blocks a pass — never defaulted.",

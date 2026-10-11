@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import ParcelProofCalculator from "@/components/parcelproof-calculator";
 import { getParcelauditPreset, parcelauditPresets } from "@/lib/seo/parcelaudit/presets";
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: preset.title,
     description: preset.description,
-    alternates: { canonical: `/parcelproof/calc/${slug}` },
+    ...canonicalMetadata(`/parcelproof/calc/${slug}`),
   };
 }
 

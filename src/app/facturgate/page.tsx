@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import { BookOpen, ExternalLink } from "lucide-react";
 import FacturGateCalculator from "@/components/facturgate-calculator";
@@ -16,6 +17,7 @@ import { SUITE_PRO_MONTHLY_USD, lowestAgentRate } from "@/products/pricing";
 import { einvoicePresets } from "@/lib/seo/einvoice/presets";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/facturgate"),
   title: "FacturGate — EU E-Invoice Pre-Send Gate & Factur-X Converter",
   description:
     "Deterministic EN 16931 + CIUS-FR pre-send validation for EU e-invoices: exact rule findings with field paths and fixes, totals reconciled to the cent, a 0-100 readiness score, and conversion to Factur-X (CII) or UBL 2.1.",

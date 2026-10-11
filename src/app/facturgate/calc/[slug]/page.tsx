@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import { CreditCard, ShieldCheck } from "lucide-react";
 import FacturGateCalculator from "@/components/facturgate-calculator";
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: preset.title,
     description: preset.description,
-    alternates: { canonical: `/facturgate/calc/${slug}` },
+    ...canonicalMetadata(`/facturgate/calc/${slug}`),
   };
 }
 

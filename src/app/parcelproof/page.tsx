@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import { BookOpen, ExternalLink } from "lucide-react";
 import ParcelProofCalculator from "@/components/parcelproof-calculator";
@@ -16,6 +17,7 @@ import { SUITE_PRO_MONTHLY_USD, lowestAgentRate } from "@/products/pricing";
 import { parcelauditPresets } from "@/lib/seo/parcelaudit/presets";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/parcelproof"),
   title: "ParcelProof — Carrier Invoice DIM-Weight & Surcharge Audit",
   description:
     "Audit UPS, FedEx and USPS parcel invoices against your own shipment records: billable weight recomputed with the carrier × service × ship-date divisor and the round-up rule, accessorial eligibility re-checked with the trigger that failed, late-delivery refunds, the per-line dispute window and a dispute CSV. Unpriced lines are reported unverifiable, never guessed.",

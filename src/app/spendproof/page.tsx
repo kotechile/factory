@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import SpendProofCalculator from "@/components/spendproof-calculator";
 import ProductPricing from "@/components/product-pricing";
@@ -15,6 +16,7 @@ import { SUITE_PRO_MONTHLY_USD, lowestAgentRate } from "@/products/pricing";
 import { DEFAULT_TOLERANCE_BPS } from "@/lib/calc/spendproof";
 
 export const metadata: Metadata = {
+  ...canonicalMetadata("/spendproof"),
   title: "SpendProof — AI Provider Invoice ↔ Tagged-Usage Reconciliation",
   description:
     "Reconcile an AI provider invoice against your own tagged-usage ledger: every line recomputed at the rate the invoice itself declares, each variance classified as rounding, a period-boundary overlap, missing or late usage, untagged spend or a mid-period rate change, and a clean close withheld whenever a bucket does not reconcile or usage carries no tag. Unreadable regions block the verdict — nothing is estimated.",
