@@ -1,5 +1,6 @@
 "use client";
 
+import CustomerSupportSection from "@/components/customer-support-section";
 import * as React from "react";
 import Link from "next/link";
 import {
@@ -170,6 +171,13 @@ export default function FactoryBillingPortal() {
             >
               Showcase Directory
             </Link>
+            <span className="text-border">|</span>
+            <a
+              href="#contact-service"
+              className="text-xs font-medium text-muted hover:text-foreground transition-colors"
+            >
+              Contact Support
+            </a>
             <span className="text-border">|</span>
             <Link
               href="/.well-known/mcp.json"
@@ -572,6 +580,9 @@ export default function FactoryBillingPortal() {
 
           {/* V1.4 — this customer's own usage, spend cap and per-query audit log */}
           <BillingUsage />
+
+          {/* Contact Customer Service — file a ticket, track it with its reference ID + email */}
+          <CustomerSupportSection />
 
           {/* Legal Disclaimers & Operating Conditions */}
           <div className="space-y-4 pt-6 border-t border-border/60">

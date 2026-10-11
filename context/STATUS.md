@@ -1,5 +1,20 @@
 # Factory Status Map
 
+_Last updated: 2026-10-11 (**customer service on the billing portal — recovered from a canceled Antigravity run and
+re-scoped before it could ship**). The working tree held an unfinished feature from a session whose every step was
+`canceled by manage_task`: `/api/support` (POST/GET/PATCH over `events`) plus a 545-line section component, wired into
+`factory-billing-portal.tsx` **only as an unused import** — `<CustomerSupportSection />` was never mounted, so the
+change did nothing. It also failed the gate (`next build` → TS2339 at `route.ts:225`; eslint
+`react-hooks/set-state-in-effect`), and its GET listed **every** customer's name, email, subject and message body to
+any anonymous caller on a public page (`/billing`), with PATCH letting anyone change any ticket's status. Owner
+instruction: *"Fix it properly, then commit + push to main"*. Landed: the type/hook defects, the mount (+ a "Contact
+Support" anchor), a single-ticket self-scoped lookup (**ticket_id + the filing email, both required**), and admin
+listing/status-update behind an optional `SUPPORT_ADMIN_TOKEN` (unset ⇒ explicit 403, never an open fallback). Guard:
+`src/app/api/support/route.test.ts` (10 assertions; proven to bite — disabling the anonymous guard and the email
+filter turned 3 of them red). Gate green: tsc, eslint 0 errors, tokens, verticals, 233 vitest, build, 78 e2e
+(the /billing axe WCAG run is what caught the section's hand-rolled tab switcher at 3.78:1 — now the shared
+`AppleSegmentedTabs`). Revenue **$0 real**; no provable outside visitor.
+
 _Last updated: 2026-10-11 (**canonical tags fixed on all 30 advertised pages**). Root cause: no `metadataBase`, so the
 24 rule pages served a relative canonical (ignored by Google — it is why Search Console showed "User-declared
 canonical: None") and the five product pages plus the directory declared none at all. `src/lib/seo/canonical.ts` now

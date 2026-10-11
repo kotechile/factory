@@ -254,6 +254,18 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   height), so two runs of the "same" screenshot are not the same crop and the verdicts legitimately
   differ.
 
+- **2026-10-11 — a section bolted onto an existing page re-invented the segmented control, and `/billing`'s
+  axe test caught the contrast (WCAG).** The customer-service section was written with its own tab switcher
+  (`bg-muted/40` container, inactive tab as `text-muted`); axe measured the inactive label at **3.78:1**
+  (`#475569` on the composite `#b1b8c1`) against the 4.5:1 AA floor, and the /billing a11y test — the only
+  place that page is tested — went red. The prescription already existed in §3.5: use the shared
+  `AppleSegmentedTabs` (`EDITORIAL_MUTED_TEXT = text-[#5B6B80]`, ≥5.0:1 on the control's `#F1F5F9`). **Rule:
+  the shared primitives are not only for product pages — any new section that lands on a page with an axe
+  test must render its switcher, pill, gutter and hero from `src/components/editorial/`, or it will be the
+  first thing the contrast rule finds.** Corollary to the 2026-10-04 entry: `bg-muted/40` composites to a
+  colour *no* token was contrast-checked against, so "muted text on a tinted muted container" is a
+  guaranteed failure — pick the pair, not just the foreground.
+
 - **2026-10-05 — `visual-qa` truncated its own verdict, and a shrunken page hid a real defect (gate).**
   Two findings in one day, both from the same root: the reviewer's INPUT and its BUDGET.
   1. **The verdict was being cut off mid-sentence and read as a failure.** Thinking tokens count against
