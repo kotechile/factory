@@ -1,5 +1,37 @@
 # Factory Status Map
 
+_Last updated: 2026-10-11 (**15:30 sweep** — every surface re-measured live). **The line is running: a money bug is
+fixed, five products are live, and the pages are finally discoverable.** ParcelProof's UPS AHS-Dimension trigger
+was 96 in where both carriers use **48 in** (`38153e0`, owner-approved 2026-10-10) — a one-way money bug on a live
+product; 23-day item **CLOSED**. SpendProof went `beta → live` (`6f325f5`) and its document pipeline works
+(LlamaParse is a multipart, asynchronous upload whose receipt was being fed to the model as the invoice; the prompt
+asked per-line while the parser read a record; the record is integer micro-USD) — live: pasting an invoice is read
+and the verdict **withheld** with `sp-extraction-unstated` because a declared field is absent from my sample
+(rule 5), neither input → **400 `sp-document-missing`**; `/showcase` renders **LIVE ×5 / BETA ×0 / RETIRED ×1**.
+**Independently verified today:** `/robots.txt` + `/sitemap.xml` **200** on the product host (30 URLs, `quarterline`
+absent by construction); absolute canonicals on all 30 advertised pages (`94d6341`, root had no `metadataBase`, so
+the 24 rule pages emitted a relative canonical and the five product pages plus the directory declared none);
+`agent_metered` checkout **500 → 200 `cs_live_…`** (`STRIPE_AGENT_METER_PRICE_ID` now in the deploy env); the
+container also carries `GEMINI_API_KEY` (39) and `LLAMAPARSE_API_KEY` (52); two gate repairs (`4dfe3c1`, `4b1e213`)
+narrow the vision reviewer off the text-in-a-row and gutter classes `tests/e2e/text-geometry.spec.ts` decides, both
+settled by measurement (0 intersecting text runs at 1280×900); billing portal gained vertical pricing suites +
+disclaimers (`05cc9d1`) and a customer-service section (`91cb116`, recovered from a canceled Antigravity run whose
+anonymous GET returned every customer's name/email/subject/body and whose PATCH let anyone flip a ticket's status —
+now self-scoped and admin-gated, seen live on `/billing`). App container
+`af8yqbwrrnyyfgs9wcg0intj-20261011T135632` image tag `91cb116d…` == HEAD. Surfaces all 200 (`/` 307 → giniloh.com
+200; `/showcase` + 5 products + `/quarterline` + `/billing` + `/embed/countdown` + robots + sitemap + mcp.json +
+ai-plugin.json; `/openapi.json` 404; legacy 503). Manifest **v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical.
+`hermes cron doctor` **no issues / 59 jobs**. Checkout `cs_live_` ×5; app-less 400; `quarterline` 400;
+`/api/portal` 307. `events` 6363 → **6522** rows / sessions 3951 → **4031** (610 rows on 10-10 = the builds' and the
+gate's own browser runs; 41 today = two long-lived browser sessions, `59a27597…` from 09-23 and `1886b14d…` from
+10-03, browsing in step with the owner's own work, no user agent stored → **still no provable outside visitor, day
+41**). Revenue **$0 real** (4 `cs_test_` purchases 2026-09-02; 1 sandbox subscription). `agent_query` still 8
+(organic 0, day 41). Editorial: articles 70 → **72**; pressflow 72 files, image `db8c977` == editorial HEAD.
+`vertical-sync --check` exit 0 (26); `recon:cadence` exit 0 (2 verticals 2026-10-05; **next recon tomorrow 10-12
+14:30**). Item 11's crawler-map half now CLOSED, the dead-host descriptor half open. Item 7: gateway pid still
+`1963330` (2026-09-12). **Open: 5, 6, 7 (P2), 11 (descriptor half, P2)** — plus the owner-held items he took
+himself (provider low-balance alert, social/video, affiliate/ads).
+
 _Last updated: 2026-10-11 (**customer service on the billing portal — recovered from a canceled Antigravity run and
 re-scoped before it could ship**). The working tree held an unfinished feature from a session whose every step was
 `canceled by manage_task`: `/api/support` (POST/GET/PATCH over `events`) plus a 545-line section component, wired into

@@ -4,6 +4,39 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-11 (**15:30 sweep** — every open item re-measured live on `apps.giniloh.com`). **The line is
+running and the last three owner calls are landed and independently verified.** The three approvals of 2026-10-10
+are SHIPPED: ParcelProof's UPS AHS-Dimension trigger 96 in → **48 in** (`38153e0`; the 96 in figure is the separate
+Large Package/oversize rule — the defect made a legitimate UPS accessorial between 48 in and 96 in read as money to
+dispute), the reader-site product wiring (`kotechile/giniloh` `30c1d59`, 52 of 86 articles carry one contextual CTA;
+the same pass found the reader sitemap advertising five CAPITALISED product URLs that answer 404), and the
+product-host crawler map (`/robots.txt` + `/sitemap.xml` **200**, 30 URLs, `quarterline` absent by construction).
+**SpendProof went LIVE with a working document pipeline** (`6f325f5`): three measured defects fixed (the parse
+service is a multipart, asynchronous upload whose receipt was being handed to the model as the invoice; the prompt
+asked per-line while the parser read a record; the record is integer micro-USD, so a dollar amount read as micro-USD
+was off by 1e6 in a money product). Live re-probe this turn: pasting an invoice is **read** and the verdict
+**withheld** with `sp-extraction-unstated` (a declared field absent from my sample — rule 5, not a stub); neither
+input → **400 `sp-document-missing`**. **Canonicals fixed on all 30 advertised pages** (`94d6341`, owner
+instruction *“please fix the no canonical tags issue”*): the root layout set no `metadataBase`, so the 24 rule pages
+emitted a relative canonical (Google ignores it — why Search Console read “User-declared canonical: None”) and the
+five product pages plus the directory declared none. **`agent_metered` checkout 500 → 200 `cs_live_…`** — the
+owner's `STRIPE_AGENT_METER_PRICE_ID` now reaches the container, together with `GEMINI_API_KEY` (39 chars) and
+`LLAMAPARSE_API_KEY` (52 chars), all read back from the running container. Two gate repairs landed as their own
+commits (`4dfe3c1`, `4b1e213`): the vision reviewer no longer opines on the text-in-a-row / gutter classes
+`tests/e2e/text-geometry.spec.ts` decides in code, both settled by measurement (0 intersecting text runs at
+1280×900) rather than by restyling. Billing portal work landed today: vertical pricing suites + legal disclaimers
+(`05cc9d1`) and a customer-service section (`91cb116`, rescued from a canceled Antigravity run — its anonymous GET
+had been returning every customer's name, email, subject and message body to anyone on a public page and its PATCH
+let anyone flip a ticket's status; now one-ticket self-scoped by `ticket_id` + filing email, admin listing behind an
+optional token that fails closed). **Still open for the owner:** the social/video channel he runs by hand,
+affiliate/ads deferred until traffic builds, the provider low-balance alert (he took it), and **item 5**
+(internal-traffic marker — today two long-lived browser sessions touched the site and the store cannot say who they
+were), **item 6** (durable record), **item 7** (P2), **item 11 (descriptor half, P2)** — its crawler-map half is
+what closed today: `/.well-known/ai-plugin.json` still names **QuarterLine** against the dead host and
+`/openapi.json` 404s. Revenue still **$0 real** (4 `cs_test_` purchases 2026-09-02; 1 sandbox subscription); no
+provable outside visitor (day 41). `hermes cron doctor` **no issues / 59 jobs**; `events` 6363 → **6522** rows /
+sessions 3951 → **4031**; `agent_query` still **8** (organic 0); articles 70 → **72**; app image `91cb116d…` == HEAD.
+
 _Last updated: 2026-10-11 (**canonicals fixed — the field the owner's Search Console panel showed empty**). Owner
 instruction, verbatim: *"please fix the no canonical tags issue"*. Two defects, one root cause: the root layout set
 no `metadataBase`, so (a) the 24 rule pages emitted a **relative** canonical (`href="/<product>/calc/<slug>"` — read
