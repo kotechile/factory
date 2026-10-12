@@ -57,6 +57,8 @@ hermes cron list        # the factory jobs
 | `[bot:simon] Weekly Market Recon` | Mon 14:30 UTC | 30-day discovery sweep → 4-filter funnel → PRD to `context/recon_proposals/` |
 | `[bot:simon] Daily Proactive Sweep` | daily 15:30 UTC | reviews `context/daily_voice_journal/`, flags action items |
 | `[bot:toby] Build Watchdog` | daily 16:30 UTC | checks for new commits, runs `verify-build.sh`, patches SOPs on failure |
+| `Post-Ship Brag` | every 30 min 11:00–23:30 UTC | renders the launch video for a newly shipped product, adds the ElevenLabs voiceover, uploads to YouTube (private by default) and records the result in `public.launch_videos`. See `skills/launch_video.md` |
+| `Launch Video Auth Check` | Mon 13:00 UTC | silent unless the Google refresh token has stopped working |
 | `Growth Watchdog` | Fri 17:00 UTC | Day 7/14/30 gates per product; reports the run to Slack |
 | `Slack Report Gate` | daily 18:00 UTC | no model call — re-gates the message each factory job actually posted |
 

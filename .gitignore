@@ -26,3 +26,6 @@ npm-debug.log*
 .hermes/
 
 *service_account*.json
+
+# Launch video artifacts (large binaries — never commit)
+content/launch_videos/

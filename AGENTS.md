@@ -73,6 +73,9 @@ Every product ships to a subpath of the single Coolify app (`apps.giniloh.com`):
 6. **Telemetry** — pass the product slug to `track(event, payload, "<slug>")`.
 7. **Gate** — `scripts/verify-build.sh` must pass (tsc → lint → tokens → vitest → build → Playwright → Gemini visual-QA).
 8. **Push** — commit + push to `main`; Coolify auto-deploys; the product appears on the directory automatically.
+9. **Brag** — once the deploy is verified live, trigger the launch video so it lands with the
+   product, not days later: `hermes cron run "Post-Ship Brag"`. The scheduled sweep
+   (`*/30 11-23 * * *` UTC) picks the product up on its own within 30 minutes if you skip this.
 
 ## Build verification
 `scripts/verify-build.sh` — strict typecheck, lint, production build. Runs on every build and is
