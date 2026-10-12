@@ -1,5 +1,44 @@
 # Factory Status Map
 
+_Last updated: 2026-10-12 (**15:30 sweep** — every surface re-measured live). **The weekly recon returned a build
+and the line is idle waiting on the founder.** `context/recon_proposals/2026-10-12_canopyproof.md` (commit
+`d209cf3`, the day's only factory commit): **CanopyProof**, score **79/100**, declared **LLM/document-parse-backed**
+(`usesLlmPrimitive: true`) — it audits a supplier geolocation submission set for EUDR *before* the due-diligence
+statement is filed (plot geometry validity, computed area vs the four-hectare rule, declared-vs-computed area,
+pairwise overlap between suppliers — the double-count a single-file validator cannot see — yield plausibility
+against the operator's own figure, version-stamped Annex I scope screen). Measured ≈ $0.18/call → recommended
+**$1.50/call** (≈ 8.3×), $39/mo importer plan, $19 one-off pack, agent tool `preflight_eudr_geolocation` at $1.50.
+Dated driver: Delegated Regulation (EU) 2026/2102 in force 18 Sep 2026, application date **30 Dec 2026**.
+`VERTICAL_A` = `legal_ops` scanned, **nothing ≥ 60** (53 / 46 — free federal deadline calculators and the free
+PDF/A validator own the arithmetic; no dated court-rule or filing-format change in the window). `VERTICAL_B` =
+`agriculture_eudr` produced the PRD; stated weakness: no **native** editorial vertical (adjacent to
+`supplier_risk_reshoring_decision` / `supply_chain`, same buyer). **Awaiting `@Simon approve CanopyProof`** —
+nothing built, nothing in `src/`, nothing dispatched; no product code changed in 24 h. **The one red cron:**
+`hermes cron doctor` **1 issue / 59 jobs** — Editorial Verify Gate FAILED 10-12 14:00 (*live image `29294d0f6e19`
+vs HEAD `e79c382da342`, deploy behind*); measured cause: the editorial repo is **2 commits ahead of its own
+origin** (`fef87f3` 11:14, `e79c382` 11:16 — never pushed), so the pressflow container serves **73** published
+files against **77** on the host (the four newest articles are missing from the internal reader; the live CMS and
+Supabase have them). Same class as 10-10, second red in three days, and the first with an unpushed-commit cause —
+flagged, not touched (the sweep does not push another repo, and that repo's push path runs `git add -A` over a
+worktree with in-flight WIP). Deploy verified: app container `af8yqbwrrnyyfgs9wcg0intj-20261012T143353`, image
+`d209cf3abfee…` == HEAD, `/showcase` 200. Surfaces all 200 (`/` 307 → giniloh.com 200; `/showcase` + 5 products +
+`/quarterline` + `/billing` + `/embed/countdown` + robots (30 URLs) + sitemap + mcp.json + ai-plugin.json;
+`/openapi.json` 404; legacy 503); `/quarterline/` + `/quarterline/calc/` 308. Manifest **v2.1.0 / 10 tools**
+sha256 `698801c5…` byte-identical. Checkout `cs_live_` ×5 (`ledgerlink`, `facturgate`, `parcelproof`, `caseproof`,
+`spendproof`); product-scoped plan without `app` → 400 naming the inventory; `quarterline` 400 "retired";
+`agent_metered` 200 `cs_live_…`; `/api/portal` 307. Stripe `STRIPE_MODE=live`, `sk_live_` 107 ch, `/v1/balance`
+200 `livemode:true`; `GEMINI_API_KEY` (39) + `LLAMAPARSE_API_KEY` (52) + `STRIPE_AGENT_METER_PRICE_ID` (30) all in
+the container; SpendProof with no document → 400 `sp-document-missing`. `events` 6522 → **6534** rows / sessions
+4031 → **4032** — only **12 rows today** from three of our own long-lived browsers (`a3f8de07…` from
+2026-09-23T02:41:57Z, `59a27597…` from 09-23, and `12e5148c…`, one `/billing` view at 12:08:02Z, a new id but no
+user agent or referrer) → **still no provable outside visitor, day 42**; last outside-touching event
+2026-09-23T14:11:42Z. Revenue **$0 real** (4 `cs_test_` purchases 2026-09-02; 1 sandbox subscription).
+`agent_query` still 8 (organic 0, day 42). Articles 72 → **77**. `vertical-sync --check` exit 0 (26);
+`recon:cadence` exit 0 (newest 2026-10-12, two verticals). Item 11's descriptor half open (ai-plugin.json still
+names QuarterLine against the dead host; `/openapi.json` 404). Item 7: gateway pid `1963330` (2026-09-12).
+**Open: 5, 6, 7 (P2), 11 (descriptor half, P2)** + the new editorial deploy-behind finding (P2, fleet) — plus the
+owner-held items he took himself (provider low-balance alert, social/video, affiliate/ads).
+
 _Last updated: 2026-10-11 (**15:30 sweep** — every surface re-measured live). **The line is running: a money bug is
 fixed, five products are live, and the pages are finally discoverable.** ParcelProof's UPS AHS-Dimension trigger
 was 96 in where both carriers use **48 in** (`38153e0`, owner-approved 2026-10-10) — a one-way money bug on a live

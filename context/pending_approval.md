@@ -4,6 +4,38 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-12 (**15:30 sweep** — every open item re-measured live on `apps.giniloh.com`). **NEW, and
+the only thing asking for you: the weekly recon produced a build.** `context/recon_proposals/2026-10-12_canopyproof.md`
+(commit `d209cf3`): **CanopyProof**, signal **79/100**, declared **LLM/document-parse-backed** (`usesLlmPrimitive:
+true`, so the $0.50–$3.00 band applies; measured ≈ $0.18/call → recommended **$1.50/call**, $39/mo importer plan,
+$19 one-off pack, WebMCP tool `preflight_eudr_geolocation` at $1.50). It audits a supplier geolocation submission
+set **before** an EUDR due-diligence statement is filed: ring/coordinate validity and WGS84 as declared (never a
+silent reprojection), polygon required above four hectares, declared vs computed area, pairwise overlap between
+suppliers (the double-count a single-file validator cannot see), yield plausibility against the operator's *own*
+figure, and a version-stamped Annex I scope screen whose changed codes surface `unverifiable` rather than a guess.
+Dated driver in-window: Delegated Regulation (EU) 2026/2102 (in force 18 Sep 2026); application date **30 December
+2026**. `VERTICAL_A` = `legal_ops`: two candidates scored **53** and **46**, both below the 60 threshold →
+**honest no build** (free federal deadline calculators with FRCP 6 holiday logic and free open-source PDF/A
+validation own the arithmetic; no dated court-rule or filing-format change before 1 Dec 2026). `VERTICAL_B` =
+`agriculture_eudr` produced the PRD; its stated weakest link is that the vertical has **no native editorial
+channel** (adjacent to `supplier_risk_reshoring_decision` / `supply_chain`, same buyer). Both ledger rows recorded
+2026-10-12; both moved out of the never-scanned queue. **Nothing was built, committed to `src/`, or dispatched —
+the build starts only on your reply.** The approved backlog is otherwise **empty** and no product code changed in
+24 h. **The one red cron:** Editorial Verify Gate FAILED 10-12 14:00 — *repo `/root/editorial-factory`, HEAD
+`e79c382da342`; live image `29294d0f6e19` — deploy is behind*. Measured cause: that repo is **2 commits ahead of
+its own origin** (`fef87f3` 11:14, `e79c382` 11:16, never pushed), so no pressflow deploy could take them; the
+container serves **73** published files against **77** on the host (four newest articles missing from the internal
+reader only — the live CMS and Supabase have them). Same class as 2026-10-10, second red in three days: flagged as
+P2 fleet/editorial, not touched by this sweep. **Still open for you:** item **5** (internal-traffic marker — today
+12 events across three long-lived browsers, still none attributable), item **6** (durable record), item **7** (P2),
+item **11 descriptor half** (P2), the provider low-balance alert, and the social/video channel he runs by hand.
+Verified this run: app container `af8yqbwrrnyyfgs9wcg0intj-20261012T143353` image `d209cf3abfee…` == HEAD;
+`/showcase` 200; manifest **v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical; checkout `cs_live_` ×5 +
+`agent_metered` 200 + app-less 400 + `quarterline` 400 "retired" + portal 307; Stripe `STRIPE_MODE=live`,
+`sk_live_` 107 ch, `/v1/balance` 200 `livemode:true`; `events` 6522 → **6534** rows / sessions 4031 → **4032**;
+`agent_query` still 8 (organic 0, day 42); articles 72 → **77**; `vertical-sync --check` exit 0 (26);
+`recon:cadence` exit 0. Revenue **$0 real** (4 `cs_test_` purchases 2026-09-02; 1 sandbox subscription).
+
 _Last updated: 2026-10-11 (**15:30 sweep** — every open item re-measured live on `apps.giniloh.com`). **The line is
 running and the last three owner calls are landed and independently verified.** The three approvals of 2026-10-10
 are SHIPPED: ParcelProof's UPS AHS-Dimension trigger 96 in → **48 in** (`38153e0`; the 96 in figure is the separate
