@@ -1,8 +1,8 @@
 # Vertical Coverage Ledger
 
 Rotation queue for the weekly recon sweep (Stage 0 of `skills/market_recon_last30days.md`). The sweep
-declares one vertical, scans it, and updates this file **in the same run**. Ordering for the next
-sweep: any `never` vertical first, then least-recently-scanned.
+declares two verticals (`VERTICAL_A` + `VERTICAL_B`), scans both, and updates this file **in the same run**.
+Ordering for the next sweep: any `never` vertical first, then least-recently-scanned.
 
 Why this file exists: the factory's PRD history is 4 of 5 PRDs in one vertical cluster
 (money/document reconciliation) while the archetypes are domain-agnostic — a query-pattern log cannot
@@ -121,6 +121,8 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | construction_field_ops | ✅ | probe 2026-09-20 | 0 | **retired** | Funded incumbent shipped the deterministic slice (Datagrid/Procore, Autodesk AutoSpecs). |
 | manufacturing_shopfloor | ✅ | probe 2026-09-20 | 0 | **retired** | Fails Filter 2: value needs machine connectivity/edge hardware. |
 | healthcare_rcm | ✅ (added 2026-09-28) | 2026-09-28 | 69 (PayerVariance, best) | **retired — no build** | First and only scan (pack added this run). Demand is the loudest of any scan so far (1–3% of net patient revenue lost to underpayments; $30K–$150K/yr per 3–5-provider practice; 8+ independent 2026 sources — but four of them sell the fix, so the repeat-intent reading is inflated). Dropped at the **free-incumbent rule**: the AMA's free Claims Workflow Assistant + free 835 parsers + free deadline/appeal generators + the practice system's own contract-variance reporting cover the self-serve layer, and the recovery layer is a human chase (**rule 1**). Also fails the **channel rule** — no editorial vertical, no owned audience. Runners-up: ERA/EFT reassociation checker 62, appeal-worth-it estimator 58, payer prior-auth metric aggregator 55. Record: `context/recon_proposals/2026-09-28_payervariance_no-build.md`. |
+| legal_ops | ✅ (added 2026-10-12) | 2026-10-12 | 53 (Rule-set deadline ledger, best) | **scanned — nothing ≥60, no build** | First scan; **never-scanned queue row 1**. Two candidates scored 53 (rules-based deadline ledger) and 46 (filing pre-flight). Dropped below the Stage-3 threshold, and structurally at the **free-incumbent rule** (free FRCP 6 / court-date calculators and `deadlinecalculator.com` free since 2007; **veraPDF** free and open-source PDF/A validation; the e-filing portals ship the redaction tools), the **rule-5 data hazard** (a maintained rule pack for 2,500+ jurisdictions is a legal-liability-grade feed — a stale rule is a *wrong deadline*), and the **channel rule** (not one of the 26 editorial verticals; no owned audience). No dated trigger in-window: the 1 Dec 2026 federal package is appellate forms + bankruptcy rules + Evidence Rule 801, the civil-rules package is 1 Dec 2027. Paid incumbent layer: LawToolBox, CompuLaw, CalendarRules, DocketCalendar. Record: `context/recon_proposals/2026-10-12_canopyproof.md` §4. |
+| agriculture_eudr | ✅ (added 2026-10-12) | 2026-10-12 | 79 (CanopyProof) | **open — PRD at the approve gate** | First scan; **never-scanned queue row 2**. Supplier geolocation set pre-flight audit (LLM/parse extraction of supplier packs in front of a deterministic geometry + scope engine). Free incumbents own the *single-item* checks (Silvatrace free GeoJSON validator; Trusty free obligations checker; EUDR Navigator free scope/obligations/templates), so the unowned slice is the **buyer-side portfolio audit** — overlap/duplication between suppliers' plots, declared-vs-computed area, yield plausibility, scope screen — plus the supplier fix-request pack; the paid platforms (osapiens, Coolset, ESF:ONE, LiveEO, TraceX, Trusty Passport from €90/product/yr) are sales-led. Class **LLM/parse-backed**, $1.50/call vs measured ≈$0.18 (clears 3×). Channel caveat: **no dedicated editorial vertical** — nearest owned channels are the sourcing/import-ops verticals (adjacent, not native). Dated triggers: **30 Dec 2026** application for large/medium operators + timber SMEs (30 Jun 2027 for micro/small non-timber); Annex I amended 64 times by Delegated Reg (EU) 2026/2102, in force **18 Sep 2026**. Record: `context/recon_proposals/2026-10-12_canopyproof.md`. |
 
 ## Scanned / verified — editorial verticals
 
@@ -134,8 +136,6 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 
 | Vertical | Why it's plausible | First probe shape |
 |---|---|---|
-| legal_ops | Court e-filing formats per jurisdiction, deadline calculation (rule-based, dated) | `court e-filing format rejection deadline calculation 2026 paralegal manual` |
-| agriculture_eudr | Geolocation due-diligence statements, batch → plot traceability | `EUDR due diligence statement geolocation upload supplier 2026 manual` |
 | energy_interval_data | Interval/Green Button data → tariff and demand-charge audit; submeter reconciliation | `Green Button interval data demand charge audit 2026 spreadsheet` |
 | food_service_ops | Invoice → price-list variance, yield/waste reports, franchise compliance packs | `restaurant invoice price variance food cost audit 2026 manual` |
 | media_production_qc | Delivery-spec QC: captions, timestamps, platform rejects | `delivery spec QC captions timestamps reject 2026 post house` |

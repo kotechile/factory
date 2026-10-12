@@ -298,6 +298,75 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
   → **SpendProof** proposed, class **LLM/parse-backed**, $1.50/call vs measured ≈$0.14 (clears 3×).
   Record: `context/recon_proposals/2026-10-05_spendproof.md`.
 
+## legal_ops
+- **Trigger surface:** court e-filing portals and their return-for-correction lists, state bar bulletins,
+  procedural rule amendments (uscourts.gov pending-amendments table), local-rule standing orders.
+- **Dated triggers:** federal rules take effect **1 December** each year (the 2026 package: Appellate
+  Form 4, Bankruptcy Rules 1007/3018/5009/9006/9014/9017 + new Rule 7043, Evidence Rule 801; the
+  civil-rules package — 7.1, 26, 41, 45, 81 — is **1 December 2027**); state rule amendments and
+  e-filing format mandates land with their own effective dates.
+- **Query shapes (measured 2026-10-12):** `court e-filing rejected document formatting deadline
+  calculation paralegal 2026` (on-topic but vendor-heavy: EFSP and filing-service blogs); `free FRCP
+  6(a) deadline calculator court rules date computation` (free-tool results, not pain); `missed deadline
+  malpractice claim law firm calendaring error statistics 2026` (attorney-assistant, CARET, TLIE,
+  Attorney at Work — malpractice share ~28–33%, but most publishers sell the fix).
+- **Buyer & budget:** solo/small-firm attorney, paralegal or legal-ops lead; real recurring budget
+  ($50–$100+/user/mo at the rules-based layer), but the buyer with money has usually already bought.
+- **Incumbent / free check:** *free* — `deadlinecalculator.com` (free since 2007), LawToolBox free
+  calculator, a free FRCP 6 calculator with holiday logic, a free court-date calculator with the 11
+  federal holidays, Esquire Deposition's free filing-date calculator; **veraPDF** is free and
+  open-source PDF/A validation, and the e-filing portals ship their own auto-redaction and
+  sensitive-data designation. *Paid* — LawToolBox, CompuLaw/ALN (2,500+ jurisdictions, in-house
+  attorney rules team), CalendarRules/Clio, DocketCalendar, MatterAlert.
+- **Funnel risk:** Filters 1 + 3 + the channel rule. A rules-based deadline engine needs a maintained
+  per-jurisdiction ruleset; a stale rule is a **wrong deadline** — the highest-consequence fabricated
+  number (rule 5) — and no editorial vertical exists for this buyer, so there is no owned channel.
+- **First scan (measured 2026-10-12) — nothing scored ≥60, no build:** two candidates, a rules-based
+  deadline ledger (53: repeat 80 / friction 25 / WTP 65 / urgency 30) and a filing pre-flight (46).
+  Both die below the Stage-3 threshold and structurally at the free-incumbent rule, and there is no
+  in-window dated trigger (the December 2026 package is not a computation-of-time change). Re-open only
+  against a dated court-rule or filing-format change **with a channel attached**.
+
+## agriculture_eudr
+- **Trigger surface:** Regulation (EU) 2023/1115 (EUDR) as amended by Regulation (EU) 2025/2650 and the
+  Annex I delegated acts; the EU Information System (TRACES) user guide and API validation rules; the
+  Commission's EUDR FAQ and guidance; national competent-authority guidance.
+- **Dated triggers:** **30 December 2026** — application for large and medium operators and traders, and
+  for micro/small operators already covered by the EU Timber Regulation; **30 June 2027** — micro and
+  small operators, non-timber; **18 September 2026** — Delegated Regulation (EU) 2026/2102 in force
+  (Annex I amended in 64 places: 41 replaced, 18 inserted, 5 deleted), with some added CN codes
+  regulated only from **30 December 2027**.
+- **Query shapes (measured 2026-10-12):** `EUDR due diligence statement geolocation upload supplier
+  rejection 2026` → 6/6 on-topic; `EUDR geolocation polygon file validation free tool pre-check
+  rejected error` → surfaced both the free validators and the paid platforms in one pass (the
+  free-incumbent check); `EUDR overlapping polygons duplicate plots double counting volume vs area` →
+  the portfolio-invariant pain from platform and practitioner sources; `EUDR penalties fines percentage
+  turnover 2026` → the 4%-of-EU-turnover floor, confiscation and market bans, from six independent
+  sources.
+- **Buyer & budget:** the EU operator/first placer (importer, EU producer or exporter) — compliance or
+  procurement lead filing the statement; real budget, and a 4%-of-EU-turnover exposure behind it.
+  Downstream operators and traders do **not** file a statement, so they are not the buyer.
+- **Incumbent / free check:** *free* — Silvatrace free GeoJSON validator (single-file technical
+  conformance to the v1.5 spec: JSON, WGS84, geometry types, coordinate order, closed rings,
+  self-intersection, holes, 25 MB — it computes no area, so it cannot check the four-hectare rule, and
+  it compares nothing across files); Trusty free obligations checker; EUDR Navigator free scope
+  assessment, country-risk list and supplier templates; TraceX free single-product scope tool.
+  *Paid, sales-led* — osapiens, Coolset, ESF:ONE, LiveEO, TraceX, Trusty EUDR Passport (from €90 per
+  product profile per year, €290–€490/yr when risks are flagged), Polygon One, eudr.io.
+  **The free tools each own one single-item check; the unowned slice is the buyer-side audit across a
+  whole supplier submission set** (overlap/duplication between suppliers, declared-vs-computed area,
+  yield plausibility vs the operator's own yield figure) plus the fix-request pack.
+- **Funnel risk:** Filter 3 — geometry and scope arithmetic is pure TypeScript (spherical-excess area,
+  pairwise polygon intersection with a bounding-box prefilter), but the vendored Annex I table must be
+  version-stamped with its date and must surface `unverifiable` (never a guess) for codes whose status
+  the 2026 act changed. Country-boundary containment and satellite forest-cover screening are **out of
+  the 4-hour cap** — do not scope them in.
+- **First scan (measured 2026-10-12) — candidate found:** **CanopyProof** proposed, class
+  **LLM/parse-backed**, $1.50/call vs a measured ≈$0.18 (clears 3×). Score 79 (repeat 90 / friction 45
+  / WTP 85 / urgency 100). The 45 is deliberate and load-bearing: a free single-file validator exists,
+  so the product is the portfolio audit, never "a validator". Record:
+  `context/recon_proposals/2026-10-12_canopyproof.md`.
+
 ## Stub packs — seed only (verify in the first scan)
 | Vertical | Trigger surface | Seed query shape | Known blocker / check first |
 |---|---|---|---|
@@ -310,13 +379,11 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 | `home_infrastructure_lifecycle_tco` | Energy Star, NREL PVWatts, HVAC trade press | `10 year home capex roadmap hvac heat pump break-even 2026` | free calculators already cover payback math |
 | `home_equity_tco` | JCHS/NAR reports, energy-star, TOU tariffs | `heloc vs cash remodel capital allocation 2026 calculator` | prosumer WTP; no dated driver most weeks |
 | `home_ops_execution` | ICC codes, contractor-license boards, state AG/mechanic-lien rules | `mechanics lien waiver deadline by state 2026 contractor` | jurisdiction-by-jurisdiction determinism is fine; buyer is a homeowner |
-| `legal_ops` | court e-filing portals, state bar bulletins, rule amendments | `court e-filing format rejection deadline calculation 2026 paralegal manual` | check free court-provided validators first |
 | `energy_interval_data` | utility tariffs, Green Button Connect, PUC filings | `Green Button interval data demand charge audit 2026 spreadsheet` | data access per utility; sequence after the capex family |
 | `food_service_ops` | distributor price lists, franchise compliance packs, health-department rules | `restaurant invoice price variance food cost audit 2026 manual` | thin margins, low per-seat WTP — check before scoring |
 | `media_production_qc` | broadcaster/platform delivery specs (AS-11, IMF, Netflix/Amazon specs) | `delivery spec QC captions timestamps rejected 2026 post house` | deterministic and dated (spec versions) — genuinely new territory |
 | `trades_service_ops` | ServiceTitan/Housecall Pro changelogs, warranty rules, permit portals | `work order invoice warranty claim reconciliation 2026 trades` | check incumbent field-service suites |
 | `public_sector_grants` | grants.gov, state grant portals, uniform guidance | `grant reporting format rejection deadline 2026 manual reconcile` | procurement cycles; deterministic rules are published — verify incumbents |
-| `agriculture_eudr` | EUDR, GPS/geolocation tooling, importer guidance | `EUDR due diligence statement geolocation upload supplier 2026 manual` | dated mandate (strong urgency); check trade-compliance incumbents |
 
 ## Adding a pack
 New verticals open by adding a pack here (same six lines) and a row in `context/vertical_coverage.md`.
