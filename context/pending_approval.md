@@ -7,13 +7,19 @@ build/ship actions ahead of the gate. Read this instead of re-deriving from jour
 _Last updated: 2026-10-13 (**15:30 sweep** — every open item re-measured live on `apps.giniloh.com`). **The factory now publishes its own
 launch videos, and the first one is live.** `Post-Ship Brag` (new job, `*/30 11-23 * * *`, monitor-driven) plus `Launch Video Auth Check`
 (`0 13 * * 1`) landed with 17 commits `6cf56b8..c62c690` (2026-10-12 23:02–23:07): a `launch_videos` ledger with a grandfathered backlog, a
-deterministic pending-product detector, a narration word/second budget that fails hard, an ElevenLabs voiceover with a budget check,
-a duck-and-mux step, a resumable YouTube upload and a one-time OAuth consent helper. **SpendProof's video is PUBLIC on YouTube**
-(`https://youtu.be/82vT3OkoYsU`, title *"Introducing SpendProof: AI provider invoice ↔ tagged-usage reconciliation."*, the founder's own
-channel, `privacyStatus: public`, uploaded 2026-10-13 12:37:58Z after 2 attempts) — confirmed by YouTube's oEmbed endpoint (200, real
-title/author/thumbnail) and by reading the thumbnail: 22.0 s runtime, 19.0 s / 45-word narration, real SpendProof close-verdict UI on
-screen. The other four live products are ledgered `grandfathered`; a future product picks up a video automatically within 30 minutes of
-going live. Caveat: the launch-video worktree carries uncommitted in-flight work (12 modified / 7 new files) — the video desk's own, not a
+deterministic pending-product detector, a narration word/second budget that also fails hard on the MEASURED take length, a Kokoro
+voiceover with the voice derived from the slug (Kokoro replaced ElevenLabs as the default; `--tts elevenlabs` survives for A/B only),
+a duck-and-mux step that now loudness-normalises the mix to -14 LUFS with 48 kHz pinned, a resumable YouTube upload, and a one-time
+OAuth consent helper whose scope list now carries the full `youtube` scope — the narrower upload/readonly pair could not set a
+video's status (`videos.update` answered 403). **SpendProof's video is PUBLIC on the product channel** (`https://youtu.be/LdSoKLTfYjs`,
+channel **GiniLoh**, `privacyStatus: public`, `PT22S` / `hd`, own thumbnail) — the founder moved launch videos off his personal channel
+and reissued the token, and **every earlier upload (`DlLmXBBAOUY`, `GPo_PeQvHyY`, `82vT3OkoYsU`) was deleted by him**. Verified back
+from the YouTube API, not from the uploader's exit code. 22.0 s runtime, 19.0 s / 45-word narration, and scene 4 is the product's own
+disaggregation prism ported from `src/components/editorial/prism-schematic.tsx`. `ProductLaunchVideo` (registry
+`src/products/launch-videos.ts`) embeds it on `/spendproof`, and renders nothing at all for a product with no published video. The
+other four live products were ledgered `grandfathered` — **the founder reversed that standard on 2026-10-13 and their four videos are
+in production now**, so the factory is doing exactly the bulk retro-processing the standard forbade; a future product picks up a video
+automatically within 30 minutes of going live. Caveat: the launch-video worktree carries uncommitted in-flight work (12 modified / 7 new files) — the video desk's own, not a
 defect in the published video. **Still waiting on you: CanopyProof** (`context/recon_proposals/2026-10-12_canopyproof.md`, commit
 `d209cf3`, score 79, `usesLlmPrimitive: true`, measured ≈ $0.18/call → rec **$1.50/call**, $39/mo importer plan, $19 one-off pack, WebMCP
 tool `preflight_eudr_geolocation`; audits a supplier geolocation submission set **before** an EUDR due-diligence statement is filed; dated

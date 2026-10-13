@@ -23,6 +23,10 @@ const { YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET } = requireEnv(
 );
 
 const SCOPES = [
+  // The full `youtube` scope covers upload, read, AND status updates (videos.update — needed to
+  // unlist or re-privatise a video after upload). The narrower upload/readonly pair cannot do that:
+  // PUT /videos?part=status answers 403 "insufficient authentication scopes".
+  "https://www.googleapis.com/auth/youtube",
   "https://www.googleapis.com/auth/youtube.upload",
   "https://www.googleapis.com/auth/youtube.readonly",
 ].join(" ");

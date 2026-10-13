@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import SpendProofCalculator from "@/components/spendproof-calculator";
+import { ProductLaunchVideo } from "@/components/product-launch-video";
 import ProductPricing from "@/components/product-pricing";
 import { AgentSurfaceGuide } from "@/components/editorial/agent-surface-guide";
 import { PrismSchematic } from "@/components/editorial/prism-schematic";
@@ -123,6 +124,8 @@ export default function Page() {
           />
 
           <SpendProofCalculator initialScenario="untagged-batch" />
+
+          <ProductLaunchVideo slug="spendproof" />
 
           <div className="mx-auto w-full max-w-4xl space-y-10">
             <AgentSurfaceGuide

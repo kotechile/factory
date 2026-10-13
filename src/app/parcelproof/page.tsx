@@ -3,6 +3,7 @@ import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import { BookOpen, ExternalLink } from "lucide-react";
 import ParcelProofCalculator from "@/components/parcelproof-calculator";
+import { ProductLaunchVideo } from "@/components/product-launch-video";
 import ProductPricing from "@/components/product-pricing";
 import { AgentSurfaceGuide } from "@/components/editorial/agent-surface-guide";
 import { PrismSchematic } from "@/components/editorial/prism-schematic";
@@ -93,6 +94,8 @@ export default function Page() {
           />
 
           <ParcelProofCalculator initialScenario="overcharge" />
+
+          <ProductLaunchVideo slug="parcelproof" />
 
           <div className="mx-auto w-full max-w-4xl space-y-10">
             <AgentSurfaceGuide

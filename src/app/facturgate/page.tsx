@@ -3,6 +3,7 @@ import { canonicalMetadata } from "@/lib/seo/canonical";
 import Link from "next/link";
 import { BookOpen, ExternalLink } from "lucide-react";
 import FacturGateCalculator from "@/components/facturgate-calculator";
+import { ProductLaunchVideo } from "@/components/product-launch-video";
 import FacturGateMcpGuide from "@/components/facturgate-mcp-guide";
 import FacturGateSchematic from "@/components/facturgate-schematic";
 import ProductPricing from "@/components/product-pricing";
@@ -78,6 +79,8 @@ export default function Page() {
           />
 
           <FacturGateCalculator initialFormat="facturx" initialCountry="FR" />
+
+          <ProductLaunchVideo slug="facturgate" />
 
           <div className="mx-auto w-full max-w-4xl space-y-10">
             <FacturGateMcpGuide />

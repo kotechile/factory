@@ -1,4 +1,4 @@
-# SOP: Post-Ship Launch Video (`brag` → ElevenLabs → YouTube)
+# SOP: Post-Ship Launch Video (`brag` → Kokoro → YouTube)
 
 **Owner:** the `Post-Ship Brag` cron job (model: deepseek-flash).
 **Trigger:** the "Post-Ship Brag" job's monitor script reports one or more `PENDING <slug>` lines.
@@ -30,29 +30,70 @@ Follow the `brag` skill (already loaded in this session) with the working projec
 `/root/software-factory-core`, scoped to `<slug>`. Requirements:
 - Output to `content/launch_videos/<slug>/`. The skill defaults to `brag-output/`; if it writes
   there, move the artifacts: `mv brag-output/* content/launch_videos/<slug>/`.
-- Do **NOT** pass `--voice`: narration comes from step 4 (ElevenLabs), not Kokoro.
-- Music on (default). Keep the video 15–25 s.
+- Do **NOT** pass `--voice`: the render must stay voice-agnostic (brag skill rule). Narration is
+  synthesized separately in step 4 (Kokoro) and mixed in step 5.
+- Music on (default), and **derive the bed — do not hand-pick it**:
+```bash
+node scripts/launch-video/pick-track.mjs --slug <slug> --copy-to content/launch_videos/<slug>/composition
+```
+  The track is a function of the slug (`src/lib/launch-video/music.ts`), so each product keeps the
+  same bed across re-renders while the catalog gets spread across launches — every earlier launch
+  was hand-picked onto the same track. Point the composition's music element at the file it prints,
+  and take that track's tempo/cues from the brag skill's `assets/music/cues/` before re-checking any
+  beat locks. Override only if the derived track genuinely fights the product's tone, and then record
+  the reason in `brag-plan.md` — silence is never an override. Keep the video 15–25 s.
+- If a bed changes, the extracted audio-reactive data must be re-extracted from the new track;
+  carrying the previous track's data over is a silent desync.
+- If the brag deliberately has no bed (cues only), say so in `brag-plan.md`; the mux handles it (see
+  step 5), but the plan should record that the silence was a decision.
 - Gate before continuing:
 ```bash
 ffprobe -v error -show_entries format=duration -of json content/launch_videos/<slug>/brag.mp4
 test -s content/launch_videos/<slug>/share-copy.txt && echo "share copy OK"
+node scripts/launch-video/check-bed-track.mjs --slug <slug>
 ```
-If either fails, stop and mark the run failed — do not hand-write a video file.
+If any fails, stop and mark the run failed — do not hand-write a video file. `check-bed-track`
+proves the composition actually mounted the bed `pick-track` derived; without it the rule is only as
+reliable as this instruction being read.
 
 ## 4. Write the narration, then synthesize it
-Write `content/launch_videos/<slug>/narration.txt`: 50–65 words (≈21–27 s at 2.4 words/s), first
-person, specific to the product, no invented metrics. Then:
+Write `content/launch_videos/<slug>/narration.txt`: 40–50 words, first person, specific to the
+product, no invented metrics.
+
+**Write short sentences, not comma-lists.** The word count is not the pacing control — clause
+structure is. A script that names five things inside one comma-list reads as rushed even when it fits
+the budget, and the on-screen cards already name them. Two or three ideas per video, full stops
+between them. Measured: 45 words of short sentences at `--speed 0.9` fills 19.0s of a 22.0s video and
+reads unhurried; a 22s video with the same information packed into one five-item list did not.
+
+Then, with the render already finished (step 3):
 ```bash
-node scripts/launch-video/voiceover.mjs --slug <slug>
+node scripts/launch-video/voiceover.mjs --slug <slug> --speed 0.9
 ```
-If it reports the narration is too long, **cut words** and re-run (max 2 rewrites). Do not change
-the speaking speed and do not pad the video.
+The provider is **Kokoro** (local, via `npx hyperframes tts`) — the voice the `brag` skill itself
+documents — and the voice is **derived from the slug** (`src/lib/launch-video/voice.ts`), so the
+fleet does not all share one voice. Kokoro needs `kokoro-onnx` + `soundfile`: `HYPERFRAMES_PYTHON` in
+`.env` must point at a python that has them (currently `/root/.venvs/kokoro/bin/python`), or the step
+fails with "kokoro-onnx is not installed". Override the derived voice with `--voice <id>` only when
+it genuinely fights the product's tone, and record the override in `brag-plan.md` — silence is never
+an override. `--tts elevenlabs` still runs, for A/B comparison against an older take only; it is no
+longer the default and it is not a fallback.
+
+Two checks gate this step. The word budget (`narration.ts`) is the estimate; the **measured** take
+length is the real one — a take longer than the video minus 0.5s would be cut off mid-sentence by the
+mux's `amix=duration=first`, so the step exits non-zero instead of shipping it. If either fails, cut
+words and re-run (max 2 rewrites). Do not pad the video to fit narration.
 
 ## 5. Final mix
 ```bash
 node scripts/launch-video/mux.mjs --slug <slug>
 ```
-Produces `launch.mp4` (video copied, voice over ducked music).
+Produces `launch.mp4` (video copied, voice over the brag's audio). The mux measures how much of the
+brag actually carries audio (`silencedetect`) and ducks the brag under the voice **only when there is
+a continuous bed to duck** — a cues-only brag keeps its motion-matched effects at full level instead
+of being compressed by the same sidechain. If that measurement fails, the run prints a `WARNING` and
+falls back to ducking; it never downgrades silently (AGENTS.md rule 5). The mux logs one line naming
+which path it took — quote it in the report.
 
 ## 6. Upload to YouTube
 ```bash

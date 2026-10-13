@@ -10,12 +10,18 @@ export function parseEnvFile(text: string): Record<string, string> {
     const eq = t.indexOf("=");
     if (eq === -1) continue;
     const key = t.slice(0, eq).trim();
-    let value = t.slice(eq + 1).trim();
-    if (
+    const raw = t.slice(eq + 1);
+    let value = raw.trim();
+    const quoted =
       (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
+      (value.startsWith("'") && value.endsWith("'"));
+    if (quoted) {
       value = value.slice(1, -1);
+    } else {
+      // `KEY=value   # note` — dotenv-style inline comments. Applied to the UNTRIMMED remainder,
+      // because `KEY=   # note` trims down to `# note` and would otherwise keep the comment as the
+      // value. Only unquoted values are trimmed, so a secret containing '#' survives when quoted.
+      value = raw.replace(/\s+#.*$/, "").trim();
     }
     if (key) out[key] = value;
   }

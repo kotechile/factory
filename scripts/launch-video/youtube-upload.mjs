@@ -16,13 +16,14 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadEnvFile, requireEnv } from "../../src/lib/launch-video/env.ts";
 import {
-  buildResumableInit, buildVideoResource, parseRefreshTokenResponse, parseShareCopy, YOUTUBE_API, GOOGLE_TOKEN_URL,
+  buildResumableInit, buildVideoResource, parseRefreshTokenResponse, parseShareCopy, readYoutubeConfig,
+  YOUTUBE_API, YOUTUBE_THUMBNAIL_URL, GOOGLE_TOKEN_URL,
 } from "../../src/lib/launch-video/youtube.ts";
 
 const REPO = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 loadEnvFile(join(REPO, ".env"));
 const argv = process.argv.slice(2);
-const flag = (n) => { const i = argv.indexOf(n); return i === -1 ? undefined : argv[i + 1]; };
+const flag = (n, fallback) => { const i = argv.indexOf(n); return i === -1 ? fallback : argv[i + 1]; };
 const dryRun = argv.includes("--dry-run");
 
 const { YOUTUBE_CLIENT_ID, YOUTUBE_CLIENT_SECRET, YOUTUBE_REFRESH_TOKEN } = requireEnv(
@@ -62,11 +63,11 @@ if (!existsSync(shareCopyPath)) throw new Error(`missing ${shareCopyPath} — th
 
 const { title, description } = parseShareCopy(readFileSync(shareCopyPath, "utf8"));
 const productUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://apps.giniloh.com").replace(/\/$/, "")}/${slug}/`;
-const tags = (process.env.YOUTUBE_TAGS || "").split(",").map((t) => t.trim()).filter(Boolean);
-const privacyStatus = (process.env.YOUTUBE_PRIVACY_STATUS || "private");
+// accepts both the documented names and the ones the deployed .env uses; refuses an unknown value
+const { privacyStatus, tags, categoryId, madeForKids } = readYoutubeConfig(process.env);
 const size = statSync(videoPath).size;
 const body = buildVideoResource({
-  title, tags, privacyStatus,
+  title, tags, privacyStatus, categoryId, madeForKids,
   description: `${description}\n\nTry it: ${productUrl}\nDeterministic, no signup needed.`,
 });
 
@@ -74,7 +75,8 @@ if (dryRun) {
   console.log(`DRY RUN → ${buildResumableInit({ size, mimeType: "video/mp4" }).url}`);
   console.log(`  file: ${videoPath} (${size} bytes)`);
   console.log(`  title: ${body.snippet.title}`);
-  console.log(`  privacy: ${body.status.privacyStatus}  tags: ${body.snippet.tags.join(", ")}`);
+  console.log(`  privacy: ${body.status.privacyStatus}  category: ${body.snippet.categoryId}  madeForKids: ${body.status.selfDeclaredMadeForKids}`);
+  console.log(`  tags (${body.snippet.tags.length}): ${body.snippet.tags.join(", ") || "(none)"}`);
   console.log(`  description:\n${body.snippet.description}`);
   process.exit(0);
 }
@@ -98,8 +100,10 @@ const put = await fetch(uploadUrl, {
   headers: { "content-type": "video/mp4", "content-length": String(size) },
   body: readFileSync(videoPath),
 });
-const json = await put.json();
-if (put.status !== 201 || !json.id) {
+const json = await put.json().catch(() => ({}));
+// A completed resumable upload answers 200 or 201 depending on the backend. Requiring exactly 201
+// reported a live, public video as a failure — and skipped the thumbnail and the result file.
+if ((put.status !== 201 && put.status !== 200) || !json.id) {
   console.error(`YouTube upload failed: HTTP ${put.status} — ${JSON.stringify(json).slice(0, 400)}`);
   process.exit(1);
 }
@@ -110,7 +114,7 @@ const result = {
 };
 
 if (existsSync(thumbnailPath)) {
-  const thumb = await fetch(`${YOUTUBE_API}/thumbnails/set?videoId=${json.id}`, {
+  const thumb = await fetch(`${YOUTUBE_THUMBNAIL_URL}?videoId=${json.id}`, {
     method: "POST",
     headers: { authorization: `Bearer ${token}`, "content-type": "image/jpeg" },
     body: readFileSync(thumbnailPath),
