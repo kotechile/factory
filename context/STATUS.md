@@ -1,5 +1,34 @@
 # Factory Status Map
 
+_Last updated: 2026-10-13 (**15:30 sweep** — every surface re-measured live). **New capability, live: the factory publishes its own launch
+videos.** The `Post-Ship Brag` and `Launch Video Auth Check` jobs landed last night with 17 commits (`6cf56b8..c62c690`, 2026-10-12
+23:02–23:07) — a `launch_videos` ledger with a grandfathered backlog, a pending-product detector, a hard narration budget, an ElevenLabs
+voiceover step, a duck-and-mux step and a resumable YouTube upload. **SpendProof's launch video is PUBLIC on YouTube**
+(`https://youtu.be/82vT3OkoYsU`, `privacyStatus: public`, uploaded 2026-10-13 12:37:58Z after 2 attempts, 22.0 s / 19.0 s narration; the
+thumbnail is the real SpendProof close-verdict card) — verified through YouTube's oEmbed endpoint and by eye. The other four live products
+are ledgered `grandfathered`. The launch-video worktree is still dirty with the desk's own in-flight work (12 modified / 7 new files) —
+not committed by this sweep. **Awaiting `@Simon approve CanopyProof`** — nothing built, nothing in `src/`, nothing dispatched; the only
+build candidate (score 79, `context/recon_proposals/2026-10-12_canopyproof.md`, commit `d209cf3`, LLM/parse-backed, rec $1.50/call, EUDR
+application 30 Dec 2026). **The one red job:** `hermes cron doctor` **1 issue / 61 jobs** (was 59) — Editorial Verify Gate FAILED
+2026-10-13 14:02 (*live image `29294d0f6e19` vs HEAD `91115b944e59`, deploy behind*); measured cause: `/root/editorial-factory` is **3
+commits ahead of its own origin** (`fef87f3`, `e79c382`, `91115b9` — never pushed), so the pressflow container serves **73** published files
+against **88** on the host (**15** newest articles missing from the internal reader; CMS + Supabase carry all 88, public reader sites
+unaffected). Third red in four days — flagged, not touched. Deploy verified: app container `af8yqbwrrnyyfgs9wcg0intj-20261012T232802`,
+image `c62c69002190…` == HEAD, `/showcase` 200. Surfaces all 200 (`/` 307 → giniloh.com 200; `/showcase` + 5 products + `/quarterline` +
+`/billing` + `/embed/countdown` + robots (30 URLs) + sitemap (30 loc) + mcp.json + ai-plugin.json; `/openapi.json` 404; legacy 503);
+`/quarterline/` + `/quarterline/calc/` 308. Manifest **v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical. Checkout `cs_live_` ×5
+(`ledgerlink`, `facturgate`, `parcelproof`, `caseproof`, `spendproof`); product-scoped plan without `app` → 400 naming the inventory;
+`quarterline` 400 "retired"; `agent_metered` 200 `cs_live_…`; `/api/portal` 307. Stripe `STRIPE_MODE=live`, `sk_live_` 107 ch, `/v1/balance`
+200 `livemode:true` (available $0.00); `GEMINI_API_KEY` (39) + `LLAMAPARSE_API_KEY` (52) + `STRIPE_AGENT_METER_PRICE_ID` (30) in the
+container; SpendProof with no document → 400 `sp-document-missing`. `events` 6534 → **6543** rows / sessions 4032 → **4037** — only **7
+rows today** (3 `spendproof` views at 02:34 from the video desk, 2 `spendproof` + 2 `factory`/`ledgerlink` at 12:26 from `885deba9…` and
+the long-lived `59a27597…`) → **still no provable outside visitor, day 43**; last outside-touching event 2026-09-23T14:11:42Z. Revenue
+**$0 real** (4 `cs_test_` purchases 2026-09-02; 1 sandbox subscription). `agent_query` still 8 (organic 0, day 43). Articles 77 → **88**.
+`vertical-sync --check` exit 0 (26); `recon:cadence` exit 0 (newest 2026-10-12). Item 11's descriptor half open (ai-plugin.json still names
+QuarterLine against the dead host; `/openapi.json` 404). Item 7: gateway pid `1963330` (2026-09-12). **Open: 5, 6, 7 (P2), 11 (descriptor
+half, P2)** + the editorial deploy-behind finding (P2, fleet) + the dirty launch-video worktree (P2, fleet) — plus the owner-held items he
+took himself (provider low-balance alert, social/video, affiliate/ads).
+
 _Last updated: 2026-10-12 (**15:30 sweep** — every surface re-measured live). **The weekly recon returned a build
 and the line is idle waiting on the founder.** `context/recon_proposals/2026-10-12_canopyproof.md` (commit
 `d209cf3`, the day's only factory commit): **CanopyProof**, score **79/100**, declared **LLM/document-parse-backed**

@@ -4,6 +4,33 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-13 (**15:30 sweep** — every open item re-measured live on `apps.giniloh.com`). **The factory now publishes its own
+launch videos, and the first one is live.** `Post-Ship Brag` (new job, `*/30 11-23 * * *`, monitor-driven) plus `Launch Video Auth Check`
+(`0 13 * * 1`) landed with 17 commits `6cf56b8..c62c690` (2026-10-12 23:02–23:07): a `launch_videos` ledger with a grandfathered backlog, a
+deterministic pending-product detector, a narration word/second budget that fails hard, an ElevenLabs voiceover with a budget check,
+a duck-and-mux step, a resumable YouTube upload and a one-time OAuth consent helper. **SpendProof's video is PUBLIC on YouTube**
+(`https://youtu.be/82vT3OkoYsU`, title *"Introducing SpendProof: AI provider invoice ↔ tagged-usage reconciliation."*, the founder's own
+channel, `privacyStatus: public`, uploaded 2026-10-13 12:37:58Z after 2 attempts) — confirmed by YouTube's oEmbed endpoint (200, real
+title/author/thumbnail) and by reading the thumbnail: 22.0 s runtime, 19.0 s / 45-word narration, real SpendProof close-verdict UI on
+screen. The other four live products are ledgered `grandfathered`; a future product picks up a video automatically within 30 minutes of
+going live. Caveat: the launch-video worktree carries uncommitted in-flight work (12 modified / 7 new files) — the video desk's own, not a
+defect in the published video. **Still waiting on you: CanopyProof** (`context/recon_proposals/2026-10-12_canopyproof.md`, commit
+`d209cf3`, score 79, `usesLlmPrimitive: true`, measured ≈ $0.18/call → rec **$1.50/call**, $39/mo importer plan, $19 one-off pack, WebMCP
+tool `preflight_eudr_geolocation`; audits a supplier geolocation submission set **before** an EUDR due-diligence statement is filed; dated
+driver Delegated Regulation (EU) 2026/2102, application 30 Dec 2026) — **nothing built, nothing in `src/`, nothing dispatched**; the
+approved backlog is otherwise **empty** and no product code changed in 24 h. **The one red job:** Editorial Verify Gate FAILED 2026-10-13
+14:02 (*live image `29294d0f6e19` vs HEAD `91115b944e59`, deploy behind*) — measured cause: `/root/editorial-factory` is **3 commits ahead
+of its own origin** (`fef87f3`, `e79c382`, `91115b9`, never pushed); the pressflow container serves **73** published files against **88** on
+the host (**15** newest articles missing from the internal reader only — CMS and Supabase carry all 88, public reader sites unaffected).
+Third red in four days; flagged, not touched (the sweep does not push another repo, whose push path runs `git add -A` over a dirty
+worktree). **Also open for you:** item **5** (internal-traffic marker — 7 events today across 5 sessions, still none attributable), item
+**6** (durable record), item **7** (P2), item **11 descriptor half** (P2), the provider low-balance alert, and the social/video channel you
+run by hand. Verified this run: app container `af8yqbwrrnyyfgs9wcg0intj-20261012T232802` image `c62c69002190…` == HEAD; `/showcase` 200;
+manifest **v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical; checkout `cs_live_` ×5 + `agent_metered` 200 `cs_live_` + app-less 400 +
+`quarterline` 400 "retired" + portal 307; Stripe `STRIPE_MODE=live`, `sk_live_` 107 ch, `/v1/balance` 200 `livemode:true`; `events` 6534 →
+**6543** rows / sessions 4032 → **4037**; `agent_query` still 8 (organic 0, day 43); articles 77 → **88**; `vertical-sync --check` exit 0
+(26); `recon:cadence` exit 0. Revenue **$0 real** (4 `cs_test_` purchases 2026-09-02; 1 sandbox subscription).
+
 _Last updated: 2026-10-12 (**15:30 sweep** — every open item re-measured live on `apps.giniloh.com`). **NEW, and
 the only thing asking for you: the weekly recon produced a build.** `context/recon_proposals/2026-10-12_canopyproof.md`
 (commit `d209cf3`): **CanopyProof**, signal **79/100**, declared **LLM/document-parse-backed** (`usesLlmPrimitive:
