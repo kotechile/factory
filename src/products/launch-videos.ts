@@ -16,10 +16,13 @@
  * `youtube-upload.mjs` uploaded and is NOT rewritten here — if the two disagree, this file is what
  * the pages render and `youtube.json` is history.
  *
- * Posters in `public/launch-videos/` are each video's own frame, fetched from YouTube's thumbnail
- * service at 1280x720 and re-encoded locally. FacturGate's upload has no 1280x720 thumbnail yet
- * (`maxresdefault` / `hq720` answer 404), so its poster is the 640x360 centre crop of `sddefault` —
- * re-fetch it when YouTube generates the larger one.
+ * Posters in `public/launch-videos/` are 1280x720 JPEGs of each video's own opening frame, fetched
+ * from YouTube's thumbnail service (`maxresdefault`) and re-encoded locally. FacturGate is the
+ * exception: YouTube holds no 1280x720 thumbnail for that upload — its `snippet.thumbnails` stop at
+ * `standard` (640x480) even though the source file is 1920x1080 @30fps like the others — so its
+ * poster is a crisp 1280x720 re-render of THAT VIDEO'S OWN opening slide (same eyebrow, headline,
+ * palette, grid and horizon stripe, set as live text rather than a 2x upscale of a 640px frame).
+ * Upgrade it to the real `maxresdefault` if YouTube ever generates one.
  */
 
 export interface LaunchVideo {

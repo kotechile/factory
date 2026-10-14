@@ -24,7 +24,7 @@ import { launchVideoEmbedUrl, launchVideoFor, launchVideoWatchUrl } from "@/prod
  */
 export function ProductLaunchVideo({
   slug,
-  heading = "Watch the close happen",
+  heading = "Watch the launch video",
 }: {
   slug: string;
   heading?: string;
