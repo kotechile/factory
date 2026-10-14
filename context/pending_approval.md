@@ -4,6 +4,36 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-14 (**15:30 sweep**, Day-44 — every open item re-measured live on `apps.giniloh.com`). **Every live product now
+has a public launch video, and each product page embeds it.** Five of five verified through YouTube's oEmbed endpoint (200 + a real
+title) on the product channel **GiniLoh** (`@GiniLoh-m6i`): `spendproof` `qeow4cdaiv8`, `ledgerlink` `JcP9RtWZZrg`, `facturgate`
+`I7NOZAQ-5Ig`, `parcelproof` `I38c05ZZZr8`, `caseproof` `MiNmsr1i9Lo` — each rendered click-to-load behind a poster served from our own
+origin (`/launch-videos/<slug>.jpg`, all 200). The four products that shipped before the pipeline existed were produced anyway (the
+owner reversed the `grandfathered` standard on 10-13); the `launch_videos` ledger is **5 rows, all `uploaded`**. Six commits landed
+`20c0d13..5ee4194` (10-13 23:55 → 10-14 02:46): publish all five + embed them, quarantine the third-party video frame from the WCAG
+scan, repoint the four pages at the owner's hand-published cuts (each id read back from the YouTube Data API first), click-to-load with
+our own poster, the schematic caption-versus-border class decided in code, neutral section heading + a crisp FacturGate poster. **The
+worktree is clean** — the launch-video P2 (12 modified / 7 new files) is CLOSED; only the desk's untracked `.scratch/` remains. **NEW
+owner item:** three SpendProof launch videos are public — the page embeds `qeow4cdaiv8`, the ledger's own `LdSoKLTfYjs` is also public,
+and `82vT3OkoYsU` (the one the 10-13 report named) **is still public on the founder's personal channel**, so that block's claim that the
+earlier uploads were deleted does not hold. **The red job is gone:** `hermes cron doctor` **0 issues / 61 jobs** — Editorial Verify Gate
+`ok` 10-14 14:08 (after three reds in four days), WordPress Draft Sweep `ok` 14:20. Measured closure: `/root/editorial-factory` is level
+with its origin (HEAD `606ce73`), pressflow container `nstjdswcf5p9xckxwja89o6z0-20261014T130123` image `606ce738d93…` serves **99**
+published files against **99** on the host (the 4 → 15 gap is CLOSED), Supabase `articles` **88 → 99**. **Still waiting on you:
+CanopyProof** (`context/recon_proposals/2026-10-12_canopyproof.md`, commit `d209cf3`, score 79, `usesLlmPrimitive: true`, measured
+≈ $0.18/call → rec **$1.50/call**, $39/mo importer plan, $19 one-off pack, WebMCP `preflight_eudr_geolocation`; audits a supplier
+geolocation submission set **before** an EUDR due-diligence statement is filed; application date **30 Dec 2026**) — nothing built,
+nothing in `src/`, nothing dispatched; the approved backlog is otherwise **empty** and no product code changed in 24 h.
+**Also open for you:** item **5** (internal-traffic marker), item **6** (durable record), item **7** (P2), item **11 descriptor half**
+(P2), the duplicate SpendProof video, the provider low-balance alert, and the social/video channel the owner runs by hand. Verified this
+run: app container `af8yqbwrrnyyfgs9wcg0intj-20261014T024644` image `5ee41949285f…` == HEAD; `/showcase` 200; manifest **v2.1.0 / 10
+tools** sha256 `698801c5…` byte-identical; checkout `cs_live_` ×5 + `agent_metered` 200 + product-scoped plan with no `app` 400 +
+`quarterline` 400 "retired" + portal 307; Stripe `STRIPE_MODE=live`, `sk_live_` 107 ch, `/v1/balance` 200 `livemode:true` (available
+$0.00); SpendProof with no document → 400 `sp-document-missing`; `events` 6543 → **7668** rows / sessions 4037 → **4697** (990 rows
+today, of which 980 are our own browser suites at 01:14–01:59 and 02:10–02:40 — the per-second clustering is the evidence); `agent_query`
+still 8 (organic 0, day 44); no provable outside visitor (day 44; last outside-touching 2026-09-23T14:11:42Z); `vertical-sync --check`
+exit 0 (26); `recon:cadence` exit 0. Revenue **$0 real** (4 `cs_test_` purchases 2026-09-02; 1 sandbox subscription).
+
 _Last updated: 2026-10-13 (**15:30 sweep** — every open item re-measured live on `apps.giniloh.com`). **The factory now publishes its own
 launch videos, and the first one is live.** `Post-Ship Brag` (new job, `*/30 11-23 * * *`, monitor-driven) plus `Launch Video Auth Check`
 (`0 13 * * 1`) landed with 17 commits `6cf56b8..c62c690` (2026-10-12 23:02–23:07): a `launch_videos` ledger with a grandfathered backlog, a

@@ -1,5 +1,43 @@
 # Factory Status Map
 
+_Last updated: 2026-10-14 (**15:30 sweep**, Day-44 — every surface re-measured live). **Every live product now has a launch video, and
+every product page embeds it.** Five of five are public on the product channel **GiniLoh** and each was verified through YouTube's
+oEmbed endpoint (200 + a real title): `qeow4cdaiv8` (spendproof), `JcP9RtWZZrg` (ledgerlink), `I7NOZAQ-5Ig` (facturgate),
+`I38c05ZZZr8` (parcelproof), `MiNmsr1i9Lo` (caseproof). Each page renders a **click-to-load** embed — nothing reaches YouTube until the
+viewer presses play — behind a poster served from our own origin (`/launch-videos/<slug>.jpg`, all five 200). The four products that
+shipped before the pipeline existed were produced too (the owner reversed the grandfathered standard on 10-13), so the `launch_videos`
+ledger reads **5 rows, all `uploaded`**. Six commits `20c0d13..5ee4194` (10-13 23:55 → 10-14 02:46) landed the publish + embed, the
+third-party video frame quarantined out of the WCAG scan, the four pages repointed at the owner's hand-published cuts (each new id read
+back from the YouTube Data API first), the click-to-load poster, the caption-versus-border class decided in code, and a neutral section
+heading. **The worktree is now clean** — yesterday's dirty launch-video P2 is closed. **New, for the owner:** three SpendProof launch
+videos are public (`qeow4cdaiv8` on the pages, `LdSoKLTfYjs` in the ledger, and `82vT3OkoYsU` still up on the
+founder's personal channel) — the 10-13 claim that the earlier uploads were deleted does not hold. **The red job is gone:** `hermes cron
+doctor` **0 issues / 61 jobs**; Editorial Verify Gate `ok` 2026-10-14 14:08 after three failures in four days, WordPress Draft Sweep
+`ok` 14:20, Post-Ship Brag `ok` 15:30:36, Build Watchdog `ok` 10-13 16:38 (next today 16:30), Growth Watchdog `ok` 10-09 17:05 (next
+10-16 17:00), Slack Report Gate `ok` 10-13 18:00 (next today 18:00), Weekly Market Recon `ok` 10-12 14:35 (next 10-19 14:30), Launch
+Video Auth Check registered `0 13 * * 1` and not yet run (first 10-19 — expected). Measured closure of the reader lag:
+`/root/editorial-factory` is level with its origin (HEAD `606ce73`), the pressflow container
+(`nstjdswcf5p9xckwja89o6z0-20261014T130123`, image `606ce738d93…`) serves **99** published files against **99** on the host, and
+Supabase `articles` is **88 → 99**. **Awaiting `@Simon approve CanopyProof`** — nothing built, nothing in `src/`, nothing dispatched;
+the only build candidate (score 79, `context/recon_proposals/2026-10-12_canopyproof.md`, commit `d209cf3`, LLM/parse-backed, rec
+$1.50/call, EUDR application 30 Dec 2026). Deploy verified: app container `af8yqbwrrnyyfgs9wcg0intj-20261014T024644`, image
+`5ee41949285f…` == HEAD, `/showcase` 200. Surfaces all 200 (`/` 307 → giniloh.com 200; `/showcase` + 5 products + `/quarterline` +
+`/billing` + `/embed/countdown` + robots (30 URLs) + sitemap (30 loc) + mcp.json + ai-plugin.json; `/openapi.json` 404; legacy 503);
+`/quarterline/` + `/quarterline/calc/` 308. Manifest **v2.1.0 / 10 tools** sha256 `698801c5…` byte-identical. Checkout `cs_live_` ×5
+(`ledgerlink`, `facturgate`, `parcelproof`, `caseproof`, `spendproof`); product-scoped plan without `app` → 400 naming the inventory;
+`quarterline` 400 "retired"; `agent_metered` 200 `cs_live_…`; `/api/portal` 307. Stripe `STRIPE_MODE=live`, `sk_live_` 107 ch,
+`/v1/balance` 200 `livemode:true` (available $0.00); `GEMINI_API_KEY` (39) + `LLAMAPARSE_API_KEY` (52) + `STRIPE_AGENT_METER_PRICE_ID`
+(30) in the container; SpendProof with no document → 400 `sp-document-missing`. `events` 6543 → **7668** rows / sessions 4037 → **4697**
+— **990 rows today**, of which the two big clusters (01:14–01:59, 02:10–02:40; dozens of sessions inside the same second with click
+bursts) are our own browser suites run while the launch-video work was checked, so today's count must not be read as audience → **still
+no provable outside visitor, day 44**; last outside-touching event 2026-09-23T14:11:42Z. Revenue **$0 real** (4 `cs_test_` purchases
+2026-09-02; 1 sandbox subscription). `agent_query` still 8 (organic 0, day 44). Articles **88 → 99**; the internal reader is level with
+the host at 99/99; pressflow internal-only holds (`/healthz` 200, `/api/articles.json` 401). `vertical-sync --check` exit 0 (26);
+`recon:cadence` exit 0 (newest 2026-10-12). Item 11's descriptor half open (ai-plugin.json still names QuarterLine against the dead
+host; `/openapi.json` 404). Item 7: gateway pid `1963330` (2026-09-12). **Open: 5, 6, 7 (P2), 11 (descriptor half, P2)** + the duplicate
+SpendProof video (P2, owner) — plus the owner-held items he took himself (provider low-balance alert, social/video, affiliate/ads).
+**CLOSED since 10-13:** the editorial deploy-behind reader lag and the dirty launch-video worktree.
+
 _Last updated: 2026-10-13 (**15:30 sweep** — every surface re-measured live). **New capability, live: the factory publishes its own launch
 videos.** The `Post-Ship Brag` and `Launch Video Auth Check` jobs landed last night with 17 commits (`6cf56b8..c62c690`, 2026-10-12
 23:02–23:07) — a `launch_videos` ledger with a grandfathered backlog, a pending-product detector, a hard narration budget, an ElevenLabs
