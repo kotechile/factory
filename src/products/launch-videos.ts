@@ -9,13 +9,24 @@
  * Add an entry ONLY after the upload has been read back from the YouTube API (see the SOP's step 7).
  * A product with no entry renders no video rather than a broken embed, so a half-finished run can
  * never put a dead player on a live page.
+ *
+ * Ownership of the ids is external: the videos above are published by hand on the product channel, so
+ * an entry is corrected by re-reading the four ids the owner supplied rather than by re-running the
+ * upload. The pipeline's own per-slug `content/launch_videos/<slug>/youtube.json` records what
+ * `youtube-upload.mjs` uploaded and is NOT rewritten here — if the two disagree, this file is what
+ * the pages render and `youtube.json` is history.
  */
 
 export interface LaunchVideo {
   readonly slug: string;
   /** The published YouTube video id. */
   readonly youtubeId: string;
-  /** The video's own title, used as the embed's accessible name. */
+  /**
+   * The embed's accessible name: the video's own YouTube title where that is descriptive, otherwise a
+   * one-line description of the video. The hand-published uploads are titled with the product name
+   * alone (`"SpendProof"`), which is not a usable accessible name for an iframe, so they carry a
+   * description here.
+   */
   readonly title: string;
   /** Runtime in whole seconds, as YouTube reports it in `PT…S`. */
   readonly durationSeconds: number;
@@ -26,10 +37,10 @@ export interface LaunchVideo {
 export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   {
     slug: "spendproof",
-    youtubeId: "LdSoKLTfYjs",
+    youtubeId: "qeow4cdaiv8",
     title: "Introducing SpendProof: AI provider invoice ↔ tagged-usage reconciliation.",
-    durationSeconds: 22,
-    publishedAt: "2026-10-13",
+    durationSeconds: 23,
+    publishedAt: "2026-10-14",
   },
   {
     slug: "ledgerlink",
@@ -40,24 +51,24 @@ export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   },
   {
     slug: "facturgate",
-    youtubeId: "V-eli97M0q0",
+    youtubeId: "I7NOZAQ-5Ig",
     title: "Introducing FacturGate: the deterministic EN 16931 + CIUS-FR pre-send gate for EU e-invoices",
-    durationSeconds: 22,
-    publishedAt: "2026-10-13",
+    durationSeconds: 23,
+    publishedAt: "2026-10-14",
   },
   {
     slug: "parcelproof",
-    youtubeId: "4cNR2bt3mMg",
+    youtubeId: "I38c05ZZZr8",
     title: "Introducing ParcelProof: carrier invoice DIM-weight and surcharge audit for UPS, FedEx and USPS.",
-    durationSeconds: 22,
-    publishedAt: "2026-10-13",
+    durationSeconds: 23,
+    publishedAt: "2026-10-14",
   },
   {
     slug: "caseproof",
-    youtubeId: "uodX_D-Gqsw",
+    youtubeId: "MiNmsr1i9Lo",
     title: "CaseProof re-runs a warehouse-automation vendor's own numbers before you sign.",
-    durationSeconds: 21,
-    publishedAt: "2026-10-13",
+    durationSeconds: 23,
+    publishedAt: "2026-10-14",
   },
 ];
 

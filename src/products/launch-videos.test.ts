@@ -38,7 +38,7 @@ describe("LAUNCH_VIDEOS", () => {
 
 describe("launchVideoFor", () => {
   it("finds a published product", () => {
-    expect(launchVideoFor("spendproof")?.youtubeId).toBe("LdSoKLTfYjs");
+    expect(launchVideoFor("spendproof")?.youtubeId).toBe("qeow4cdaiv8");
   });
 
   it("returns undefined for a product with no video, and for a slug that is not a product", () => {
@@ -52,11 +52,11 @@ describe("launchVideoFor", () => {
 describe("embed URLs", () => {
   it("uses the privacy-enhanced host, so no cookie is set before play", () => {
     const video = LAUNCH_VIDEOS[0];
-    expect(launchVideoEmbedUrl(video)).toBe("https://www.youtube-nocookie.com/embed/LdSoKLTfYjs");
+    expect(launchVideoEmbedUrl(video)).toBe("https://www.youtube-nocookie.com/embed/qeow4cdaiv8");
     expect(launchVideoEmbedUrl(video)).not.toContain("youtube.com/embed");
   });
 
   it("builds a short watch URL", () => {
-    expect(launchVideoWatchUrl(LAUNCH_VIDEOS[0])).toBe("https://youtu.be/LdSoKLTfYjs");
+    expect(launchVideoWatchUrl(LAUNCH_VIDEOS[0])).toBe("https://youtu.be/qeow4cdaiv8");
   });
 });
