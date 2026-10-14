@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeScan } from "./a11y";
 
 test("facturgate renders at /facturgate", async ({ page }) => {
   await page.goto("/facturgate");
@@ -101,8 +101,6 @@ test("facturgate country page renders for Poland", async ({ page }) => {
 
 test("facturgate passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {
   await page.goto("/facturgate");
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
+  const results = await axeScan(page).analyze();
   expect(results.violations).toEqual([]);
 });

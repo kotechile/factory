@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeScan } from "./a11y";
 
 test("caseproof renders at /caseproof", async ({ page }) => {
   await page.goto("/caseproof");
@@ -120,8 +120,6 @@ test("caseproof passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {
   await page.goto("/caseproof");
   await page.getByRole("button", { name: "Audit the case" }).click();
   await expect(page.getByText("14 months · 1.2 yr").first()).toBeVisible();
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
+  const results = await axeScan(page).analyze();
   expect(results.violations).toEqual([]);
 });

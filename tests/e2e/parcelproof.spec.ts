@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeScan } from "./a11y";
 
 test("parcelproof renders at /parcelproof", async ({ page }) => {
   await page.goto("/parcelproof");
@@ -110,8 +110,6 @@ test("parcelproof passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {
   await page.goto("/parcelproof");
   await page.getByRole("button", { name: "Audit invoice", exact: true }).click();
   await expect(page.getByText("pp-dim-divisor").first()).toBeVisible();
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
+  const results = await axeScan(page).analyze();
   expect(results.violations).toEqual([]);
 });

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
+import { axeScan } from "./a11y";
 
 test("spendproof renders at /spendproof", async ({ page }) => {
   await page.goto("/spendproof");
@@ -152,8 +152,6 @@ test("spendproof passes WCAG 2.1 AA accessibility (axe)", async ({ page }) => {
   await page.goto("/spendproof");
   await page.getByRole("button", { name: "Reconcile the period" }).click();
   await expect(page.getByText("sp-untagged-spend").first()).toBeVisible();
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-    .analyze();
+  const results = await axeScan(page).analyze();
   expect(results.violations).toEqual([]);
 });
