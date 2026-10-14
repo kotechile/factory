@@ -289,6 +289,31 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   With the geometry measured in code, the vision prompt no longer opines on "line near label" (a class it
   flagged as overlap twice); proximity is not overlap, and only the sampler decides.
 
+- **2026-10-14 — the `visual-qa` step produced no verdict at all: the vision provider was degraded, and
+  the step's silent-skip path let the build script print "Verification passed." without it (provider).**
+  Three standalone runs, three infrastructure failures, zero verdicts: attempt 1 died after **300 s** with
+  `UND_ERR_HEADERS_TIMEOUT` ("HTTP/2: headers timeout after 300000" — undici's default header budget; the
+  script sets no per-request timeout), attempt 2 died in 86 s with **HTTP 502** from
+  `generativelanguage.googleapis.com`, attempt 3 returned one tile (`facturgate-qa-4` FAIL on attempt 1,
+  retry engaged) and then hung into the same 300 s headers timeout, at 7 m 58 s. Provider evidence,
+  measured directly: `GET /v1beta/models` **200 in 0.18 s** (the key in `factory_config.gemini_api_key` is
+  valid), a *minimal* `generateContent` ("reply with OK") **200 in 129.9 s**, and
+  `thinkingConfig.thinkingBudget: 0` is rejected with *"This model only works in thinking mode"* — every
+  gate call pays full thinking latency, so a 24-tile review at `TILE_CONCURRENCY=4` no longer fits the
+  client's 5-minute header budget. **Rules.** (a) The telemetry-safe run recipe (dead Supabase address)
+  makes this step print `SKIPPED — no Gemini key configured` and **exit 0**, so the build script's own
+  "Verification passed." is not a visual verdict: a standalone `npm run visual-qa` against the real config
+  is the only real read, and an aborted run must be reported as **inconclusive (provider)** — never as
+  PASS, never as a defect. (b) Falsify by measurement before restyling: probe the provider directly
+  (`models` list for key validity, then a *timed* minimal `generateContent` for latency), quote the
+  measured number, and fall back to the deterministic guards the tiles are only a second opinion on
+  (`tests/e2e` — axe, `schematic-collision`, `text-geometry`). (c) A lone FAIL verdict emitted by a
+  provider that is 502-ing and timing out is not evidence: that same request's retry could not finish, and
+  the flagged band (tile 4 of FacturGate: video frame, caption below it, agent-surface card, tab bar)
+  reviewed by eye is clean. **Open fix (owner call):** give the gate a per-request timeout plus a bounded
+  retry on 5xx / headers-timeout, and consider a faster tier for tile review, so a degraded provider ends
+  as "inconclusive" instead of hanging the build path for eight minutes.
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 
