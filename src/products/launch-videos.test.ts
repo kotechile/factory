@@ -1,4 +1,6 @@
 // src/products/launch-videos.test.ts
+import { existsSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { products } from "./registry";
 import {
@@ -32,6 +34,19 @@ describe("LAUNCH_VIDEOS", () => {
       expect(video.title.trim().length).toBeGreaterThan(10);
       expect(video.durationSeconds).toBeGreaterThan(0);
       expect(video.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+
+  it("ships the facade poster in public/, so a page view reaches no third party", () => {
+    // The embed is click-to-load: the poster is the only image the section shows before play, so it
+    // must be ours — a YouTube thumbnail URL here and back come the third-party requests the facade
+    // exists to remove. The FILE is checked, not just the path: a missing poster renders a broken
+    // tile while every other gate stays green.
+    for (const video of LAUNCH_VIDEOS) {
+      expect(video.posterPath).toMatch(/^\/launch-videos\/[a-z0-9-]+\.jpg$/);
+      const file = join(process.cwd(), "public", video.posterPath.replace(/^\//, ""));
+      expect(existsSync(file), `${video.slug}: missing poster ${video.posterPath}`).toBe(true);
+      expect(statSync(file).size, `${video.slug}: poster is a placeholder`).toBeGreaterThan(10_000);
     }
   });
 });
