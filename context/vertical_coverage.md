@@ -35,8 +35,8 @@ own CI traffic.
 ## Inventory (generated)
 
 <!-- BEGIN:vertical-inventory (generated) -->
-_Generated 2026-10-03 by `scripts/vertical-sync.mjs` from the
-vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit 27c0418e1b282d061ccfccd42042da1168e105b3, fetched 2026-10-03T01:29:04.225Z) — 26 verticals. Do not hand-edit this block._
+_Generated 2026-10-18 by `scripts/vertical-sync.mjs` from the
+vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit 22b0965e455b3d96f632f96a460f2ca3b7b5b3a4, fetched 2026-10-18T17:30:41.892Z) — 27 verticals. Do not hand-edit this block._
 
 | Vertical | Label | Editorial persona | Cadence | Sources | Decision-shaped angles |
 |---|---|---|---|---|---|
@@ -44,6 +44,7 @@ vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-fa
 | `agentic_resilience_failure` | Resilience & Failure Engineering | `infra_engineer` | `30 10 * * 3` | 6 | 0 |
 | `ai_observability_qa` | Observability, Evals & Quality | `evals_infra_eng` | `30 10 * * 2` | 6 | 0 |
 | `career_velocity_equity_engineering` | Career Velocity, Equity Liquidity & Offer Engineering | `equity_career_strategist` | `0 11 * * 5` | 6 | 2 |
+| `concentrated_equity_portfolio_capital` | Concentrated Equity, RSU De-risking & Portfolio Architecture | `financial_architect` | `0 12 * * 5` | 7 | 0 |
 | `control_tower_exception_orchestration` | Control Tower Visibility & Real-Time Exception Orchestration | `supply_chain_architect` | `0 13 * * 2` | 8 | 3 |
 | `demand_sensing_advanced_sop` | Demand Sensing & Advanced Sales & Operations Planning (S&OP) | `ops_leader` | `0 13 * * 4` | 7 | 2 |
 | `enterprise_ai_finops` | AI FinOps & Value Realization | `enterprise_cai` | `0 11 * * 4` | 5 | 5 |
@@ -105,6 +106,7 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | `nhil_infrastructure_ops` | C — fails Filter 2 | Datacenter/netops/power; needs infrastructure access the stack forbids. |
 | `multi_agent_enterprise_fabric` | C | Orchestration fabrics; funded platform territory (see the 2026-09-14 metering rejection). |
 | `gpu_hardware` | C | Content vertical; no deterministic product surface. |
+| `concentrated_equity_portfolio_capital` | B — **new (2026-10-18)** | Giniloh.com's sixth vertical: the buyer is one engineer with $300k+ of employer equity, so willingness-to-pay is tool-shaped (a $20–50 calculation), not enterprise-shaped. Scan only on a dated trigger — IPO lockup expiry, a tender offer, the §415(c) limit change — and only for calculator/decision demand. The owned surface is the RSU/secondary/Mega-Backdoor calculators on `/portfolio-capital/`, not a SaaS. |
 <!-- END:vertical-verdicts -->
 
 ## Scanned / verified — software-side verticals

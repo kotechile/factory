@@ -2,10 +2,10 @@
   "_note": "Vendored snapshot of the editorial factory's vertical registry. Regenerate with: node scripts/vertical-sync.mjs --vendor",
   "sourceRepo": "git@github.com:kotechile/Editorial-Factory.git",
   "sourcePath": "/root/editorial-factory/context/verticals.json",
-  "sourceRepoHead": "0be3d280e84e2ca1b81fd557264581d605e8cb5b",
-  "sourceFileCommit": "27c0418e1b282d061ccfccd42042da1168e105b3",
-  "sourceSha256": "41a4fba6205c54bffd200dc56003578a06e1d9c122c3fdff83e0093f764c2bba",
-  "fetchedAt": "2026-10-03T01:29:04.225Z",
+  "sourceRepoHead": "d2afa9af45c90dfda4ed08f932670f5876c62cf5",
+  "sourceFileCommit": "22b0965e455b3d96f632f96a460f2ca3b7b5b3a4",
+  "sourceSha256": "32a883059345d0ac6f74cec4f57550370933b9cdde23570fce4c541d594881bc",
+  "fetchedAt": "2026-10-18T17:30:41.892Z",
   "verticals": [
     {
       "id": "agentic_ai",
@@ -30,7 +30,8 @@
         "subagent cost optimization"
       ],
       "target_persona": "ai_architect",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "ai_observability_qa",
@@ -56,7 +57,8 @@
         "redundant loop detection"
       ],
       "target_persona": "evals_infra_eng",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "agentic_resilience_failure",
@@ -82,7 +84,8 @@
         "cascading error containment"
       ],
       "target_persona": "infra_engineer",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "enterprise_ai_governance",
@@ -111,7 +114,8 @@
         "zero-trust agent security boundaries"
       ],
       "target_persona": "enterprise_cai",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "nhil_infrastructure_ops",
@@ -137,7 +141,8 @@
         "data residency and air-gapped agent runtime"
       ],
       "target_persona": "it_ops_leader",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "multi_agent_enterprise_fabric",
@@ -162,7 +167,8 @@
         "durable execution state persistence"
       ],
       "target_persona": "ai_architect",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "enterprise_ai_finops",
@@ -187,7 +193,8 @@
         "token cost attribution by business unit"
       ],
       "target_persona": "enterprise_cai",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "enterprise_tech_leadership",
@@ -209,7 +216,8 @@
         "build vs buy"
       ],
       "target_persona": "eng_leader",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "gpu_hardware",
@@ -232,7 +240,8 @@
         "memory bandwidth ceilings"
       ],
       "target_persona": "infra_engineer",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "supply_chain",
@@ -269,7 +278,8 @@
         "agentic exception handling and demurrage dispute pipelines"
       ],
       "target_persona": "ops_leader",
-      "enable_dataforseo": false
+      "enable_dataforseo": false,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "home_equity_tco",
@@ -294,7 +304,8 @@
         "heloc vs cash capex home capital allocations"
       ],
       "target_persona": "pro_homeowner",
-      "enable_dataforseo": false
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
     },
     {
       "id": "smart_home_telemetry",
@@ -319,7 +330,8 @@
         "isolated IoT VLANs and zero-cloud camera privacy"
       ],
       "target_persona": "pro_homeowner",
-      "enable_dataforseo": false
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
     },
     {
       "id": "home_ops_execution",
@@ -344,7 +356,8 @@
         "annual preventative maintenance vendor contracts"
       ],
       "target_persona": "pro_homeowner",
-      "enable_dataforseo": false
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
     },
     {
       "id": "resilient_home_assets",
@@ -369,7 +382,8 @@
         "symmetrical fiber and acoustic decoupling for dual offices"
       ],
       "target_persona": "pro_homeowner",
-      "enable_dataforseo": false
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
     },
     {
       "id": "home_infrastructure_lifecycle_tco",
@@ -395,7 +409,8 @@
         "smart irrigation and water efficiency audits with automated leak detection"
       ],
       "target_persona": "pro_homeowner",
-      "enable_dataforseo": false
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
     },
     {
       "id": "workstation_compute_economics",
@@ -420,7 +435,8 @@
         "automated video rendering pipeline roi local vs cloud rendering nodes"
       ],
       "target_persona": "infra_engineer",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "enterprise_build_vs_buy",
@@ -444,7 +460,8 @@
         "api ingestion and third-party service redundancy costs and fallback layers"
       ],
       "target_persona": "eng_leader",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "expat_cross_border_relocation",
@@ -469,7 +486,8 @@
         "remote work tax nexus risks for employers and distributed employees"
       ],
       "target_persona": "cross_border_expat",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "giniloh.com"
     },
     {
       "id": "career_velocity_equity_engineering",
@@ -493,7 +511,8 @@
         "upskilling roi and certification amortization salary bump payback windows"
       ],
       "target_persona": "equity_career_strategist",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "giniloh.com"
     },
     {
       "id": "personal_microeconomics_tinkering_tax",
@@ -518,7 +537,8 @@
         "the true cost of 3d printing and fabrication hobbies filament waste and calibration"
       ],
       "target_persona": "systems_tinkerer_pro",
-      "enable_dataforseo": false
+      "enable_dataforseo": false,
+      "target_domain": "giniloh.com"
     },
     {
       "id": "meio_working_capital_tco",
@@ -544,7 +564,8 @@
         "sku rationalization roi true holding and handling cost of long-tail low-turnover inventory items"
       ],
       "target_persona": "ops_leader",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "control_tower_exception_orchestration",
@@ -570,7 +591,8 @@
         "telemetry and iot roi in transit hardware and data streaming costs of real-time temperature shock sensors vs spoilage write-offs"
       ],
       "target_persona": "supply_chain_architect",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "warehouse_automation_robotics_capex",
@@ -596,7 +618,8 @@
         "pick-and-pack error tax reverse logistics and customer support overhead of human fulfillment errors vs automated vision validation"
       ],
       "target_persona": "ops_leader",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "demand_sensing_advanced_sop",
@@ -621,7 +644,8 @@
         "erp native planning vs specialized sop point solutions total cost of ownership and integration friction of standalone modules"
       ],
       "target_persona": "ops_leader",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "last_mile_routing_fleet_carbon",
@@ -646,7 +670,8 @@
         "scope 3 logistics carbon tax modeling financial impact of emerging regulatory reporting on third-party carrier spend"
       ],
       "target_persona": "supply_chain_architect",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
     },
     {
       "id": "supplier_risk_reshoring_decision",
@@ -672,7 +697,35 @@
         "dual-sourcing overhead vs risk mitigation splitting purchase orders across two suppliers vs losing volume tier pricing discounts"
       ],
       "target_persona": "ops_leader",
-      "enable_dataforseo": true
+      "enable_dataforseo": true,
+      "target_domain": "aichieve.net"
+    },
+    {
+      "id": "concentrated_equity_portfolio_capital",
+      "label": "Concentrated Equity, RSU De-risking & Portfolio Architecture",
+      "target_domain": "giniloh.com",
+      "cadence": "0 12 * * 5",
+      "news_enabled": true,
+      "evergreen_cadence": "0 17 * * 5",
+      "evergreen_enabled": true,
+      "sources": [
+        "sec_edgar_filings",
+        "bogleheads",
+        "irs_international_bulletins",
+        "carta_equity_reports",
+        "levels_fyi",
+        "hacker_news",
+        "reddit_financialindependence"
+      ],
+      "primary_angles": [
+        "RSU vest fallacy: holding post-vest shares is mathematically equivalent to buying company stock on margin",
+        "Navigating the 2026 $72,000 Section 415(c) Mega Backdoor Roth pipeline across plan providers",
+        "Double-jeopardy correlation: quantifying the risk of pairing six-figure tech salaries with concentrated employer equity",
+        "Exchange funds vs. systematic tax-loss harvesting for $500k+ single-stock tech positions"
+      ],
+      "target_persona": "financial_architect",
+      "enable_dataforseo": false,
+      "description": "Decision engine and deterministic models for tech professionals managing single-stock concentration risk, RSU vest liquidation, 10b5-1 trading plans, and 2026 $72k Section 415(c) Mega Backdoor Roth asset location."
     }
   ]
 }
