@@ -2,10 +2,10 @@
   "_note": "Vendored snapshot of the editorial factory's vertical registry. Regenerate with: node scripts/vertical-sync.mjs --vendor",
   "sourceRepo": "git@github.com:kotechile/Editorial-Factory.git",
   "sourcePath": "/root/editorial-factory/context/verticals.json",
-  "sourceRepoHead": "d2afa9af45c90dfda4ed08f932670f5876c62cf5",
-  "sourceFileCommit": "22b0965e455b3d96f632f96a460f2ca3b7b5b3a4",
-  "sourceSha256": "32a883059345d0ac6f74cec4f57550370933b9cdde23570fce4c541d594881bc",
-  "fetchedAt": "2026-10-18T17:30:41.892Z",
+  "sourceRepoHead": "1546825e3f5b0866a0291e15b95879f9953f1d3a",
+  "sourceFileCommit": "1546825e3f5b0866a0291e15b95879f9953f1d3a",
+  "sourceSha256": "cf2f8bd767e2615272c540aeaf089549089f7a167a73856933dfb8a966742133",
+  "fetchedAt": "2026-10-18T19:28:48.213Z",
   "verticals": [
     {
       "id": "agentic_ai",
@@ -726,6 +726,85 @@
       "target_persona": "financial_architect",
       "enable_dataforseo": false,
       "description": "Decision engine and deterministic models for tech professionals managing single-stock concentration risk, RSU vest liquidation, 10b5-1 trading plans, and 2026 $72k Section 415(c) Mega Backdoor Roth asset location."
+    },
+    {
+      "id": "consumer_asset_repair_replace_tco",
+      "label": "Consumer Hardware Lifecycle & Cost-Per-Use",
+      "cadence": "30 12 * * 5",
+      "news_enabled": true,
+      "evergreen_cadence": "30 19 * * 5",
+      "evergreen_enabled": true,
+      "sources": [
+        "hacker_news",
+        "tomshardware",
+        "hackaday",
+        "reddit_home",
+        "reddit_selfhosted",
+        "substitutions_database",
+        "energy_star"
+      ],
+      "primary_angles": [
+        "repair versus replace thresholds on laptop and phone failures (the 1,500 index rule) and residual value after repair",
+        "appliance and espresso-machine cost per use against purchase price, descaling and part replacement cycles",
+        "warranty and extended-plan math versus self-insuring the failure, including deductible and exclusion traps",
+        "battery and screen replacement economics against trade-in credit and refurbished substitution",
+        "right-to-repair parts pricing and the OEM lock-in premium on out-of-warranty units"
+      ],
+      "target_persona": "systems_tinkerer_pro",
+      "enable_dataforseo": false,
+      "target_domain": "giniloh.com"
+    },
+    {
+      "id": "sales_order_service_level_otif",
+      "label": "Sales Order Service Level, OTIF & ATP Execution",
+      "cadence": "0 13 * * 1",
+      "news_enabled": true,
+      "evergreen_cadence": "0 20 * * 1",
+      "evergreen_enabled": true,
+      "sources": [
+        "supply_chain_intel",
+        "supply_chain_dive",
+        "journal_of_commerce",
+        "cscmp_research",
+        "gartner_supply_chain",
+        "reddit_supplychain"
+      ],
+      "primary_angles": [
+        "OTIF root-cause decomposition across stockout, credit hold, master-data error and carrier delay",
+        "retailer chargeback exposure (Walmart OTIF and SQEP, Target, Kroger) and the fill-rate threshold that triggers it",
+        "cycle service level versus safety stock: the exponential inventory cost of moving 95 percent to 99 percent",
+        "ATP and CTP allocation rules, tier-1 safety-stock reservation and split-shipment break-even",
+        "touchless order rate and the per-touch cost of manual exception handling"
+      ],
+      "target_persona": "ops_leader",
+      "enable_dataforseo": false,
+      "target_domain": "aichieve.net"
+    },
+    {
+      "id": "property_loss_insurance_mitigation",
+      "label": "Property Loss, Insurance & Mitigation ROI",
+      "cadence": "0 13 * * 3",
+      "news_enabled": true,
+      "evergreen_cadence": "0 20 * * 3",
+      "evergreen_enabled": true,
+      "sources": [
+        "home_lifestyle_intel",
+        "ibhs_fortified",
+        "insurance_information_institute",
+        "noaa_climate_risk",
+        "awwa_water_audits",
+        "reddit_homeimprovement"
+      ],
+      "primary_angles": [
+        "water-loss claim math: annual incidence, deductible, and the payback period on an automatic shutoff valve",
+        "premium spikes after a claim versus the actuarial value of preventative hardware (class-4 impact roof, leak sensors)",
+        "wildfire defensible-space spend and insurability at the renewal boundary",
+        "high-deductible versus low-deductible break-even against claim frequency and premium credit",
+        "non-renewal and coverage-gap risk when a mitigation upgrade is deferred"
+      ],
+      "target_persona": "pro_homeowner",
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
     }
   ]
 }

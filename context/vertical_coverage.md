@@ -36,7 +36,7 @@ own CI traffic.
 
 <!-- BEGIN:vertical-inventory (generated) -->
 _Generated 2026-10-18 by `scripts/vertical-sync.mjs` from the
-vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit 22b0965e455b3d96f632f96a460f2ca3b7b5b3a4, fetched 2026-10-18T17:30:41.892Z) — 27 verticals. Do not hand-edit this block._
+vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit 1546825e3f5b0866a0291e15b95879f9953f1d3a, fetched 2026-10-18T19:28:48.213Z) — 30 verticals. Do not hand-edit this block._
 
 | Vertical | Label | Editorial persona | Cadence | Sources | Decision-shaped angles |
 |---|---|---|---|---|---|
@@ -45,6 +45,7 @@ vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-fa
 | `ai_observability_qa` | Observability, Evals & Quality | `evals_infra_eng` | `30 10 * * 2` | 6 | 0 |
 | `career_velocity_equity_engineering` | Career Velocity, Equity Liquidity & Offer Engineering | `equity_career_strategist` | `0 11 * * 5` | 6 | 2 |
 | `concentrated_equity_portfolio_capital` | Concentrated Equity, RSU De-risking & Portfolio Architecture | `financial_architect` | `0 12 * * 5` | 7 | 0 |
+| `consumer_asset_repair_replace_tco` | Consumer Hardware Lifecycle & Cost-Per-Use | `systems_tinkerer_pro` | `30 12 * * 5` | 7 | 2 |
 | `control_tower_exception_orchestration` | Control Tower Visibility & Real-Time Exception Orchestration | `supply_chain_architect` | `0 13 * * 2` | 8 | 3 |
 | `demand_sensing_advanced_sop` | Demand Sensing & Advanced Sales & Operations Planning (S&OP) | `ops_leader` | `0 13 * * 4` | 7 | 2 |
 | `enterprise_ai_finops` | AI FinOps & Value Realization | `enterprise_cai` | `0 11 * * 4` | 5 | 5 |
@@ -61,7 +62,9 @@ vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-fa
 | `multi_agent_enterprise_fabric` | Multi-Agent Orchestration & Enterprise Fabrics | `ai_architect` | `0 11 * * 3` | 5 | 0 |
 | `nhil_infrastructure_ops` | NHIL Infrastructure, NetOps & Power Strategy | `it_ops_leader` | `0 11 * * 2` | 6 | 0 |
 | `personal_microeconomics_tinkering_tax` | Personal Asset Micro-Economics & 'Tinkering Tax' Audits | `systems_tinkerer_pro` | `0 6 * * 6` | 7 | 2 |
+| `property_loss_insurance_mitigation` | Property Loss, Insurance & Mitigation ROI | `pro_homeowner` | `0 13 * * 3` | 6 | 2 |
 | `resilient_home_assets` | Climate Hardening, Insurability & Grid Resilience | `pro_homeowner` | `30 10 * * 5` | 6 | 0 |
+| `sales_order_service_level_otif` | Sales Order Service Level, OTIF & ATP Execution | `ops_leader` | `0 13 * * 1` | 6 | 3 |
 | `smart_home_telemetry` | Local-First Smart Infrastructure & Telemetry | `pro_homeowner` | `0 12 * * 2` | 6 | 0 |
 | `supplier_risk_reshoring_decision` | Supplier Risk Management & Reshoring/Nearshoring Decision Engines | `ops_leader` | `30 6 * * 6` | 8 | 3 |
 | `supply_chain` | Supply Chain Orchestration & Physical Logistics | `ops_leader` | `30 11 * * 4` | 9 | 1 |
@@ -107,6 +110,9 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | `multi_agent_enterprise_fabric` | C | Orchestration fabrics; funded platform territory (see the 2026-09-14 metering rejection). |
 | `gpu_hardware` | C | Content vertical; no deterministic product surface. |
 | `concentrated_equity_portfolio_capital` | B — **new (2026-10-18)** | Giniloh.com's sixth vertical: the buyer is one engineer with $300k+ of employer equity, so willingness-to-pay is tool-shaped (a $20–50 calculation), not enterprise-shaped. Scan only on a dated trigger — IPO lockup expiry, a tender offer, the §415(c) limit change — and only for calculator/decision demand. The owned surface is the RSU/secondary/Mega-Backdoor calculators on `/portfolio-capital/`, not a SaaS. |
+| `consumer_asset_repair_replace_tco` | B — **new (2026-10-18)** | Giniloh.com's Major Purchases & Assets vertical (category 2, 14 dispatches but only 5 on this front). Consumer buyer, tool-shaped WTP: the owned surface is the Tech Repair vs Replace and espresso cost-per-use calculators, not a SaaS. Dated triggers are vendor launch cycles (battery/screen repairability, right-to-repair parts pricing). Scan for calculator demand only. |
+| `sales_order_service_level_otif` | A — **new (2026-10-18)** | Retailer OTIF chargebacks are a named P&L line with a real buyer (VP supply chain), and the 2026 metric is penalty economics, not the KPI dashboard suites already ship. Nearest product: fill-rate vs safety-stock curve + chargeback auditor. Rule-5 check first — a per-retailer threshold/penalty table is a maintained feed (Walmart SQEP, Target, Kroger change annually), so scope to the buyer's own contract terms. |
+| `property_loss_insurance_mitigation` | B — **new (2026-10-18)** | WellRoost's Home Cost Decisions vertical — the one live pillar with a single dispatch and no owning vertical. Consumer WTP, tool-shaped; a dated trigger exists (a claim, a non-renewal notice, renewal season). First move is one scan on a renewal-season trigger for deductible/spend payback demand, not a build. |
 <!-- END:vertical-verdicts -->
 
 ## Scanned / verified — software-side verticals
