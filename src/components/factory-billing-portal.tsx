@@ -22,6 +22,7 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trackEvent } from "@/lib/telemetry-client";
+import { siteHost } from "@/lib/site-origin";
 import BillingUsage from "@/components/billing-usage";
 import { activeProducts } from "@/products/registry";
 import { PRODUCT_PRICING, agentRateRange, VERTICAL_SUITES } from "@/products/pricing";
@@ -638,7 +639,7 @@ export default function FactoryBillingPortal() {
             </div>
 
             <div className="rounded-xl bg-[#F8FAFC] border border-border/60 p-3.5 text-center text-[11px] text-muted">
-              Autonomous Product &amp; Software Factory • apps.giniloh.com • Powered by ASC 606 &amp; EN 16931 deterministic engines.
+              Autonomous Product &amp; Software Factory • {siteHost()} • Powered by ASC 606 &amp; EN 16931 deterministic engines.
             </div>
           </div>
 

@@ -47,6 +47,7 @@ import {
   type ExtractionTransport,
 } from "@/lib/calc/spendproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
+import { siteOrigin } from "@/lib/site-origin";
 import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
 import { agentRateForTool, agentRatesForProduct } from "@/products/pricing";
 import { track } from "@/lib/telemetry";
@@ -386,7 +387,7 @@ export async function POST(req: NextRequest) {
     // (/.well-known/mcp.json) are both generated from src/lib/webmcp/register.ts and are
     // held in sync by src/lib/webmcp/manifest.test.ts.
     if (!isSupportedAgentTool(requestedTool)) {
-      const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://apps.giniloh.com").replace(/\/$/, "");
+      const baseUrl = siteOrigin();
       return NextResponse.json(
         {
           error: `Unsupported tool '${requestedTool}'.`,

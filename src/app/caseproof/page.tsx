@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { canonicalMetadata } from "@/lib/seo/canonical";
+import { siteOrigin } from "@/lib/site-origin";
 import Link from "next/link";
 import { BookOpen, ExternalLink } from "lucide-react";
 import CaseProofCalculator from "@/components/caseproof-calculator";
@@ -124,7 +125,7 @@ console.log("Confirm in writing:", audit.confirmInWriting); // ranked, riskiest 
                   fileTitle: "agent-case-request.sh",
                   meta: "POST /api/agent/calculate",
                   code: `# 2. Direct HTTP / Metered Agent API call
-curl -X POST https://apps.giniloh.com/api/agent/calculate \\
+curl -X POST ${siteOrigin()}/api/agent/calculate \\
   -H "Content-Type: application/json" \\
   -H "x-webmcp-tool: audit_automation_case" \\
   -H "x-customer-id: cus_OptionalStripeCustomerId" \\
@@ -147,7 +148,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
       "args": [
         "-y",
         "@modelcontextprotocol/server-fetch",
-        "https://apps.giniloh.com/.well-known/mcp.json"
+        "${siteOrigin()}/.well-known/mcp.json"
       ]
     }
   }

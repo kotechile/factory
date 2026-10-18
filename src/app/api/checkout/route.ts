@@ -3,6 +3,7 @@ import { createCheckoutSession } from "@/lib/stripe/checkout";
 import { isStripeConfigured } from "@/lib/stripe/mode";
 import { activeProductSlugs, isRetiredProduct, products } from "@/products/registry";
 import { agentRateRange } from "@/products/pricing";
+import { siteOrigin } from "@/lib/site-origin";
 
 /** The metered range for the agent plan's description — never a hardcoded per-call rate. */
 const AGENT_RATE_RANGE = agentRateRange();
@@ -155,7 +156,7 @@ function getOrigin(req: NextRequest): string {
     return reqOrigin;
   }
 
-  return "https://apps.giniloh.com";
+  return siteOrigin();
 }
 
 export async function POST(req: NextRequest) {

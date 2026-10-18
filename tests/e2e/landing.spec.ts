@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { presets } from "../../src/lib/seo/presets";
+import { siteOrigin } from "../../src/lib/site-origin";
 
 test("directory renders the factory showcase at /showcase", async ({ page }) => {
   await page.goto("/showcase");
@@ -74,7 +75,9 @@ test("every published quarterline preset slug permanently redirects to the direc
 test("countdown embed points at the live inventory, not the retired product", async ({ page }) => {
   await page.goto("/embed/countdown");
   const cta = page.getByRole("link", { name: /Browse the live tools/ });
-  await expect(cta).toHaveAttribute("href", "https://apps.giniloh.com/showcase");
+  // Derived from the same resolver the embed renders from: the invariant is "the CTA points at the
+  // host this build serves", not "it points at whichever domain we shipped on last".
+  await expect(cta).toHaveAttribute("href", `${siteOrigin()}/showcase`);
   await expect(page.locator('a[href*="quarterline"]')).toHaveCount(0);
 });
 

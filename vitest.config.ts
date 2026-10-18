@@ -11,5 +11,9 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.{ts,tsx}"],
     exclude: ["node_modules", ".next", "tests/e2e"],
+    // The deploy's public origin is configuration (src/lib/site-origin.ts) and Next inlines it at
+    // build time; the unit suite needs a value too, and it must be one that can never be mistaken
+    // for a live host. Production sets NEXT_PUBLIC_APP_URL in the PaaS environment.
+    env: { NEXT_PUBLIC_APP_URL: "https://apps.example.test" },
   },
 });

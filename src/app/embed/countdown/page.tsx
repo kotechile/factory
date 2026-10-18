@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { siteUrl } from "@/lib/site-origin";
 
 const DEADLINE_MS = new Date("2026-09-15T23:59:59-04:00").getTime();
 
@@ -33,7 +34,7 @@ export default function CountdownEmbed() {
           : `${days}d ${hours}h ${minutes}m ${seconds}s`}
       </div>
       <a
-        href="https://apps.giniloh.com/showcase"
+        href={siteUrl("/showcase")}
         target="_blank"
         rel="noopener noreferrer"
         className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-card hover:opacity-90"

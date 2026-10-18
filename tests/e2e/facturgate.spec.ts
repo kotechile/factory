@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { axeScan } from "./a11y";
+import { siteOrigin } from "../../src/lib/site-origin";
 
 test("facturgate renders at /facturgate", async ({ page }) => {
   await page.goto("/facturgate");
@@ -83,7 +84,7 @@ test("facturgate documents the WebMCP agent surface with the manifest and showca
   // The MCP client tab carries the server config an agent host needs.
   await page.getByRole("button", { name: /MCP Client Config/ }).click();
   await expect(page.locator("pre code").first()).toContainText(
-    "https://apps.giniloh.com/.well-known/mcp.json",
+    `${siteOrigin()}/.well-known/mcp.json`,
   );
 });
 

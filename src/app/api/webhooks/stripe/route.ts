@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/resend/email";
 import { products } from "@/products/registry";
 import type Stripe from "stripe";
+import { siteOrigin } from "@/lib/site-origin";
 
 export async function POST(req: NextRequest) {
   const mode = peekStripeMode();
@@ -107,7 +108,7 @@ export async function POST(req: NextRequest) {
             ? `Your ${appDisplayName} Subscription & Access`
             : `Your ${appDisplayName} Report / Export is Ready`;
 
-          const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || "https://apps.giniloh.com").replace(/\/$/, "");
+          const baseUrl = siteOrigin();
           const portalUrl = customerId
             ? `${baseUrl}/api/portal?customer_id=${customerId}`
             : `${baseUrl}/api/portal?session_id=${session.id}`;

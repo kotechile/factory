@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { agentRateForTool, agentRatesForProduct } from "@/products/pricing";
+import { siteOrigin } from "@/lib/site-origin";
 import {
   Bot,
   Check,
@@ -66,7 +67,7 @@ console.log("Emitted XML Length:", report.emitted?.xml.length);`,
 
     curl: `# 2. Direct HTTP / Metered Agent API call
 # Validate an invoice against EN 16931 + CIUS-FR ($${agentRateForTool("validate_einvoice").toFixed(2)} / call):
-curl -X POST https://apps.giniloh.com/api/agent/calculate \\
+curl -X POST ${siteOrigin()}/api/agent/calculate \\
   -H "Content-Type: application/json" \\
   -H "x-webmcp-tool: validate_einvoice" \\
   -H "x-customer-id: cus_OptionalStripeCustomerId" \\
@@ -77,7 +78,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
   }'
 
 # Or check an EU VAT identifier format and checksum ($${agentRateForTool("check_eu_vat_id").toFixed(2)} / call):
-curl -X POST https://apps.giniloh.com/api/agent/calculate \\
+curl -X POST ${siteOrigin()}/api/agent/calculate \\
   -H "Content-Type: application/json" \\
   -H "x-webmcp-tool: check_eu_vat_id" \\
   -H "x-customer-id: cus_OptionalStripeCustomerId" \\
@@ -95,7 +96,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
       "args": [
         "-y",
         "@modelcontextprotocol/server-fetch",
-        "https://apps.giniloh.com/.well-known/mcp.json"
+        "${siteOrigin()}/.well-known/mcp.json"
       ]
     }
   }

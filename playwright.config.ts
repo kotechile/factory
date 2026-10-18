@@ -1,4 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+import { loadEnvConfig } from "@next/env";
+
+// The Playwright runner is not Next: it does not load .env, so an e2e spec that imports a module
+// reading configuration (src/lib/site-origin.ts, reached through the crawl map) would throw before a
+// browser ever opens. Load the same files Next loads, with the same precedence, first.
+loadEnvConfig(process.cwd());
 
 export default defineConfig({
   testDir: "./tests/e2e",

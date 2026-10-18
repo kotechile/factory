@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/client";
+import { siteOrigin } from "@/lib/site-origin";
 
 function getOrigin(req: NextRequest): string {
   if (process.env.NEXT_PUBLIC_APP_URL) {
@@ -10,7 +11,7 @@ function getOrigin(req: NextRequest): string {
   if (forwardedHost && !forwardedHost.includes("0.0.0.0") && !forwardedHost.includes("127.0.0.1")) {
     return `${forwardedProto}://${forwardedHost}`;
   }
-  return "https://apps.giniloh.com";
+  return siteOrigin();
 }
 
 /**

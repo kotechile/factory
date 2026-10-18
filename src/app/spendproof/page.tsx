@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { canonicalMetadata } from "@/lib/seo/canonical";
+import { siteOrigin } from "@/lib/site-origin";
 import Link from "next/link";
 import SpendProofCalculator from "@/components/spendproof-calculator";
 import { ProductLaunchVideo } from "@/components/product-launch-video";
@@ -156,7 +157,7 @@ console.log("Extracted fields:", close.extraction.labels); // every field labell
                   fileTitle: "agent-close-request.sh",
                   meta: "POST /api/agent/calculate",
                   code: `# 2. Direct HTTP / Metered Agent API call
-curl -X POST https://apps.giniloh.com/api/agent/calculate \\
+curl -X POST ${siteOrigin()}/api/agent/calculate \\
   -H "Content-Type: application/json" \\
   -H "x-webmcp-tool: reconcile_ai_invoice" \\
   -H "x-customer-id: cus_OptionalStripeCustomerId" \\
@@ -181,7 +182,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
       "args": [
         "-y",
         "@modelcontextprotocol/server-fetch",
-        "https://apps.giniloh.com/.well-known/mcp.json"
+        "${siteOrigin()}/.well-known/mcp.json"
       ]
     }
   }

@@ -11,6 +11,7 @@ import {
 import { workedExampleFixture, smallSampleFixture } from "@/lib/calc/stripeRecon.fixtures";
 import { trackEvent } from "@/lib/telemetry-client";
 import { agentRateForTool } from "@/products/pricing";
+import { siteOrigin } from "@/lib/site-origin";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -282,7 +283,7 @@ console.log("Reconciliation Invariant Passed:", response.reconciled); // true
 console.log("Generated GL Journal Lines:", response.journalLines);`,
 
     curl: `# 2. Direct HTTP / Metered Agent API call
-curl -X POST https://apps.giniloh.com/api/agent/calculate \\
+curl -X POST ${siteOrigin()}/api/agent/calculate \\
   -H "Content-Type: application/json" \\
   -H "x-webmcp-tool: reconcile_stripe_payout" \\
   -H "x-customer-id: cus_OptionalStripeCustomerId" \\
@@ -301,7 +302,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
       "args": [
         "-y",
         "@modelcontextprotocol/server-fetch",
-        "https://apps.giniloh.com/.well-known/mcp.json"
+        "${siteOrigin()}/.well-known/mcp.json"
       ]
     }
   }

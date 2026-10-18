@@ -16,6 +16,7 @@ import {
 } from "@/components/editorial/signature";
 import { SUITE_PRO_MONTHLY_USD, lowestAgentRate } from "@/products/pricing";
 import { parcelauditPresets } from "@/lib/seo/parcelaudit/presets";
+import { siteOrigin } from "@/lib/site-origin";
 
 export const metadata: Metadata = {
   ...canonicalMetadata("/parcelproof"),
@@ -127,7 +128,7 @@ console.log("Unverifiable lines:", audit.summary.unverifiableLines); // never gu
                   fileTitle: "agent-audit-request.sh",
                   meta: "POST /api/agent/calculate",
                   code: `# 2. Direct HTTP / Metered Agent API call
-curl -X POST https://apps.giniloh.com/api/agent/calculate \\
+curl -X POST ${siteOrigin()}/api/agent/calculate \\
   -H "Content-Type: application/json" \\
   -H "x-webmcp-tool: audit_carrier_invoice" \\
   -H "x-customer-id: cus_OptionalStripeCustomerId" \\
@@ -152,7 +153,7 @@ curl -X POST https://apps.giniloh.com/api/agent/calculate \\
       "args": [
         "-y",
         "@modelcontextprotocol/server-fetch",
-        "https://apps.giniloh.com/.well-known/mcp.json"
+        "${siteOrigin()}/.well-known/mcp.json"
       ]
     }
   }

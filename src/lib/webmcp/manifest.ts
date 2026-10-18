@@ -2,6 +2,7 @@ import { activeProducts } from "@/products/registry";
 import { agentRateForTool } from "@/products/pricing";
 import { DEFAULT_AGENT_TOOL } from "./agentTools";
 import { WEBMCP_TOOL_SUMMARIES } from "./register";
+import { siteHost, siteOrigin } from "@/lib/site-origin";
 import type { WebMCPToolParameters } from "./types";
 
 /**
@@ -9,10 +10,11 @@ import type { WebMCPToolParameters } from "./types";
  *
  * GENERATED, never hand-written: every field below is derived from the products **still in
  * inventory** (src/products/registry.ts, `killed` entries excluded) and the tool definitions in
- * ./register.ts. Regenerate with `npm run mcp:sync`; ./manifest.test.ts fails the build if the
- * published file drifts from this function's output, or if a retired product's tool reappears.
+ * ./register.ts. It is SERVED at /.well-known/mcp.json by src/app/.well-known/mcp.json/route.ts — never
+ * committed as a file, because a static copy cannot read the deploy's own origin and kept advertising
+ * the host the app had left. ./manifest.test.ts fails the build if that route stops publishing this
+ * function's output, or if a retired product's tool reappears.
  */
-export const MCP_MANIFEST_PATH = "public/.well-known/mcp.json";
 
 export interface McpManifestTool {
   name: string;
@@ -124,7 +126,7 @@ export function buildMcpManifest(): McpManifest {
     name: "factory-agent-tools",
     description:
       "Deterministic agent tools shipped by the Autonomous Product & Software Factory " +
-      "(apps.giniloh.com), one product subpath per tool: Stripe payout -> GL reconciliation " +
+      `(${siteHost()}), one product subpath per tool: Stripe payout -> GL reconciliation ` +
       "(LedgerLink), EU e-invoice EN 16931 / CIUS-FR validation, Factur-X conversion and EU " +
       "VAT-id checks (FacturGate), carrier invoice DIM-weight / surcharge auditing with " +
       "billable-weight computation (ParcelProof), buyer-side warehouse-automation case " +
@@ -136,7 +138,7 @@ export function buildMcpManifest(): McpManifest {
     // 2.1.0: SpendProof's reconcile_ai_invoice added (a new product's tool, so the published
     // tool list grows; additive, but the list IS the contract an agent reads).
     version: "2.1.0",
-    endpoint: "https://apps.giniloh.com/api/agent/calculate",
+    endpoint: `${siteOrigin()}/api/agent/calculate`,
     tool_selector: {
       header: "x-webmcp-tool",
       default: DEFAULT_AGENT_TOOL,

@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync, writeFileSync } from "node:fs";
-import path from "node:path";
 
 import { activeProducts, products, retiredProducts } from "@/products/registry";
 import { agentRateForTool } from "@/products/pricing";
 import { WEBMCP_TOOL_SUMMARIES } from "./register";
 import { DEFAULT_AGENT_TOOL, SUPPORTED_AGENT_TOOLS } from "./agentTools";
+import { siteOrigin } from "@/lib/site-origin";
+import { GET as serveMcpManifest } from "@/app/.well-known/mcp.json/route";
 import {
-  MCP_MANIFEST_PATH,
   buildMcpManifest,
   meteredRatesByTool,
   serializeMcpManifest,
@@ -22,12 +21,12 @@ import {
  * in-inventory tool has no definition, if a definition belongs to no registry product at all, if
  * the API allowlist and the manifest disagree, if the selector default points at an unadvertised
  * tool, if a **retired** product's tool is served or advertised (the regression that left two dead
- * names live for three days), or if public/.well-known/mcp.json no longer matches the generator.
+ * names live for three days), or if the route that publishes it stops serving the generator's
+ * output on the host this deploy actually answers from.
  *
- * Regenerate the file with: npm run mcp:sync
+ * There is no published file to keep in sync any more: /.well-known/mcp.json is served by
+ * src/app/.well-known/mcp.json/route.ts, because a static copy cannot read the deploy's own origin.
  */
-const MANIFEST_FILE = path.join(process.cwd(), MCP_MANIFEST_PATH);
-const WRITE = process.env.MCP_MANIFEST_WRITE === "1";
 
 describe("WebMCP tool surface", () => {
   const inventoryTools = activeProducts.flatMap((product) => product.webmcpTools);
@@ -135,15 +134,12 @@ describe("WebMCP tool surface", () => {
     expect(JSON.stringify(buildMcpManifest())).not.toContain("rate_per_query_usd");
   });
 
-  it("keeps the published .well-known/mcp.json byte-identical to the generator", () => {
-    if (WRITE) {
-      writeFileSync(MANIFEST_FILE, serializeMcpManifest());
-      return;
-    }
-    const published = readFileSync(MANIFEST_FILE, "utf8");
-    expect(
-      published,
-      "public/.well-known/mcp.json has drifted from buildMcpManifest(); run `npm run mcp:sync`",
-    ).toBe(serializeMcpManifest());
+  it("publishes the generator's output from the route, on the host this deploy answers from", async () => {
+    const served = await serveMcpManifest().text();
+    expect(served).toBe(serializeMcpManifest());
+    expect(JSON.parse(served).endpoint).toBe(`${siteOrigin()}/api/agent/calculate`);
+    // The descriptor must never name a host the app does not serve from: the 2026-10-18 defect was
+    // 30 sitemap URLs, a canonical and this endpoint all pointing at the domain the app had left.
+    expect(JSON.parse(served).endpoint.startsWith(siteOrigin())).toBe(true);
   });
 });
