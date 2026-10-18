@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import { CreditCard, ShieldCheck } from "lucide-react";
+import { ArrowRight, CreditCard, ShieldCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,35 @@ export const HORIZON_GRADIENTS = {
 } as const;
 
 export type HorizonDomain = keyof typeof HORIZON_GRADIENTS;
+
+/**
+ * Per-PRODUCT accent — the identity a product carries on its card, header tile and directory row.
+ *
+ * The horizon gradients above are per-DOMAIN, and three of the six products are Finance, so a
+ * domain-keyed card accent would paint SpendProof, LedgerLink and QuarterLine the same violet. A
+ * product that cannot be told apart at a glance in the directory has no identity, which is what the
+ * 2026-10-18 review found: six white cards, one indigo, nothing to look at.
+ *
+ * `accent` is a FILL colour only (rules, tiles, 2px bars). `ink` is the AA-safe text colour measured
+ * on the surfaces it lands on (#FFFFFF card and #F8FAFC page): every ink below clears 4.7:1, while
+ * the raw accents do not (e.g. #059669 is 3.4:1) — so a label is never painted in `accent`.
+ */
+export const PRODUCT_ACCENTS = {
+  spendproof: { accent: "#635BFF", ink: "#4338CA" },
+  ledgerlink: { accent: "#0284C7", ink: "#075985" },
+  facturgate: { accent: "#059669", ink: "#047857" },
+  parcelproof: { accent: "#EA580C", ink: "#9A3412" },
+  caseproof: { accent: "#0F766E", ink: "#115E59" },
+  quarterline: { accent: "#64748B", ink: "#475569" },
+} as const;
+
+export type AccentSlug = keyof typeof PRODUCT_ACCENTS;
+
+/** Falls back to the flagship accent so a new product never renders accent-less. */
+export function productAccent(slug?: string): { accent: string; ink: string } {
+  return PRODUCT_ACCENTS[(slug ?? "") as AccentSlug] ?? PRODUCT_ACCENTS.spendproof;
+}
+
 
 /**
  * The editorial secondary-text colour: #5B6B80, not the `subtle` token (#64748B).
@@ -95,6 +124,7 @@ export function EditorialHero({
   description,
   artwork,
   signature,
+  actions,
 }: {
   pill: React.ReactNode;
   title: React.ReactNode;
@@ -102,6 +132,13 @@ export function EditorialHero({
   artwork: React.ReactNode;
   /** A short math-fidelity line rendered under the artwork (the invariant the diagram asserts). */
   signature?: React.ReactNode;
+  /**
+   * The page's single ask, directly under the promise. A product page that states a claim and offers
+   * no action above the fold is a brochure: the 2026-10-18 review measured 1–2 above-fold actions on
+   * a 1000–1200-word page, and on SpendProof the only one was the billing link. Verb-first primary,
+   * one secondary at most.
+   */
+  actions?: React.ReactNode;
 }) {
   return (
     <div className="mx-auto max-w-6xl">
@@ -112,6 +149,11 @@ export function EditorialHero({
             {title}
           </h1>
           <p className="max-w-xl text-sm leading-relaxed text-muted sm:text-base">{description}</p>
+          {actions ? (
+            <div className="flex flex-col items-stretch gap-2.5 pt-1 sm:flex-row sm:items-center sm:justify-center lg:justify-start">
+              {actions}
+            </div>
+          ) : null}
         </div>
         <div className="space-y-3 lg:col-span-6">
           {artwork}
@@ -119,6 +161,41 @@ export function EditorialHero({
         </div>
       </div>
     </div>
+  );
+}
+
+
+/**
+ * The hero's ask, as a pair. One primary (verb-first), one quiet secondary. Shared so the four
+ * editorial product pages cannot drift into four different CTA treatments.
+ */
+export function HeroActions({
+  primaryHref,
+  primaryLabel,
+  secondaryHref = "/billing",
+  secondaryLabel = "See pricing",
+}: {
+  primaryHref: string;
+  primaryLabel: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
+}) {
+  return (
+    <>
+      <Link
+        href={primaryHref}
+        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-card shadow-[0_2px_8px_rgba(79,70,229,0.35),inset_0_1px_0_rgba(255,255,255,0.2)] transition-all duration-150 hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(79,70,229,0.45),inset_0_1px_0_rgba(255,255,255,0.25)] active:translate-y-0"
+      >
+        {primaryLabel}
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      </Link>
+      <Link
+        href={secondaryHref}
+        className="inline-flex min-h-11 items-center justify-center rounded-xl border border-border bg-card px-5 text-sm font-semibold text-foreground shadow-2xs transition-colors hover:bg-black/[0.03]"
+      >
+        {secondaryLabel}
+      </Link>
+    </>
   );
 }
 
@@ -164,6 +241,7 @@ export function ProductHeader({
   billingLabel = "Billing",
   priceChip,
   assurance,
+  slug,
 }: {
   initials: string;
   name: string;
@@ -172,12 +250,22 @@ export function ProductHeader({
   billingLabel?: string;
   priceChip?: React.ReactNode;
   assurance?: string;
+  /** Product slug — selects the accent identity for the tile and the billing glyph. */
+  slug?: string;
 }) {
+  const tone = productAccent(slug);
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-base font-bold tracking-tight text-card shadow-xs">
+          {/* The tile paints `ink`, not `accent`: white on the raw accent fails WCAG AA for
+              16px bold (measured 3.04:1 for #EA580C, 3.42:1 for #059669 — axe flagged both the
+              moment the accents landed on FacturGate and ParcelProof). `ink` clears 5.2:1+ and
+              keeps the product's hue. */}
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-base font-bold tracking-tight text-card shadow-xs"
+            style={{ backgroundColor: tone.ink }}
+          >
             {initials}
           </div>
           <div>
@@ -193,7 +281,7 @@ export function ProductHeader({
             href="/billing"
             className="inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground shadow-2xs transition-colors hover:bg-black/[0.03]"
           >
-            <CreditCard className="h-3.5 w-3.5 text-primary" />
+            <CreditCard className="h-3.5 w-3.5" style={{ color: tone.ink }} />
             <span>{billingLabel}</span>
             {priceChip ? (
               <span className="hidden font-mono text-[11px] font-semibold text-primary sm:inline">

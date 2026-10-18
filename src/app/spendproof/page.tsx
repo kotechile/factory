@@ -11,6 +11,7 @@ import {
   AmbientGrid,
   DeterminismPill,
   EditorialHero,
+  HeroActions,
   HorizonStripe,
   ProductHeader,
 } from "@/components/editorial/signature";
@@ -72,6 +73,7 @@ export default function Page() {
       <HorizonStripe domain="finance" />
 
       <ProductHeader
+        slug="spendproof"
         initials="SP"
         name="SpendProof"
         badge="AI FINOPS"
@@ -95,15 +97,14 @@ export default function Page() {
             title="Close the AI bill against the usage you can actually attribute"
             description={
               <>
-                The provider bills one undifferentiated line per model; the tags live in your own
-                instrumentation. Paste the invoice&apos;s declared line items and your tagged-usage
-                ledger: every line is recomputed at{" "}
-                <strong className="text-foreground">the rate the invoice itself declares</strong>, each
-                variance is classified, and a clean close is withheld whenever a bucket does not
-                reconcile or usage carries no tag —{" "}
-                <strong className="text-foreground">never estimated, never attributed by guess</strong>.
+                The provider bills one undifferentiated line per model; the tags live in a different
+                system. Paste both records: SpendProof recomputes every line at{" "}
+                <strong className="text-foreground">the rate the invoice itself declares</strong>,
+                classifies each variance, and withholds a clean close until every bucket reconciles.
+                Nothing estimated, nothing attributed by guess.
               </>
             }
+            actions={<HeroActions primaryHref="#audit" primaryLabel="Run the free audit" secondaryHref="/billing" secondaryLabel="See pricing" />}
             artwork={
               <PrismSchematic
                 kicker="Invoice ↔ usage reconciliation"
@@ -124,7 +125,9 @@ export default function Page() {
             }
           />
 
-          <SpendProofCalculator initialScenario="untagged-batch" />
+          <div id="audit" className="scroll-mt-20">
+            <SpendProofCalculator initialScenario="untagged-batch" />
+          </div>
 
           <ProductLaunchVideo slug="spendproof" />
 

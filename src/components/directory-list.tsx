@@ -17,11 +17,32 @@ import {
   Copy,
   Check,
   Info,
+  Receipt,
+  BookOpen,
+  FileCheck2,
+  Package,
+  Building2,
+  Calculator,
 } from "lucide-react";
 import { products, type Product } from "@/products/registry";
 import { agentRateOrNull, priceSummary } from "@/products/pricing";
 import { trackEvent } from "@/lib/telemetry-client";
 import { Modal } from "@/components/ui/modal";
+import { productAccent } from "@/components/editorial/signature";
+
+/**
+ * One glyph per product, drawn from Lucide (standards §2: never hand-drawn glyphs). The glyph is
+ * decorative — the product name carries the label — so it is `aria-hidden` and only adds the
+ * at-a-glance identity the 2026-10-18 review found missing from six identical white cards.
+ */
+const PRODUCT_ICONS: Record<string, typeof Terminal> = {
+  spendproof: Receipt,
+  ledgerlink: BookOpen,
+  facturgate: FileCheck2,
+  parcelproof: Package,
+  caseproof: Building2,
+  quarterline: Calculator,
+};
 
 const PUNCHY_SUMMARIES: Record<string, string> = {
   ledgerlink:
@@ -148,13 +169,18 @@ export default function DirectoryList() {
   const retiredCount = publicProducts.filter((p) => p.status === "killed").length;
 
   return (
-    <div className="space-y-10">
+    <div id="directory" className="scroll-mt-4 space-y-10">
       {/* Search & Category Filter Section */}
       <section aria-label="Tool filtering and search" className="space-y-4">
         {/* Top Controls Row: Category Chips and Lifecycle Status Filter */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          {/* Category Filter Chips */}
+          {/* Category Filter Chips. The visible "Category" / "Status" captions exist because both
+              rows start with a control labelled "All" and nothing distinguished them (2026-10-18
+              review): two identical "All"s read as one broken control. */}
           <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mr-1 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+              Category
+            </span>
             {categories.map((cat) => {
               const isSelected = selectedCategory === cat;
               const count =
@@ -166,7 +192,7 @@ export default function DirectoryList() {
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                  className={`inline-flex min-h-8 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
                     isSelected
                       ? "bg-primary text-card shadow-xs font-semibold"
                       : "bg-card border border-border/80 text-muted hover:text-foreground hover:bg-black/[0.02]"
@@ -188,7 +214,11 @@ export default function DirectoryList() {
           </div>
 
           {/* Status Segmented Filter */}
-          <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-background p-1 text-xs self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+              Status
+            </span>
+            <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-background p-1 text-xs">
             <button
               type="button"
               onClick={() => setStatusFilter("all")}
@@ -222,6 +252,7 @@ export default function DirectoryList() {
             >
               Retired ({retiredCount})
             </button>
+            </div>
           </div>
         </div>
 
@@ -309,21 +340,35 @@ export default function DirectoryList() {
             const punchySummary = PUNCHY_SUMMARIES[p.slug] || p.description.split(". ")[0] + ".";
             const isExpanded = expandedCards.has(p.slug);
             const pricing = priceSummary(p.slug);
+            const tone = productAccent(p.slug);
+            const Icon = PRODUCT_ICONS[p.slug] ?? Terminal;
 
             return (
               <div
                 key={p.slug}
-                className={`relative flex flex-col justify-between rounded-2xl transition-all duration-200 ${
+                className={`relative flex flex-col justify-between overflow-hidden rounded-2xl transition-all duration-200 ${
                   isKilled
                     ? "bg-card/70 border border-dashed border-border/80 shadow-2xs opacity-85 hover:opacity-100"
                     : "bg-card shadow-[0_0_0_1px_rgba(15,23,42,0.06),0_8px_24px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0_0_0_1px_rgba(15,23,42,0.1),0_12px_28px_-4px_rgba(15,23,42,0.08)] hover:-translate-y-0.5"
                 }`}
               >
+                {/* Accent rule: the product's own hue, 3px along the card's top edge. */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-0 h-[3px]"
+                  style={{
+                    background: `linear-gradient(90deg, ${tone.accent} 0%, ${tone.accent} 72%, ${tone.accent}00 100%)`,
+                  }}
+                />
                 {/* Card Content Top */}
                 <div className="p-5 sm:p-6 space-y-4">
                   {/* Category & Status Row */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    <span
+                      className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider"
+                      style={{ color: tone.ink }}
+                    >
+                      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                       {p.category}
                     </span>
 
@@ -382,7 +427,7 @@ export default function DirectoryList() {
                     {/* Streamlined Primary Action CTA */}
                     <Link
                       href={p.route}
-                      className={`flex-1 inline-flex items-center justify-center gap-2 rounded-xl text-xs sm:text-sm font-semibold py-2.5 px-4 transition-all duration-150 ${
+                      className={`inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl text-xs sm:text-sm font-semibold px-4 py-3 transition-all duration-150 ${
                         isKilled
                           ? "border border-border/80 bg-background text-muted hover:text-foreground hover:bg-black/[0.03]"
                           : "bg-primary text-card shadow-[0_2px_8px_rgba(79,70,229,0.3),inset_0_1px_0_rgba(255,255,255,0.2)] hover:shadow-[0_4px_12px_rgba(79,70,229,0.4),inset_0_1px_0_rgba(255,255,255,0.25)] hover:-translate-y-0.5 active:translate-y-0"
@@ -398,7 +443,7 @@ export default function DirectoryList() {
                       onClick={() => toggleExpand(p.slug)}
                       aria-expanded={isExpanded}
                       aria-controls={`specs-${p.slug}`}
-                      className="inline-flex items-center gap-1 rounded-xl border border-border/80 bg-background px-3 py-2.5 text-xs font-medium text-muted hover:text-foreground hover:bg-black/[0.02] transition-colors"
+                      className="inline-flex min-h-11 items-center gap-1 rounded-xl border border-border/80 bg-background px-3 py-3 text-xs font-medium text-muted hover:text-foreground hover:bg-black/[0.02] transition-colors"
                       title="Toggle API details & full specification"
                     >
                       <span>Specs</span>

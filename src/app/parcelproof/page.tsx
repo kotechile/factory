@@ -11,6 +11,7 @@ import {
   AmbientGrid,
   DeterminismPill,
   EditorialHero,
+  HeroActions,
   HorizonStripe,
   ProductHeader,
 } from "@/components/editorial/signature";
@@ -38,6 +39,7 @@ export default function Page() {
       <HorizonStripe domain="logistics" />
 
       <ProductHeader
+        slug="parcelproof"
         initials="PP"
         name="ParcelProof"
         badge="UPS · FedEx · USPS"
@@ -75,6 +77,7 @@ export default function Page() {
                 </span>
               </>
             }
+            actions={<HeroActions primaryHref="#audit" primaryLabel="Audit a carrier invoice" secondaryHref="/billing" secondaryLabel="See pricing" />}
             artwork={
               <PrismSchematic
                 kicker="DIM-weight audit pipeline"
@@ -94,7 +97,9 @@ export default function Page() {
             }
           />
 
-          <ParcelProofCalculator initialScenario="overcharge" />
+          <div id="audit" className="scroll-mt-20">
+            <ParcelProofCalculator initialScenario="overcharge" />
+          </div>
 
           <ProductLaunchVideo slug="parcelproof" />
 

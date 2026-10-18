@@ -12,6 +12,7 @@ import {
   AmbientGrid,
   DeterminismPill,
   EditorialHero,
+  HeroActions,
   HorizonStripe,
   ProductHeader,
 } from "@/components/editorial/signature";
@@ -38,6 +39,7 @@ export default function Page() {
       <HorizonStripe domain="industrial" />
 
       <ProductHeader
+        slug="caseproof"
         initials="CP"
         name="CaseProof"
         badge="Buyer-Side Audit"
@@ -74,6 +76,7 @@ export default function Page() {
                 </span>
               </>
             }
+            actions={<HeroActions primaryHref="#audit" primaryLabel="Test a vendor quote" secondaryHref="/billing" secondaryLabel="See pricing" />}
             artwork={
               <PrismSchematic
                 kicker="After-tax case audit"
@@ -93,7 +96,9 @@ export default function Page() {
             }
           />
 
-          <CaseProofCalculator initialScenario="vendor_case" />
+          <div id="audit" className="scroll-mt-20">
+            <CaseProofCalculator initialScenario="vendor_case" />
+          </div>
 
           <ProductLaunchVideo slug="caseproof" />
 

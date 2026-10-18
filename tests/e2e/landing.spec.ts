@@ -6,7 +6,11 @@ import { siteOrigin } from "../../src/lib/site-origin";
 test("directory renders the factory showcase at /showcase", async ({ page }) => {
   await page.goto("/showcase");
   await expect(page).toHaveTitle(/Factory Showcase/);
-  await expect(page.getByRole("heading", { name: "Factory Showcase" })).toBeVisible();
+  // The h1 is the MESSAGE, not the internal artifact name (2026-10-18 review: "Factory Showcase"
+  // named the page, not the value). The title tag still carries "Factory Showcase" for search.
+  await expect(
+    page.getByRole("heading", { level: 1, name: /Prove the number/ }),
+  ).toBeVisible();
   await expect(page.getByText("QuarterLine").first()).toBeVisible();
 });
 

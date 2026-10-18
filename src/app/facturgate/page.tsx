@@ -11,6 +11,7 @@ import {
   AmbientGrid,
   DeterminismPill,
   EditorialHero,
+  HeroActions,
   HorizonStripe,
   ProductHeader,
 } from "@/components/editorial/signature";
@@ -39,6 +40,7 @@ export default function Page() {
       <HorizonStripe domain="compliance" />
 
       <ProductHeader
+        slug="facturgate"
         initials="FG"
         name="FacturGate"
         badge="EN 16931 + CIUS-FR"
@@ -75,10 +77,13 @@ export default function Page() {
                 </span>
               </>
             }
+            actions={<HeroActions primaryHref="#check" primaryLabel="Check an invoice free" secondaryHref="/billing" secondaryLabel="See pricing" />}
             artwork={<FacturGateSchematic />}
           />
 
-          <FacturGateCalculator initialFormat="facturx" initialCountry="FR" />
+          <div id="check" className="scroll-mt-20">
+            <FacturGateCalculator initialFormat="facturx" initialCountry="FR" />
+          </div>
 
           <ProductLaunchVideo slug="facturgate" />
 
