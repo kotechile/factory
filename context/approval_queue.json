@@ -1,0 +1,91 @@
+{
+  "_note": "Machine-readable copy of the owner's decision queue. `context/pending_approval.md` is the prose record Simon writes each sweep; this file is the same decisions as rows, so a dashboard can show them without anyone reading the paragraphs. PressFlow reads this file from main (raw.githubusercontent) and falls back to editorial-factory/context/approvals.json when it cannot. Keep item order: open decisions first, then approved/in build, then closed.",
+  "updated": "2026-10-18T23:55:00Z",
+  "source": "context/pending_approval.md",
+  "items": [
+    {
+      "id": "traffic-marker",
+      "app": "",
+      "kind": "decision",
+      "state": "pending",
+      "headline": "Mark our own test visits so traffic numbers mean something",
+      "detail": "Our browser suites write page views into the same table as real visitors, so a run inflates the count and 'did a real person visit' cannot be answered.",
+      "impact": "Every traffic figure stays ambiguous.",
+      "reply": "@Simon approve traffic marker",
+      "opened": "",
+      "updated": "2026-10-18"
+    },
+    {
+      "id": "aichieve-robots",
+      "app": "",
+      "kind": "decision",
+      "state": "pending",
+      "headline": "aichieve.net has no robots.txt and no sitemap.xml",
+      "detail": "Both return 404 since the 10-15 split; giniloh.com and wellroost.com both serve theirs.",
+      "impact": "Crawlers and AI agents get nothing to follow on the new front.",
+      "reply": "@Simon approve aichieve robots and sitemap",
+      "opened": "2026-10-15",
+      "updated": "2026-10-18"
+    },
+    {
+      "id": "quarterline-leftovers",
+      "app": "QuarterLine",
+      "kind": "retire",
+      "state": "pending",
+      "headline": "Delete the last QuarterLine references",
+      "detail": "The product is killed and its pages redirect, but the agent descriptor (ai-plugin.json) still names it and /openapi.json answers 404.",
+      "impact": "Agents and search keep reading a product we no longer sell.",
+      "reply": "@Simon retire quarterline pages",
+      "opened": "2026-10-15",
+      "updated": "2026-10-18"
+    },
+    {
+      "id": "duplicate-videos",
+      "app": "Launch videos",
+      "kind": "delete",
+      "state": "pending",
+      "headline": "Four duplicate launch-video copies are still public",
+      "detail": "The desk's first cuts sit beside the five videos the product pages embed, so each product has two films online.",
+      "impact": "Viewers and search find two versions of every film.",
+      "reply": "@Simon delete the duplicate launch videos",
+      "opened": "",
+      "updated": "2026-10-18"
+    },
+    {
+      "id": "career-capital-home",
+      "app": "Career Capital calculators",
+      "kind": "decision",
+      "state": "pending",
+      "headline": "Pick one home for the two career-capital calculators",
+      "detail": "The W-2 vs 1099 and RSU hold-vs-sell engines exist twice: once in the factory repo (still uncommitted) and once on giniloh.com. The numbers are identical today.",
+      "impact": "They drift apart on the next statutory update.",
+      "reply": "@Simon keep one career capital copy",
+      "opened": "2026-10-18",
+      "updated": "2026-10-18"
+    },
+    {
+      "id": "ide-header-gap",
+      "app": "",
+      "kind": "fix",
+      "state": "pending",
+      "headline": "One-line fix for the IDE header gap and gutter alignment",
+      "detail": "A long file title touches the zero-egress badge (measured 0.0 px), and a wrapped line in the JSON field drifts off its gutter number. Both are shared primitives, so the factory will not touch them without your word.",
+      "impact": "The build gate keeps failing on a cosmetic defect it will not restyle unapproved.",
+      "reply": "@Simon fix the header gap",
+      "opened": "2026-10-17",
+      "updated": "2026-10-18"
+    },
+    {
+      "id": "canopyproof",
+      "app": "CanopyProof",
+      "kind": "build",
+      "state": "approved",
+      "headline": "Supplier geolocation pre-flight audit for the EU deforestation rules (EUDR)",
+      "detail": "A model reads the declared fields out of supplier packs; overlap, declared-vs-computed area and scope are checked by our own geometry. Plan in five slices, S1 engine through S5 gate + deploy.",
+      "impact": "Build in progress since 2026-10-18. EUDR application date is 30 December 2026.",
+      "reply": "",
+      "opened": "2026-10-12",
+      "updated": "2026-10-18"
+    }
+  ]
+}

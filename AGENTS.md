@@ -30,6 +30,12 @@ them with near-zero marginal build cost.
 7. **Approval-gated auto-publish.** Agents begin development only after the founder's
    `@Simon approve` (a hard gate). Once approved, agents commit + push to `main` directly after
    `scripts/verify-build.sh` passes; Coolify auto-deploys. No build or ship ahead of the go/no-go.
+   **Two copies of the queue, on purpose:** `context/pending_approval.md` is the prose record a
+   human can audit, and `context/approval_queue.json` is the same decisions as rows — one row per
+   ask, with what it is, what the founder must decide, the exact reply, and what silence costs.
+   Every sweep that edits one updates the other in the same run. The editorial dashboard
+   (PressFlow → ✅ Approvals) reads the JSON from `main` so the founder gets a list instead of a
+   paragraph; a queue that only exists in prose is unread and therefore not a gate.
 8. **Slack reports are read by a human.** Every factory message posted to `#loop-ai` follows
    `skills/slack_reporting.md` (Smart Brevity: headline, bottom line, what changed, what I did,
    what I need from you, then raw numbers). Draft it to a file and pass
