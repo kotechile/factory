@@ -11,6 +11,7 @@ import {
 } from "@/lib/calc/einvoice";
 import { brokenFixtures, demoInvoice } from "@/lib/calc/einvoice/fixtures";
 import { trackEvent } from "@/lib/telemetry-client";
+import { IdeInset } from "@/components/editorial/ide-inset";
 import { IdeTextarea } from "@/components/editorial/ide-textarea";
 import { TACTILE_CTA } from "@/components/editorial/signature";
 import { Badge } from "@/components/ui/badge";
@@ -409,9 +410,16 @@ export default function FacturGateCalculator({
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-xs text-subtle">{report.emitted.note}</p>
-                  <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap break-all rounded border border-border bg-background p-4 font-mono text-xs leading-relaxed text-foreground">
-                    {report.emitted.xml}
-                  </pre>
+                  {/* The emitted document is the product, not a debug dump: it gets the same IDE
+                      treatment as every other code surface (dots, file title, zero-egress badge,
+                      line-number gutter). It was a plain <pre> — flat, unwrapped and unlike the
+                      rest of the product — until the visual-QA gate named it (2026-10-18). */}
+                  <IdeInset
+                    title={`emitted.${report.emitted.format.toLowerCase()}`}
+                    code={report.emitted.xml}
+                    meta={report.emitted.profile}
+                    maxHeightClass="max-h-96"
+                  />
                 </CardContent>
               </Card>
             ) : null}

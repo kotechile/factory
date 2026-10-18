@@ -78,6 +78,16 @@ for (const { path, setup } of PRODUCTS) {
         const gutterStyle = getComputedStyle(gutterElement);
         const gutterContentRight = gutter.right - Number.parseFloat(gutterStyle.paddingRight || "0");
 
+        // A wrapping field breaks the gutter's contract: it numbers ONE logical line each, so every
+        // wrapped row paints text with no number and shifts later numbers off their lines. That is
+        // what the reviewer reads as "text overlaps line numbers" (caseproof-qa-2, 2026-10-18), and
+        // geometry decides it here instead of a model's read of a screenshot.
+        if (style.whiteSpace === "pre-wrap" || style.whiteSpace === "pre-line") {
+          found.push(
+            `${label}: the field soft-wraps (white-space: ${style.whiteSpace}) — long lines must scroll, not wrap, or the gutter numbers stop matching their lines`,
+          );
+        }
+
         if (rect.left < gutter.right - 1) {
           found.push(
             `${label}: the field box starts at x=${rect.left.toFixed(1)}, left of the gutter's right edge ${gutter.right.toFixed(1)}`,

@@ -841,17 +841,19 @@ export default function LedgerLinkCalculator() {
                     {/* Unified IDE / Terminal Box with Absorbed Controls & Sticky Gutter */}
                     <div className="overflow-hidden rounded-xl border border-border/80 bg-[#F8FAFC] shadow-inner ring-1 ring-[#0F172A]/[0.05]">
                       {/* Integrated Terminal Header Bar */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 bg-card/90 px-3.5 py-2.5 text-xs backdrop-blur-xs">
-                        {/* Left: macOS dots, filename, zero egress badge */}
-                        <div className="flex items-center gap-2 font-mono text-[11px] text-muted">
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 bg-card/90 px-3.5 py-2.5 text-xs backdrop-blur-xs">
+                        {/* Left: macOS dots, filename, zero egress badge. min-w-0 + truncate on the
+                            filename: without them a long name pushed the badge flush against the
+                            last glyph (measured 0.0 px gap, 2026-10-18). */}
+                        <div className="flex min-w-0 items-center gap-2 font-mono text-[11px] text-muted">
                           <span className="flex items-center gap-1.5" aria-hidden="true">
                             <span className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
                             <span className="h-2.5 w-2.5 rounded-full bg-[#F59E0B]" />
                             <span className="h-2.5 w-2.5 rounded-full bg-[#10B981]" />
                           </span>
                           <span className="text-border">|</span>
-                          <span className="font-semibold text-foreground">stripe_payout_export.json</span>
-                          <span className="hidden sm:inline-flex items-center gap-1 rounded bg-[#10B981]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#047857]">
+                          <span className="truncate font-semibold text-foreground">stripe_payout_export.json</span>
+                          <span className="hidden shrink-0 sm:inline-flex items-center gap-1 rounded bg-[#10B981]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#047857]">
                             <ShieldCheck className="h-3 w-3" />
                             ZERO EGRESS
                           </span>

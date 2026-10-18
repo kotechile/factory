@@ -36,7 +36,10 @@ export function IdeInset({
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-border/70 bg-card/90 px-3.5 py-2 font-mono text-xs backdrop-blur-xs">
+      {/* gap-3, not justify-between alone: with a long title the truncated name ran flush into the
+          zero-egress badge — a measured 0.0 px gap (2026-10-18). The gap is the floor; truncation
+          still gives way first because the left group is min-w-0 and the right group is shrink-0. */}
+      <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-card/90 px-3.5 py-2 font-mono text-xs backdrop-blur-xs">
         <div className="flex min-w-0 items-center gap-2 text-[11px] text-muted">
           <span className="flex items-center gap-1.5" aria-hidden="true">
             <span className="h-2 w-2 rounded-full bg-[#EF4444]" />

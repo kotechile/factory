@@ -86,6 +86,11 @@ export function IdeTextarea({
           aria-label={ariaLabel}
           value={value}
           rows={rows}
+          // No soft wrapping: the gutter numbers ONE logical line each, so a wrapped row paints text
+          // with no number and pushes every later number out of step with its line (the caseproof
+          // "text overlaps line numbers" verdict, 2026-10-18). Long lines scroll horizontally, which
+          // is what a code field does; the gutter stays scroll-synced on both axes.
+          wrap="off"
           spellCheck={false}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
