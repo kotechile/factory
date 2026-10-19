@@ -4,6 +4,24 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**`RatchetProof` APPROVED — the build is dispatched**). Owner instruction,
+verbatim: *"Simon approve RatchetProof"*. It names the single `pending` row in
+`context/approval_queue.json` (`ratchetproof`, opened 2026-10-19), and there was no other item at the
+gate, so it is read as that build gate; a correction from him reverses this line. Scope, slices and
+definition of done: `.hermes/plans/2026-10-19_ratchetproof-build.md` (S1 deterministic core → S2
+tariff/bill extraction route → S3 UI → S4 registry/WebMCP/pricing → S5 gate + deploy). Non-negotiables
+carried from the PRD: every reported figure is computed locally in TypeScript; the model extracts
+declared fields only, each labelled `extracted|unreadable|unstated`, and an unstated tariff clause
+**blocks that month's verdict**; an interval gap is rejected, never interpolated; `Σ(intervals read) ==
+Σ(intervals in file)`; `billedDemand = max(month peak, ratchet% × trailing-lookback peak, contract
+minimum)`; utility API integration, Green Button Connect OAuth and weather normalisation stay out of
+scope. Price **$1.50/call** against a modelled ≈$0.30 (re-measure on the first live tariff), web tier
+$12 one-off / $39/mo per site, WebMCP `audit_demand_billing`, registry **`beta`** — the launch call
+stays with the owner. The deploy already carries `GEMINI_API_KEY` + `LLAMAPARSE_API_KEY` (key NAMES
+read back from the running container), so the extraction path has what it needs; no approval ever
+covers a credential. Nothing ships on a red `scripts/verify-build.sh`. Dispatch id and fired execution
+are appended to this line below.
+
 _Last updated: 2026-10-19 (**15:30 sweep — the weekly recon ran, a candidate is at the gate, and the report that
 carried it never reached the founder**). Recon: declared `VERTICAL_A` = **energy_interval_data**, `VERTICAL_B` =
 **food_service_ops**; both scanned and recorded in `context/vertical_coverage.md` (`recon:cadence` exit 0). **Open

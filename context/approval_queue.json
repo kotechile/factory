@@ -28,18 +28,6 @@
       "closed": "2026-10-19"
     },
     {
-      "id": "ratchetproof",
-      "app": "RatchetProof",
-      "kind": "decision",
-      "state": "pending",
-      "headline": "A power-bill audit that shows what one peak costs for a year",
-      "detail": "Commercial power bills charge a minimum demand for 11-12 months after one spike; the bill prints the number, never which half hour set it. The tool rebuilds billed demand from the account's own interval files and prices that spike. Higher-band agent tool ($1.50/call, modelled $0.30). Weakest link: no audience of ours reaches a facilities manager.",
-      "impact": "Either a new metered product with real B2B budgets, or a cheap vertical retired this week.",
-      "reply": "@Simon approve RatchetProof",
-      "opened": "2026-10-19",
-      "updated": "2026-10-19"
-    },
-    {
       "id": "career-capital-home",
       "app": "Career Capital calculators",
       "kind": "decision",
@@ -77,6 +65,18 @@
       "updated": "2026-10-18"
     },
     {
+      "id": "ratchetproof",
+      "app": "RatchetProof",
+      "kind": "build",
+      "state": "approved",
+      "headline": "A power-bill audit that shows what one peak costs for a year",
+      "detail": "Approved 2026-10-19 by the owner's `@Simon approve RatchetProof` (the only open row at the gate). Build dispatched as a one-shot job; v1 scope in `.hermes/plans/2026-10-19_ratchetproof-build.md`: deterministic core (coincident-interval align, billing window, billed demand = max(month peak, ratchet% × trailing-lookback peak, contract min), carry-over ledger), tariff/bill extraction in front of it (every field `extracted|unreadable|unstated`; an unreadable clause blocks the month), `/ratchetproof` UI, WebMCP `audit_demand_billing` at $1.50/call, web tier $12 one-off / $39/mo per site, registry `beta`.",
+      "impact": "In build — a commercial power-bill audit that names the half hour which set the account's demand floor and prices it for the year. Launch call (beta → live) stays with the owner.",
+      "reply": "",
+      "opened": "2026-10-19",
+      "updated": "2026-10-19T22:12:44Z"
+    },
+    {
       "id": "aichieve-robots",
       "app": "",
       "kind": "decision",
@@ -101,5 +101,5 @@
       "updated": "2026-10-19"
     }
   ],
-  "updated": "2026-10-19T00:58:00Z"
+  "updated": "2026-10-19T22:12:44Z"
 }
