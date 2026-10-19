@@ -56,6 +56,12 @@ Every factory product must ship with an authentic, high-craft editorial engineer
    - Raw code, JSON, XML, or structured text inputs must receive an authentic IDE/Terminal treatment:
      - Window chrome header bar with macOS control dots (`#EF4444`, `#F59E0B`, `#10B981`) and file title.
      - Top-right zero-egress badge: `CLIENT-SIDE ONLY • ZERO EGRESS` with `ShieldCheck` icon.
+     - The chrome bar carries a real gap between the truncating file title and the badge group
+       (`gap-3` on the header row, `min-w-0` + `truncate` on the title, `shrink-0` on the badge wrap).
+       `justify-between` with no gap lets a long title's ellipsis land flush on the badge whenever two
+       insets share one row at 1280px — the text is clipped, never overlapping, but at screenshot
+       resolution it reads as a collision and the vision gate flags it (measured 0px on `/spendproof`,
+       2026-10-17). Reserve the gap before shortening the file name.
      - Left-hand line number gutter (`01`, `02`, `03`...) in `text-muted/40 font-mono select-none`.
      - Soft cool-tint background (`bg-[#F8FAFC]` or `bg-background/80`).
    - **Use the shared `<IdeInset>` (read-only code) / `<IdeTextarea>` (editable raw input)** —
@@ -81,6 +87,23 @@ Every factory product must ship with an authentic, high-craft editorial engineer
 9. **Design Token Discipline**:
    - Never use raw Tailwind color utilities in class names (e.g. `bg-slate-50`, `text-indigo-600`), which fail `scripts/check-design-tokens.mjs`.
    - Use semantic design tokens (`primary`, `accent`, `muted`, `subtle`, `border`, `card`, `background`, `foreground`, `success`, `destructive`, `warning`) or arbitrary hex brackets (`bg-[#F8FAFC]`, `text-[#047857]`).
+
+10. **Product Accent Identity (directory card + product header)**:
+   - Every product owns one hue in `PRODUCT_ACCENTS` (`src/components/editorial/signature.tsx`), keyed by
+     **slug, not domain** — three of the six products are Finance, and a domain-keyed accent leaves them
+     visually identical in a grid (the 2026-10-18 review found six white cards, one indigo).
+   - `accent` is a **fill** only: the 3px card rule, the glyph tint, a chart node. `ink` is the only
+     value a **label** may use, and it is the only value a filled tile may put white text on: painted
+     white-on-`accent`, the initials tile measured 3.04:1 (#EA580C) and 3.42:1 (#059669) at 16px bold,
+     and axe failed FacturGate and ParcelProof. Both hues clear 5.2:1+ as ink on white and on #F8FAFC.
+   - The card rule is `linear-gradient(90deg, accent 0%, accent 72%, transparent)` — a fill that fades
+     from its midpoint reads as a washed-out smudge on a 390px card.
+
+11. **Hero Actions (the page's single ask)**:
+   - `EditorialHero` renders an `actions` slot; the page supplies `<HeroActions>` (verb-first primary,
+     one quiet secondary). A hero that states a claim and offers no action is a brochure: measured on the
+     live deploy, SpendProof — a 1000-word page — had exactly one above-fold action and it was the billing
+     link. The primary anchors to the calculator (`#audit` / `#check`), never to `/billing`.
 
 ## 4. Component rules
 - Every reusable primitive lives in `src/components/ui/`.
@@ -313,6 +336,40 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   reviewed by eye is clean. **Open fix (owner call):** give the gate a per-request timeout plus a bounded
   retry on 5xx / headers-timeout, and consider a faster tier for tile review, so a degraded provider ends
   as "inconclusive" instead of hanging the build path for eight minutes.
+
+- **2026-10-17 — `visual-qa` FAIL on `spendproof-qa-1`: "text overlapping in IDE headers (file names
+  run under zero egress badges)" — a REAL but purely cosmetic 0px gap, not an overlap.** The build gate
+  (`scripts/verify-build.sh` on `65f3e25`) was green on every deterministic step — tsc, lint 3 warnings /
+  0 errors, tokens, 26 verticals, recon cadence, 320 vitest tests, 49/49 pages, 88 Playwright tests — and
+  went red only on this tile, twice, on the one screenshot where SpendProof shows its two records side by
+  side. Measured on the rendered DOM at 1280×900: both chrome titles (`provider-invoice.csv`,
+  `tagged-usage.csv`) are truncated (`scrollWidth` 140/112 vs `clientWidth` 95) and their clipped edge
+  sits at **x=409 / x=817 — exactly the badge's left edge, gap 0.0px** on a 390px-wide card. The shared
+  `<IdeInset>` header is `justify-between` with **no column gap**, so the ellipsis is painted flush
+  against the badge pill; nothing overlaps glyph-for-glyph (`tests/e2e/text-geometry.spec.ts` passes all
+  four products), which is why this class keeps coming back as a vision "overlap" that measurement calls
+  clean. **Rule:** the header reserves `gap-3` between the truncating title and the `shrink-0` badge
+  group (§3.6) — a truncated title must never be the thing that provides the separation. One-line change
+  in `src/components/editorial/ide-inset.tsx` (and the same header copy in
+  `src/components/ledgerlink-calculator.tsx:844`); it touches the shared primitive, so it needs the
+  owner's go/no-go before the next push and a re-cut of any snapshot baseline afterward.
+
+- **2026-10-19 — `visual-qa` FAIL on `parcelproof-qa-2`, three consecutive attempts (the fail-closed
+  maximum): "text overlapping badge in Recovery summary, text overlapping button in Findings section" —
+  a FALSE POSITIVE on a docs-and-skills-only commit.** Measured on the rendered page at 1280×900 in the
+  audited state: the `3 flags` pill (x 976–1039, y 757.7–779.7) sits **14.0 px** right of the Recovery
+  intro sentence's first line (ends x=962) and **4.0 px** below its second line; the `Download dispute
+  CSV` button (x 854–1039) sits **44.0 px** right of the Findings intro line (ends x=810). A pairwise
+  scan of **403** text runs against **32** buttons and **29** pills found **zero** intersecting rects,
+  and `tests/e2e/text-geometry.spec.ts` was green on `/parcelproof` in the same run (96/96 e2e). What the
+  reviewer sees is a right-aligned pill whose **box** spans the wrapped second line of the sentence beside
+  it while the glyphs on that line end 569 px to its left — the wrap-as-overlap class for the sixth time.
+  **Rule:** a wrapped intro sentence beside a right-aligned pill or action button is not an overlap;
+  measure the clearance with `Range.getClientRects()` before touching CSS, and never restyle a page to
+  satisfy a model verdict. The gate prompt now names this geometry (`scripts/visual-qa.mjs`
+  `GATE_PROMPT`). Note the override path: `factory_config.visual_qa_prompt` in Supabase **replaces** the
+  local prompt when present — check it before assuming a prompt edit took effect (it is absent today, so
+  the local prompt is live).
 
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.

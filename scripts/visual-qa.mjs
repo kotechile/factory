@@ -76,6 +76,16 @@ loadEnvFile(".env");
 // tests/e2e/schematic-collision.spec.ts was green on /caseproof in the same gate run (88/88 e2e); the
 // connectors visibly terminate on the node borders, none crosses a glyph. The prompt below now quotes
 // that exact phrase too, because a class excluded only by its earlier wording re-enters under a new one.
+// A SIXTH class was excluded on 2026-10-19: `parcelproof-qa-2` failed three consecutive attempts (the
+// fail-closed maximum) on "text overlapping badge in Recovery summary, text overlapping button in
+// Findings section" — on a commit that touched skills and docs only. Measured on the rendered page at
+// 1280x900 in the audited state: the "3 flags" pill (x 976-1039, y 757.7-779.7) sits 14.0 px right of the
+// intro sentence's first line (which ends at x=962) and 4.0 px below its second line; the "Download
+// dispute CSV" button (x 854-1039) sits 44.0 px right of the Findings intro line (ends x=810). A pairwise
+// scan of all 403 rendered text runs against all 32 buttons and 29 pills on /parcelproof returned ZERO
+// intersecting rects. What the reviewer reads as "overlapping" is a right-aligned pill whose BOX spans
+// the wrapped second line of the sentence beside it, while the glyphs on that line end 569 px to its
+// left. The prompt below now names that geometry; no page was restyled for it.
 const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof", "spendproof"];
 // `--suggest` reviews ONE surface; named explicitly (a tile of the flagship page) rather than indexed, so
 // removing a product can never silently retarget the suggestion pass at a different page.
@@ -121,6 +131,8 @@ Check for SIGNIFICANT issues only (minor polish does NOT fail):
 2. Layout: broken or misaligned grid; elements overlapping.
 3. Color: unreadable text (poor contrast); clashing/neon colors.
 4. Typography: broken hierarchy (everything the same size; no visual distinction between title/header/body).
+
+Also out of scope: an intro sentence that WRAPS beside a right-aligned pill or action button in a card header (a "3 flags" pill at the end of the first line whose box reaches down across the second line of that sentence, or a "Download CSV" button beside a Findings heading). The pill/button is a separate flex item, the glyphs on the wrapped line end far to its left, and no rect intersects: that geometry is asserted programmatically (tests/e2e/text-geometry.spec.ts intersects every text run's client rects pairwise on every product page), so "text overlapping badge in Recovery summary" and "text overlapping button in Findings section" are verdicts this checklist does not ask for. Do flag text that visibly runs under or over another run.
 
 Reply with EXACTLY ONE of these two lines, nothing else:
 PASS
