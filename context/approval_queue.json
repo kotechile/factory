@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable copy of the owner's decision queue. `context/pending_approval.md` is the prose record Simon writes each sweep; this file is the same decisions as rows, so a dashboard can show them without anyone reading the paragraphs. PressFlow reads this file from main (raw.githubusercontent) and falls back to editorial-factory/context/approvals.json when it cannot. Keep item order: open decisions first, then approved/in build, then closed.",
-  "updated": "2026-10-18T23:55:00Z",
+  "updated": "2026-10-19T00:25:00Z",
   "source": "context/pending_approval.md",
   "items": [
     {
@@ -13,18 +13,6 @@
       "impact": "Every traffic figure stays ambiguous.",
       "reply": "@Simon approve traffic marker",
       "opened": "",
-      "updated": "2026-10-18"
-    },
-    {
-      "id": "aichieve-robots",
-      "app": "",
-      "kind": "decision",
-      "state": "pending",
-      "headline": "aichieve.net has no robots.txt and no sitemap.xml",
-      "detail": "Both return 404 since the 10-15 split; giniloh.com and wellroost.com both serve theirs.",
-      "impact": "Crawlers and AI agents get nothing to follow on the new front.",
-      "reply": "@Simon approve aichieve robots and sitemap",
-      "opened": "2026-10-15",
       "updated": "2026-10-18"
     },
     {
@@ -86,6 +74,18 @@
       "reply": "",
       "opened": "2026-10-12",
       "updated": "2026-10-18"
+    },
+    {
+      "id": "aichieve-robots",
+      "app": "",
+      "kind": "decision",
+      "state": "resolved",
+      "headline": "aichieve.net has no robots.txt and no sitemap.xml",
+      "detail": "Done 2026-10-19, verified live: https://aichieve.net/robots.txt answers 200 (66 B — `User-agent: *`, `Allow: /`, `Sitemap: https://aichieve.net/sitemap.xml`) and https://aichieve.net/sitemap.xml answers 200 as a sitemap index pointing at sitemap-0.xml, which lists 110 URLs (home, article paths, hubs, /about/) — three listed paths re-probed 200. Closed on the owner's instruction `@Simon aichieve robots and sitemap`; no code change was needed from the factory because the front already serves both.",
+      "impact": "Closed — crawlers and AI agents get a rule set and a sitemap to follow on aichieve.net.",
+      "reply": "",
+      "opened": "2026-10-15",
+      "updated": "2026-10-19"
     }
   ]
 }

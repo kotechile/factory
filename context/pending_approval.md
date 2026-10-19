@@ -4,6 +4,19 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**`aichieve robots and sitemap` CLOSED — nothing to build**, measured 00:25Z). Owner
+instruction, verbatim: *"if the following issue is complete, please mark it as complete in the pressflow:
+`aichieve robots and sitemap`"*. The item asked for a crawler rule set and a sitemap on the new reader front
+(both 404 since the 10-15 split). Both are live now, measured rather than assumed: `https://aichieve.net/robots.txt`
+**200** (66 B — `User-agent: *`, `Allow: /`, `Sitemap: https://aichieve.net/sitemap.xml`) and
+`https://aichieve.net/sitemap.xml` **200**, a sitemap index pointing at `sitemap-0.xml`, which lists **110 URLs**
+(home, article paths, category hubs, `/about/`); `/` and `/owned-shuttles-or-rented-robots/` re-probed **200**,
+`/sitemap_index.xml` correctly 404. Queue row `aichieve-robots` is now `state: resolved` in
+`context/approval_queue.json` (and the editorial mirror `context/approvals.json`), so PressFlow's Approvals tab
+no longer lists it. **One inconsistency, recorded rather than hidden:** the `quarterline-leftovers` row reads
+`resolved` in this worktree, but the live app still serves `/.well-known/ai-plugin.json` **200 naming QuarterLine**
+because the route deletion is uncommitted — that row is not true on the deploy until that commit lands.
+
 _Last updated: 2026-10-18 (**CanopyProof APPROVED — build open**, measured 23:55Z). Owner instruction,
 verbatim: *"I approve the inplementation"*. It was the only implementation awaiting his word (open since
 2026-10-12, day 7), so it is read as the CanopyProof build gate; a correction from him reverses this line.
