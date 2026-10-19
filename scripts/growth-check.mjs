@@ -71,22 +71,34 @@ const summary = {
 if (supabaseUrl && serviceKey) {
   const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-  // Prefer the dedicated session_id column; fall back to payload-only if migration 0002 has
-  // not been applied (the column select would otherwise error).
-  let result = await supabase
-    .from("events")
-    .select("event, created_at, payload, product, session_id")
-    .order("created_at", { ascending: true });
-  let hasSessionColumn = true;
-  if (result.error) {
-    hasSessionColumn = false;
-    result = await supabase
+  // Read the columns the gate needs, degrading ONE migration at a time: `traffic_class` (0004,
+  // internal-traffic marker) and `session_id` (0002) may each be pending, and a pending migration
+  // must never blind the whole gate. Whichever column is absent is reported in the summary, and
+  // both values still exist in `payload` (src/lib/telemetry.ts mirrors them there), so the split
+  // below is computed from the column when present and the payload otherwise.
+  const candidates = [
+    { cols: "event, created_at, payload, product, session_id, traffic_class", session: true, traffic: true },
+    { cols: "event, created_at, payload, product, session_id", session: true, traffic: false },
+    { cols: "event, created_at, payload, product", session: false, traffic: false },
+  ];
+  let data = null;
+  let error = null;
+  let hasSessionColumn = false;
+  let hasTrafficColumn = false;
+  for (const c of candidates) {
+    const r = await supabase
       .from("events")
-      .select("event, created_at, payload, product")
+      .select(c.cols)
       .order("created_at", { ascending: true });
+    if (!r.error) {
+      data = r.data;
+      hasSessionColumn = c.session;
+      hasTrafficColumn = c.traffic;
+      error = null;
+      break;
+    }
+    error = r.error;
   }
-  const data = result.data;
-  const error = result.error;
 
   if (error) {
     summary.events_error = error.message;
@@ -94,17 +106,47 @@ if (supabaseUrl && serviceKey) {
     summary.events_table_ok = true;
     summary.session_id_column = hasSessionColumn;
     const counts = {};
+    const countsVisitor = {};
+    const countsInternal = {};
     const sessionIdsAll = new Set();
     const sessionIdsWindow = new Set();
+    const sessionIdsVisitor = new Set();
+    const sessionIdsVisitorWindow = new Set();
+    const sessionIdsVisitorSinceMarker = new Set();
+    const sessionIdsInternal = new Set();
+    const sessionIdsUnclassified = new Set();
+    let unclassifiedRows = 0;
     const cutoff = new Date(Date.now() - GATE_WINDOW_DAYS * 86_400_000);
     let first = null;
     let instrumentedRows = 0;
     let quarterlineRows = 0;
+    // The marker's own class, from the column when migration 0004 is applied and from the mirrored
+    // payload field otherwise. A row with neither is PRE-MARKER: `unclassified`, never guessed.
+    const trafficOf = (e) => {
+      const fromColumn = typeof e.traffic_class === "string" ? e.traffic_class : null;
+      const fromPayload =
+        e.payload && typeof e.payload.traffic_class === "string" ? e.payload.traffic_class : null;
+      const value = fromColumn || fromPayload;
+      return value === "internal" || value === "visitor" ? value : "unclassified";
+    };
+
+    // When the marker went live: the earliest row in the whole store that carries a class. Derived,
+    // never a hand-written date — a date constant would silently claim coverage it never had.
+    let markerSince = null;
     for (const e of data || []) {
-      if (e.product !== PRODUCT) continue; // scope gate metrics to the quarterline product
+      if (trafficOf(e) === "unclassified") continue;
+      if (!markerSince || e.created_at < markerSince) markerSince = e.created_at;
+    }
+
+    for (const e of data || []) {
+      const traffic = trafficOf(e);
+      if (e.product !== PRODUCT) continue; // scope gate metrics to the product under test
       quarterlineRows += 1;
       counts[e.event] = (counts[e.event] || 0) + 1;
       if (!first || e.created_at < first) first = e.created_at;
+      if (traffic === "visitor") countsVisitor[e.event] = (countsVisitor[e.event] || 0) + 1;
+      if (traffic === "internal") countsInternal[e.event] = (countsInternal[e.event] || 0) + 1;
+      if (traffic === "unclassified") unclassifiedRows += 1;
       const sid =
         e.session_id ||
         (e.payload && typeof e.payload.session_id === "string" && e.payload.session_id
@@ -114,13 +156,38 @@ if (supabaseUrl && serviceKey) {
         instrumentedRows += 1;
         sessionIdsAll.add(sid);
         if (new Date(e.created_at).getTime() >= cutoff.getTime()) sessionIdsWindow.add(sid);
+        if (traffic === "visitor") {
+          sessionIdsVisitor.add(sid);
+          if (new Date(e.created_at).getTime() >= cutoff.getTime()) sessionIdsVisitorWindow.add(sid);
+          if (markerSince === null || e.created_at >= markerSince) sessionIdsVisitorSinceMarker.add(sid);
+        }
+        if (traffic === "internal") sessionIdsInternal.add(sid);
+        if (traffic === "unclassified") sessionIdsUnclassified.add(sid);
       }
     }
     summary.events = counts;
+    summary.events_visitor = countsVisitor;
+    summary.events_internal = countsInternal;
     summary.unique_sessions = sessionIdsAll.size;
     summary.unique_sessions_last_7d = sessionIdsWindow.size;
-    summary.quarterline_event_rows = quarterlineRows;
+    summary.unique_sessions_visitor = sessionIdsVisitor.size;
+    summary.unique_sessions_visitor_last_7d = sessionIdsVisitorWindow.size;
+    summary.unique_sessions_internal = sessionIdsInternal.size;
+    summary.unique_sessions_visitor_since_marker = sessionIdsVisitorSinceMarker.size;
+    summary.unique_sessions_unclassified = sessionIdsUnclassified.size;
+    summary.rows_unclassified = unclassifiedRows;
+    summary.product_event_rows = quarterlineRows;
+    summary.quarterline_event_rows = quarterlineRows; // legacy name kept for the watchdog prompts
     summary.session_instrumented_rows = instrumentedRows;
+    summary.traffic_marker = {
+      column: hasTrafficColumn,
+      column_state: hasTrafficColumn
+        ? "events.traffic_class (migration 0004 applied)"
+        : "payload.traffic_class only (migration 0004 NOT applied — run supabase/migrations/0004_events_traffic_class.sql)",
+      marker_since: markerSince,
+      gate_leg: "unique_sessions_visitor / unique_sessions_visitor_last_7d — internal traffic is EXCLUDED",
+      pre_marker_rows_are_unclassified: true,
+    };
     if (first) {
       summary.days_since_first_event = Math.max(
         0,

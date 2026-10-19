@@ -24,6 +24,12 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:3100",
     trace: "on-first-retry",
+    // Internal-traffic marker (src/lib/traffic-class.ts): this suite writes page_view and
+    // agent_query rows into the SAME Supabase `events` table as real visitors, so without the
+    // header a gate run reads as demand and the traffic leg of every kill/scale gate is scored on
+    // our own test clicks. `extraHTTPHeaders` applies to page-initiated fetch/XHR too, which is how
+    // the client telemetry and the WebMCP tools post.
+    extraHTTPHeaders: { "x-factory-internal": "1" },
   },
   webServer: {
     // Use port 3100, not 3000: the sibling editorial-factory PressFlow app

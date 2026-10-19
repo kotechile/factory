@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { track } from "@/lib/telemetry";
+import { classifyRequest } from "@/lib/traffic-class";
 
 /**
  * Client-side telemetry endpoint. The browser posts lightweight events
@@ -7,6 +8,11 @@ import { track } from "@/lib/telemetry";
  * always carries a `session_id` (from src/lib/telemetry-client.ts) so the
  * growth-watchdog can evaluate the Day 7/14/30 gates on DISTINCT sessions/visitors
  * rather than raw event counts. Events are persisted to Supabase `events`.
+ *
+ * Every row also carries the internal-traffic marker (src/lib/traffic-class.ts): a request from
+ * our own browser suites, a probe, or a browser marked with `?factory_internal=1` is `internal`,
+ * everyone else is a `visitor`. The class is decided HERE, from headers/cookies/UA — never from
+ * the request body, which a caller could claim.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +25,7 @@ export async function POST(req: NextRequest) {
       event,
       body?.payload ?? {},
       typeof body?.product === "string" ? body.product : undefined,
+      classifyRequest(req),
     );
     return NextResponse.json({ ok: true });
   } catch (err) {

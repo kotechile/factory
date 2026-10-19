@@ -51,6 +51,7 @@ import { siteOrigin } from "@/lib/site-origin";
 import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
 import { agentRateForTool, agentRatesForProduct } from "@/products/pricing";
 import { track } from "@/lib/telemetry";
+import { classifyRequest } from "@/lib/traffic-class";
 import {
   DEFAULT_AGENT_TOOL,
   SUPPORTED_AGENT_TOOLS,
@@ -381,6 +382,10 @@ function stripeReconEngineValidate(input: StripeReconInput) {
 export async function POST(req: NextRequest) {
   try {
     const requestedTool = (req.headers.get("x-webmcp-tool") || DEFAULT_AGENT_TOOL).trim();
+    // Internal-traffic marker (src/lib/traffic-class.ts): a metered call made by our own suite or a
+    // post-deploy probe is `internal`, so the agent_query gate leg keeps reading real demand. Decided
+    // from the request, once, and passed to every track() call below.
+    const traffic = classifyRequest(req);
 
     // No silent fallback (factory rule 5): an unadvertised tool name is an explicit 400,
     // never a quiet run of the default engine. The allowlist and the published listing
@@ -409,7 +414,7 @@ export async function POST(req: NextRequest) {
       const input: LedgerlinkAgentInput = await req.json();
       const result = await runLedgerlinkReconciliation(input);
 
-      await track("agent_query", { tool: "reconcile_stripe_payout" }, "ledgerlink");
+      await track("agent_query", { tool: "reconcile_stripe_payout" }, "ledgerlink", traffic);
 
       const metering = await billSuccessfulCall(req, {
         tool: "reconcile_stripe_payout",
@@ -456,7 +461,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await track("agent_query", { tool: toolName }, "facturgate");
+      await track("agent_query", { tool: toolName }, "facturgate", traffic);
 
       const metering = await billSuccessfulCall(req, {
         tool: toolName,
@@ -504,7 +509,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await track("agent_query", { tool: toolName }, "parcelproof");
+      await track("agent_query", { tool: toolName }, "parcelproof", traffic);
 
       const metering = await billSuccessfulCall(req, {
         tool: toolName,
@@ -572,7 +577,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await track("agent_query", { tool: toolName }, "caseproof");
+      await track("agent_query", { tool: toolName }, "caseproof", traffic);
 
       const metering = await billSuccessfulCall(req, {
         tool: toolName,
@@ -675,7 +680,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      await track("agent_query", { tool: toolName }, "spendproof");
+      await track("agent_query", { tool: toolName }, "spendproof", traffic);
 
       const metering = await billSuccessfulCall(req, {
         tool: toolName,
@@ -727,7 +732,7 @@ export async function POST(req: NextRequest) {
     const result = calculateSelfEmployment2026(input);
 
     // Record the agent query for the growth kill/scale gates (best-effort).
-    await track("agent_query", { tool: toolName });
+    await track("agent_query", { tool: toolName }, undefined, traffic);
 
     // Metered usage for a caller that presents a Stripe customer id, priced from the catalog.
     const metering = await billSuccessfulCall(req, {
