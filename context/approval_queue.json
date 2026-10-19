@@ -27,6 +27,18 @@
       "updated": "2026-10-18"
     },
     {
+      "id": "ratchetproof",
+      "app": "RatchetProof",
+      "kind": "decision",
+      "state": "pending",
+      "headline": "A power-bill audit that shows what one peak costs for a year",
+      "detail": "Commercial power bills charge a minimum demand for 11-12 months after one spike; the bill prints the number, never which half hour set it. The tool rebuilds billed demand from the account's own interval files and prices that spike. Higher-band agent tool ($1.50/call, modelled $0.30). Weakest link: no audience of ours reaches a facilities manager.",
+      "impact": "Either a new metered product with real B2B budgets, or a cheap vertical retired this week.",
+      "reply": "@Simon approve RatchetProof",
+      "opened": "2026-10-19",
+      "updated": "2026-10-19"
+    },
+    {
       "id": "career-capital-home",
       "app": "Career Capital calculators",
       "kind": "decision",

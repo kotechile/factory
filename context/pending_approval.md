@@ -4,6 +4,34 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**weekly recon — two verticals scanned, one candidate at the gate, one vertical
+retired**). Declared `VERTICAL_A` = **energy_interval_data** and `VERTICAL_B` = **food_service_ops** (rotation
+queue rows 1 and 2; neither is among the last two declared, `legal_ops` / `agriculture_eudr`), scanned both, and
+recorded both in `context/vertical_coverage.md` in this run (`recon:cadence` exit 0, newest 2026-10-19 carries
+two verticals). **Candidate: RatchetProof** — `context/recon_proposals/2026-10-19_ratchetproof.md`, signal
+**76/100** (repeat 85 / friction 70 / WTP 85 / urgency 60). A commercial power bill charges *billed* demand, the
+greater of the month's peak, a percentage (70–90%) of the highest peak in the trailing 11–12 months, and the
+contract minimum — so one summer afternoon sets a floor paid for a year. Measured in-window: $144,000/yr exposure
+from a single 1,000 kW peak at an 80% ratchet ($15/kW), $5,760/yr ratchet penalty on one retail building, and
+**$200–$2,000/month** typical ratchet miscalculation (AAUBA). The free layer answers *one month with numbers typed
+by hand* (Commercial Energy Advisors' ratchet-floor calculator; phantomgrid's ComEd-only interval reader and
+one-charge reconcile); the paid layer is portfolio-priced and sales-led (EnergyCAP, DemandQ, Enviglance, Energy
+Toolbase) and the audit itself is a contingency-fee human service (**rule 1**, not ours). Unowned slice: the
+multi-month, multi-meter reconstruction of billed demand plus the dollar carry-over of the interval that set the
+floor. **Class LLM/parse-backed** (tariff PDF + bill PDFs → structured fields; the engine computes every reported
+number; an unreadable clause is `unstated` and blocks that month's verdict): **$1.50/call**, modelled ≈$0.30
+(≈5× headroom) — re-measure on the first live tariff before registering. Web tier $12 one-off / $39/mo per site.
+WebMCP `audit_demand_billing`. **Weakest link, stated in the PRD: the channel rule** — there is no editorial
+vertical and no owned audience for a facilities/energy manager, so distribution would be search + the metered
+agent endpoint. Reply **`@Simon approve RatchetProof`** (build + gate + ship, ~3.5–4 h) or **`@Simon skip
+RatchetProof`** (vertical recorded, no build — silence costs one week of a slot and nothing else).
+**Retired: `food_service_ops`** — invoice → contracted-price variance scored 64 and died at the incumbent filter,
+not the score: MarginEdge ($300–350/location/mo), MarketMan ($199–249), xtraCHEF, Restaurant365, CrunchTime and
+Karu already flag price variance "against expected contract pricing", which is the exact proposed shape at the
+price the buyer already pays, and the $9–40/mo extraction layer covers the operator who would not buy the paid
+layer. Re-open only on a dated trigger that resets distributor pricing floors, with a channel attached. Packs for
+both verticals added to `skills/recon_vertical_packs.md`; the rotation queue now starts at `media_production_qc`.
+
 _Last updated: 2026-10-19 (**`career-capital-home` CLOSED — one copy of each career-capital engine, and it is
 the live one**). Owner instruction, verbatim: *"keep one career capital copy"*. **The decision, and why this home:**
 the survivor is `/root/giniloh/src/lib/calculators/{w2Vs1099,rsuHoldVsSell}.ts` — the copy the two public calculators

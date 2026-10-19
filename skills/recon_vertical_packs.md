@@ -184,6 +184,24 @@ per vertical.
 
 ---
 
+## energy_interval_data
+- **Trigger surface:** filed utility rate schedules and their riders, state PUC tariff filings, Green Button (ESPI/NAESB) exports, utility bill-audit practice literature.
+- **Dated triggers:** annual tariff changes (1 Jan / 1 Jul effective dates on supplier pass-throughs), rate-case restructures — **2026**: PG&E/SDG&E commercial EV rates replaced per-kW demand charges with reserved capacity + overage penalties, SCE commercial EV demand charges return **1 Jan 2030** — and the ratchet's own clock: a summer peak sets a **11–12 month** billing floor, so the decision window closes at the peak, not at a deadline.
+- **Query shapes that returned in-window (measured 2026-10-19):** `Green Button interval data demand charge audit 2026 spreadsheet` → on-topic but tool-vendor shaped (EnergyCAP, Energy Toolbase, Green Button Alliance, DOE); `utility bill demand charge ratchet audit commercial building 2026 manual spreadsheet` → 6/6 on the pain (Elexity, Envigilance, DemandQ, Tactical Energy Group, Energy Toolbase, a YouTube explainer); `"ratchet" demand charge audit tool "interval data" automatically compute billed demand 11 months lookback software` → mechanics + a regulation-grade spec (UtilityBilling.org invariants) and one bill-audit practitioner thread, no self-serve audit product; `utility bill audit ratchet error overcharge refund energy manager finds ratchet mistake 2026` → the contingency-fee audit industry (OEO, Energy Professionals, Inertia, AAUBA: $200–$2,000/month typical ratchet miscalculation).
+- **Buyer & budget:** facilities/energy manager at a multi-site commercial portfolio ($100k+/yr electric spend is the audit firms' own qualifier); secondary: independent utility-bill auditors/ESCOs who run audits for clients. Real budget, recurring (the ratchet re-prices monthly).
+- **Incumbent / free check (measured 2026-10-19):** *free* — Commercial Energy Advisors' demand-charge calculator with a ratchet floor (one month, hand-typed peak and floor; no file, no history), phantomgrid.io's free interval analyzer + demand-charge reconcile (one ComEd Green Button export, one meter, no lookback), EnergyCAP's free annual cost estimate; *paid, portfolio-priced* — EnergyCAP, DemandQ, Enviglance, Energy Toolbase; *service* — utility-bill audit firms on contingency (the human chase rule 1 forbids). **The unowned slice is the multi-month, multi-meter reconstruction of billed demand plus the carry-over cost of the interval that set the floor** — not "a demand charge calculator".
+- **Funnel risk:** Filter 2 data access (interval exports arrive per utility, sometimes by request — scope to uploaded files, never an integration) and **the channel rule** (no editorial vertical, no owned audience for a facilities buyer). Rule 5: an unreadable tariff clause must surface `unstated` and block the month's verdict, never default to 0%. First scan 2026-10-19 → **RatchetProof**, class LLM/parse-backed, $1.50/call vs modelled ≈$0.30; record `context/recon_proposals/2026-10-19_ratchetproof.md`.
+
+## food_service_ops
+- **Trigger surface:** distributor price files and contract terms (Sysco/US Foods/PFG and regional houses), franchise compliance packs, health-department and invoice-format rules; operator trade press (National Restaurant Association State of the Industry).
+- **Dated triggers:** distributor contract-renewal and annual pricing-review windows; food-cost shocks (NRA 2026: food **34% above pre-pandemic**; USMCA review in 2026); no legislative cut-off — urgency is the operator's margin, not a date.
+- **Query shapes that returned in-window (measured 2026-10-19):** `restaurant invoice price variance food cost audit 2026 manual spreadsheet` → 5/5 on-topic but every source sells the fix (MarginEdge-adjacent blogs, Jelly, ImageToTable, Prostay); `food distributor price increase restaurant operator invoice audit 2026` → NRA, CBIZ, FEDA (34% above pre-pandemic; 90%+ of operators cite food/labour/insurance/energy as pressures); `free restaurant invoice price variance checker contracted price vs invoice audit tool 2026` → the decisive pass: MarginEdge and MarketMan are described by their own comparison guides as flagging price variance "against historical invoice data and expected contract pricing", at $300–350 and $199–249 per location per month, with cheap extraction tools at $9–40/mo.
+- **Buyer & budget:** owner/operator of 1–20 units. Thin: a single location's software budget is $0–50/mo pre-revenue and $200–400/mo once stable — which is the incumbent's price.
+- **Incumbent / free check (measured 2026-10-19):** MarginEdge, MarketMan, xtraCHEF (Toast), Restaurant365, CrunchTime, Karu, Ottimate — all do contract-to-invoice price variance; free/cheap extraction (ImageToTable free tier, Jelly/other price-alert tools) plus free food-cost calculators cover the operator who would not buy the paid layer.
+- **Funnel risk:** the incumbent owns the exact proposed shape at the buyer's existing price; WTP weight is low. **First scan 2026-10-19 — candidate scored 64 and was dropped at the incumbent filter, vertical retired** (record `context/recon_proposals/2026-10-19_ratchetproof.md` §6). Re-open only on a dated trigger that resets distributor pricing floors, with a channel attached.
+
+---
+
 # Editorial-derived packs
 
 These verticals come from the editorial factory's registry (`context/vertical_coverage.md` carries the
@@ -379,8 +397,8 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 | `home_infrastructure_lifecycle_tco` | Energy Star, NREL PVWatts, HVAC trade press | `10 year home capex roadmap hvac heat pump break-even 2026` | free calculators already cover payback math |
 | `home_equity_tco` | JCHS/NAR reports, energy-star, TOU tariffs | `heloc vs cash remodel capital allocation 2026 calculator` | prosumer WTP; no dated driver most weeks |
 | `home_ops_execution` | ICC codes, contractor-license boards, state AG/mechanic-lien rules | `mechanics lien waiver deadline by state 2026 contractor` | jurisdiction-by-jurisdiction determinism is fine; buyer is a homeowner |
-| `energy_interval_data` | utility tariffs, Green Button Connect, PUC filings | `Green Button interval data demand charge audit 2026 spreadsheet` | data access per utility; sequence after the capex family |
-| `food_service_ops` | distributor price lists, franchise compliance packs, health-department rules | `restaurant invoice price variance food cost audit 2026 manual` | thin margins, low per-seat WTP — check before scoring |
+| `energy_interval_data` | ✅ pack (2026-10-19) — scanned, see pack | `Green Button interval data demand charge audit 2026 spreadsheet` | RatchetProof at owner gate; channel rule is the open risk |
+| `food_service_ops` | ✅ pack (2026-10-19) — scanned, **retired** | `restaurant invoice price variance food cost audit 2026 manual` | Incumbent (MarginEdge/MarketMan) owns the price-variance slice at the buyer's price |
 | `media_production_qc` | broadcaster/platform delivery specs (AS-11, IMF, Netflix/Amazon specs) | `delivery spec QC captions timestamps rejected 2026 post house` | deterministic and dated (spec versions) — genuinely new territory |
 | `trades_service_ops` | ServiceTitan/Housecall Pro changelogs, warranty rules, permit portals | `work order invoice warranty claim reconciliation 2026 trades` | check incumbent field-service suites |
 | `public_sector_grants` | grants.gov, state grant portals, uniform guidance | `grant reporting format rejection deadline 2026 manual reconcile` | procurement cycles; deterministic rules are published — verify incumbents |
@@ -390,3 +408,18 @@ New verticals open by adding a pack here (same six lines) and a row in `context/
 Unverified verticals start `never` in the ledger; a vertical that produces no ≥60 candidate twice, or
 fails a filter for a structural reason (hardware, enterprise-only sales, free incumbent), is recorded
 as retired with the reason — a cheap, honest "no" is a result, not a failure.
+
+## Resolved edge-case — a live registry row that exists only in a working tree (2026-10-18)
+`npm run verticals:check` compares this repo's vendored `context/editorial_verticals.json` against the
+live `/root/editorial-factory/context/verticals.json`. When the live file carries an entry that is
+**uncommitted**, the guard exits 1 (`N live vs M vendored`) and — because `scripts/verify-build.sh`
+runs under `set -e` — every step after it (tests, build, browser suite, visual review) is skipped, so
+one uncommitted row in a sibling repo reads as a total build failure.
+
+Do **not** clear it with `--vendor`. The vendored provenance records the live file's last **committed**
+blob hash; vendoring an uncommitted row writes a commit id that does not contain that row, so the
+coverage ledger then claims a topic no commit supports (the same lesson as the 2026-10-18 entry in
+`self_improvement_eval.md`). Keep the guard red, verify the row is genuinely uncommitted
+(`git -C /root/editorial-factory status --short context/verticals.json`), and escalate the vertical as
+one owner decision — finish it or drop it. Vendor only after the editorial entry is committed, and
+check the destination row exists in `vertical_sites` and a cron job exists before calling it live.
