@@ -18,13 +18,14 @@
       "id": "duplicate-videos",
       "app": "Launch videos",
       "kind": "delete",
-      "state": "pending",
-      "headline": "Four duplicate launch-video copies are still public",
-      "detail": "The desk's first cuts sit beside the five videos the product pages embed, so each product has two films online.",
-      "impact": "Viewers and search find two versions of every film.",
-      "reply": "@Simon delete the duplicate launch videos",
+      "state": "resolved",
+      "headline": "Four superseded launch-video copies deleted from the channel",
+      "detail": "Done 2026-10-19 on the owner's instruction `@Simon delete the duplicate launch videos`: the four superseded uploads the product pages no longer embed (SpendProof LdSoKLTfYjs, FacturGate V-eli97M0q0, ParcelProof 4cNR2bt3mMg, CaseProof uodX_D-Gqsw) were deleted through the YouTube Data API — HTTP 204 each, then re-read: 0 of the four still resolve. The five ids the pages embed were read back first and are untouched and public (qeow4cdaiv8, JcP9RtWZZrg, I7NOZAQ-5Ig, I38c05ZZZr8, MiNmsr1i9Lo); each of the five product pages still answers 200 carrying its own id. The Supabase launch_videos ledger is repointed to the surviving ids (5 rows, all live, all matching the pages), so nothing now points at a deleted video.",
+      "impact": "Closed — one film per product online, no dead pointers, and search finds one version instead of two.",
+      "reply": "",
       "opened": "",
-      "updated": "2026-10-18"
+      "updated": "2026-10-19",
+      "closed": "2026-10-19"
     },
     {
       "id": "ratchetproof",

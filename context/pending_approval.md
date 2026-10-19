@@ -33,8 +33,8 @@ the one descriptor, descriptor guard test), `ide-header-gap` (`1ed437d` — the 
 (`5ab08c6` — one engine copy, 1,002-case comparison 0 divergent, `giniloh npm run check:calculators` pins the
 constants), and the 10-18 vendor red (30 verticals vendored, `vertical-sync --check` exit 0). CanopyProof is
 `approved` / in build: **S1 landed** (`01d02c3`, deterministic EUDR geolocation audit core + known-answer tests);
-S2–S5 unbuilt, not registered. **Still pending: `duplicate-videos`** (four first-cut copies public beside the five
-the pages embed — `@Simon delete the duplicate launch videos`). **Cron 2 issues / 69 jobs:** the recon delivery
+S2–S5 unbuilt, not registered. **`duplicate-videos` CLOSED today** (four superseded uploads deleted, five pages
+unchanged, ledger repointed — see the top entry below); it was pending at 15:30, not any more. **Cron 2 issues / 69 jobs:** the recon delivery
 record (fix applied; clears on its 10-26 run) and **WordPress Draft Sweep FAILED 14:16, fourth red day** — 9
 `wellroost.com` posts with no `vertical` term (`#90 #86 #73 #75 #68 #55 #50 #14 #9`) + 6 rolling sitemap gaps
 (`giniloh.com` `#1029 #1026 #1022 #1019 #1012 #1003`); `vertical_sites` **30/30** routed. **P2 carried, not
@@ -69,6 +69,25 @@ Karu already flag price variance "against expected contract pricing", which is t
 price the buyer already pays, and the $9–40/mo extraction layer covers the operator who would not buy the paid
 layer. Re-open only on a dated trigger that resets distributor pricing floors, with a channel attached. Packs for
 both verticals added to `skills/recon_vertical_packs.md`; the rotation queue now starts at `media_production_qc`.
+
+_Last updated: 2026-10-19 (**`duplicate-videos` CLOSED — the four superseded copies are deleted from the channel and
+nothing points at them**). Owner instruction, verbatim: *"delete the duplicate launch videos"*, which is the queue
+row's own reply. **What was deleted, and why those four:** `LdSoKLTfYjs` (SpendProof), `V-eli97M0q0` (FacturGate),
+`4cNR2bt3mMg` (ParcelProof), `uodX_D-Gqsw` (CaseProof) — the pipeline's own uploads, which commit `894e7a1`
+already records as *superseded* after the owner hand-published the four ids the pages embed. LedgerLink was never a
+pair: `JcP9RtWZZrg` is both the pipeline's upload and the id the page renders, so it stays. **The keep set was read
+back from YouTube before any DELETE** — all five embedded ids public, `uploadStatus=processed`, then
+`src/products/launch-videos.ts` was checked in the delete script itself: it refuses if any target id appears in that
+file. **Result, measured not assumed:** each DELETE returned **HTTP 204**, a follow-up `videos.list` over the four
+ids returns **0 items**, the five keepers still read `public`, and every product page (`/spendproof`, `/facturgate`,
+`/parcelproof`, `/caseproof`, `/ledgerlink` — `-L`, trailing-slash redirect followed) answers **200** carrying its
+own id exactly once. **The ledger was wrong and is now right:** all five `launch_videos` rows still recorded the
+first cuts, i.e. four rows pointed at videos that no longer exist; they were repointed through the sanctioned
+`scripts/launch-video/record.mjs` to the surviving ids, and a read-back asserts 5 rows = 5 embedded ids, all live,
+zero mismatches. `content/launch_videos/<slug>/youtube.json` is deliberately **not** rewritten (the registry doc
+calls it history — what the uploader uploaded), so it keeps the deleted ids as a record, and nothing reads it.
+View counts at delete time were 0/6/5/1 — our own verification passes, no audience lost. **Nothing else touched:**
+the four older personal videos (2026-07/08) are a different set and were not in scope.
 
 _Last updated: 2026-10-19 (**`career-capital-home` CLOSED — one copy of each career-capital engine, and it is
 the live one**). Owner instruction, verbatim: *"keep one career capital copy"*. **The decision, and why this home:**
