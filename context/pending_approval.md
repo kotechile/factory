@@ -4,6 +4,44 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**15:30 sweep — the weekly recon ran, a candidate is at the gate, and the report that
+carried it never reached the founder**). Recon: declared `VERTICAL_A` = **energy_interval_data**, `VERTICAL_B` =
+**food_service_ops**; both scanned and recorded in `context/vertical_coverage.md` (`recon:cadence` exit 0). **Open
+decision `ratchetproof`** (`state: pending`, opened today): a commercial power bill charges *billed* demand — the
+month's peak, a 70–90% ratchet on the highest peak of the trailing 11–12 months, or the contract minimum — so one
+afternoon sets a floor paid for a year; the tool rebuilds billed demand from the account's own interval files and
+prices the spike. Signal **76/100** (repeat 85 / friction 70 / WTP 85 / urgency 60), class LLM/parse-backed
+(tariff + bill PDFs → fields; our engine computes every reported number; an unreadable clause is `unstated` and
+blocks that month), **$1.50/call** against ≈$0.30 modelled, web tier $12 one-off / $39/mo per site, WebMCP
+`audit_demand_billing`; weakest link stated in the PRD: no editorial vertical and no owned audience for a
+facilities manager. Reply **`@Simon approve RatchetProof`** or **`@Simon skip RatchetProof`**; silence costs one
+week of a build slot. **Retired: `food_service_ops`** (invoice → contracted-price variance, 64) — died at the
+incumbent filter (MarginEdge, MarketMan, xtraCHEF, Restaurant365, CrunchTime, Karu all flag price variance against
+expected contract pricing at the price the buyer already pays); re-open only on a dated trigger that resets
+distributor pricing with a channel attached. **Delivery defect found and fixed this run:** the recon's own 14:30
+run finished `ok` then `delivery_failed` (`chat.postMessage … channel_not_found`) because the live adapter skips
+its `U`→DM resolution for the normalized `slack:user:U0BUHRBET6U` target, while `conversations.open` for that user
+answers **200 `already_open` → `D0BTH9JHRMH`**. Both owner-facing jobs (Weekly Market Recon `19c6cbf92990`,
+Daily Proactive Sweep `7804a08125ce`) now deliver to `slack:D0BTH9JHRMH`; a probe through that target returned
+`success: true` (id `1792423931.347779`) and was deleted with `chat.delete` (`ok: true`). Also closed today, each
+measured live: `quarterline-leftovers` (`aa9a16b`/`fa0c103` — `/.well-known/ai-plugin.json` **404**, MCP manifest
+the one descriptor, descriptor guard test), `ide-header-gap` (`1ed437d` — the editable bar's **−34.0 px** overlap at
+375 px fixed on all four products, geometry spec measures boxes at 1280 + 375 px, proven to bite), `traffic-marker`
+(`18ff5f1`, deploy `6d4e5e6` — internal/visitor classification at the write boundary; migration
+`0004_events_traffic_class.sql` still an owner step in the Supabase SQL editor, non-blocking),
+`aichieve-robots` (`bd64fd2` — robots **200** 66 B, sitemap index **200** → 110 URLs), `career-capital-home`
+(`5ab08c6` — one engine copy, 1,002-case comparison 0 divergent, `giniloh npm run check:calculators` pins the
+constants), and the 10-18 vendor red (30 verticals vendored, `vertical-sync --check` exit 0). CanopyProof is
+`approved` / in build: **S1 landed** (`01d02c3`, deterministic EUDR geolocation audit core + known-answer tests);
+S2–S5 unbuilt, not registered. **Still pending: `duplicate-videos`** (four first-cut copies public beside the five
+the pages embed — `@Simon delete the duplicate launch videos`). **Cron 2 issues / 69 jobs:** the recon delivery
+record (fix applied; clears on its 10-26 run) and **WordPress Draft Sweep FAILED 14:16, fourth red day** — 9
+`wellroost.com` posts with no `vertical` term (`#90 #86 #73 #75 #68 #55 #50 #14 #9`) + 6 rolling sitemap gaps
+(`giniloh.com` `#1029 #1026 #1022 #1019 #1012 #1003`); `vertical_sites` **30/30** routed. **P2 carried, not
+fixed:** `scripts/growth-check.mjs:54` still scopes the Growth Watchdog to the retired `quarterline` — re-pointing
+an *omitted* selector at another product is the silent substitution the rules forbid, so it needs a named product;
+owner's call.
+
 _Last updated: 2026-10-19 (**weekly recon — two verticals scanned, one candidate at the gate, one vertical
 retired**). Declared `VERTICAL_A` = **energy_interval_data** and `VERTICAL_B` = **food_service_ops** (rotation
 queue rows 1 and 2; neither is among the last two declared, `legal_ops` / `agriculture_eudr`), scanned both, and
