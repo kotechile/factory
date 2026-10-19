@@ -19,8 +19,14 @@ scope. Price **$1.50/call** against a modelled ≈$0.30 (re-measure on the first
 $12 one-off / $39/mo per site, WebMCP `audit_demand_billing`, registry **`beta`** — the launch call
 stays with the owner. The deploy already carries `GEMINI_API_KEY` + `LLAMAPARSE_API_KEY` (key NAMES
 read back from the running container), so the extraction path has what it needs; no approval ever
-covers a credential. Nothing ships on a red `scripts/verify-build.sh`. Dispatch id and fired execution
-are appended to this line below.
+covers a credential. Nothing ships on a red `scripts/verify-build.sh`. **Dispatched:** job
+`4f1ad01ab9c2` ("RatchetProof build (approved 2026-10-19)"), one-shot, fired 2026-10-19 22:15:44Z,
+execution `c5b2d8a63b1d4fac94010148b83b83aa` — verified **running** through `hermes cron list`, not from
+`jobs.json` (which keeps `last_run_at: null` until the run completes); workdir `/root/software-factory-core`,
+`deliver: origin` (this thread), skill `approval-gated-shipping`. Known limitation, recorded rather than
+hidden: `cronjob_manage create` ignores `model`/`provider`, so the job persisted `model: null` and runs on
+the **default fleet tier** (`deepseek-flash`) — the Pro tier stays reserved for simon / phoebe /
+product-director and the two Watchdogs, so this is the tiering the owner set, not a fallback.
 
 _Last updated: 2026-10-19 (**15:30 sweep — the weekly recon ran, a candidate is at the gate, and the report that
 carried it never reached the founder**). Recon: declared `VERTICAL_A` = **energy_interval_data**, `VERTICAL_B` =
