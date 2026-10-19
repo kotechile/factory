@@ -5,7 +5,7 @@ AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does 
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
 _Last updated: 2026-10-19 (**`quarterline-leftovers` CLOSED — no published descriptor names a product we no longer
-sell**, commit `aa9a16b`, measured live 00:45Z). Owner instruction, verbatim: *"retire quarterline pages"*. The
+sell**, commit `aa9a16b`, measured live 00:41Z). Owner instruction, verbatim: *"retire quarterline pages"*. The
 row's two findings were one surface: `/.well-known/ai-plugin.json` answered **200** advertising **QuarterLine**
 (registry `status: "killed"`) and pointing at `${origin}/openapi.json`, which has never existed (**404**). The
 route was **deleted rather than rewritten**: the v1 plugin descriptor carries one `api.url` for one product, and
