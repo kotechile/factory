@@ -4,6 +4,37 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**`quarterline-leftovers` CLOSED — no published descriptor names a product we no longer
+sell**, commit `aa9a16b`, measured live 00:45Z). Owner instruction, verbatim: *"retire quarterline pages"*. The
+row's two findings were one surface: `/.well-known/ai-plugin.json` answered **200** advertising **QuarterLine**
+(registry `status: "killed"`) and pointing at `${origin}/openapi.json`, which has never existed (**404**). The
+route was **deleted rather than rewritten**: the v1 plugin descriptor carries one `api.url` for one product, and
+the six-product inventory it would have to describe is enterprise tooling, so a corrected copy would still be a
+false claim. `/.well-known/mcp.json` (generated from `activeProducts` + the pricing catalog) is now the one agent
+descriptor; `/openapi.json` stays 404 and **nothing advertises it**. `src/lib/agent-descriptors.test.ts` parses
+every file under `src/app/.well-known` + `public/.well-known` — string literals, template spans and JSX text only,
+so a comment may keep the history — and fails naming `file:line` when a `killed` entry's slug, name or tool
+appears; it also fails if the legacy path is re-mounted. **Proven to bite:** descriptor re-injected → 2 tests red
+with the line number, restored → green. Same-pass copy fix: `src/lib/resend/email.ts` defaulted the receipt sender
+to **QuarterLine <onboarding@resend.dev>** and `RESEND_FROM_EMAIL` is **unset in the deploy**, so a buyer's receipt
+arrived from a dead product's name; the default is now the factory's own name. Gate (clean worktree at `bd64fd2` +
+this diff): tsc clean · eslint 0 errors (3 pre-existing warnings) · tokens clean · verticals 30 no drift · recon
+cadence ok · vitest **386/386** · `next build` ok with `/.well-known/ai-plugin.json` **absent from the route
+table** · Playwright **88/88** · visual-qa **24/24 PASS**. Deploy verified, not assumed: container
+`e3989e092bcf` image `af8yqbwrrnyyfgs9wcg0intj:aa9a16ba18ab…` **== HEAD**, live `/.well-known/ai-plugin.json`
+**404** (was 200 naming QuarterLine), `/.well-known/mcp.json` **200** v2.1.0 / 10 tools / endpoint
+`https://apps.aichieve.net/api/agent/calculate`, `/openapi.json` **404** and referenced by no surface,
+`sitemap.xml` **30** locs with **zero** `quarterline`/`ai-plugin` entries, `/quarterline/calc/*` still
+**308 → /showcase**. **Still visible, deliberately, and reported rather than folded in:** the `/showcase` directory
+still prints the retired card (3 textual mentions, behind the `retired` status filter) and `/quarterline` still
+serves the derived retirement notice (**200**, `robots: index:false`, throws at build if the registry entry stops
+being `killed`) — both are the record, not an advertisement; say the word if they should go too. **One left for the
+owner, not fixed under a "pages" instruction:** `scripts/growth-check.mjs:54` defaults its product scope to
+`"quarterline"`, so the Growth Watchdog's metrics read a product nobody sells — and re-pointing an *omitted*
+selector at another product is the silent substitution the rules forbid, so it needs a named product. The
+QuarterLine engine, PDF report, calculator component and pricing row stay as the trail: nothing serves or
+advertises them, and the agent allowlist rejects their tool names first (**400** naming the inventory).
+
 _Last updated: 2026-10-19 (**`fix the header gap` DONE and measured live**, 00:40Z). Owner instruction, verbatim:
 *"i see that the header gap issue still shows as open in pressFlow. `@Simon fix the header gap`"*. He was right that
 it was still open, and my previous "fixed and live" note was only half true: the `IdeInset` bar got `gap-3`, but the

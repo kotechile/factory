@@ -15,18 +15,6 @@
       "updated": "2026-10-19"
     },
     {
-      "id": "quarterline-leftovers",
-      "app": "QuarterLine",
-      "kind": "retire",
-      "state": "pending",
-      "headline": "Delete the last QuarterLine references",
-      "detail": "The product is killed and its pages redirect, but the agent descriptor (ai-plugin.json) still names it and /openapi.json answers 404.",
-      "impact": "Agents and search keep reading a product we no longer sell.",
-      "reply": "@Simon retire quarterline pages",
-      "opened": "2026-10-15",
-      "updated": "2026-10-18"
-    },
-    {
       "id": "duplicate-videos",
       "app": "Launch videos",
       "kind": "delete",
@@ -85,7 +73,19 @@
       "reply": "",
       "opened": "2026-10-15",
       "updated": "2026-10-19"
+    },
+    {
+      "id": "quarterline-leftovers",
+      "app": "QuarterLine",
+      "kind": "retire",
+      "state": "resolved",
+      "headline": "Delete the last QuarterLine references",
+      "detail": "Done 2026-10-19: the legacy plugin descriptor was DELETED (it advertised the killed product and an /openapi.json URL that answered 404, so there was nothing correct to rewrite it to). The one agent descriptor that remains is /.well-known/mcp.json, which is generated from the live inventory. A guard test now fails the build when any /.well-known file names a retired product, slug or tool, and the receipt sender no longer names the retired product either.",
+      "impact": "Closed — no published descriptor or customer email names a product we no longer sell.",
+      "reply": "",
+      "opened": "2026-10-15",
+      "updated": "2026-10-19"
     }
   ],
-  "updated": "2026-10-19T00:38:57Z"
+  "updated": "2026-10-19T01:05:00Z"
 }
