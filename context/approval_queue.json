@@ -68,13 +68,13 @@
       "id": "ratchetproof",
       "app": "RatchetProof",
       "kind": "build",
-      "state": "approved",
+      "state": "resolved",
       "headline": "A power-bill audit that shows what one peak costs for a year",
-      "detail": "Approved 2026-10-19 by the owner's `@Simon approve RatchetProof` (the only open row at the gate). Build dispatched as a one-shot job; v1 scope in `.hermes/plans/2026-10-19_ratchetproof-build.md`: deterministic core (coincident-interval align, billing window, billed demand = max(month peak, ratchet% × trailing-lookback peak, contract min), carry-over ledger), tariff/bill extraction in front of it (every field `extracted|unreadable|unstated`; an unreadable clause blocks the month), `/ratchetproof` UI, WebMCP `audit_demand_billing` at $1.50/call, web tier $12 one-off / $39/mo per site, registry `beta`.",
-      "impact": "In build — a commercial power-bill audit that names the half hour which set the account's demand floor and prices it for the year. Launch call (beta → live) stays with the owner.",
+      "detail": "Done 2026-10-19 (68db31a product + tests, 1a2c2c1 gate-prompt/SOP fixes) — shipped live in beta and verified on the deploy, not on the push. Gate `scripts/verify-build.sh` printed \"Verification passed.\" (tsc, lint 0 errors, tokens, 30 verticals, recon cadence, 416 vitest, 52 pages, 110 Playwright incl. axe/geometry/schematic, 30/30 Gemini tiles across 5 products). Deploy: container af8yqbwrrnyyfgs9wcg0intj-20261019T224403, image tag == 1a2c2c1710… == git rev-parse HEAD. Live measurements: /ratchetproof 200 and computes the worked example in a browser (complete, $4,500.00 carry-over, $2,250.00 counterfactual, 4 months, 4 ledger rows, the 1,400 kW Saturday spike reported as NOT billed, 0 page/console errors); unstated-clause example renders AUDIT BLOCKED with rp-tariff-unstated and no billed number; POST /api/ratchetproof/audit 400 rp-intervals-empty / rp-tariff-missing / rp-interval-gap (\"never interpolated\") and 200 complete on a two-meter coincident fixture (250 kW site peak, 0 variance), 200 blocked on an unstated ratchet; /.well-known/mcp.json 2.2.0 advertises audit_demand_billing at $1.50/call; /sitemap.xml carries /ratchetproof. The 503-when-unconfigured path is unit-tested and NOT reachable on this deploy (container carries GEMINI_API_KEY + LLAMAPARSE_API_KEY). Remains, owner's call: beta → live; PRD's $12 one-off / $39-mo per-site web tier is not wired to checkout in v1 (catalog exposes the $9 finding-set export; live site plans need Stripe products — a credentialed owner step); the first live tariff is the cost-measurement run that must confirm the $1.50 rate clears 3x its measured cost.",
+      "impact": "Closed — a live beta audit that names the half hour which set the account's demand floor and prices it for the year, with the carry-over and the shave saving in dollars.",
       "reply": "",
       "opened": "2026-10-19",
-      "updated": "2026-10-19T22:12:44Z"
+      "updated": "2026-10-19T22:43:54Z"
     },
     {
       "id": "aichieve-robots",
@@ -101,5 +101,5 @@
       "updated": "2026-10-19"
     }
   ],
-  "updated": "2026-10-19T22:12:44Z"
+  "updated": "2026-10-19T22:43:54Z"
 }

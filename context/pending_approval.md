@@ -4,6 +4,29 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**`RatchetProof` is LIVE in beta — built, gated and verified on the deploy**).
+Owner instruction carried, verbatim: *"Simon approve RatchetProof"* (the only row at the gate). Shipped
+`68db31a` (product + tests) and `1a2c2c1` (gate-prompt + SOP fixes); `scripts/verify-build.sh` printed
+**"Verification passed."** end to end — tsc, lint 0 errors / 5 pre-existing warnings, tokens, 30 verticals,
+recon cadence, **416 vitest / 33 files**, **52 pages**, **110 Playwright** (axe + geometry + schematic + the new
+product spec), **30/30 Gemini tiles across 5 products**. The deploy was verified by IMAGE TAG, not by the push:
+container `af8yqbwrrnyyfgs9wcg0intj-20261019T224403`, image `:1a2c2c171012e113c4450d60d0c6019f74092ac0` ==
+`git rev-parse HEAD`. Live, measured: `/ratchetproof` **200** and it computes the worked example in a real
+browser — verdict complete, **$4,500.00** carry-over, **$2,250.00** shave counterfactual, 4 month rows, 4 ledger
+rows, the **1,400 kW Saturday spike reported as NOT billed**, 0 page/console errors; the unstated-clause example
+renders **AUDIT BLOCKED** with `rp-tariff-unstated` and no billed number. `POST /api/ratchetproof/audit` answers
+**400** for `rp-intervals-empty`, `rp-tariff-missing` and `rp-interval-gap` ("never interpolated"), **200
+complete** on a two-meter coincident fixture (250 kW site peak from 200 + 150 kW meters, 0 variance) and **200
+blocked** on an unstated ratchet. `/.well-known/mcp.json` **2.2.0** advertises `audit_demand_billing` at
+**$1.50/call**; `/sitemap.xml` carries `/ratchetproof`. The **503-when-unconfigured** path is unit-tested
+(`resolveExtractionCredentials({})` throws) and is NOT reachable on this deploy because the container carries
+`GEMINI_API_KEY` + `LLAMAPARSE_API_KEY` — reported, not faked. Three vision-QA reds on the way were measured
+and named (two false-positive classes added to the gate prompt; the `/showcase` snapshot was regenerated after
+reading the new card). **Remains, and stays the owner's:** the beta → live launch call; the PRD's $12 one-off /
+$39-mo per-site web tier is not wired to checkout in v1 (the catalog exposes the $9 finding-set export, and live
+site plans need Stripe products — a credentialed owner step); the first real tariff is the cost-measurement run
+that must confirm $1.50 clears 3× its measured cost. Queue row `ratchetproof` moved to `resolved` in this run.
+
 _Last updated: 2026-10-19 (**`RatchetProof` APPROVED — the build is dispatched**). Owner instruction,
 verbatim: *"Simon approve RatchetProof"*. It names the single `pending` row in
 `context/approval_queue.json` (`ratchetproof`, opened 2026-10-19), and there was no other item at the
