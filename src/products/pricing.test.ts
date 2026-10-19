@@ -92,6 +92,18 @@ describe("product pricing catalog", () => {
     expect(rate).toBeGreaterThanOrEqual(MEASURED_PER_CALL_COST_USD * 3);
   });
 
+  it("prices RatchetProof in the LLM band, from its declared class and the PRD's measured cost", () => {
+    // Declared `usesLlmPrimitive`: a tariff and bill PDFs are read by a model, so the metered rate must
+    // sit in the higher band and clear the PRD's modelled ≈$0.30 per-call extraction cost by 3×.
+    const band = rateBandForProduct("ratchetproof");
+    expect(band.class).toBe("llm");
+    const rate = agentRateForTool("audit_demand_billing");
+    expect(rate).toBeGreaterThanOrEqual(band.min);
+    expect(rate).toBeLessThanOrEqual(band.max);
+    const MODELLED_PER_CALL_COST_USD = 0.3;
+    expect(rate).toBeGreaterThanOrEqual(MODELLED_PER_CALL_COST_USD * 3);
+  });
+
   it("keeps the LLM band above the deterministic band, both inside the plausibility ceiling", () => {
     expect(LLM_RATE_BAND_USD.min).toBeGreaterThanOrEqual(DETERMINISTIC_RATE_BAND_USD.max);
     expect(LLM_RATE_BAND_USD.max).toBeGreaterThan(LLM_RATE_BAND_USD.min);
@@ -109,7 +121,7 @@ describe("product pricing catalog", () => {
       path.join(process.cwd(), "src/app/api/agent/calculate/route.ts"),
       "utf8",
     );
-    for (const slug of ["facturgate", "parcelproof", "caseproof", "spendproof"]) {
+    for (const slug of ["facturgate", "parcelproof", "caseproof", "spendproof", "ratchetproof"]) {
       expect(
         route,
         `the agent route must read '${slug}' rates from the pricing catalog, not inline them`,

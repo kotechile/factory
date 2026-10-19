@@ -46,6 +46,21 @@ import {
   type ExtractionCredentials,
   type ExtractionTransport,
 } from "@/lib/calc/spendproof";
+import {
+  RatchetProofExtractionUnavailableError as RatchetExtractionUnavailableError,
+  RatchetProofFieldError,
+  auditDemandBilling,
+  extractBills as extractRatchetProofBills,
+  extractTariff as extractRatchetProofTariff,
+  parseBillsCsv as parseRatchetProofBillsCsv,
+  parseIntervalFile as parseRatchetProofInterval,
+  parseTariffJson as parseRatchetProofTariffJson,
+  resolveExtractionCredentials as resolveRatchetProofCredentials,
+  type BillRecord as RatchetProofBillRecord,
+  type ExtractionCredentials as RatchetProofCredentials,
+  type PeakHistoryEntry,
+  type Tariff as RatchetProofTariff,
+} from "@/lib/calc/ratchetproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { siteOrigin } from "@/lib/site-origin";
 import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
@@ -110,6 +125,9 @@ const CASEPROOF_PRICE_USD = agentRatesForProduct("caseproof");
  * higher band because the extraction layer pays a real per-call cost (parse + generate + retries).
  */
 const SPENDPROOF_PRICE_USD = agentRatesForProduct("spendproof");
+
+/** RatchetProof rates, from the pricing catalog. */
+const RATCHETPROOF_PRICE_USD = agentRatesForProduct("ratchetproof");
 
 /**
  * The network boundary for the extraction layer, supplied by the route (the engine folder holds no
@@ -583,6 +601,168 @@ export async function POST(req: NextRequest) {
         tool: toolName,
         costUsd: costPerQueryUsd,
         product: "caseproof",
+      });
+
+      return NextResponse.json({
+        success: true,
+        data,
+        metering: {
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
+          costPerQueryUsd,
+        },
+        computedAt: new Date().toISOString(),
+      });
+    }
+
+    // --- RatchetProof: audit_demand_billing (an LLM/parse-backed extraction layer in front of the
+    // deterministic billed-demand engine). The engine's numbers never come from a model; the reader
+    // only fills declared tariff/bill fields, and an unstated clause blocks that month.
+    //
+    // The key is required ONLY when a document actually has to be read: a declared tariff JSON and a
+    // bills CSV are structured input, so that path runs with no credential at all. When a document IS
+    // sent, an unconfigured deploy is an explicit 503 naming the variable — before the cap gate and
+    // before any telemetry, never a stub.
+    if (toolName in RATCHETPROOF_PRICE_USD) {
+      const body = (await req.json()) as {
+        interval?: unknown;
+        tariff?: unknown;
+        bills?: unknown;
+        seed_history?: unknown;
+      };
+      const intervalText =
+        typeof body.interval === "string" && body.interval.trim() ? body.interval : null;
+      const tariffText =
+        typeof body.tariff === "string" && body.tariff.trim() ? body.tariff : null;
+      const billsText = typeof body.bills === "string" && body.bills.trim() ? body.bills : null;
+      if (!intervalText || !tariffText || !billsText) {
+        return NextResponse.json(
+          {
+            error:
+              "`interval` (the meter export), `tariff` (the clause set or the tariff text) and `bills` (the bill figures or bill text) are all required. Nothing was audited.",
+            ruleId: "rp-field-invalid",
+            fieldPath: !intervalText ? "interval" : !tariffText ? "tariff" : "bills",
+          },
+          { status: 400 },
+        );
+      }
+
+      const tariffIsDeclared = tariffText.trim().startsWith("{");
+      const billsIsCsv = /(^|\n)\s*"?month"?\s*,/i.test(billsText);
+      let credentials: RatchetProofCredentials | null = null;
+      if (!tariffIsDeclared || !billsIsCsv) {
+        try {
+          credentials = resolveRatchetProofCredentials();
+        } catch (credentialError) {
+          if (credentialError instanceof RatchetExtractionUnavailableError) {
+            return NextResponse.json(
+              {
+                error: credentialError.message,
+                code: credentialError.code,
+                ruleId: credentialError.ruleId,
+                missing: credentialError.missing,
+              },
+              { status: 503 },
+            );
+          }
+          throw credentialError;
+        }
+      }
+
+      // Cap gate runs BEFORE the (possibly paid) extraction.
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
+      let data: unknown;
+      const costPerQueryUsd = RATCHETPROOF_PRICE_USD[toolName] ?? 1.5;
+      try {
+        const parsedIntervals = parseRatchetProofInterval(intervalText);
+
+        let tariff: RatchetProofTariff;
+        if (tariffIsDeclared) {
+          tariff = parseRatchetProofTariffJson(tariffText);
+        } else {
+          const extracted = await extractRatchetProofTariff({
+            document: { text: tariffText, name: "tariff" },
+            credentials: credentials as RatchetProofCredentials,
+            transport: serviceExtractionTransport,
+          });
+          tariff = extracted.tariff;
+        }
+
+        let bills: RatchetProofBillRecord[];
+        if (billsIsCsv) {
+          bills = parseRatchetProofBillsCsv(billsText);
+        } else {
+          const extracted = await extractRatchetProofBills({
+            document: { text: billsText, name: "bills" },
+            billCount: Array.isArray(body.seed_history) ? body.seed_history.length + 1 : 12,
+            credentials: credentials as RatchetProofCredentials,
+            transport: serviceExtractionTransport,
+          });
+          bills = extracted.bills;
+        }
+
+        const seedHistory: PeakHistoryEntry[] = Array.isArray(body.seed_history)
+          ? (body.seed_history as { month?: unknown; peak_kw?: unknown }[]).map((entry) => {
+              if (typeof entry?.month !== "string" || typeof entry?.peak_kw !== "number") {
+                throw new RatchetProofFieldError(
+                  "rp-history-window",
+                  "seed_history",
+                  "Each `seed_history` entry must be { month: 'YYYY-MM', peak_kw: number }. Nothing was audited.",
+                );
+              }
+              return { month: entry.month, peakKwMilli: Math.round(entry.peak_kw * 1000) };
+            })
+          : [];
+
+        const report = auditDemandBilling({
+          tariff,
+          meters: parsedIntervals.meters,
+          bills,
+          seedHistory,
+        });
+        data = {
+          report,
+          format: parsedIntervals.format,
+          unmappedColumns: parsedIntervals.unmappedColumns,
+          note: "Every figure was computed by the deterministic engine; a document reader filled declared fields only, and an unreadable or unstated clause blocked the month it affects.",
+        };
+      } catch (toolError) {
+        if (toolError instanceof RatchetExtractionUnavailableError) {
+          return NextResponse.json(
+            {
+              error: toolError.message,
+              code: toolError.code,
+              ruleId: toolError.ruleId,
+              missing: toolError.missing,
+            },
+            { status: 503 },
+          );
+        }
+        if (toolError instanceof RatchetProofFieldError) {
+          return NextResponse.json(
+            { error: toolError.message, ruleId: toolError.ruleId, fieldPath: toolError.fieldPath },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json(
+          {
+            error:
+              toolError instanceof Error ? toolError.message : "RatchetProof request failed",
+          },
+          { status: 400 },
+        );
+      }
+
+      await track("agent_query", { tool: toolName }, "ratchetproof", traffic);
+
+      const metering = await billSuccessfulCall(req, {
+        tool: toolName,
+        costUsd: costPerQueryUsd,
+        product: "ratchetproof",
       });
 
       return NextResponse.json({

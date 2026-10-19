@@ -106,6 +106,25 @@ test("capture SpendProof QA tiles", async ({ page }) => {
   expect(isMonospace).toBe(true);
 });
 
+// RatchetProof is captured in its richest state: the four-month ratchet audited, with the carry-over,
+// the shave counterfactual, the peak event, the ledger and the April variance on the page.
+test("capture RatchetProof QA tiles", async ({ page }) => {
+  await page.goto("/ratchetproof");
+  await page.getByRole("button", { name: "Run the audit" }).click();
+  await expect(page.getByText("AUDIT COMPLETE")).toBeVisible();
+  await captureTiles(page, "ratchetproof");
+
+  // The audited money figure is monospace — asserted in code because a vision model cannot tell.
+  const money = page.getByText("$2,250.00").first();
+  const isMonospace = await money.evaluate((node) => {
+    for (let el = node as HTMLElement | null; el; el = el.parentElement) {
+      if (getComputedStyle(el).fontFamily.toLowerCase().includes("mono")) return true;
+    }
+    return false;
+  });
+  expect(isMonospace).toBe(true);
+});
+
 // The "currency inputs have adequate horizontal padding" check that used to live here is deleted, not
 // moved: the only surface it could observe was QuarterLine's currency field, which is out of service
 // with the product. Padding is enforced by the design-token step (`npm run check:tokens`) and the

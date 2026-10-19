@@ -43,6 +43,13 @@ const PAGES = [
       await page.getByText("CLOSE WITHHELD").waitFor();
     },
   },
+  {
+    path: "/ratchetproof",
+    setup: async (page: import("@playwright/test").Page) => {
+      await page.getByRole("button", { name: "Run the audit" }).click();
+      await page.getByText("AUDIT COMPLETE").waitFor();
+    },
+  },
 ];
 
 for (const { path, setup } of PAGES) {

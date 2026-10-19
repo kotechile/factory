@@ -137,7 +137,7 @@ export function buildMcpManifest(): McpManifest {
     // old field must re-read pricing, so this is a breaking change, not a silent one.
     // 2.1.0: SpendProof's reconcile_ai_invoice added (a new product's tool, so the published
     // tool list grows; additive, but the list IS the contract an agent reads).
-    version: "2.1.0",
+    version: "2.2.0",
     endpoint: `${siteOrigin()}/api/agent/calculate`,
     tool_selector: {
       header: "x-webmcp-tool",

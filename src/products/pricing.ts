@@ -95,6 +95,16 @@ export const PRODUCT_PRICING: Record<string, ProductPricing> = {
     // (the PRD's margin rule) and sit in the $0.50–$3.00 band — pricing.test.ts enforces both.
     agentRates: { reconcile_ai_invoice: 1.5 },
   },
+  ratchetproof: {
+    freeTier:
+      "Audit one site's interval data against the tariff and read every month — free, in your browser",
+    exportUsd: ONE_OFF_EXPORT_USD,
+    exportLabel:
+      "Finding set — the per-month variance trail, the peak event, the ratchet ledger and the carry-over",
+    // LLM/parse-backed class: the rate must clear the PRD's modelled $0.30 per-call extraction cost
+    // 3× and sit in the $0.50–$3.00 band — pricing.test.ts enforces both.
+    agentRates: { audit_demand_billing: 1.5 },
+  },
   quarterline: {
     // Retired: kept so the legacy agent tools still price, and so tool lookups never dangle.
     freeTier: "Retired product — kept on the trail only",

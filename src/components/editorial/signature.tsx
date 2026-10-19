@@ -20,6 +20,7 @@ export const HORIZON_GRADIENTS = {
   compliance: "from-[#4F46E5] via-[#0284C7] to-[#10B981]",
   logistics: "from-[#EA580C] via-[#D97706] to-[#0284C7]",
   industrial: "from-[#0F766E] via-[#0891B2] to-[#4F46E5]",
+  energy: "from-[#65A30D] via-[#0D9488] to-[#0284C7]",
 } as const;
 
 export type HorizonDomain = keyof typeof HORIZON_GRADIENTS;
@@ -43,6 +44,7 @@ export const PRODUCT_ACCENTS = {
   parcelproof: { accent: "#EA580C", ink: "#9A3412" },
   caseproof: { accent: "#0F766E", ink: "#115E59" },
   quarterline: { accent: "#64748B", ink: "#475569" },
+  ratchetproof: { accent: "#65A30D", ink: "#3F6212" },
 } as const;
 
 export type AccentSlug = keyof typeof PRODUCT_ACCENTS;

@@ -762,6 +762,75 @@ export const reconcileAiInvoiceTool: WebMCPToolDefinition<ReconcileAiInvoicePara
   handler: (params) => runSpendProofAgentCall<unknown>("reconcile_ai_invoice", params),
 };
 
+async function runRatchetProofAgentCall<TResult>(toolName: string, params: unknown): Promise<TResult> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent call failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: TResult;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent call failed: invalid response");
+  }
+  return json.data;
+}
+
+export interface AuditDemandBillingParams {
+  /** The meter export: `meter_id,interval_start_utc,kw` CSV, a wide export, or Green Button XML. */
+  interval: string;
+  /** The declared tariff clause set as JSON, or the tariff's document text for the extraction path. */
+  tariff: string;
+  /** The bills as CSV, or the bills' document text for the extraction path. */
+  bills: string;
+  /** Prior months' peaks, most recent first, ending at the month before the interval data begins. */
+  seed_history?: { month: string; peak_kw: number }[];
+}
+
+export const auditDemandBillingTool: WebMCPToolDefinition<AuditDemandBillingParams, unknown> = {
+  name: "audit_demand_billing",
+  description:
+    "Reconstructs a commercial electric account's billed demand from its own interval data and the filed tariff, and prices the ratchet: every meter aligned onto one grid and summed per coincident interval (a site peak exists only in the sum), the peak searched only in the days and hours the tariff bills, then billed = max(month peak, ratchet % × the highest peak in an explicit lookback, contract minimum). Returns the per-month variance against the printed bill, the interval that set the floor with the loads that stacked into it, the carry-over dollars, and the saving from shaving that interval. Every figure is computed by the deterministic engine; a document reader may fill DECLARED fields only, and an unreadable or unstated clause blocks that month rather than being defaulted.",
+  parameters: {
+    type: "object",
+    properties: {
+      interval: {
+        type: "string",
+        description:
+          "The meter export as CSV (meter_id,interval_start_utc,kw), a wide export (# meters/# start/# interval_minutes), or Green Button XML. Derived demand must be an integer number of milli-kW internally; mixed 15/30-minute granularity and any gap are refused, never interpolated.",
+      },
+      tariff: {
+        type: "string",
+        description:
+          "The tariff clause set as JSON ({ field: { value, provenance, page, quote } }), or the tariff's document text for the extraction path. A clause that is not 'extracted' blocks the month it affects.",
+      },
+      bills: {
+        type: "string",
+        description:
+          "The bills as CSV (month,period_start,period_end,printed_billed_demand_kw,printed_demand_rate_usd_per_kw,printed_ratchet_line) or the bills' document text. The printed billed demand is the evidence under audit and is never derived from the tariff.",
+      },
+      seed_history: {
+        type: "array",
+        description:
+          "Prior months' peaks, most recent first, ending at the month before the interval data begins: [{ month: 'YYYY-MM', peak_kw: number }]. A short or gapped history blocks the month it cannot price.",
+        items: { type: "object" },
+      },
+    },
+    required: ["interval", "tariff", "bills"],
+  },
+  handler: (params) => runRatchetProofAgentCall<unknown>("audit_demand_billing", params),
+};
+
 /**
  * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
  *
@@ -786,6 +855,7 @@ export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   compareAutomationBidsTool,
   afterTaxPaybackTool,
   reconcileAiInvoiceTool,
+  auditDemandBillingTool,
 ].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
@@ -804,6 +874,7 @@ export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(compareAutomationBidsTool);
   registerWebMCPTool(afterTaxPaybackTool);
   registerWebMCPTool(reconcileAiInvoiceTool);
+  registerWebMCPTool(auditDemandBillingTool);
 }
 
 

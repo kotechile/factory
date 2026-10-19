@@ -50,6 +50,13 @@ const PRODUCTS: {
       await page.getByText("100/100").waitFor();
     },
   },
+  {
+    path: "/ratchetproof",
+    setup: async (page) => {
+      await page.getByRole("button", { name: "Run the audit" }).click();
+      await page.getByText("AUDIT COMPLETE").waitFor();
+    },
+  },
 ];
 
 for (const { path, setup } of PRODUCTS) {
