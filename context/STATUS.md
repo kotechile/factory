@@ -682,20 +682,24 @@ Registry status is **live** (owner launch call, `683796b`, 2026-10-04).
   build → Playwright (visual + axe a11y) → Gemini vision-QA (`visual-qa`).
 - **Design flywheel** — `visual-qa --suggest` → `context/design_backlog.md` → Toby triage.
 - **Telemetry** — `src/lib/telemetry.ts` → Supabase `events` (page_view, export_click,
-  checkout_click, agent_query, reconcile_click). `scripts/growth-check.mjs` now takes the product as an
-  argument (`process.argv[2] || GROWTH_PRODUCT || "quarterline"`, `bc3d556`) instead of being hard-scoped,
-  but `reconcile_click`/`agent_query` still are not counted by it, and the internal-traffic marker (queue
-  item 5) remains unbuilt.
+  checkout_click, agent_query, reconcile_click). `scripts/growth-check.mjs` takes the product as an
+  argument (`process.argv[2] || GROWTH_PRODUCT || "quarterline"`, `bc3d556`) and now splits every figure by
+  traffic class. **The internal-traffic marker shipped 2026-10-19** (owner: *"@Simon approve traffic marker"*):
+  one classifier (`src/lib/traffic-class.ts`) decides `internal` / `visitor` at the write boundary, carried by
+  `/api/events`, the metered `/api/agent/calculate` route and the Playwright suite (`x-factory-internal: 1`),
+  with a `?factory_internal=1` cookie for our own browsers. `growth-check.mjs` gates on
+  `unique_sessions_visitor`; rows written before the marker stay NULL and are reported as `unclassified`,
+  never backfilled.
 - **Growth surfaces** — pSEO routes, embed widget, `.well-known` A2A manifests.
 - **Config-as-data** — Gemini key/model/prompt live in Supabase `factory_config`
   (modifiable without redeploy).
 
-## Database — Supabase (all applied, no pending migration)
+## Database — Supabase (**one migration pending: 0004** — apply in the Supabase SQL editor)
 
 | Table | Purpose | Status |
 |---|---|---|
 | `factory_config` | runtime secrets/config (Gemini key, QA model) | ✅ live |
-| `events` | growth telemetry | ✅ live (read 2026-09-26, full paged read) — **1609 rows** (parcelproof 497 / facturgate 333 / factory 231 / quarterline 228 / caseproof 181 / ledgerlink 139), last write **2026-09-25T10:02:14Z** (≈22 h silent at the sweep); **981 session ids**, 198 null-session rows; every 09-24 and 09-25 row falls inside the 10:00–10:05 Build Watchdog Playwright window (62 rows on each day), and the session ids before it are the unattributable ones recorded in the 09-23/09-24 entries (returning browser `30eb9935` last seen 09-22T01:25:12Z; `59a27597` last seen 09-23T14:11:42Z, three factory-page `page_view`s, nothing since — **the last non-test event**) — **0 provably external in 26 days**. **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads **181** rows, all factory verification runs |
+| `events` | growth telemetry | ✅ live — **`traffic_class` column (migration `0004_events_traffic_class.sql`) authored 2026-10-19 and NOT yet applied**; until it is, the internal-traffic marker is carried in `payload.traffic_class` (the insert logs the pending migration loudly) and `growth-check.mjs` reads both. (read 2026-09-26, full paged read) — **1609 rows** (parcelproof 497 / facturgate 333 / factory 231 / quarterline 228 / caseproof 181 / ledgerlink 139), last write **2026-09-25T10:02:14Z** (≈22 h silent at the sweep); **981 session ids**, 198 null-session rows; every 09-24 and 09-25 row falls inside the 10:00–10:05 Build Watchdog Playwright window (62 rows on each day), and the session ids before it are the unattributable ones recorded in the 09-23/09-24 entries (returning browser `30eb9935` last seen 09-22T01:25:12Z; `59a27597` last seen 09-23T14:11:42Z, three factory-page `page_view`s, nothing since — **the last non-test event**) — **0 provably external in 26 days**. **4 `agent_query` rows, all factory ship probes** (facturgate ×3, 2026-09-17 03:50; parcelproof ×1, 2026-09-18 22:07) — organic agent queries 0; `product=caseproof` reads **181** rows, all factory verification runs |
 | `subscriptions` | Stripe subscription records (webhook) | ✅ live |
 | `purchases` | one-off PDF-export purchases (webhook) | ✅ live |
 

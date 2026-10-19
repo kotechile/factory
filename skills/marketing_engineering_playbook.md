@@ -477,3 +477,46 @@ indexable-but-unmapped: Search Console showed `/showcase` indexed (average posit
    map and is lowercase). Then guard the WIRING, not the helper: an e2e that loops the crawl map and asserts every
    advertised URL serves a canonical equal to itself — proven by removing one page's canonical and watching it fail.
    A helper with no wiring assertion is exactly how 27 pages shipped a canonical nobody could use.
+
+### Resolved edge-case (2026-10-19) — the factory writes its own traffic, so the traffic gate was reading our test clicks
+
+Owner approval, verbatim: *"@Simon approve traffic marker"* (queue row `traffic-marker`, open since 2026-09-18;
+every sweep in between could only repeat "0 provably external" because the store could not tell our own browsers,
+suites and probes from a real visitor). It was the last blocker on scoring any traffic leg of a kill/scale gate.
+
+**What ships.** One classifier, decided at the write boundary, carried by every producer:
+
+- `src/lib/traffic-class.ts` — `classifyTraffic()` returns `internal` or `visitor`. Signals: the header
+  `x-factory-internal: 1`, the cookie `factory_internal=1`, or an automated UA (HeadlessChrome / Playwright /
+  Puppeteer). Everything else is a `visitor`.
+- `POST /api/events` classifies the request (`classifyRequest(req)`) and passes it to `track()`;
+  `POST /api/agent/calculate` classifies once at the top so every `agent_query` row carries it too — the metered
+  route has no cookie, which is exactly why `session_id` could never carry this (2026-09-17 edge case).
+- A caller cannot claim a class: the payload's `traffic_class` is overwritten from the server's decision.
+- `events.traffic_class` (migration `0004_events_traffic_class.sql`) is the queryable column; the class is
+  ALSO mirrored into `payload.traffic_class`, so the marker works the moment the code deploys and a pending
+  migration cannot lose a single row (the insert logs the pending migration loudly and retries).
+- `scripts/growth-check.mjs` reports the split: `unique_sessions_visitor`, `unique_sessions_internal`,
+  `unique_sessions_unclassified`, `events_visitor` / `events_internal`, `rows_unclassified`, and
+  `traffic_marker.marker_since` (derived from the earliest classified row — never a hand-written date).
+  **The gate leg is the visitor figure**; "0 visitors" now means zero, not "zero we could prove".
+
+**Rules for the next instance.**
+
+1. **A new event producer is not done until it carries the marker.** Adding `track()` to a route means calling
+   `classifyRequest(req)` and passing the class; a producer that omits it defaults to `visitor` (over-counting
+   demand is the safe error) and pollutes exactly the metric the marker exists to protect.
+2. **Never backfill a pre-marker row.** Rows written before the marker keep NULL and are reported as
+   `unclassified`; assigning them an attribution after the fact fabricates the answer. The honest statement was
+   "we could not tell", and the record keeps saying it.
+3. **Our own probes send `x-factory-internal: 1`.** A curl/node probe without it is a visitor by design. If a
+   probe must exercise the visitor path, delete the row it wrote and say so.
+4. **The owner's browser is internal too, and he can mark it himself:** visit any page once with
+   `?factory_internal=1`; `src/lib/telemetry-client.ts` persists the cookie for a year and adds the header on
+   every event it posts.
+5. **UA sniffing is a backstop, not the mechanism.** Playwright's `devices["Desktop Chrome"]` profile sends an
+   ordinary Chrome UA, so the suite carries the explicit header in `playwright.config.ts`
+   (`use.extraHTTPHeaders`, which applies to page-initiated fetch as well).
+6. **Score the traffic leg on the visitor figure only, and state the split.** A sweep reporting "0 external" must
+   now also report internal and unclassified counts, so a reader can tell "nobody came" from "we stopped counting
+   our own runs two days ago".

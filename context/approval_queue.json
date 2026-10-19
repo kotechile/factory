@@ -1,19 +1,19 @@
 {
   "_note": "Machine-readable copy of the owner's decision queue. `context/pending_approval.md` is the prose record Simon writes each sweep; this file is the same decisions as rows, so a dashboard can show them without anyone reading the paragraphs. PressFlow reads this file from main (raw.githubusercontent) and falls back to editorial-factory/context/approvals.json when it cannot. Keep item order: open decisions first, then approved/in build, then closed.",
-  "updated": "2026-10-19T00:25:00Z",
+  "updated": "2026-10-19T00:45:00Z",
   "source": "context/pending_approval.md",
   "items": [
     {
       "id": "traffic-marker",
       "app": "",
       "kind": "decision",
-      "state": "pending",
+      "state": "resolved",
       "headline": "Mark our own test visits so traffic numbers mean something",
-      "detail": "Our browser suites write page views into the same table as real visitors, so a run inflates the count and 'did a real person visit' cannot be answered.",
-      "impact": "Every traffic figure stays ambiguous.",
-      "reply": "@Simon approve traffic marker",
+      "detail": "Done 2026-10-19 (`18ff5f1`): one classifier marks our own suites, probes and browsers as internal, so visitor numbers now mean real people. Browser suites send the header, the metered agent route marks itself, and any of our browsers can be marked by visiting once with ?factory_internal=1. The growth check reports the visitor/internal/unclassified split and gates on visitors only; earlier rows stay unclassified rather than being re-labelled. Remaining: the traffic_class column migration (0004) waits on your Supabase SQL editor — the marker works without it, from the payload.",
+      "impact": "Visitors are now countable; every traffic gate is scored on real people.",
+      "reply": "",
       "opened": "",
-      "updated": "2026-10-18"
+      "updated": "2026-10-19"
     },
     {
       "id": "quarterline-leftovers",
