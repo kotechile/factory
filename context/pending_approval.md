@@ -4,6 +4,27 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**`career-capital-home` CLOSED — one copy of each career-capital engine, and it is
+the live one**). Owner instruction, verbatim: *"keep one career capital copy"*. **The decision, and why this home:**
+the survivor is `/root/giniloh/src/lib/calculators/{w2Vs1099,rsuHoldVsSell}.ts` — the copy the two public calculators
+actually import (`giniloh.com/calculators/w2-vs-1099-scorp-calculator/` and `/rsu-hold-vs-sell/`), committed and live; the
+deleted copy was in `software-factory-core/src/lib/calc/` — **uncommitted, imported by nothing but its own tests,
+in no product registry**, and a *personal* tool, which under the 10-18 host rule does not belong to the enterprise app
+at all. **Removed:** the two factory engines and their vitest files, plus the two generators that carried code across
+repos — `scripts/sync-w2-calculator.mjs` (embeds a whole second copy of the W-2 engine inside a template string) and
+`scripts/deploy-portfolio-capital.mjs`. Those scripts *were* the drift mechanism; leaving them would have re-created the
+duplicate on the next run. **Proven before deleting, not assumed:** a harness imported both copies and deep-compared
+every output field on the spec vector plus 500 deterministic-random inputs each — **1,002 cases, 0 divergent** (W-2 net
+$164,616 · S-Corp net $157,783.67 · breakeven $157/hr; RSU vest tax $35,000 · mega-backdoor headroom $40,300 · sell-side
+concentration 0, risk Low — all identical). **The 11 known-answer tests are not lost, they moved to the survivor:**
+`giniloh/scripts/check-calculators.mjs` (`npm run check:calculators`; no new dependency — Node strips the TypeScript
+types) pins the 2026 statutory constants and ~50 computed answers across all three tax paths, both RSU strategies and
+both breakeven searches. **Proven to bite:** `SS_WAGE_BASE` 184500 → 184000 gives exit 1 with **7** failures (FICA, W-2
+net, hourly yield, SE tax, deductible half, solo-401(k) shelter); restored, exit 0. **Verified after the change:**
+`find /` for `w2Vs1099*` / `rsuHoldVsSell*` returns **exactly two files, both under giniloh**; no factory file imports
+either engine; the live calculator pages were never touched, so their numbers cannot have moved. Not a rebuild — one
+duplicate removed, one guard added.
+
 _Last updated: 2026-10-19 (**`quarterline-leftovers` CLOSED — no published descriptor names a product we no longer
 sell**, commit `aa9a16b`, measured live 00:41Z). Owner instruction, verbatim: *"retire quarterline pages"*. The
 row's two findings were one surface: `/.well-known/ai-plugin.json` answered **200** advertising **QuarterLine**

@@ -30,13 +30,14 @@
       "id": "career-capital-home",
       "app": "Career Capital calculators",
       "kind": "decision",
-      "state": "pending",
-      "headline": "Pick one home for the two career-capital calculators",
-      "detail": "The W-2 vs 1099 and RSU hold-vs-sell engines exist twice: once in the factory repo (still uncommitted) and once on giniloh.com. The numbers are identical today.",
-      "impact": "They drift apart on the next statutory update.",
-      "reply": "@Simon keep one career capital copy",
+      "state": "resolved",
+      "headline": "One copy of the W-2 vs 1099 and RSU hold-vs-sell engines — giniloh.com",
+      "detail": "The factory-repo duplicate (src/lib/calc/*.ts + 11 vitest) and the two scripts that copied code into /root/giniloh are deleted. The live giniloh.com copy is the single home, and scripts/check-calculators.mjs now pins ~50 known answers from the 2026 spec vector, so a changed constant fails instead of quietly changing someone's pay numbers.",
+      "impact": "Closed 2026-10-19: one engine per calculator, drift impossible, regressions caught locally.",
+      "reply": "",
       "opened": "2026-10-18",
-      "updated": "2026-10-18"
+      "updated": "2026-10-19",
+      "closed": "2026-10-19"
     },
     {
       "id": "ide-header-gap",
@@ -87,5 +88,5 @@
       "updated": "2026-10-19"
     }
   ],
-  "updated": "2026-10-19T00:41:52Z"
+  "updated": "2026-10-19T00:58:00Z"
 }
