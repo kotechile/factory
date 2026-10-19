@@ -415,6 +415,32 @@ shape that shipped is the reusable one:
    export API route and a plugin descriptor advertising the product by name — and both are named in the record for
    the owner rather than fixed under an instruction that said "pages".
 
+### Resolved edge-case (2026-10-19) — the descriptor that outlived the product
+
+The owner's second call on the same words — *"@Simon retire quarterline pages"* — closed the last of it: the plugin
+descriptor still shipped a killed product and a discovery URL that **404s**. The reusable rules:
+
+1. **A discovery descriptor is part of the retirement, not a footnote to it.** `/.well-known/*` is read by agents
+   and crawlers that never load the UI, so a descriptor naming a `killed` product keeps that product being called
+   after every page has been withdrawn; the manifest guard covered `mcp.json` only, so this one survived three
+   sweeps of "nothing left to do". Enumerate `/.well-known` alongside pages, presets and checkout when a status
+   flips, and make `--check` read that directory.
+2. **An artifact that advertises ONE product cannot be rewritten to describe six — delete it.** The descriptor's
+   format carries a single `api.url`, and the app it pointed at (`/openapi.json`) was never built, so a "corrected"
+   copy would still be a lie. Deleting the route makes the absence explicit (404) and leaves the maintained,
+   registry-derived descriptor (`mcp.json`) as the one agent surface. Rewriting a dead format to look current
+   costs a build and still misleads.
+3. **Guard the class, not the incident.** `src/lib/agent-descriptors.test.ts` parses every file under
+   `src/app/.well-known` + `public/.well-known`, collects only string-ish nodes (so a comment may keep the
+   history), and fails naming `file:line` when any retired slug, name or tool appears; it also fails if the legacy
+   path is re-mounted. Needles come from `retiredProducts`, so the next retirement is covered by the same flip —
+   proven to bite by re-injecting the descriptor (two tests red with the line number, then restored green).
+4. **Say what is still there and why.** After the deletion the tree still contains the retired engine, its PDF
+   report and calculator component, a pricing row, and an unreachable legacy branch in `/api/agent/calculate`.
+   None is served or advertised (the agent allowlist rejects the retired tool names first, `400` listing the
+   inventory), so they are the trail, not a surface — report them rather than deleting a working engine under an
+   instruction about pages.
+
 ### Resolved edge-case (2026-10-10) — a tariff threshold read across two rule classes
 
 ParcelProof carried UPS's **AHS-Dimension** trigger as a longest side > 96 in for 23 days. The figure is real but
