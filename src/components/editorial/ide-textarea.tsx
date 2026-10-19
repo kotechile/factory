@@ -37,6 +37,10 @@ export function IdeTextarea({
 }) {
   const gutterRef = React.useRef<HTMLDivElement>(null);
   const lineCount = Math.max(value.split("\n").length, rows);
+  // Same badge treatment as IdeInset: at phone width the full "CLIENT-SIDE ONLY • ZERO EGRESS" box
+  // overran the bar and painted over the file title (measured overlap −33.6 px at 375 px, 2026-10-19),
+  // so below `sm` the bar carries the claim alone and the qualifier returns on wider screens.
+  const shortBadge = badge ? badge.split("•").pop()!.trim() : null;
 
   return (
     <div
@@ -45,15 +49,18 @@ export function IdeTextarea({
         className,
       )}
     >
-      <div className="flex items-center justify-between border-b border-border/70 bg-card/90 px-3.5 py-2 font-mono text-xs backdrop-blur-xs">
-        <div className="flex min-w-0 items-center gap-2 text-[11px] text-muted">
-          <span className="flex items-center gap-1.5" aria-hidden="true">
+      {/* The bar is the same primitive as IdeInset's: a real 12 px floor (gap-x-3) plus wrapping, so a
+          long title ellipsizes instead of running flush into the badge, and at phone width the badge
+          group drops to its own line rather than painting over the title (2026-10-19). */}
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-border/70 bg-card/90 px-3.5 py-2 font-mono text-xs backdrop-blur-xs">
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-[11px] text-muted">
+          <span className="flex shrink-0 items-center gap-1.5" aria-hidden="true">
             <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
             <span className="h-2 w-2 rounded-full bg-[#F59E0B]" />
             <span className="h-2 w-2 rounded-full bg-[#10B981]" />
           </span>
-          <span className="text-border">|</span>
-          <span className="truncate font-semibold text-foreground">{title}</span>
+          <span className="shrink-0 text-border">|</span>
+          <span className="min-w-0 truncate font-semibold text-foreground">{title}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {meta ? (
@@ -62,9 +69,10 @@ export function IdeTextarea({
             </span>
           ) : null}
           {badge ? (
-            <span className="inline-flex items-center gap-1 rounded bg-[#10B981]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#047857]">
-              <ShieldCheck className="h-3 w-3" />
-              {badge}
+            <span className="inline-flex shrink-0 items-center gap-1 rounded bg-[#10B981]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#047857]">
+              <ShieldCheck className="h-3 w-3 shrink-0" />
+              <span className="sm:hidden">{shortBadge}</span>
+              <span className="hidden whitespace-nowrap sm:inline">{badge}</span>
             </span>
           ) : null}
         </div>

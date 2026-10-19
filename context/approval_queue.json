@@ -1,6 +1,5 @@
 {
   "_note": "Machine-readable copy of the owner's decision queue. `context/pending_approval.md` is the prose record Simon writes each sweep; this file is the same decisions as rows, so a dashboard can show them without anyone reading the paragraphs. PressFlow reads this file from main (raw.githubusercontent) and falls back to editorial-factory/context/approvals.json when it cannot. Keep item order: open decisions first, then approved/in build, then closed.",
-  "updated": "2026-10-19T00:45:00Z",
   "source": "context/pending_approval.md",
   "items": [
     {
@@ -55,13 +54,13 @@
       "id": "ide-header-gap",
       "app": "",
       "kind": "fix",
-      "state": "pending",
+      "state": "resolved",
       "headline": "One-line fix for the IDE header gap and gutter alignment",
-      "detail": "A long file title touches the zero-egress badge (measured 0.0 px), and a wrapped line in the JSON field drifts off its gutter number. Both are shared primitives, so the factory will not touch them without your word.",
-      "impact": "The build gate keeps failing on a cosmetic defect it will not restyle unapproved.",
-      "reply": "@Simon fix the header gap",
+      "detail": "Done 2026-10-19: the owner's `@Simon fix the header gap` was applied to the shared chrome. Three defects, all measured on the rendered DOM rather than argued from a screenshot: (1) `IdeTextarea`'s header still relied on `justify-between` alone, so at 375 px its badge box overran the bar and painted over the file title (measured −34.0 px on spendproof/caseproof/parcelproof/facturgate); both chrome bars now carry `gap-x-3` + `flex-wrap`, `min-w-0`/`truncate` on the title, `shrink-0` on the badge group, and print only the claim (\"ZERO EGRESS\") below `sm` with the full label returning at ≥640 px. (2) the Recovery-summary badge on /parcelproof was being squeezed into a two-line pill (\"3\"/\"flags\") by the description beside it — `shrink-0 whitespace-nowrap` + `min-w-0` on the text block. (3) `tests/e2e/text-geometry.spec.ts` now measures the chrome BOXES (not glyph runs, and not skipping a clipped title) at 1280 px and 375 px on all four products; proven to bite by reverting the components (−34.0 px, 4 failed) and green with the fix. Gate: tsc, eslint 0 errors, 397/397 unit, build, 96/96 Playwright, visual-QA 24/24. Live: apps.aichieve.net/parcelproof and /caseproof measured after deploy.",
+      "impact": "Closed — the chrome badge never touches the file title at 1280 px or 375 px, and a build-time geometry guard keeps it that way.",
+      "reply": "",
       "opened": "2026-10-17",
-      "updated": "2026-10-18"
+      "updated": "2026-10-19"
     },
     {
       "id": "canopyproof",
@@ -87,5 +86,6 @@
       "opened": "2026-10-15",
       "updated": "2026-10-19"
     }
-  ]
+  ],
+  "updated": "2026-10-19T00:38:57Z"
 }

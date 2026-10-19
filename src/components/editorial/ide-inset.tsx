@@ -28,6 +28,11 @@ export function IdeInset({
   maxHeightClass?: string | null;
 }) {
   const lines = code.replace(/\n$/, "").split("\n");
+  // The default badge is "CLIENT-SIDE ONLY • ZERO EGRESS": the promise, then its scope. A phone-width
+  // bar cannot hold that beside a file title, so below `sm` only the last clause is printed (the claim
+  // itself) and the qualifier returns on wider screens. Without this the badge box overran the bar and
+  // sat on top of the title at 375 px (measured overlap −33.6 px, 2026-10-19).
+  const shortBadge = badge ? badge.split("•").pop()!.trim() : null;
 
   return (
     <div
@@ -36,18 +41,20 @@ export function IdeInset({
         className,
       )}
     >
-      {/* gap-3, not justify-between alone: with a long title the truncated name ran flush into the
-          zero-egress badge — a measured 0.0 px gap (2026-10-18). The gap is the floor; truncation
-          still gives way first because the left group is min-w-0 and the right group is shrink-0. */}
-      <div className="flex items-center justify-between gap-3 border-b border-border/70 bg-card/90 px-3.5 py-2 font-mono text-xs backdrop-blur-xs">
-        <div className="flex min-w-0 items-center gap-2 text-[11px] text-muted">
-          <span className="flex items-center gap-1.5" aria-hidden="true">
+      {/* gap-3 + wrap, not justify-between alone: with a long title the truncated name ran flush into
+          the zero-egress badge — a measured 0.0 px gap (2026-10-18) — and at 375 px the badge box
+          overran the bar and painted over the title. The gap is the floor, wrapping is the overflow
+          valve; truncation gives way first because the left group is min-w-0 and the right is
+          shrink-0, so the title ellipsizes before the badge ever moves. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-border/70 bg-card/90 px-3.5 py-2 font-mono text-xs backdrop-blur-xs">
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-[11px] text-muted">
+          <span className="flex shrink-0 items-center gap-1.5" aria-hidden="true">
             <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
             <span className="h-2 w-2 rounded-full bg-[#F59E0B]" />
             <span className="h-2 w-2 rounded-full bg-[#10B981]" />
           </span>
-          <span className="text-border">|</span>
-          <span className="truncate font-semibold text-foreground">{title}</span>
+          <span className="shrink-0 text-border">|</span>
+          <span className="min-w-0 truncate font-semibold text-foreground">{title}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {meta ? (
@@ -56,9 +63,10 @@ export function IdeInset({
             </span>
           ) : null}
           {badge ? (
-            <span className="inline-flex items-center gap-1 rounded bg-[#10B981]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#047857]">
-              <ShieldCheck className="h-3 w-3" />
-              {badge}
+            <span className="inline-flex shrink-0 items-center gap-1 rounded bg-[#10B981]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#047857]">
+              <ShieldCheck className="h-3 w-3 shrink-0" />
+              <span className="sm:hidden">{shortBadge}</span>
+              <span className="hidden whitespace-nowrap sm:inline">{badge}</span>
             </span>
           ) : null}
         </div>

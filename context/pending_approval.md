@@ -4,6 +4,25 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-19 (**`fix the header gap` DONE and measured live**, 00:40Z). Owner instruction, verbatim:
+*"i see that the header gap issue still shows as open in pressFlow. `@Simon fix the header gap`"*. He was right that
+it was still open, and my previous "fixed and live" note was only half true: the `IdeInset` bar got `gap-3`, but the
+**editable** bar (`IdeTextarea`, the one on /caseproof, /spendproof, /parcelproof) still had `justify-between` alone,
+so at 375 px its badge box overran the bar and painted over the file title — measured **−34.0 px overlap on all four
+products**, and the reason the row kept reading open. What changed: both chrome bars now carry `gap-x-3` +
+`flex-wrap`, `min-w-0` + `truncate` on the title, `shrink-0` on the badge group, and below `sm` the badge prints the
+claim alone ("ZERO EGRESS") with the full `CLIENT-SIDE ONLY • ZERO EGRESS` returning at ≥640 px; the hand-rolled copy
+in `facturgate-mcp-guide.tsx` got the same treatment. Found while verifying: the **/parcelproof Recovery-summary badge
+was being squeezed into a two-line pill** ("3" / "flags") by the description beside it (badge measured 54 px wide with
+a 12 px gap — no glyph collision, but it reads as crowding, which is what the visual-QA tile kept flagging) — fixed
+with `shrink-0 whitespace-nowrap` on the badge and `min-w-0` on the text block. **Guard, not opinion:**
+`tests/e2e/text-geometry.spec.ts` now measures the chrome *boxes* (not glyph runs, and deliberately NOT skipping a
+clipped title, which is how this class slipped past the old guard) at 1280 px and 375 px on all four products; proven
+to bite by reverting the components (**−34.0 px, 4 failed**) and green with the fix. Gate: tsc clean, eslint 0 errors
+(5 pre-existing warnings), 397/397 unit, `next build` ok, **96/96 Playwright**, **visual-QA 24/24 tiles**. Queue row
+`ide-header-gap` is now `state: resolved` (and the editorial mirror `context/approvals.json`), so PressFlow stops
+listing it. Remaining red in `verify-build.sh`: none.
+
 _Last updated: 2026-10-19 (**`aichieve robots and sitemap` CLOSED — nothing to build**, measured 00:25Z). Owner
 instruction, verbatim: *"if the following issue is complete, please mark it as complete in the pressflow:
 `aichieve robots and sitemap`"*. The item asked for a crawler rule set and a sitemap on the new reader front

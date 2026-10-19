@@ -53,6 +53,60 @@ const PRODUCTS: {
 ];
 
 for (const { path, setup } of PRODUCTS) {
+  for (const width of [1280, 375]) {
+    test(`the IDE chrome keeps its zero-egress badge clear of the file title at ${width}px on ${path}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(path);
+
+      // Measured on BOXES, not text runs, and deliberately NOT skipped when clipped: the defect this
+      // guards (2026-10-18, still open on 10-19) is a `truncate` title whose box ran under the badge —
+      // the glyphs were clipped so the text-run guard above passed while the bar painted a collision.
+      const report = await page.evaluate(() => {
+        const found: string[] = [];
+        let measured = 0;
+        const badges = Array.from(document.querySelectorAll("span")).filter(
+          (span) => span.querySelector("svg") && /ZERO EGRESS/i.test(span.textContent ?? ""),
+        );
+
+        for (const badge of badges) {
+          const bar = badge.parentElement?.parentElement;
+          const title = bar?.querySelector("span.truncate") as HTMLElement | null;
+          if (!bar || !title) continue;
+          measured += 1;
+          const t = title.getBoundingClientRect();
+          const b = badge.getBoundingClientRect();
+          const barRect = bar.getBoundingClientRect();
+
+          const overlapX = Math.min(t.right, b.right) - Math.max(t.left, b.left);
+          const overlapY = Math.min(t.bottom, b.bottom) - Math.max(t.top, b.top);
+          if (overlapX > 1 && overlapY > 1) {
+            found.push(
+              `"${(title.textContent ?? "").slice(0, 30)}" overlaps the badge by ${overlapX.toFixed(1)}x${overlapY.toFixed(1)}px`,
+            );
+          } else if (overlapY > 0 && b.left - t.right < 8) {
+            found.push(`only ${(b.left - t.right).toFixed(1)}px between the title and the badge (floor is 8)`);
+          }
+          if (badge.scrollWidth > badge.clientWidth + 1) {
+            found.push(`the badge text is clipped (${badge.scrollWidth} > ${badge.clientWidth})`);
+          }
+          if (bar.scrollWidth > bar.clientWidth + 1) {
+            found.push(`the chrome bar overflows its box (${bar.scrollWidth} > ${bar.clientWidth})`);
+          }
+          if (b.right > barRect.right + 1 || b.left < barRect.left - 1) {
+            found.push(`the badge sits outside the bar (${b.left.toFixed(1)}–${b.right.toFixed(1)} vs ${barRect.left.toFixed(1)}–${barRect.right.toFixed(1)})`);
+          }
+        }
+        return { found, measured };
+      });
+
+      expect(report.found, `${path} @${width}px: ${report.found.join("; ")}`).toEqual([]);
+      // Some chrome bar must have been measured, or this passes vacuously.
+      expect(report.measured, `${path} @${width}px should carry a zero-egress chrome bar`).toBeGreaterThan(0);
+    });
+  }
+
   test(`no IDE field renders its text under the line-number gutter on ${path}`, async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(path);

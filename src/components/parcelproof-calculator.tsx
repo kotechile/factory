@@ -304,7 +304,7 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
           <>
             <Card>
               <CardHeader className="flex-row items-center justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <CardTitle>2 &middot; Recovery summary</CardTitle>
                   <CardDescription>
                     {report.clean
@@ -312,7 +312,14 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
                       : "Claimable money is split from expired money: an overcharge whose dispute window has closed is measured, not counted as recovery."}
                   </CardDescription>
                 </div>
-                <Badge variant={report.clean ? "success" : summary.recoverableTotalCents > 0 ? "warning" : "outline"}>
+                {/* shrink-0 + nowrap: the badge was being squeezed to a two-line pill ("3" / "flags")
+                    by the description beside it, which reads as crowding and is what the visual-QA
+                    tile flagged as "text overlapping" (measured 12 px gap, no glyph collision,
+                    2026-10-19). The text block carries min-w-0 and takes the wrap instead. */}
+                <Badge
+                  className="shrink-0 whitespace-nowrap"
+                  variant={report.clean ? "success" : summary.recoverableTotalCents > 0 ? "warning" : "outline"}
+                >
                   {report.clean ? "clean" : `${summary.findings} ${summary.findings === 1 ? "flag" : "flags"}`}
                 </Badge>
               </CardHeader>
