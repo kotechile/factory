@@ -218,3 +218,27 @@ against the live service:
    key still appears in the prompt. Read the model's payload **as JSON first**, accept a single-record
    array, and refuse an array of several records LOUDLY instead of merging them — merging is the reader
    inventing the invoice.
+
+## 8. The second document-reading product (2026-10-19, RatchetProof)
+
+A product whose documents are a **tariff** and **bills**, in front of a numeric engine, adds four rules on
+top of §7. Each one came from a real failure mode in the build:
+
+- **The credential is required only for the path that actually reads a document.** RatchetProof accepts a
+  declared tariff JSON and a bills CSV, so that path runs with *no* model key at all; a PDF/text document
+  path resolves the key and answers `503` naming the variable. Putting the check in the resolver (rather
+  than at the document door) refuses work that never needed the model.
+- **An interval export's format decides whether a gap is detectable.** A LONG export
+  (`meter_id,interval_start_utc,kw`) names each interval, so a missing one is a hole the engine refuses by
+  name. A WIDE (positional) export cannot express a gap at all: dropping a row shifts every later value, so
+  the declared `# interval_count` must equal the rows read or the file is refused — that count check is what
+  catches a truncated export. Infer the grid length from the SMALLEST observed step, never an average: a
+  larger step is a gap (`rp-interval-gap`), and averaging hides it behind a bogus granularity error.
+- **The lookback is an explicit ordered array, never a date range.** `history[lookback]` is supplied most
+  recent first, contiguous, ending at the month before the month being billed; a short, shuffled or gapped
+  history refuses the month. Re-deriving "the trailing N months" from dates is how a missing bill silently
+  becomes a different ratchet rule.
+- **A declared rate is not a fallback for a printed one.** The audit prices the carry-over at the rate the
+  BILL prints; it reads the tariff's season × voltage-class rate only when the bill prints none, and when
+  several tariff rates could apply it withholds the dollars rather than choosing. The printed figure is the
+  evidence; a derived one is the reader inventing it.

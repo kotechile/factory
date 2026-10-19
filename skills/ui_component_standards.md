@@ -371,6 +371,26 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   local prompt when present — check it before assuming a prompt edit took effect (it is absent today, so
   the local prompt is live).
 
+- **2026-10-19 — RatchetProof: the vision gate named a NEW wording for the connector-near-label class, and the
+  measurement again said noise.** `visual-qa` failed `ratchetproof-qa-1` with *"connector line strikes through
+  'Carry-over' text in schematic diagram"* on a hero schematic rendered by the shared `PrismSchematic` (the same
+  geometry four other products pass). Measured on the rendered SVG at 1280×900: 8 connector paths sampled at 1 px
+  along their length put the nearest sample **9.3 px** from the nearest label's glyph box, with **0** samples
+  inside any label; `tests/e2e/schematic-collision.spec.ts` (which samples `getPointAtLength` → `getScreenCTM`
+  against every text rect) was green on `/ratchetproof` in the same run. The prompt's existing exclusions covered
+  "dashed line overlaps text" and "connector lines overlap text in nodes" but not "strikes through". **Rules:**
+  (a) a new phrasing of a class the guard decides is a prompt gap, not a page defect — quote the model's literal
+  verdict string next to the guard that decides it, record the measurement, and land the prompt change as its own
+  commit; (b) new product pages must be added to `REVIEWED_PRODUCTS`, the QA capture, `text-geometry` and
+  `schematic-collision` in the same commit, or the gate is silent about them.
+  **The same run then red a tile the diff cannot have touched** — `caseproof-qa-2`, "text on line 77 overflows the
+  right edge of the code block", on an image that passed the previous run. Measured: the flagged element is the
+  `Case (JSON)` textarea, `white-space: pre`, `overflow-x: auto`, clientWidth **754 px** vs scrollWidth **1545 px**,
+  and **0** vertical clipping (scrollHeight == clientHeight == 1584). A long JSON line clipped at an editable IDE
+  field's edge is the editor scrolling, not a layout defect; both phrasings are now excluded by name in the prompt
+  with those numbers. Rule: when the same pixels pass and fail across runs, the verdict is variance — re-run after
+  naming the class, never restyle the page.
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 
