@@ -4,6 +4,30 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-20 (**15:30 sweep, Day-50 — the queue is EMPTY of pending rows and two decisions are now the owner's, not the gate's**).
+`context/approval_queue.json`: **8** rows, **7 `resolved`** + **1 `approved`** (`canopyproof`, S1 built 10-19, S2–S5 building) —
+**no row is `pending`**. Nothing is blocked on the `@Simon approve` gate today. Two items sit with the founder anyway, because the
+records themselves say the call is his:
+1. **`ratchetproof` beta → live.** Built, gated (`scripts/verify-build.sh` "Verification passed.", 416 vitest / 110 Playwright / 30/30
+   tiles), deployed (`af8yqbwrrnyyfgs9wcg0intj-20261019T224803` image == `83131d1`) and re-measured live 2026-10-20: `/ratchetproof`
+   **200**, on `/showcase`, in `/sitemap.xml` (**31** locs), `/.well-known/mcp.json` **v2.2.0 / 11 tools** with `audit_demand_billing`
+   at **$1.50/call**, `POST /api/ratchetproof/audit` empty → **400 `rp-intervals-empty`**. **The reason it matters beyond a label:**
+   `src/lib/launch-video/plan.ts` selects `status === "live"` only, so `detect.mjs --json` returns `{"pending": [], "ledgerRows": 5}`,
+   the Post-Ship Brag monitor stays byte-stable and suppresses every run, and `/launch-videos/ratchetproof.jpg` is **404** — the
+   product is public with no launch video, and no job will produce one while the status is `beta`. Reply `@Simon approve RatchetProof live`
+   (promotes + unlocks the video) or `@Simon keep RatchetProof in beta` (the product stays public and video-less by choice).
+2. **The publishing desk's CMS check, red a 5th day.** Same **9** published `wellroost.com` posts with no `vertical` term
+   (`#90 #86 #73 #75 #68 #55 #50 #14 #9`, CMS dates 2026-09-07 → 10-05) + **6** rolling sitemap gaps (`giniloh.com` `#1056 #1053
+   #1050 #1047 #1044 #1041`, frontend not rebuilt). `vertical_sites` is **30/30**, 169 articles indexed. These posts predate the rule.
+   Reply `@Simon grandfather the 9 legacy posts` (the check stops reporting them) or `@Simon retag the 9 legacy posts` (the desk adds
+   the missing topic term and the check goes green on its own). Cost of nothing: `hermes cron doctor` stays red every day and the
+   daily report keeps carrying it.
+**Closed since the last sweep:** `duplicate-videos` (four superseded uploads deleted, HTTP 204 each, ledger repointed to the five the
+pages render, all re-read by oEmbed **200** today), `ratchetproof` (shipped + measured), and 10-19's five owner-queued fixes
+(quarterline leftovers, header gap, traffic marker, one career-capital copy, aichieve robots+sitemap) all remain green.
+**Not an ask, fleet P2:** `scripts/growth-check.mjs` still defaults `PRODUCT=quarterline`; `0004_events_traffic_class.sql` remains an
+owner SQL-console step (non-blocking — the class lives in `payload.traffic_class` until then); `PAUSED_2026-10-15.md` is stale history.
+
 _Last updated: 2026-10-19 (**`RatchetProof` is LIVE in beta — built, gated and verified on the deploy**).
 Owner instruction carried, verbatim: *"Simon approve RatchetProof"* (the only row at the gate). Shipped
 `68db31a` (product + tests) and `1a2c2c1` (gate-prompt + SOP fixes); `scripts/verify-build.sh` printed

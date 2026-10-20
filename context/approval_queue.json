@@ -3,6 +3,30 @@
   "source": "context/pending_approval.md",
   "items": [
     {
+      "id": "ratchetproof-live",
+      "app": "RatchetProof",
+      "kind": "decision",
+      "state": "pending",
+      "headline": "RatchetProof is built and public — promote it to live, or leave it in beta?",
+      "detail": "Built, gated and deployed 2026-10-19 (68db31a + 1a2c2c1), verified on the deploy image, and re-measured live on 2026-10-20: the page answers 200, computes the worked example, appears on /showcase, sits in /sitemap.xml (31 locs), and the agent descriptor is v2.2.0 with audit_demand_billing at $1.50/call. The open call is the beta-to-live promotion. It also gates the launch video: the video selector (src/lib/launch-video/plan.ts) picks only status 'live', so the detector reports zero pending and no video is produced while the status is beta (poster 404, ledger 5 rows).",
+      "impact": "Promoting makes the sixth product a full live product and starts its launch video; leaving it beta keeps it public but outside the video pipeline.",
+      "reply": "@Simon approve RatchetProof live  |  @Simon keep RatchetProof in beta",
+      "opened": "2026-10-20",
+      "updated": "2026-10-20"
+    },
+    {
+      "id": "cms-legacy-posts",
+      "app": "",
+      "kind": "decision",
+      "state": "pending",
+      "headline": "The daily publishing check is red on nine old posts that predate its rule",
+      "detail": "The CMS defect check has failed five days running on the same nine published wellroost.com posts with no topic (vertical) term, all dated 2026-09-07 to 10-05, plus six rolling sitemap-listing gaps on giniloh.com whose pages exist and answer 200 (frontend not rebuilt). The vertical routing itself is now 30/30 and the check indexes 169 live articles. These posts were published before the rule existed.",
+      "impact": "Grandfathering the nine makes the daily check stop reporting them; retagging makes it green on its own. Doing nothing leaves the cron doctor red every day.",
+      "reply": "@Simon grandfather the 9 legacy posts  |  @Simon retag the 9 legacy posts",
+      "opened": "2026-10-20",
+      "updated": "2026-10-20"
+    },
+    {
       "id": "traffic-marker",
       "app": "",
       "kind": "decision",
@@ -101,5 +125,5 @@
       "updated": "2026-10-19"
     }
   ],
-  "updated": "2026-10-19T22:43:54Z"
+  "updated": "2026-10-20T15:33:24Z"
 }
