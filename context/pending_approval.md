@@ -4,6 +4,29 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-21 (**15:30 sweep, Day-51 — two decisions are the owner's; both are real, and one has a cost that compounds**).
+`context/approval_queue.json`: **10 rows — 2 `pending`, 1 `approved` (canopyproof, S2–S5 building), 7 `resolved`.**
+1. **`ratchetproof-live` — beta → live.** Built, gated, deployed 2026-10-19 and re-measured live again today (2026-10-21):
+   `/ratchetproof` **200**, on `/showcase`, `/sitemap.xml` **31** locs incl. it, `/.well-known/mcp.json` **v2.2.0 / 11 tools**
+   with `audit_demand_billing` at **$1.50/call**, `POST /api/ratchetproof/audit` empty → **400 `rp-intervals-empty`**.
+   **Why it is more than a label:** `src/lib/launch-video/plan.ts` selects `status === "live"` only, so
+   `detect.mjs --json` returns `{"pending": [], "ledgerRows": 5}`, the Post-Ship Brag monitor stays byte-stable and
+   suppresses every run, and `/launch-videos/ratchetproof.jpg` is **404** — the product is public with no launch video,
+   and no job will produce one while the status is `beta`. Reply `@Simon approve RatchetProof live` (promotes + unlocks
+   the video) or `@Simon keep RatchetProof in beta` (stays public and video-less by choice).
+2. **`cms-legacy-posts` — four old published posts, grandfather or retag.** The check has been red six days; the desk has
+   tagged five of the original nine, so it now names **four** `wellroost.com` posts with no `vertical` term
+   (`#55 #50 #14 #9`, CMS dates 2026-09-07 → 09-16), plus **six** rolling sitemap-listing gaps (`giniloh.com` `#1087
+   #1084 #1081 #1078 #1074 #1072`, pages exist and answer 200 — frontend not rebuilt). `vertical_sites` **30/30**,
+   **181** articles indexed. These four predate the rule. Reply `@Simon grandfather the 4 legacy posts` (the check stops
+   reporting them) or `@Simon retag the 4 legacy posts` (the desk adds the missing topic term and it goes green on its own).
+   Cost of nothing: `hermes cron doctor` stays red every day and the daily report keeps carrying it.
+   **The queue row was stale at "9"; corrected in both copies this sweep.**
+**Closed since the last sweep:** `duplicate-videos`, `ratchetproof` (shipped + measured), and 10-19's five owner-queued fixes
+all remain green; **item 11 fully closed** — the legacy `/.well-known/ai-plugin.json` descriptor answers **404** today.
+**Not an ask, fleet P2:** `scripts/growth-check.mjs:54` still defaults `PRODUCT=quarterline`; `0004_events_traffic_class.sql`
+remains an owner SQL-console step (non-blocking); `PAUSED_2026-10-15.md` is stale history.
+
 _Last updated: 2026-10-20 (**15:30 sweep, Day-50 — the queue is EMPTY of pending rows and two decisions are now the owner's, not the gate's**).
 `context/approval_queue.json`: **8** rows, **7 `resolved`** + **1 `approved`** (`canopyproof`, S1 built 10-19, S2–S5 building) —
 **no row is `pending`**. Nothing is blocked on the `@Simon approve` gate today. Two items sit with the founder anyway, because the

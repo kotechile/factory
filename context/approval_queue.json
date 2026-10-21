@@ -19,12 +19,12 @@
       "app": "",
       "kind": "decision",
       "state": "pending",
-      "headline": "The daily publishing check is red on nine old posts that predate its rule",
-      "detail": "The CMS defect check has failed five days running on the same nine published wellroost.com posts with no topic (vertical) term, all dated 2026-09-07 to 10-05, plus six rolling sitemap-listing gaps on giniloh.com whose pages exist and answer 200 (frontend not rebuilt). The vertical routing itself is now 30/30 and the check indexes 169 live articles. These posts were published before the rule existed.",
-      "impact": "Grandfathering the nine makes the daily check stop reporting them; retagging makes it green on its own. Doing nothing leaves the cron doctor red every day.",
-      "reply": "@Simon grandfather the 9 legacy posts  |  @Simon retag the 9 legacy posts",
+      "headline": "The daily publishing check is red on four old posts that predate its rule",
+      "detail": "The CMS defect check has failed six days running; the desk has tagged five of the nine, so it now names four published wellroost.com posts with no topic (vertical) term (#55 #50 #14 #9, CMS dates 2026-09-07 to 09-16), plus six rolling sitemap-listing gaps on giniloh.com (#1087 #1084 #1081 #1078 #1074 #1072) whose pages exist and answer 200 (frontend not rebuilt). Vertical routing is 30/30 and the check indexed 181 live articles on 2026-10-21. These four posts were published before the rule existed.",
+      "impact": "Grandfathering the four makes the daily check stop reporting them; retagging makes it green on its own. Doing nothing leaves the cron doctor red every day and the daily report carrying it.",
+      "reply": "@Simon grandfather the 4 legacy posts  |  @Simon retag the 4 legacy posts",
       "opened": "2026-10-20",
-      "updated": "2026-10-20"
+      "updated": "2026-10-21"
     },
     {
       "id": "traffic-marker",
@@ -125,5 +125,5 @@
       "updated": "2026-10-19"
     }
   ],
-  "updated": "2026-10-20T15:33:24Z"
+  "updated": "2026-10-21T15:33:00Z"
 }
