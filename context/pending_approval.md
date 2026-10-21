@@ -4,8 +4,18 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-10-21 (**15:30 sweep, Day-51 — two decisions are the owner's; both are real, and one has a cost that compounds**).
-`context/approval_queue.json`: **10 rows — 2 `pending`, 1 `approved` (canopyproof, S2–S5 building), 7 `resolved`.**
+_Last updated: 2026-10-21 (**15:30 sweep, Day-51 — three decisions are the owner's; two are asks that have been waiting, one is new**).
+`context/approval_queue.json`: **11 rows — 3 `pending`, 1 `approved` (canopyproof, S2–S5 building), 7 `resolved`.**
+0. **`deploy-hook` (NEW today) — the push-to-live chain did not fire for this sweep's own push.** Commit `92c2c9e`
+   pushed at **15:37Z** queued **no deployment** (`application_deployment_queues` has no row after id 2429,
+   13:27:30Z) and the app container is still `af8yqbwrrnyyfgs9wcg0intj-20261020T164508` image `10c4d1c`, started
+   2026-10-20 16:45:40Z. Yesterday's equivalent push built in **34 s**. The app config is intact (`watch_paths`
+   null, `fqdn` `https://apps.aichieve.net/`, branch `main`, `git_commit_sha` `HEAD`) and `/showcase` is **200** —
+   `HEAD` is docs-only, so nothing user-facing differs. The manual webhook secret answers **401** on both
+   `/api/v1/deploy` forms (no API token on this host), so this sweep could not self-trigger. **The risk is the next
+   product push:** it would land in the repository and never reach the live site. Reply `@Simon redeploy from Coolify`
+   (re-trigger the deploy and confirm the hook) or `@Simon the hook is fine` (leave it; the next sweep measures
+   whether a code push deploys).
 1. **`ratchetproof-live` — beta → live.** Built, gated, deployed 2026-10-19 and re-measured live again today (2026-10-21):
    `/ratchetproof` **200**, on `/showcase`, `/sitemap.xml` **31** locs incl. it, `/.well-known/mcp.json` **v2.2.0 / 11 tools**
    with `audit_demand_billing` at **$1.50/call**, `POST /api/ratchetproof/audit` empty → **400 `rp-intervals-empty`**.

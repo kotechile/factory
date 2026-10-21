@@ -3,6 +3,18 @@
   "source": "context/pending_approval.md",
   "items": [
     {
+      "id": "deploy-hook",
+      "app": "",
+      "kind": "fix",
+      "state": "pending",
+      "headline": "Today's push to main queued no build — re-check the app's automatic deploy in Coolify",
+      "detail": "Push 92c2c9e at 2026-10-21T15:37Z produced no deployment: the app container is still af8yqbwrrnyyfgs9wcg0intj-20261020T164508 (image 10c4d1c, started 2026-10-20T16:45:40Z) and application_deployment_queues has no row after id 2429 (13:27:30Z). Yesterday's equivalent docs push built in 34 s (16:45:06 -> 16:45:40). App config is intact: watch_paths null, fqdn https://apps.aichieve.net/, branch main, git_commit_sha HEAD, /showcase 200. The manual webhook secret answers 401 on both /api/v1/deploy forms (no Coolify API token on this host), so the sweep could not self-trigger.",
+      "impact": "Nothing user-facing differs today (HEAD is docs-only), but the next product push would land in the repository and never reach the live site — silently.",
+      "reply": "@Simon redeploy from Coolify  |  @Simon the hook is fine",
+      "opened": "2026-10-21",
+      "updated": "2026-10-21"
+    },
+    {
       "id": "ratchetproof-live",
       "app": "RatchetProof",
       "kind": "decision",
@@ -125,5 +137,5 @@
       "updated": "2026-10-19"
     }
   ],
-  "updated": "2026-10-21T15:33:00Z"
+  "updated": "2026-10-21T16:20:00Z"
 }
