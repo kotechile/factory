@@ -3,18 +3,6 @@
   "source": "context/pending_approval.md",
   "items": [
     {
-      "id": "deploy-hook",
-      "app": "",
-      "kind": "fix",
-      "state": "pending",
-      "headline": "Today's push to main queued no build — re-check the app's automatic deploy in Coolify",
-      "detail": "Push 92c2c9e at 2026-10-21T15:37Z produced no deployment: the app container is still af8yqbwrrnyyfgs9wcg0intj-20261020T164508 (image 10c4d1c, started 2026-10-20T16:45:40Z) and application_deployment_queues has no row after id 2429 (13:27:30Z). Yesterday's equivalent docs push built in 34 s (16:45:06 -> 16:45:40). App config is intact: watch_paths null, fqdn https://apps.aichieve.net/, branch main, git_commit_sha HEAD, /showcase 200. The manual webhook secret answers 401 on both /api/v1/deploy forms (no Coolify API token on this host), so the sweep could not self-trigger.",
-      "impact": "Nothing user-facing differs today (HEAD is docs-only), but the next product push would land in the repository and never reach the live site — silently.",
-      "reply": "@Simon redeploy from Coolify  |  @Simon the hook is fine",
-      "opened": "2026-10-21",
-      "updated": "2026-10-21"
-    },
-    {
       "id": "ratchetproof-live",
       "app": "RatchetProof",
       "kind": "decision",
@@ -37,6 +25,18 @@
       "reply": "@Simon grandfather the 4 legacy posts  |  @Simon retag the 4 legacy posts",
       "opened": "2026-10-20",
       "updated": "2026-10-21"
+    },
+    {
+      "id": "canopyproof",
+      "app": "CanopyProof",
+      "kind": "build",
+      "state": "approved",
+      "headline": "Supplier geolocation pre-flight audit for the EU deforestation rules (EUDR)",
+      "detail": "A model reads the declared fields out of supplier packs; overlap, declared-vs-computed area and scope are checked by our own geometry. Plan in five slices, S1 engine through S5 gate + deploy.",
+      "impact": "Build in progress since 2026-10-18. EUDR application date is 30 December 2026.",
+      "reply": "",
+      "opened": "2026-10-12",
+      "updated": "2026-10-18"
     },
     {
       "id": "traffic-marker",
@@ -89,18 +89,6 @@
       "updated": "2026-10-19"
     },
     {
-      "id": "canopyproof",
-      "app": "CanopyProof",
-      "kind": "build",
-      "state": "approved",
-      "headline": "Supplier geolocation pre-flight audit for the EU deforestation rules (EUDR)",
-      "detail": "A model reads the declared fields out of supplier packs; overlap, declared-vs-computed area and scope are checked by our own geometry. Plan in five slices, S1 engine through S5 gate + deploy.",
-      "impact": "Build in progress since 2026-10-18. EUDR application date is 30 December 2026.",
-      "reply": "",
-      "opened": "2026-10-12",
-      "updated": "2026-10-18"
-    },
-    {
       "id": "ratchetproof",
       "app": "RatchetProof",
       "kind": "build",
@@ -135,7 +123,20 @@
       "reply": "",
       "opened": "2026-10-15",
       "updated": "2026-10-19"
+    },
+    {
+      "id": "deploy-hook",
+      "app": "",
+      "kind": "fix",
+      "state": "resolved",
+      "headline": "The push-to-live chain was fine \\u2014 it fired three times after the alarm and the app rebuilt",
+      "detail": "Checked 2026-10-21 16:30Z (Build Watchdog): `application_deployment_queues` has rows 2430 (15:43:24Z), 2431 (15:56:49Z) and 2432 (16:02:13Z), all `finished`, and the app container is now af8yqbwrrnyyfgs9wcg0intj-20261021T160213 with image `54005ec` and SOURCE_COMMIT `54005ec` \\u2014 the commit pushed at 15:41:48Z. So the hook worked; the 15:42Z row was written while the queue row had not appeared yet. Only `c2f062d` (a docs-only approvals commit pushed 13 s after `54005ec`) is not in the running image \\u2014 nothing user-facing differs. `/showcase` 200 and every product page 200 on apps.aichieve.net.",
+      "impact": "No action needed from the owner; the next product push will deploy.",
+      "reply": "",
+      "opened": "2026-10-21",
+      "updated": "2026-10-21",
+      "closed": "2026-10-21"
     }
   ],
-  "updated": "2026-10-21T16:20:00Z"
+  "updated": "2026-10-21T16:35Z"
 }

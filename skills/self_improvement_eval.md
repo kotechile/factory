@@ -174,3 +174,24 @@ directory of hardlinks), copy `.env` in, and re-run only the remaining steps (`n
 npm run test:e2e && npm run visual-qa`) rather than the whole gate. Then re-run `npm run visual-qa`
 alone with the real `.env`: under the dead-Supabase recipe that step self-skips with exit 0 and its
 verdict silently disappears.
+
+## 8. Build Watchdog runs (append-only)
+
+**2026-10-21 — gate GREEN on `c2f062d`.** `scripts/verify-build.sh` exit 0 under the dead-Supabase pair:
+tsc clean · lint 0 errors / 3 warnings (`check-recon-cadence.mjs` unused `existsSync`,
+`product-launch-video.tsx` bare `<img>`, `middleware.ts` unused `_request` — all pre-existing) · design
+tokens clean · verticals 30 in sync · recon cadence ok · vitest 416/416 (33 files) · `next build` 52/52
+pages · Playwright 110/110. `visual-qa` self-skipped under the dead address as documented, then was
+re-run alone with the real `.env`: **30/30 tiles PASS across 5 products** (facturgate, parcelproof,
+caseproof, spendproof, ratchetproof), exit 0. HEAD was mirrored into a detached worktree with
+`cp -al` hardlinked `node_modules` because the shared tree carried another desk's uncommitted work.
+
+**Do not declare the deploy hook dead from a queue read taken within a minute of the push (measured
+2026-10-21).** The 15:42Z sweep wrote a `deploy-hook` alarm — "commit `92c2c9e` pushed, no deployment
+row" — and it was a race: Coolify wrote `application_deployment_queues` rows **2430** (15:43:24Z, i.e.
+96 s after the push), **2431** and **2432**, all `finished`, and the container settled on image
+`54005ec` == `SOURCE_COMMIT`. A docs-only push built **20 minutes** after it landed, so "no row yet"
+proves nothing in the first hour. Re-check before escalating: the queue table for rows newer than the
+push, then `docker inspect <c> --format '{{.Image}}'` **and** `SOURCE_COMMIT` in `.Config.Env` against
+`git rev-parse` of the pushed commit. Report "the alarm cleared itself" plus which commit is actually
+served — one docs commit behind is not an incident, a code commit behind is.

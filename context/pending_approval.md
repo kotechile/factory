@@ -4,6 +4,25 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-21 (**16:30 Build Watchdog — the deploy alarm cleared itself; the build is green; two decisions remain the owner's**).
+`context/approval_queue.json`: **11 rows — 2 `pending`, 1 `approved` (canopyproof, S2–S5 building), 8 `resolved`.**
+0. **`deploy-hook` — CLOSED by measurement. No reply needed.** Re-checked at 16:30Z: `application_deployment_queues`
+   holds rows **2430** (15:43:24Z), **2431** (15:56:49Z) and **2432** (16:02:13Z), all `finished`, and the app container is
+   now `af8yqbwrrnyyfgs9wcg0intj-20261021T160213` with image **`54005ec`** == its `SOURCE_COMMIT` — the commit pushed at
+   15:41:48Z. The 15:42Z row was therefore a **race**, not a broken hook: it was written before the queue row existed.
+   Only `c2f062d` (an approvals-only commit pushed 13 s after `54005ec`) is absent from the running image, and nothing
+   user-facing differs because it changed no code. `/showcase` and every product page answer **200** on `apps.aichieve.net`.
+1. **`ratchetproof-live` — unchanged, still the owner's call.** Public and video-less while the status is `beta`; the video
+   selector reads `status === "live"` only. Reply `@Simon approve RatchetProof live` or `@Simon keep RatchetProof in beta`.
+2. **`cms-legacy-posts` — unchanged.** Four `wellroost.com` posts still carry no `vertical` term. Reply
+   `@Simon grandfather the 4 legacy posts` or `@Simon retag the 4 legacy posts`.
+**Build verification on `c2f062d` (this run):** `scripts/verify-build.sh` **exit 0** — tsc clean, lint **0 errors / 3 warnings**,
+design tokens clean, verticals **30** in sync, recon cadence ok, vitest **416/416** (33 files), production build **52/52** pages,
+Playwright **110/110**. The recipe's dead-Supabase stand-in makes `visual-qa` self-skip, so it was re-run alone against the real
+config: **30/30 tiles PASS** across 5 products. The working tree is dirty with another desk's in-flight work
+(`package.json`, `src/app/facturgate/calc/[slug]/page.tsx`, untracked `scripts/*.mjs`), so HEAD was mirrored into a detached
+worktree by hardlinking `node_modules` — the gate proves the commit, not the shared tree.
+
 _Last updated: 2026-10-21 (**15:30 sweep, Day-51 — three decisions are the owner's; two are asks that have been waiting, one is new**).
 `context/approval_queue.json`: **11 rows — 3 `pending`, 1 `approved` (canopyproof, S2–S5 building), 7 `resolved`.**
 0. **`deploy-hook` (NEW today) — the push-to-live chain did not fire for this sweep's own push.** Commit `92c2c9e`
