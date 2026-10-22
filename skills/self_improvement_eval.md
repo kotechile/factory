@@ -195,3 +195,16 @@ proves nothing in the first hour. Re-check before escalating: the queue table fo
 push, then `docker inspect <c> --format '{{.Image}}'` **and** `SOURCE_COMMIT` in `.Config.Env` against
 `git rev-parse` of the pushed commit. Report "the alarm cleared itself" plus which commit is actually
 served — one docs commit behind is not an incident, a code commit behind is.
+
+**2026-10-22 — gate GREEN on `545efb4`.** `scripts/verify-build.sh` exit 0 on the latest commit
+(mirrored into `/root/.hermes/scratch/sfc/vb-head-545efb4` with hardlinked `node_modules`, because the
+shared tree carried another desk's uncommitted `package.json` + facturgate calc copy edits, and was run
+under the dead-Supabase pair so no production telemetry rows were written): tsc clean · lint 0 errors /
+3 warnings (`check-recon-cadence.mjs` unused `existsSync`, `product-launch-video.tsx` bare `<img>`,
+`middleware.ts` unused `_request` — all pre-existing) · design tokens clean · verticals 30 in sync ·
+recon cadence ok (newest scan 2026-10-19) · vitest 416/416 (33 files) · `next build` 52/52 pages ·
+Playwright 110/110. `visual-qa` self-skipped under the dead address as documented, then was re-run alone
+against the real `.env`: **30/30 tiles PASS across 5 products** (facturgate, parcelproof, caseproof,
+spendproof, ratchetproof), exit 0. No failure class appeared; no skill patch needed. The commit is
+docs-only over the 10-21 green `c2f062d`, so the served app is unchanged and the container image
+already equals it.
