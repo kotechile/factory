@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "enforced_from": "2026-10-20",
   "owner": "Jorge",
   "audience": "technical decision-makers, operators and engineers",
@@ -43,7 +43,16 @@
     { "id": "data-driven-insights", "pattern": "\\bdata[- ]driven insights?\\b", "label": "data-driven insights" },
     { "id": "empowering", "pattern": "\\bempower(s|ed|ing)?\\b", "label": "empower / empowering" },
     { "id": "synergy", "pattern": "\\bsynerg(y|ies|istic)\\b", "label": "synergy" },
-    { "id": "leverage-verb", "pattern": "\\bleverag(e|es|ed|ing)\\s+(the|your|our|its|this|these|data|insights|technology|ai)\\b", "label": "leverage (verb)" }
+    { "id": "leverage-verb", "pattern": "\\bleverag(e|es|ed|ing)\\s+(the|your|our|its|this|these|data|insights|technology|ai)\\b", "label": "leverage (verb)" },
+    { "id": "embark", "pattern": "\\bembark(s|ed|ing)?\\b", "label": "embark" },
+    { "id": "plethora", "pattern": "\\b(a )?plethora of\\b", "label": "a plethora of" },
+    { "id": "dream-home", "pattern": "\\bdream home\\b", "label": "dream home" },
+    { "id": "sanctuary-oasis", "pattern": "\\bsanctuary oasis\\b", "label": "sanctuary oasis" },
+    { "id": "forever-home", "pattern": "\\bforever home\\b", "label": "forever home" },
+    { "id": "nest-egg", "pattern": "\\bnest egg\\b", "label": "nest egg" },
+    { "id": "curb-appeal-magic", "pattern": "\\bcurb appeal magic\\b", "label": "curb appeal magic" },
+    { "id": "when-it-comes-mid", "pattern": "\\bwhen it comes to (home|buying|selling|remodel|renovat|property)", "label": "when it comes to home…" },
+    { "id": "important-keep-in-mind", "pattern": "\\bit (is|'s) important to (keep in mind|note) that\\b", "label": "it is important to keep in mind that" }
   ],
   "openers": [
     { "id": "welcome-to", "pattern": "^welcome to\\b", "label": "Welcome to…" },

@@ -1,7 +1,7 @@
 # Vendored copy gate
 
 Source: kotechile vibe-marketing.
-lexicon 2b118417cea6a3b6
+lexicon 7ef5ec85b710df46
 linter d324f2a3ae0154a1
 
 Re-vendor after any lexicon or linter change: node vendor.mjs --to <repo> --name factory-apps --write --hook
