@@ -4,6 +4,26 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-22 (**15:30 sweep, Day-52 — one decision is the owner's; the old-post row closed itself in code; the week's direction is the new ask**).
+`context/approval_queue.json`: **11 rows — 1 `pending`, 1 `approved` (`canopyproof`, still at S1), 9 `resolved`.** No product commit
+in 24 h and nothing user-facing changed; the app container `af8yqbwrrnyyfgs9wcg0intj-20261021T163724` image `813487cd8555…` == HEAD
+`813487c`, `/showcase` **200**.
+1. **`ratchetproof-live` — unchanged, day 3, still the owner's call.** Public and video-less while the status is `beta`:
+   `detect.mjs --json` → `{"pending": [], "ledgerRows": 5}`, `/launch-videos/ratchetproof.jpg` **404**, the selector reads
+   `status === "live"` only. Reply `@Simon approve RatchetProof live` or `@Simon keep RatchetProof in beta`.
+2. **`cms-legacy-posts` — CLOSED without a reply, and it closed in code.** `bf5c343` (2026-10-22 11:05) added
+   `HAND_ERA_ALLOWLIST` `#9 #14 #50 #55` to `scripts/check_cms_defects.py`, so the four pre-rule `wellroost.com` posts are
+   **exempted, not retagged**; the script now exits **0** with no output and WordPress Draft Sweep ran `ok` 14:16 — the first
+   green in six days. Nothing published was edited. Reversal is one instruction: `@Simon retag the 4 legacy posts`.
+3. **NEW ask, not a queue row: where the week goes.** Six products, 52 days, zero provable outside visitor, $0 revenue, and an
+   approved build (`canopyproof`, approved 10-18) that has not moved past its first slice since `01d02c3`. Reply
+   `@Simon switch to distribution` or `@Simon keep building`.
+**Closed since the last sweep:** `deploy-hook` — deployment queue rows **2430** (15:43:24Z), **2431** (15:56:49Z) and
+**2432** (16:02:13Z) all `finished`; the running image is the 16:37 build of `813487c`, so the chain fires and yesterday's
+finding was a queue-write race (recorded as a false alarm in `skills/self_improvement_eval.md`).
+**Not an ask, fleet P2:** `scripts/growth-check.mjs:54` still defaults `PRODUCT=quarterline`; `0004_events_traffic_class.sql`
+is still an owner SQL-console step (non-blocking — the marker works from the payload); `PAUSED_2026-10-15.md` is stale history.
+
 _Last updated: 2026-10-21 (**16:30 Build Watchdog — the deploy alarm cleared itself; the build is green; two decisions remain the owner's**).
 `context/approval_queue.json`: **11 rows — 2 `pending`, 1 `approved` (canopyproof, S2–S5 building), 8 `resolved`.**
 0. **`deploy-hook` — CLOSED by measurement. No reply needed.** Re-checked at 16:30Z: `application_deployment_queues`
