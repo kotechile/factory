@@ -15,7 +15,9 @@
     "verticals:vendor": "node scripts/vertical-sync.mjs --vendor",
     "recon:cadence": "node scripts/check-recon-cadence.mjs",
     "visual-qa": "node scripts/visual-qa.mjs",
-    "visual-qa:suggest": "node scripts/visual-qa.mjs --suggest"
+    "visual-qa:suggest": "node scripts/visual-qa.mjs --suggest",
+    "copy:check": "node scripts/vibe/verify-vendor.mjs && node scripts/vibe/vibe-lint.mjs --root src --root content/launch_videos --include share-copy.txt --include narration.txt --baseline scripts/vibe/baseline.json",
+    "prebuild": "npm run copy:check"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",

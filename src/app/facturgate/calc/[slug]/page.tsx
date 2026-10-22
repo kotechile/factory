@@ -57,7 +57,7 @@ export default async function CalcPage({ params }: Props) {
                 >
                   FacturGate
                 </Link>
-                <Badge variant="accent">Rule Deep Dive</Badge>
+                <Badge variant="accent">Rule-level detail</Badge>
               </div>
               <p className="text-xs text-subtle">EU E-Invoice Pre-Send Gate &amp; Factur-X Converter</p>
             </div>
