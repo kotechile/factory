@@ -208,3 +208,20 @@ against the real `.env`: **30/30 tiles PASS across 5 products** (facturgate, par
 spendproof, ratchetproof), exit 0. No failure class appeared; no skill patch needed. The commit is
 docs-only over the 10-21 green `c2f062d`, so the served app is unchanged and the container image
 already equals it.
+
+**2026-10-23 — gate GREEN on `696c8cb`.** `scripts/verify-build.sh` exit 0 on the latest commit (mirrored
+into `/root/.hermes/scratch/sfc/vb-head-696c8cb` with `cp -al` hardlinked `node_modules` and a copy of
+`.env`, because the shared tree carries 12 untracked inspection scripts from another desk; run under the
+dead-Supabase pair so the Playwright suite wrote no production rows — every insert logged
+`[telemetry] insert failed … fetch failed`, 110/110 specs still ran): tsc clean · lint **0 errors / 5
+warnings** (the two new ones are in the vendored copy gate — `scripts/vibe/verify-vendor.mjs` unused
+`label`, `scripts/vibe/vibe-lint.mjs` unused `JSX_TEXT_PROPS`; the three older ones are
+`check-recon-cadence.mjs` unused `existsSync`, `product-launch-video.tsx` bare `<img>`,
+`middleware.ts` unused `_request`) · design tokens clean · verticals 30 in sync · recon cadence ok
+(newest scan 2026-10-19, two verticals) · vitest 416/416 (33 files) · `next build` 52/52 pages ·
+Playwright 110/110. `visual-qa` self-skipped under the dead address as documented, then was re-run alone
+with the real `.env` against Supabase `factory_config`: **30/30 tiles PASS across 5 products**
+(facturgate, parcelproof, caseproof, spendproof, ratchetproof), exit 0. The build therefore reproduces
+green on the same commit Coolify is serving (`SOURCE_COMMIT=696c8cb`, container
+`af8yqbwrrnyyfgs9wcg0intj-20261023T153608`), so yesterday's `copy:check` runtime-root fix holds in a
+clean checkout. No failure class appeared; no skill patch needed.
