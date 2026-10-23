@@ -16,7 +16,7 @@
     "recon:cadence": "node scripts/check-recon-cadence.mjs",
     "visual-qa": "node scripts/visual-qa.mjs",
     "visual-qa:suggest": "node scripts/visual-qa.mjs --suggest",
-    "copy:check": "node scripts/vibe/verify-vendor.mjs && node scripts/vibe/vibe-lint.mjs --root src --root content/launch_videos --include share-copy.txt --include narration.txt --baseline scripts/vibe/baseline.json",
+    "copy:check": "node scripts/vibe/verify-vendor.mjs && node scripts/vibe/vibe-lint.mjs --root src --baseline scripts/vibe/baseline.json && if [ -d content/launch_videos ]; then node scripts/vibe/vibe-lint.mjs --root content/launch_videos --include share-copy.txt --include narration.txt --baseline scripts/vibe/baseline.json; else echo 'copy:check: content/launch_videos not present (gitignored runtime output) — reader-facing launch copy not scanned here'; fi",
     "prebuild": "npm run copy:check"
   },
   "dependencies": {
