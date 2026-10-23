@@ -137,7 +137,20 @@
    "opened": "2026-10-21",
    "updated": "2026-10-21",
    "closed": "2026-10-21"
+  },
+  {
+   "id": "copy-gate-deploy",
+   "app": "",
+   "kind": "repair",
+   "state": "resolved",
+   "headline": "The factory could not deploy for 20 hours — the new copy gate scanned a folder a clean build does not have; fixed",
+   "detail": "Measured 2026-10-23 15:30Z: Coolify deployments 2544 (2026-10-22 19:06:57Z, commit 533e309) and 2553 (19:16:56Z, commit 5a96e75) both FAILED, and the live container still carries SOURCE_COMMIT 7d60f7e from the 16:37 build, so the FacturGate badge-copy fix in 533e309 never went live. Cause: the new prebuild step copy:check ran vibe-lint.mjs against src AND content/launch_videos; that directory is gitignored runtime output, so in a git clone it does not exist and the linter died with ENOENT scandir '/app/content/launch_videos', exit 1, build failed. Reproduced outside Coolify (git clone . /tmp/cleanclone && npm run copy:check -> same ENOENT), so it was not a platform flake and would have blocked every future product push. Fix applied this sweep in package.json only: copy:check runs the src scan exactly as before, then scans content/launch_videos only when the directory exists, printing an explicit 'not present (gitignored runtime output)' line when it does not. Vendored scripts/vibe/* are untouched (verify-vendor still ok, 2 files match their recorded hash). Proven to still bite: a banned-word sentence injected into src/products/registry.ts in the clean clone returns verdict FAIL, exit 1; reverted.",
+   "impact": "Deploys work again and the copy gate still blocks bad copy in src. Reader-facing launch copy is scanned only on a machine that holds the (gitignored) artifacts, which is where it is generated. Reversal: restore the single combined invocation and make launch copy present in the build (commit the copy, or generate the artifacts in the image).",
+   "reply": "@Simon restore the strict copy gate  (only once launch copy exists in the build)",
+   "opened": "2026-10-23",
+   "updated": "2026-10-23",
+   "closed": "2026-10-23"
   }
  ],
- "updated": "2026-10-21T16:35Z"
+ "updated": "2026-10-23T15:40Z"
 }

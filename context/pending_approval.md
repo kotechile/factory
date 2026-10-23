@@ -4,6 +4,25 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-23 (**15:30 sweep, Day-53 — the factory's deploy chain was broken for 20 hours by the new copy gate; fixed this sweep; one decision is still yours and one approved build is still idle**).
+`context/approval_queue.json`: **11 rows — 1 `pending`, 1 `approved` (`canopyproof`, still at S1), 9 `resolved`** (the new `copy-gate-deploy` row closes at `resolved`).
+1. **`ratchetproof-live` — unchanged, day 4, still the owner's call.** Public, uncounted and video-less while the status is `beta`:
+   `/launch-videos/ratchetproof.jpg` **404**, `detect.mjs` pending [] / ledgerRows 5, the selector reads `status === "live"` only.
+   Reply `@Simon approve RatchetProof live` or `@Simon keep RatchetProof in beta`.
+2. **`canopyproof` — approved 2026-10-18, idle 5 days.** One commit (`01d02c3`, S1 EUDR engine + tests), no route, not registered,
+   not on `/showcase`. Nothing to approve — it is a dispatch gap, named here so it is not mistaken for progress.
+3. **NEW finding, fixed autonomously — `copy-gate-deploy` (closed, `resolved`):** the vendored copy gate (`533e309`/`5a96e75`,
+   2026-10-22 19:05–19:16) scanned `content/launch_videos`, which is gitignored runtime output and absent from a git clone, so
+   **every build failed at prebuild** (`ENOENT … /app/content/launch_videos`, deployments **2544** and **2553** `failed`) and the app
+   sat on the 16:37 build of `7d60f7e` — the FacturGate badge-copy fix never went live. Fix: `package.json` `copy:check` scans `src`
+   always and the launch-copy root only when it exists, with an explicit printed line when it does not; vendored hashes untouched,
+   gate still fails on a real violation (proven in a clean clone). Reversal: `@Simon restore the strict copy gate`
+   (only viable once launch copy is committed or the artifacts are generated in the image).
+**Closed since the last sweep:** `cms-legacy-posts` (exempted in code 2026-10-22, WordPress Draft Sweep green 2 days running).
+**Not an ask, fleet P2:** `scripts/growth-check.mjs:54` still defaults `PRODUCT=quarterline`; `0004_events_traffic_class.sql`
+is still an owner SQL-console step (non-blocking); `PAUSED_2026-10-15.md` is stale history; `/api/agent/calculate {}` answers
+500 with a 400-class message (day 6).
+
 _Last updated: 2026-10-22 (**15:30 sweep, Day-52 — one decision is the owner's; the old-post row closed itself in code; the week's direction is the new ask**).
 `context/approval_queue.json`: **11 rows — 1 `pending`, 1 `approved` (`canopyproof`, still at S1), 9 `resolved`.** No product commit
 in 24 h and nothing user-facing changed; the app container `af8yqbwrrnyyfgs9wcg0intj-20261021T163724` image `813487cd8555…` == HEAD
