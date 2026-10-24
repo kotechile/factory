@@ -68,11 +68,11 @@ export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   },
   {
     slug: "facturgate",
-    youtubeId: "I7NOZAQ-5Ig",
+    youtubeId: "a4x5rhkBlXA",
     posterPath: "/launch-videos/facturgate.jpg",
     title: "Introducing FacturGate: the deterministic EN 16931 + CIUS-FR pre-send gate for EU e-invoices",
     durationSeconds: 23,
-    publishedAt: "2026-10-14",
+    publishedAt: "2026-10-24",
   },
   {
     slug: "parcelproof",
