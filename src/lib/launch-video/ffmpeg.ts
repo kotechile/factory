@@ -46,18 +46,148 @@ export const LOUDNESS_TARGET = { I: -14, TP: -1.5, LRA: 11 } as const;
 export const LOUDNESS_FILTER =
   `loudnorm=I=${LOUDNESS_TARGET.I}:TP=${LOUDNESS_TARGET.TP}:LRA=${LOUDNESS_TARGET.LRA}`;
 
-export const DUCK_FILTER =
-  "[0:a]volume=1.0[music];[1:a]volume=1.9,asplit=2[vo][vokey];[vokey]volume=1.0[voside];" +
-  "[music][voside]sidechaincompress=threshold=0.05:ratio=3:attack=5:release=350[ducked];" +
-  `[ducked][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed];[mixed]${LOUDNESS_FILTER}[aout]`;
+/**
+ * The duck graph.
+ *
+ * `sidechaincompress` ends when its SIDECHAIN ends, so keying it with the raw narration clipped the
+ * whole mix to the narration's length: the shipped CaseProof mix was 18.8 s of audio in a 21.0 s
+ * video, i.e. the bed stopped dead on the last word and the remaining seconds played silent. That is
+ * the "voice ends abruptly" the owner reported — not a missing tail, a truncated one. The key is
+ * therefore padded to the video's own length, where it is silent and compresses nothing.
+ */
+export function duckMix(videoSeconds?: number): string {
+  const key =
+    videoSeconds === undefined
+      ? "[vokey]volume=1.0,apad[vaside]"
+      : `[vokey]volume=1.0,apad=whole_dur=${secs(videoSeconds)}[vaside]`;
+  return (
+    "[0:a]volume=1.0[music];[1:a]volume=1.9,asplit=2[vo][vokey];" +
+    `${key};` +
+    "[music][vaside]sidechaincompress=threshold=0.05:ratio=3:attack=5:release=350[ducked];" +
+    "[ducked][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed]"
+  );
+}
+
+export const DUCK_FILTER = `${duckMix()};[mixed]${LOUDNESS_FILTER}[aout]`;
 
 /**
  * The same voice gain and mix weights as `DUCK_FILTER`, with the sidechain removed. Cues-only
  * videos take this path: there is no bed to sit under, so nothing has a reason to be compressed.
  */
-export const NO_DUCK_FILTER =
+export const NO_DUCK_MIX =
   "[0:a]volume=1.0[cues];[1:a]volume=1.9[vo];" +
-  `[cues][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed];[mixed]${LOUDNESS_FILTER}[aout]`;
+  "[cues][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed]";
+
+export const NO_DUCK_FILTER = `${NO_DUCK_MIX};[mixed]${LOUDNESS_FILTER}[aout]`;
+
+/**
+ * How much music-only tail a launch video ends on, after the narration's last word.
+ *
+ * Shipped videos ended the instant the voice stopped — at best 1.5 s, and always on a hard cut with
+ * the bed still at full level, which reads as the audio being chopped off. The owner's note was
+ * "the voice ends abruptly, a couple of seconds of music would help" (2026-10-24). Three and a half
+ * seconds is a full musical phrase at these tempos and survives the platform's own end-card UI.
+ */
+export const TAIL_SECONDS = 3.5;
+
+/** The bed fades over this long, ending exactly on the final frame. */
+export const TAIL_FADE_SECONDS = 1.2;
+
+/** The render's frame rate; pads are snapped to it so the tail is a whole number of frames. */
+export const TAIL_FPS = 30;
+
+/** Never start a fade this close to the voice: a fade must not touch the narration. */
+export const TAIL_MIN_AFTER_VOICE = 0.15;
+
+/** What a 0.2 s sliver of fade looks like: not a fade. Below this, no fade is applied at all. */
+export const TAIL_MIN_FADE = 0.2;
+
+export interface TailPlan {
+  /** Extra seconds appended after the video's last frame; 0 when the render already has the tail. */
+  readonly padSeconds: number;
+  /** Final runtime in seconds. */
+  readonly totalSeconds: number;
+  /** When the fade-out starts, or null when there is no room to fade without touching the voice. */
+  readonly fadeStartSeconds: number | null;
+}
+
+/**
+ * Decide how much tail a video needs and when its music should fade.
+ *
+ * The narration is written after the render, so the render's own outro may be shorter than the tail
+ * this rule wants; the mux holds the last frame for the difference rather than the author guessing.
+ * A plan that needs no pad is still useful: it is what tells the mux where to fade.
+ */
+export function planTail(args: {
+  videoSeconds: number;
+  voiceSeconds: number;
+  tail?: number;
+  fade?: number;
+  fps?: number;
+}): TailPlan {
+  const { videoSeconds, voiceSeconds } = args;
+  const tail = args.tail ?? TAIL_SECONDS;
+  const fade = args.fade ?? TAIL_FADE_SECONDS;
+  const fps = args.fps ?? TAIL_FPS;
+  if (!Number.isFinite(videoSeconds) || videoSeconds <= 0) {
+    throw new Error(`planTail needs a positive videoSeconds; received ${videoSeconds}`);
+  }
+  if (!Number.isFinite(voiceSeconds) || voiceSeconds < 0) {
+    throw new Error(`planTail needs a non-negative voiceSeconds; received ${voiceSeconds}`);
+  }
+  if (!Number.isFinite(tail) || tail < 0) {
+    throw new Error(`planTail needs a non-negative tail; received ${tail}`);
+  }
+
+  const needed = voiceSeconds + tail - videoSeconds;
+  // ceil to a whole frame: the render is 30 fps and a half-frame pad lands as an odd frame count
+  const padSeconds = needed <= 0 ? 0 : Math.ceil(needed * fps) / fps;
+  const totalSeconds = videoSeconds + padSeconds;
+  const candidate = Math.max(voiceSeconds + TAIL_MIN_AFTER_VOICE, totalSeconds - fade);
+  const fadeStartSeconds = candidate + TAIL_MIN_FADE <= totalSeconds ? candidate : null;
+
+  return { padSeconds, totalSeconds, fadeStartSeconds };
+}
+
+/** ffmpeg wants fixed point, not 17.333333333333336. */
+function secs(value: number): string {
+  return value.toFixed(3);
+}
+
+/**
+ * The audio half of the tail: continue the bed for `padSeconds`, then fade out over the last second
+ * or so, then normalise — in that order, so loudnorm measures the fade and does not undo it.
+ *
+ * With no bed the video is cues-only; padding with silence is the honest choice there (there is no
+ * music to continue) and the fade is then applied to whatever the final seconds carry.
+ */
+function tailAudioGraph(plan: TailPlan, hasBed: boolean): string[] {
+  const parts: string[] = [];
+  let out = "mixed";
+
+  if (plan.padSeconds > 0) {
+    if (hasBed) {
+      // 80 ms fade-in hides the seek seam between the render's bed and the continued source.
+      parts.push(
+        "[2:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo," +
+          "afade=t=in:st=0:d=0.08[tailseg]",
+      );
+      parts.push(`[mixed][tailseg]concat=n=2:v=0:a=1[joined]`);
+    } else {
+      parts.push(`[mixed]apad=pad_dur=${secs(plan.padSeconds)}[joined]`);
+    }
+    out = "joined";
+  }
+
+  if (plan.fadeStartSeconds !== null) {
+    parts.push(`[${out}]afade=t=out:st=${secs(plan.fadeStartSeconds)}:d=${secs(TAIL_FADE_SECONDS)}[faded]`);
+    out = "faded";
+  }
+
+  parts.push(`[${out}]${LOUDNESS_FILTER}[aout]`);
+  return parts;
+}
+
 
 /**
  * How much of a video must carry audio before it is treated as having a continuous bed. A bed with
@@ -136,9 +266,27 @@ export function buildMuxArgs(args: {
    * measured keeps today's ducking behaviour rather than silently dropping the duck.
    */
   hasBed?: boolean;
+  /**
+   * Music-only tail after the narration, from `planTail`. Omitted → no tail handling at all, which
+   * is the pre-2026-10-24 behaviour and what the older tests pin.
+   */
+  tail?: TailPlan;
+  /**
+   * The bed's source file (the same track the composition mounted). When the video needs padding,
+   * the mux continues this file from the render's end so the tail carries music instead of silence.
+   */
+  bedFile?: string;
+  /** The render's own duration, used to pad the duck key. Omitted → `apad` unbounded. */
+  videoSeconds?: number;
 }): string[] {
   const { video, voiceover, output, hasMusic } = args;
   const hasBed = args.hasBed ?? hasMusic;
+  const tail = args.tail;
+  // The tail exists to carry MUSIC past the voice. A brag rendered without audio has nothing to
+  // continue, and holding the last frame over silence is not the note this was built for.
+  const padSeconds = tail && hasMusic ? tail.padSeconds : 0;
+  const padVideo = padSeconds > 0;
+  const videoSeconds = args.videoSeconds ?? (tail ? tail.totalSeconds - tail.padSeconds : undefined);
   // Deliberately NO -shortest. It clips the output to the shortest INPUT STREAM, and the narration is
   // always shorter than the video by design (assertNarrationFits reserves 0.5s), so -shortest
   // truncated the outro hold on every single mix — 22.00s in, 21.41s out. The video is stream-copied
@@ -146,22 +294,56 @@ export function buildMuxArgs(args: {
   // ends exactly with the video without it.
   // `-ar 48000` is pinned because LOUDNESS_FILTER resamples internally to 192 kHz; without it the AAC
   // encoder quietly emitted a 96 kHz track instead of the 48 kHz the platforms expect.
-  const tail = ["-ar", "48000", "-movflags", "+faststart", output];
+  const tailArgs = ["-ar", "48000", "-movflags", "+faststart", output];
+  const inputs = ["-y", "-i", video, "-i", voiceover];
+
+  if (padVideo) {
+    if (hasBed) {
+      if (!args.bedFile) {
+        throw new Error(
+          "the video needs a music tail but no bedFile was given — the bed cannot be recovered from " +
+            "a stream that ends with the render; pass the derived track from pick-track.mjs",
+        );
+      }
+      const videoSecondsForSeek = tail!.totalSeconds - tail!.padSeconds;
+      inputs.push(
+        "-ss", secs(videoSecondsForSeek),
+        "-t", secs(tail!.padSeconds + 0.05),
+        "-i", args.bedFile,
+      );
+    }
+  }
+
   if (!hasMusic) {
     return [
-      "-y", "-i", video, "-i", voiceover,
+      ...inputs,
       "-map", "0:v:0", "-map", "1:a:0",
       "-af", LOUDNESS_FILTER,
       "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-      ...tail,
+      ...tailArgs,
     ];
   }
+
+  const mix = hasBed ? duckMix(videoSeconds) : NO_DUCK_MIX;
+  const parts: string[] = padVideo
+    ? [`[0:v]tpad=stop_mode=clone:stop_duration=${secs(padSeconds)},format=yuv420p[vout]`]
+    : [];
+  parts.push(mix);
+  // With no tail plan this is the legacy graph, byte-identical to DUCK_FILTER/NO_DUCK_FILTER.
+  if (tail) parts.push(...tailAudioGraph({ ...tail, padSeconds }, hasBed));
+  else parts.push(`[mixed]${LOUDNESS_FILTER}[aout]`);
+
   return [
-    "-y", "-i", video, "-i", voiceover,
-    "-filter_complex", hasBed ? DUCK_FILTER : NO_DUCK_FILTER,
-    "-map", "0:v:0", "-map", "[aout]",
-    "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
-    ...tail,
+    ...inputs,
+    "-filter_complex", parts.join(";"),
+    "-map", padVideo ? "[vout]" : "0:v:0", "-map", "[aout]",
+    // Holding the last frame is the only way to lengthen a finished render, and that frame must be
+    // re-encoded; CRF 16 keeps it visually identical to the stream-copied master.
+    ...(padVideo
+      ? ["-c:v", "libx264", "-crf", "16", "-preset", "medium", "-pix_fmt", "yuv420p"]
+      : ["-c:v", "copy"]),
+    "-c:a", "aac", "-b:a", "192k",
+    ...tailArgs,
   ];
 }
 

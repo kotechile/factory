@@ -20,9 +20,11 @@ import {
   detectsContinuousBed,
   parseFfprobeDuration,
   parseSilenceSpans,
+  planTail,
   SILENCE_MIN_DURATION,
   SILENCE_NOISE_DB,
 } from "../../src/lib/launch-video/ffmpeg.ts";
+import { bedTrackForSlug } from "../../src/lib/launch-video/music.ts";
 
 const REPO = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 const argv = process.argv.slice(2);
@@ -83,8 +85,70 @@ if (!hasMusic) {
   }
 }
 
-execFileSync("ffmpeg", buildMuxArgs({ video, voiceover, output, hasMusic, hasBed }), {
-  stdio: "inherit",
-});
+const voiceoverSeconds = parseFfprobeDuration(
+  JSON.parse(
+    execFileSync(
+      "ffprobe",
+      ["-v", "error", "-show_entries", "format=duration", "-of", "json", voiceover],
+      { encoding: "utf8" },
+    ),
+  ),
+);
+
+// The tail: the bed keeps playing after the narration's last word and fades out, instead of the
+// video cutting on the final syllable. `planTail` owns both numbers (how much to add, where to fade).
+const tail = hasMusic ? planTail({ videoSeconds, voiceSeconds: voiceoverSeconds }) : null;
+let bedFile;
+if (tail && tail.padSeconds > 0 && hasBed) {
+  const track = bedTrackForSlug(slug);
+  bedFile = join(dir, "composition", "assets", "music", track.file);
+  if (!existsSync(bedFile)) {
+    throw new Error(
+      `this mix needs ${tail.padSeconds.toFixed(2)}s of music past the render, but the derived bed is ` +
+        `not on disk: ${bedFile}\n  run: node scripts/launch-video/pick-track.mjs --slug ${slug} ` +
+        `--copy-to ${join(dir, "composition")}\n  the tail cannot be invented from a stream that ends with the video`,
+    );
+  }
+}
+if (!hasMusic) {
+  console.log("tail: skipped — brag.mp4 carries no audio, so there is no music to continue");
+} else {
+  const musicAfterVoice = tail.totalSeconds - voiceoverSeconds;
+  console.log(
+    `tail: voice ends ${voiceoverSeconds.toFixed(2)}s of ${tail.totalSeconds.toFixed(2)}s → ` +
+      `${musicAfterVoice.toFixed(2)}s of music ` +
+      `(pad ${tail.padSeconds.toFixed(2)}s${tail.padSeconds > 0 ? ", last frame held" : ""}, ` +
+      `fade ${tail.fadeStartSeconds === null ? "none — no room past the voice" : `from ${tail.fadeStartSeconds.toFixed(2)}s`})`,
+  );
+}
+
+execFileSync(
+  "ffmpeg",
+  buildMuxArgs({ video, voiceover, output, hasMusic, hasBed, tail: tail ?? undefined, bedFile, videoSeconds }),
+  { stdio: "inherit" },
+);
 if (!existsSync(output)) throw new Error("ffmpeg exited 0 but launch.mp4 does not exist");
-console.log(`wrote ${output}`);
+
+// The pad is the whole point of this step, so measure it rather than trusting the filter string.
+const written = parseFfprobeDuration(
+  JSON.parse(
+    execFileSync(
+      "ffprobe",
+      ["-v", "error", "-show_entries", "format=duration", "-of", "json", output],
+      { encoding: "utf8" },
+    ),
+  ),
+);
+const expected = tail ? tail.totalSeconds : videoSeconds;
+if (Math.abs(written - expected) > 0.12) {
+  throw new Error(
+    `launch.mp4 is ${written.toFixed(2)}s but the tail plan said ${expected.toFixed(2)}s — ` +
+      `the pad did not land; refusing to ship a video whose ending does not match what was measured`,
+  );
+}
+console.log(
+  `wrote ${output} — ${written.toFixed(2)}s ` +
+    `(render ${videoSeconds.toFixed(2)}s + ${(written - videoSeconds).toFixed(2)}s tail, ` +
+    `${(written - voiceoverSeconds).toFixed(2)}s of music after the voice)`,
+);
+

@@ -4,17 +4,17 @@ import {
   audibleFraction,
   buildMuxArgs,
   detectsContinuousBed,
+  duckMix,
   LOUDNESS_FILTER,
   LOUDNESS_TARGET,
   NO_DUCK_FILTER,
   parseFfprobeDuration,
   parseSilenceSpans,
+  planTail,
+  TAIL_SECONDS,
 } from "./ffmpeg";
 
-const DUCK_FILTER_EXPECTED =
-  "[0:a]volume=1.0[music];[1:a]volume=1.9,asplit=2[vo][vokey];[vokey]volume=1.0[voside];" +
-  "[music][voside]sidechaincompress=threshold=0.05:ratio=3:attack=5:release=350[ducked];" +
-  `[ducked][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed];[mixed]${LOUDNESS_FILTER}[aout]`;
+const DUCK_FILTER_EXPECTED = `${duckMix()};[mixed]${LOUDNESS_FILTER}[aout]`;
 
 describe("DUCK_FILTER", () => {
   it("ducks at 3:1 — a deliberate setting, not the 8:1 that made the bed vanish", () => {
@@ -124,6 +124,135 @@ describe("buildMuxArgs", () => {
       });
       expect(args[args.indexOf("-ar") + 1]).toBe("48000");
     }
+  });
+});
+
+describe("duckMix — the sidechain must not end the bed (regression)", () => {
+  it("keys on a padded voice so the duck lives as long as the video, not the narration", () => {
+    // Shipped CaseProof: 21.00s video, 18.82s narration. sidechaincompress stopped with the key, so
+    // the mix came out 18.8s and the last seconds of picture played silent — the owner's "the voice
+    // ends abruptly". The key is padded (silently) to the video's length so the bed survives it.
+    const graph = duckMix(21);
+    expect(graph).toContain("[vokey]volume=1.0,apad=whole_dur=21.000[vaside]");
+    expect(graph).toContain("[music][vaside]sidechaincompress");
+    expect(graph).not.toContain("[voside]");
+  });
+
+  it("still pads the key when the video's length is unknown", () => {
+    expect(duckMix()).toContain("[vokey]volume=1.0,apad[vaside]");
+  });
+
+  it("carries the video length through buildMuxArgs", () => {
+    const plan = planTail({ videoSeconds: 21, voiceSeconds: 19 });
+    const args = buildMuxArgs({
+      video: "brag.mp4", voiceover: "vo.mp3", output: "launch.mp4",
+      hasMusic: true, hasBed: true, tail: plan, bedFile: "bed.mp3",
+    });
+    expect(args[args.indexOf("-filter_complex") + 1]).toContain("apad=whole_dur=21.000");
+  });
+});
+
+describe("planTail", () => {
+  it("adds nothing when the render already ends more than the tail after the voice", () => {
+    const plan = planTail({ videoSeconds: 22, voiceSeconds: 18 });
+    expect(plan.padSeconds).toBe(0);
+    expect(plan.totalSeconds).toBe(22);
+    // fade sits in the last 1.2s, well clear of a voice that stops at 18s
+    expect(plan.fadeStartSeconds).toBeCloseTo(20.8, 3);
+  });
+
+  it("pads a render that ends too soon after the voice, snapped up to a whole frame", () => {
+    // the shipped LedgerLink run: 20.04s of voice in a 21.60s render
+    const plan = planTail({ videoSeconds: 21.6, voiceSeconds: 20.04 });
+    expect(plan.padSeconds).toBeCloseTo(1.9667, 3);
+    expect(plan.totalSeconds).toBeCloseTo(23.5667, 3);
+    expect(plan.totalSeconds - 21.6).toBeCloseTo(plan.padSeconds, 6);
+  });
+
+  it("leaves the full tail even when the voice runs to the last half second", () => {
+    const plan = planTail({ videoSeconds: 22, voiceSeconds: 21.5 });
+    expect(plan.totalSeconds - 21.5).toBeCloseTo(TAIL_SECONDS, 3);
+  });
+
+  it("never starts the fade before the voice has finished", () => {
+    const plan = planTail({ videoSeconds: 22, voiceSeconds: 21.4, tail: 0.6 });
+    expect(plan.fadeStartSeconds).toBeGreaterThan(21.4);
+  });
+
+  it("skips the fade when there is no room for one after the voice", () => {
+    const plan = planTail({ videoSeconds: 22, voiceSeconds: 21.95, tail: 0.1 });
+    expect(plan.fadeStartSeconds).toBeNull();
+  });
+
+  it("refuses inputs it cannot measure", () => {
+    expect(() => planTail({ videoSeconds: 0, voiceSeconds: 1 })).toThrowError(/positive videoSeconds/);
+    expect(() => planTail({ videoSeconds: 22, voiceSeconds: -1 })).toThrowError(/non-negative voiceSeconds/);
+    expect(() => planTail({ videoSeconds: 22, voiceSeconds: 1, tail: -1 })).toThrowError(/non-negative tail/);
+  });
+});
+
+describe("buildMuxArgs with a tail", () => {
+  const bench = {
+    video: "brag.mp4",
+    voiceover: "vo.mp3",
+    output: "launch.mp4",
+    hasMusic: true,
+    hasBed: true,
+  };
+
+  it("holds the last frame, continues the bed and fades — in one pass", () => {
+    const plan = planTail({ videoSeconds: 21, voiceSeconds: 19 });
+    const args = buildMuxArgs({ ...bench, tail: plan, bedFile: "assets/music/bed.mp3" });
+    const graph = args[args.indexOf("-filter_complex") + 1];
+
+    expect(graph).toContain(`[0:v]tpad=stop_mode=clone:stop_duration=${plan.padSeconds.toFixed(3)}`);
+    expect(graph).toContain("[mixed][tailseg]concat=n=2:v=0:a=1[joined]");
+    expect(graph).toContain(`afade=t=out:st=${plan.fadeStartSeconds!.toFixed(3)}:d=1.200`);
+    expect(graph.endsWith("[aout]")).toBe(true);
+    // the bed keeps playing, so its source is a third input seeked to the render's end
+    expect(args.slice(0, 11)).toEqual([
+      "-y", "-i", "brag.mp4", "-i", "vo.mp3", "-ss", "21.000", "-t", "1.550",
+      "-i", "assets/music/bed.mp3",
+    ]);
+    // a held frame cannot be stream-copied
+    expect(args[args.indexOf("-map") + 1]).toBe("[vout]");
+    expect(args).toContain("libx264");
+    expect(args).toContain("16");
+    expect(args).not.toContain("copy");
+    expect(args[args.indexOf("-ar") + 1]).toBe("48000");
+  });
+
+  it("keeps the stream copy when the render already has the tail, but still fades", () => {
+    const plan = planTail({ videoSeconds: 22, voiceSeconds: 18 });
+    const args = buildMuxArgs({ ...bench, tail: plan, bedFile: "assets/music/bed.mp3" });
+    const graph = args[args.indexOf("-filter_complex") + 1];
+    expect(graph).not.toContain("tpad");
+    expect(graph).not.toContain("concat");
+    expect(graph).toContain("afade=t=out");
+    expect(args[args.indexOf("-c:v") + 1]).toBe("copy");
+    expect(args[args.indexOf("-map") + 1]).toBe("0:v:0");
+  });
+
+  it("pads with silence for a cues-only brag instead of inventing music", () => {
+    const plan = planTail({ videoSeconds: 21, voiceSeconds: 19 });
+    const args = buildMuxArgs({ ...bench, hasBed: false, tail: plan });
+    const graph = args[args.indexOf("-filter_complex") + 1];
+    expect(graph).toContain(`[mixed]apad=pad_dur=${plan.padSeconds.toFixed(3)}[joined]`);
+    expect(graph).not.toContain("concat");
+    expect(graph).not.toContain("sidechaincompress");
+  });
+
+  it("refuses to pad a bed without the bed's source, rather than silently going silent", () => {
+    const plan = planTail({ videoSeconds: 21, voiceSeconds: 19 });
+    expect(() => buildMuxArgs({ ...bench, tail: plan })).toThrowError(/no bedFile/);
+  });
+
+  it("skips the tail on a brag rendered without audio", () => {
+    const plan = planTail({ videoSeconds: 21, voiceSeconds: 19 });
+    const args = buildMuxArgs({ ...bench, hasMusic: false, hasBed: false, tail: plan });
+    expect(args).not.toContain("tpad");
+    expect(args[args.indexOf("-c:v") + 1]).toBe("copy");
+    expect(args[args.indexOf("-af") + 1]).toBe(LOUDNESS_FILTER);
   });
 });
 

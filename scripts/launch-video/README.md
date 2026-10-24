@@ -1,4 +1,4 @@
-# Post-ship launch video pipeline (`brag` → ElevenLabs → YouTube)
+# Post-ship launch video pipeline (`brag` → Kokoro → YouTube → site embed)
 
 Node ESM scripts, run from the repo root (`cd /root/software-factory-core`). Shared logic lives in
 `src/lib/launch-video/*.ts` and is imported with explicit `.ts` specifiers (Node 26 type-stripping).
@@ -9,13 +9,14 @@ voice, no default key, no silent truncation.
 
 | # | command | writes into `content/launch_videos/<slug>/` |
 |---|---|---|
-| 1 | `node scripts/launch-video/detect.mjs` (`--json`, `--probe`) | nothing — prints `PENDING <slug> <launchedAt>` per pending product (monitor mode is byte-stable) |
+| 1 | `node scripts/launch-video/detect.mjs` (`--json`, `--probe`) | nothing — prints `PENDING <slug> <launchedAt>` and `EMBED_PENDING <slug> <videoId>` (monitor mode is byte-stable) |
 | 2 | `node scripts/launch-video/voices.mjs --list` | nothing — prints `id<TAB>name<TAB>label` per ElevenLabs voice |
-| 3 | `node scripts/launch-video/voiceover.mjs --slug <slug>` (`--dry-run`) | `voiceover.mp3`, `voiceover.json` |
-| 4 | `node scripts/launch-video/mux.mjs --slug <slug>` | `launch.mp4` (video stream copied, music ducked under the voice) |
+| 3 | `node scripts/launch-video/voiceover.mjs --slug <slug>` (`--dry-run`) | `voiceover.mp3`, `voiceover.wav`, `voiceover.json` |
+| 4 | `node scripts/launch-video/mux.mjs --slug <slug>` | `launch.mp4` (video stream copied unless the tail needs a held frame, music ducked under the voice, ≥3.5 s music tail, fade-out) |
 | 5 | `node scripts/launch-video/record.mjs --slug <slug> --status <status> [--bump-attempts] [--error <msg>] [--video-id <id>] [--url <url>] [--words N] [--vo-seconds N] [--video-seconds N]` | nothing on disk — upserts the `launch_videos` row in Supabase |
 | 6 | `node scripts/youtube-auth.mjs --url` then `node scripts/youtube-auth.mjs --code <code>` | nothing — prints the one-time consent URL, then the `YOUTUBE_REFRESH_TOKEN=` line to paste into `.env` |
 | 7 | `node scripts/launch-video/youtube-upload.mjs --slug <slug>` (`--dry-run`, `--check-auth`) | `youtube.json` |
+| 8 | `node scripts/launch-video/embed.mjs --slug <slug> [--push] [--dry-run] [--poster-only]` | nothing here — writes `public/launch-videos/<slug>.jpg` and the entry in `src/products/launch-videos.ts`, then commits (and pushes with `--push` after `verify-build`) |
 
 Artifacts in `content/launch_videos/<slug>/`:
 

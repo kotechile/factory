@@ -1,6 +1,6 @@
 // src/lib/launch-video/plan.test.ts
 import { describe, expect, it } from "vitest";
-import { selectPendingProducts, type LedgerRow, type ProductLite } from "./plan";
+import { selectEmbedPending, selectPendingProducts, type LedgerRow, type ProductLite } from "./plan";
 
 const p = (slug: string, extra: Partial<ProductLite> = {}): ProductLite => ({
   slug, name: slug, status: "live", launchedAt: "2026-10-09", ...extra,
@@ -47,5 +47,46 @@ describe("selectPendingProducts", () => {
       [],
     );
     expect(got.map((x) => x.slug)).toEqual(["a", "b"]);
+  });
+});
+
+describe("selectEmbedPending", () => {
+  const uploaded = (slug: string, youtubeVideoId: string | null = "abcDEF12345") => ({
+    slug, status: "uploaded" as const, attempts: 0, youtubeVideoId,
+  });
+
+  it("reports an uploaded video that the deployed site does not carry", () => {
+    expect(selectEmbedPending([p("caseproof")], [uploaded("caseproof")], [])).toEqual([
+      { slug: "caseproof", youtubeVideoId: "abcDEF12345" },
+    ]);
+  });
+
+  it("stays silent once the registry carries the slug", () => {
+    expect(selectEmbedPending([p("caseproof")], [uploaded("caseproof")], ["caseproof"])).toEqual([]);
+  });
+
+  it("never re-embeds a grandfathered row or a row with no id", () => {
+    expect(
+      selectEmbedPending([p("caseproof"), p("ledgerlink")], [
+        { slug: "caseproof", status: "grandfathered", attempts: 0, youtubeVideoId: "abcDEF12345" },
+        uploaded("ledgerlink", null),
+      ], []),
+    ).toEqual([]);
+  });
+
+  it("skips retired and internal products, and slugs that are not products", () => {
+    expect(
+      selectEmbedPending(
+        [p("quarterline", { status: "killed" }), p("secret", { visibility: "internal" })],
+        [uploaded("quarterline"), uploaded("secret"), uploaded("ghost")],
+        [],
+      ),
+    ).toEqual([]);
+  });
+
+  it("orders by slug so the monitor output is byte-stable", () => {
+    expect(
+      selectEmbedPending([p("b"), p("a")], [uploaded("b"), uploaded("a", "xyzXYZ12345")], []).map((x) => x.slug),
+    ).toEqual(["a", "b"]);
   });
 });

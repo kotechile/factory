@@ -34,3 +34,37 @@ export function selectPendingProducts(
     })
     .sort((a, b) => a.launchedAt.localeCompare(b.launchedAt) || a.slug.localeCompare(b.slug));
 }
+
+export interface UploadedRow extends LedgerRow {
+  readonly youtubeVideoId: string | null;
+}
+
+export interface EmbedPending {
+  readonly slug: string;
+  readonly youtubeVideoId: string;
+}
+
+/**
+ * Products whose video is uploaded but which the site does not carry yet.
+ *
+ * This is the recovery path for the embed step: the upload is terminal (a retry would post a second
+ * video), so a failed embed must not look like a failed launch. It is reported separately, and the
+ * worker re-runs only the embed — cheap, idempotent, and no re-render.
+ */
+export function selectEmbedPending(
+  products: ProductLite[],
+  rows: UploadedRow[],
+  embedded: string[],
+): EmbedPending[] {
+  const bySlug = new Map(products.map((product) => [product.slug, product]));
+  const present = new Set(embedded);
+  return rows
+    .filter((row) => row.status === "uploaded" && !!row.youtubeVideoId && !present.has(row.slug))
+    .filter((row) => {
+      const product = bySlug.get(row.slug);
+      // A retired or internal product keeps its video but must not gain a new embed.
+      return !!product && product.status === "live" && product.visibility !== "internal";
+    })
+    .sort((a, b) => a.slug.localeCompare(b.slug))
+    .map((row) => ({ slug: row.slug, youtubeVideoId: row.youtubeVideoId as string }));
+}
