@@ -4,6 +4,10 @@
  *
  *   node scripts/youtube-auth.mjs --url              # prints the consent URL (open it in YOUR browser)
  *   node scripts/youtube-auth.mjs --code <code>      # exchanges the code, prints the .env lines
+ *   node scripts/youtube-auth.mjs --code-file <path> --apply
+ *                                                    # same, but writes .env itself and NEVER prints
+ *                                                    # the token — use this when a chat or a terminal
+ *                                                    # log might keep the output
  *
  * Requires YOUTUBE_CLIENT_ID + YOUTUBE_CLIENT_SECRET in .env (Google Cloud → Credentials →
  * OAuth client ID → type "Desktop app"). The redirect is Google's loopback: after approving, your
@@ -13,7 +17,8 @@
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFileSync } from "node:child_process";
-import { loadEnvFile, requireEnv } from "../src/lib/launch-video/env.ts";
+import { readFileSync, renameSync, writeFileSync } from "node:fs";
+import { loadEnvFile, requireEnv, setEnvValue } from "../src/lib/launch-video/env.ts";
 import { GOOGLE_TOKEN_URL } from "../src/lib/launch-video/youtube.ts";
 
 const REPO = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -33,7 +38,11 @@ const SCOPES = [
 const REDIRECT = "http://localhost";
 const argv = process.argv.slice(2);
 const codeIndex = argv.indexOf("--code");
-const code = codeIndex === -1 ? undefined : argv[codeIndex + 1];
+const codeFileIndex = argv.indexOf("--code-file");
+const apply = argv.includes("--apply");
+const code = codeFileIndex !== -1
+  ? readFileSync(argv[codeFileIndex + 1], "utf8").trim()
+  : codeIndex === -1 ? undefined : argv[codeIndex + 1];
 
 if (!code) {
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -71,6 +80,25 @@ const channel = await fetch("https://www.googleapis.com/youtube/v3/channels?part
 }).then((r) => r.json());
 const title = channel.items?.[0]?.snippet?.title;
 console.log(`Consent OK. Channel: ${title ?? "(unknown — check the scope)"}\n`);
+
+if (apply) {
+  // Write, do not display: the token is a credential, and stdout goes to terminal scrollback,
+  // chat transcripts and cron logs. Only the fact that it changed is reported.
+  const envPath = join(REPO, ".env");
+  const before = readFileSync(envPath, "utf8");
+  const after = setEnvValue(before, "YOUTUBE_REFRESH_TOKEN", json.refresh_token);
+  if (after === before) {
+    console.log("YOUTUBE_REFRESH_TOKEN in .env was already this value — nothing changed");
+  } else {
+    const tmp = `${envPath}.tmp-auth`;
+    writeFileSync(tmp, after, { mode: 0o600 });
+    renameSync(tmp, envPath);
+    console.log(`YOUTUBE_REFRESH_TOKEN written to ${envPath} (value not printed, file mode 600)`);
+  }
+  console.log("Verify with: node scripts/launch-video/youtube-upload.mjs --check-auth");
+  process.exit(0);
+}
+
 console.log("Add these to /root/software-factory-core/.env (and NEVER commit them):");
 console.log(`YOUTUBE_REFRESH_TOKEN=${json.refresh_token}`);
 

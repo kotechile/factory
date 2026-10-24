@@ -1,6 +1,6 @@
 // src/lib/launch-video/env.test.ts
 import { describe, expect, it } from "vitest";
-import { parseEnvFile, requireEnv } from "./env";
+import { parseEnvFile, requireEnv, setEnvValue } from "./env";
 
 describe("parseEnvFile", () => {
   it("parses KEY=value, ignores comments and blanks, strips quotes", () => {
@@ -56,5 +56,34 @@ describe("requireEnv", () => {
 
   it("treats an empty string as missing", () => {
     expect(() => requireEnv({ A: "" }, ["A"], ".env")).toThrowError(/A/);
+  });
+});
+
+describe("setEnvValue", () => {
+  const base = "A=1\n# comment\nYOUTUBE_REFRESH_TOKEN=old-token\nB=2\n";
+
+  it("replaces an existing value and leaves everything else alone", () => {
+    const next = setEnvValue(base, "YOUTUBE_REFRESH_TOKEN", "new-token");
+    expect(next).toBe("A=1\n# comment\nYOUTUBE_REFRESH_TOKEN=new-token\nB=2\n");
+  });
+
+  it("appends a key that is not there yet, keeping one trailing newline", () => {
+    expect(setEnvValue("A=1", "NEW_KEY", "v")).toBe("A=1\nNEW_KEY=v");
+    expect(setEnvValue("A=1\n", "NEW_KEY", "v")).toBe("A=1\nNEW_KEY=v\n");
+  });
+
+  it("collapses duplicate keys to the first position — the parser keeps the LAST, so two copies lie", () => {
+    const next = setEnvValue("A=1\nK=first\nB=2\nK=second\n", "K", "only");
+    expect(next).toBe("A=1\nK=only\nB=2\n");
+    expect(parseEnvFile(next).K).toBe("only");
+  });
+
+  it("does not treat a prefix as the same key", () => {
+    expect(setEnvValue("K_EXTRA=1\n", "K", "v")).toBe("K_EXTRA=1\nK=v\n");
+  });
+
+  it("refuses a value or key that would corrupt the file", () => {
+    expect(() => setEnvValue(base, "K", "a\nb")).toThrowError(/newline/);
+    expect(() => setEnvValue(base, "K-2", "v")).toThrowError(/invalid env key/);
   });
 });

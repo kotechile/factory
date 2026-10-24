@@ -51,3 +51,38 @@ export function requireEnv(
   }
   return Object.fromEntries(keys.map((k) => [k, env[k] as string]));
 }
+
+/**
+ * Set one key in a dotenv file's text, for a value that must never be printed.
+ *
+ * A credential refresh is a write, not a display: printing the new token into a terminal or a chat
+ * log is how a secret leaks, so the exchange writes it here instead. Duplicate keys collapse to the
+ * first position — `parseEnvFile` lets the last one win, so two copies of `YOUTUBE_REFRESH_TOKEN`
+ * silently behave like the second, which is exactly the kind of stale-value bug this avoids.
+ */
+export function setEnvValue(text: string, key: string, value: string): string {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) throw new Error(`invalid env key ${JSON.stringify(key)}`);
+  if (value.includes("\n")) throw new Error(`refusing to write a newline into ${key}`);
+
+  const lines = text.split("\n");
+  const line = `${key}=${value}`;
+  let replaced = false;
+  const out: string[] = [];
+  for (const current of lines) {
+    const eq = current.indexOf("=");
+    const name = eq === -1 ? "" : current.slice(0, eq).trim();
+    if (name === key) {
+      if (!replaced) {
+        out.push(line);
+        replaced = true;
+      }
+      continue; // drop duplicates
+    }
+    out.push(current);
+  }
+  if (!replaced) {
+    if (out.length > 0 && out[out.length - 1] === "") out.splice(out.length - 1, 0, line);
+    else out.push(line);
+  }
+  return out.join("\n");
+}
