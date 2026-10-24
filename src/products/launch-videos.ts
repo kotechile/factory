@@ -60,11 +60,11 @@ export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   },
   {
     slug: "ledgerlink",
-    youtubeId: "JcP9RtWZZrg",
+    youtubeId: "gPz-3Tuhps0",
     posterPath: "/launch-videos/ledgerlink.jpg",
     title: "Introducing LedgerLink: Stripe payout → GL reconciliation. One netted payout of £4,378.21",
-    durationSeconds: 22,
-    publishedAt: "2026-10-13",
+    durationSeconds: 23,
+    publishedAt: "2026-10-24",
   },
   {
     slug: "facturgate",
