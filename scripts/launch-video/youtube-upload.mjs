@@ -19,6 +19,7 @@ import {
   buildResumableInit, buildVideoResource, parseRefreshTokenResponse, parseShareCopy, readYoutubeConfig,
   YOUTUBE_API, YOUTUBE_THUMBNAIL_URL, GOOGLE_TOKEN_URL,
 } from "../../src/lib/launch-video/youtube.ts";
+import { analyseMotion, craftProblems, sampleMotion } from "../../src/lib/launch-video/craft.ts";
 
 const REPO = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
 loadEnvFile(join(REPO, ".env"));
@@ -60,6 +61,29 @@ const shareCopyPath = flag("--share-copy", join(dir, "share-copy.txt"));
 const thumbnailPath = flag("--thumbnail", join(dir, "brag.jpg"));
 if (!existsSync(videoPath)) throw new Error(`missing ${videoPath} — the mux step must run first`);
 if (!existsSync(shareCopyPath)) throw new Error(`missing ${shareCopyPath} — the brag step must produce share copy`);
+
+// CRAFT GATE — the upload is the last place this can be stopped. Five films shipped 56-66% frozen
+// because the only audit looked at structure and contrast; a film that does not move is not
+// uploaded, whatever the report would have said about it.
+const craft = analyseMotion(sampleMotion(videoPath).deltas);
+const craftFailures = craftProblems(craft);
+if (craftFailures.length > 0) {
+  console.error(
+    `craft gate failed for ${slug}: ${craft.seconds.toFixed(1)}s, ` +
+      `${Math.round(craft.staticFraction * 100)}% frozen, longest frozen stretch ` +
+      `${craft.longestStaticRunSeconds.toFixed(1)}s, ${craft.beats} beats`,
+  );
+  for (const failure of craftFailures) console.error(`  - ${failure}`);
+  console.error(
+    `  revise the composition and re-render, or run ` +
+      `\`node scripts/launch-video/check-craft.mjs --slug ${slug} --montage /tmp/${slug}.jpg\` to look at it`,
+  );
+  process.exit(1);
+}
+console.log(
+  `craft OK: ${craft.beats} beats, ${Math.round(craft.staticFraction * 100)}% frozen, ` +
+    `longest hold ${craft.longestStaticRunSeconds.toFixed(1)}s`,
+);
 
 const { title, description } = parseShareCopy(readFileSync(shareCopyPath, "utf8"));
 const productUrl = `${(process.env.NEXT_PUBLIC_APP_URL || "https://apps.giniloh.com").replace(/\/$/, "")}/${slug}/`;

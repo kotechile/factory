@@ -56,15 +56,30 @@ node scripts/launch-video/pick-track.mjs --slug <slug> --copy-to content/launch_
   the video. A render that already ends with the tail keeps its stream copy.
 - If the brag deliberately has no bed (cues only), say so in `brag-plan.md`; the mux handles it (see
   step 5), but the plan should record that the silence was a decision.
+- **Before composing, read the skill's references and the HyperFrames domain skills.** `brag` says
+  which: `references/step-1-inspect.md`, `step-2-plan.md`, `step-3-compose.md`, `step-4-deliver.md`,
+  `audio.md`, `tones.md`, plus `hyperframes-core`, `hyperframes-animation`, `hyperframes-creative`,
+  `hyperframes-keyframes`, `hyperframes-cli` (all preloaded on the cron job). They are not optional
+  reading: the five films shipped before 2026-10-24 were hand-rolled single-page HTML with a few tweens
+  and measured 56–66% of their runtime frozen, median frame change 0.46–0.70/255. The plan was rich;
+  only the composition was poor, and the composition is what these skills teach.
+- **Every scene must move.** A camera move, a re-layout, a build, a counter, a type-scale jump — not a
+  card whose interior swaps while the headline holds. Layouts change between scenes, and at least one
+  moment is full-bleed product. Do **not** frame the entire film inside a permanent browser window with
+  a static logo header and footer: that is the template that made five videos look like one slide deck.
 - Gate before continuing:
 ```bash
 ffprobe -v error -show_entries format=duration -of json content/launch_videos/<slug>/brag.mp4
 test -s content/launch_videos/<slug>/share-copy.txt && echo "share copy OK"
 node scripts/launch-video/check-bed-track.mjs --slug <slug>
+node scripts/launch-video/check-craft.mjs --slug <slug> --montage /tmp/<slug>-montage.jpg
 ```
-If any fails, stop and mark the run failed — do not hand-write a video file. `check-bed-track`
-proves the composition actually mounted the bed `pick-track` derived; without it the rule is only as
-reliable as this instruction being read.
+If any fails, stop and mark the run failed — do not hand-write a video file. `check-bed-track` proves
+the composition actually mounted the bed `pick-track` derived; `check-craft` proves the film moves
+(it exits non-zero on a frozen stretch >2.5 s, >35% of the runtime frozen, or too few visual beats).
+**Then look at the montage yourself** and fix anything that reads as a slide, or as two scenes with the
+same layout. A failed craft gate means revise the composition and re-render — never upload it and
+explain it in the report.
 
 ## 4. Write the narration, then synthesize it
 Write `content/launch_videos/<slug>/narration.txt`: 40–50 words, first person, specific to the
