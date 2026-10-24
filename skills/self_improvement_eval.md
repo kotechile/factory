@@ -227,3 +227,24 @@ green on the same commit Coolify is serving (`SOURCE_COMMIT=696c8cb`, container
 clean checkout. No failure class appeared; no skill patch needed.
 
 **2026-10-23 — Growth Watchdog (Friday) gate evaluation.** The traffic marker (internal/visitor split, `18ff5f1`) is live in code since 2026-10-19. Measured directly against the store: 11,787 total events — 16 visitor (6 sessions, all since 10-19), 1,340 internal, 10,431 pre-marker unclassified. No Day 7/14/30 gate was scored this run: `scripts/growth-check.mjs:54` still defaults `PRODUCT=quarterline` (killed 2026-09-19) and its single un-paginated read (max 1000 rows, oldest first) never reaches the classified rows, so it reports "0 visitors / all unclassified" against a retired product. No fallback fired (precondition unmet — the default check cannot measure the gate leg, per the 2026-09-12 rule). Two asks queued: promote RatchetProof beta→live (`ratchetproof-live`, open since 10-20) and approve re-pointing the growth check to the live inventory. Migration 0004 (queryable column) remains an owner SQL-editor step, non-blocking (class lives in `payload.traffic_class`). Revenue $0 real (STRIPE_MODE=test, $190 sandbox, 10 charges).
+
+**2026-10-24 — gate GREEN on `beba5e1`.** `scripts/verify-build.sh` exit 0 on the newest local commit
+(mirrored into `/root/.hermes/scratch/sfc/vb-head-beba5e1` with `cp -al` hardlinked `node_modules` and a
+copy of `.env`, run under the dead-Supabase pair so the Playwright suite wrote no production telemetry):
+tsc clean · lint **0 errors / 5 warnings** (all pre-existing: `check-recon-cadence.mjs` unused
+`existsSync`, `scripts/vibe/verify-vendor.mjs` unused `label`, `scripts/vibe/vibe-lint.mjs` unused
+`JSX_TEXT_PROPS`, `product-launch-video.tsx` bare `<img>`, `middleware.ts` unused `_request`) · design
+tokens clean · verticals **33 in sync** (registry re-vendored today, was 30) · recon cadence ok (newest
+scan 2026-10-19, two verticals) · vitest 416/416 (33 files) · `next build` 52/52 pages · Playwright
+110/110. `visual-qa` self-skipped under the dead address as documented, then was re-run alone with the
+real `.env`: **30/30 tiles PASS across 5 products** (facturgate, parcelproof, caseproof, spendproof,
+ratchetproof), exit 0. `696c8cb..beba5e1` touches **no `src/` file** (context/skills/scripts only:
+`growth-check.mjs` paging + the 33-vertical registry), so the served app is functionally unchanged —
+live container still on `e83155c`, which equals `origin/main` at check time. No failure class appeared;
+no skill patch needed.
+
+**An unpushed local commit is not a broken deploy (measured 2026-10-24).** Two verticals commits
+(`cd0bc35`, `beba5e1`) sat on local `main` with `origin/main` still at `e83155c`; Coolify had correctly
+built nothing for them, and the live container's `SOURCE_COMMIT` matched `origin/main` exactly. Before
+writing "the deploy is behind HEAD", compare `git rev-parse HEAD` with `origin/main` — a local-only
+commit explains the gap without any alarm.
