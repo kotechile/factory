@@ -2,10 +2,10 @@
   "_note": "Vendored snapshot of the editorial factory's vertical registry. Regenerate with: node scripts/vertical-sync.mjs --vendor",
   "sourceRepo": "git@github.com:kotechile/Editorial-Factory.git",
   "sourcePath": "/root/editorial-factory/context/verticals.json",
-  "sourceRepoHead": "975603d7cbcb355330cd8df643da0a547e23ae66",
-  "sourceFileCommit": "29f980d35d87ed9af364fe131c1f15feabce0c77",
-  "sourceSha256": "e3db30bc75af9261654666dc2c1197fdeb8525d961d75aed1375888ff1fb0516",
-  "fetchedAt": "2026-10-24T16:04:30.209Z",
+  "sourceRepoHead": "37c8098a8274c58cf2d1b72b82ce494203661b69",
+  "sourceFileCommit": "37c8098a8274c58cf2d1b72b82ce494203661b69",
+  "sourceSha256": "fa1cd2a7b4b0714ebb9069f5522b6ad909319671c07bbfd1bd72d2208900fe9e",
+  "fetchedAt": "2026-10-24T16:19:07.637Z",
   "verticals": [
     {
       "id": "agentic_ai",
@@ -830,7 +830,9 @@
       ],
       "target_persona": "homeowner_pro",
       "enable_dataforseo": false,
-      "target_domain": "wellroost.com"
+      "target_domain": "wellroost.com",
+      "review_cadence": "0 14 * * 0",
+      "review_enabled": true
     },
     {
       "id": "outdoor_power_equipment",
@@ -857,7 +859,9 @@
       ],
       "target_persona": "homeowner_pro",
       "enable_dataforseo": false,
-      "target_domain": "wellroost.com"
+      "target_domain": "wellroost.com",
+      "review_cadence": "30 14 * * 0",
+      "review_enabled": true
     },
     {
       "id": "home_diagnostics_tech",
@@ -883,7 +887,9 @@
       ],
       "target_persona": "homeowner_pro",
       "enable_dataforseo": false,
-      "target_domain": "wellroost.com"
+      "target_domain": "wellroost.com",
+      "review_cadence": "0 15 * * 0",
+      "review_enabled": true
     }
   ]
 }
