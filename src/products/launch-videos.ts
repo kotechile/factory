@@ -76,11 +76,11 @@ export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   },
   {
     slug: "parcelproof",
-    youtubeId: "I38c05ZZZr8",
+    youtubeId: "pVItC4gjXJc",
     posterPath: "/launch-videos/parcelproof.jpg",
     title: "Introducing ParcelProof: carrier invoice DIM-weight and surcharge audit for UPS, FedEx and USPS.",
     durationSeconds: 23,
-    publishedAt: "2026-10-14",
+    publishedAt: "2026-10-24",
   },
   {
     slug: "caseproof",
