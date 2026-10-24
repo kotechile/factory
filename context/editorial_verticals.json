@@ -2,10 +2,10 @@
   "_note": "Vendored snapshot of the editorial factory's vertical registry. Regenerate with: node scripts/vertical-sync.mjs --vendor",
   "sourceRepo": "git@github.com:kotechile/Editorial-Factory.git",
   "sourcePath": "/root/editorial-factory/context/verticals.json",
-  "sourceRepoHead": "1546825e3f5b0866a0291e15b95879f9953f1d3a",
-  "sourceFileCommit": "1546825e3f5b0866a0291e15b95879f9953f1d3a",
-  "sourceSha256": "cf2f8bd767e2615272c540aeaf089549089f7a167a73856933dfb8a966742133",
-  "fetchedAt": "2026-10-18T19:28:48.213Z",
+  "sourceRepoHead": "975603d7cbcb355330cd8df643da0a547e23ae66",
+  "sourceFileCommit": "29f980d35d87ed9af364fe131c1f15feabce0c77",
+  "sourceSha256": "e3db30bc75af9261654666dc2c1197fdeb8525d961d75aed1375888ff1fb0516",
+  "fetchedAt": "2026-10-24T16:04:30.209Z",
   "verticals": [
     {
       "id": "agentic_ai",
@@ -803,6 +803,85 @@
         "non-renewal and coverage-gap risk when a mitigation upgrade is deferred"
       ],
       "target_persona": "pro_homeowner",
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
+    },
+    {
+      "id": "yard_robotics",
+      "label": "Autonomous Yard & Property Robotics",
+      "cadence": "30 10 * * 6",
+      "news_enabled": true,
+      "evergreen_cadence": "30 18 * * 6",
+      "evergreen_enabled": true,
+      "sources": [
+        "home_lifestyle_intel",
+        "reddit_lawncare",
+        "vendor_changelogs",
+        "hackaday",
+        "reddit_homeimprovement"
+      ],
+      "primary_angles": [
+        "wire-free navigation on a real lot: LiDAR vs RTK vs vision where tree cover blocks the sky",
+        "robot mower against a $150-250/month landscaping contract: the breakeven month on a quarter to one acre",
+        "modular base unit (Yarbo-class) versus dedicated mower plus dedicated snow blower: single point of failure math",
+        "robotic snow clearing versus a plow contract versus heated mats in a heavy-snow market",
+        "the installation audit: slope grade, gate width, multi-zone lawns, buried irrigation and the return-to-base failures",
+        "per-acre-year consumables: blades, batteries and the year-four battery replacement that breaks the payback"
+      ],
+      "target_persona": "homeowner_pro",
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
+    },
+    {
+      "id": "outdoor_power_equipment",
+      "label": "Electrified Fleet & Winter Ops",
+      "cadence": "0 11 * * 6",
+      "news_enabled": true,
+      "evergreen_cadence": "0 19 * * 6",
+      "evergreen_enabled": true,
+      "sources": [
+        "home_lifestyle_intel",
+        "opei_industry",
+        "reddit_lawncare",
+        "energy_star",
+        "vendor_changelogs"
+      ],
+      "primary_angles": [
+        "two-stage battery snow blower versus power shovel versus heated driveway mat: cost per inch cleared",
+        "the battery platform trap: true five-tool cost across EGO, Greenworks, DeWalt FlexVolt and Ryobi",
+        "cordless versus gas: measured torque and runtime against the carburetor and stale-fuel maintenance tax",
+        "pressure washers where PSI sells and GPM cleans: deck, siding and driveway compared",
+        "electric zero-turn and wide-deck mowers: acre-per-charge and the battery pack replacement cliff",
+        "cold-weather failure modes: what actually stops a battery blower at -10C",
+        "buy-window timing: end-of-season markdown versus paying peak for the storm you are not ready for"
+      ],
+      "target_persona": "homeowner_pro",
+      "enable_dataforseo": false,
+      "target_domain": "wellroost.com"
+    },
+    {
+      "id": "home_diagnostics_tech",
+      "label": "Precision Diagnostics & Maintenance Tech",
+      "cadence": "30 11 * * 6",
+      "news_enabled": true,
+      "evergreen_cadence": "30 19 * * 6",
+      "evergreen_enabled": true,
+      "sources": [
+        "home_lifestyle_intel",
+        "greenbuildingadvisor",
+        "reddit_homeimprovement",
+        "ashrae_standards",
+        "hackaday"
+      ],
+      "primary_angles": [
+        "a sub-$300 thermal imager as a DIY energy audit: the delta-T tell for missing insulation in 20 minutes",
+        "the $80 articulating borescope against a $450 drywall repair: seeing inside the wall before opening it",
+        "acoustic and ultrasonic leak detection before the slab gets opened: hit rate and false positives",
+        "pin versus pinless moisture meters: the dry-to-the-touch lie on drywall, subfloor and framing",
+        "outlet and circuit analyzers: finding a bootleg ground before the inspector does",
+        "instrument accuracy versus price: why a $250 and a $1,200 imager disagree and when the gap costs money"
+      ],
+      "target_persona": "homeowner_pro",
       "enable_dataforseo": false,
       "target_domain": "wellroost.com"
     }

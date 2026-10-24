@@ -35,8 +35,8 @@ own CI traffic.
 ## Inventory (generated)
 
 <!-- BEGIN:vertical-inventory (generated) -->
-_Generated 2026-10-18 by `scripts/vertical-sync.mjs` from the
-vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit 1546825e3f5b0866a0291e15b95879f9953f1d3a, fetched 2026-10-18T19:28:48.213Z) — 30 verticals. Do not hand-edit this block._
+_Generated 2026-10-24 by `scripts/vertical-sync.mjs` from the
+vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-factory/context/verticals.json`, file commit 29f980d35d87ed9af364fe131c1f15feabce0c77, fetched 2026-10-24T16:04:30.209Z) — 33 verticals. Do not hand-edit this block._
 
 | Vertical | Label | Editorial persona | Cadence | Sources | Decision-shaped angles |
 |---|---|---|---|---|---|
@@ -54,6 +54,7 @@ vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-fa
 | `enterprise_tech_leadership` | Technology & Architecture Decisions | `eng_leader` | `30 11 * * 2` | 4 | 1 |
 | `expat_cross_border_relocation` | Advanced Expat, Cross-Border & Multi-Jurisdictional Relocation | `cross_border_expat` | `30 12 * * 4` | 7 | 2 |
 | `gpu_hardware` | GPUs & AI Hardware | `infra_engineer` | `30 11 * * 3` | 5 | 1 |
+| `home_diagnostics_tech` | Precision Diagnostics & Maintenance Tech | `homeowner_pro` | `30 11 * * 6` | 5 | 1 |
 | `home_equity_tco` | Home Capital Allocation & TCO Economics | `pro_homeowner` | `30 11 * * 1` | 6 | 1 |
 | `home_infrastructure_lifecycle_tco` | Home Infrastructure & Major Asset Lifecycle TCO | `pro_homeowner` | `0 12 * * 1` | 8 | 2 |
 | `home_ops_execution` | Home Operations, Permitting & Contractor Contracts | `pro_homeowner` | `0 12 * * 4` | 6 | 0 |
@@ -61,6 +62,7 @@ vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-fa
 | `meio_working_capital_tco` | Multi-Echelon Inventory Optimization (MEIO) & Working Capital TCO | `ops_leader` | `30 12 * * 1` | 8 | 3 |
 | `multi_agent_enterprise_fabric` | Multi-Agent Orchestration & Enterprise Fabrics | `ai_architect` | `0 11 * * 3` | 5 | 0 |
 | `nhil_infrastructure_ops` | NHIL Infrastructure, NetOps & Power Strategy | `it_ops_leader` | `0 11 * * 2` | 6 | 0 |
+| `outdoor_power_equipment` | Electrified Fleet & Winter Ops | `homeowner_pro` | `0 11 * * 6` | 5 | 2 |
 | `personal_microeconomics_tinkering_tax` | Personal Asset Micro-Economics & 'Tinkering Tax' Audits | `systems_tinkerer_pro` | `0 6 * * 6` | 7 | 2 |
 | `property_loss_insurance_mitigation` | Property Loss, Insurance & Mitigation ROI | `pro_homeowner` | `0 13 * * 3` | 6 | 2 |
 | `resilient_home_assets` | Climate Hardening, Insurability & Grid Resilience | `pro_homeowner` | `30 10 * * 5` | 6 | 0 |
@@ -70,6 +72,7 @@ vendored snapshot `context/editorial_verticals.json` (source `/root/editorial-fa
 | `supply_chain` | Supply Chain Orchestration & Physical Logistics | `ops_leader` | `30 11 * * 4` | 9 | 1 |
 | `warehouse_automation_robotics_capex` | Warehouse Automation & Robotics CapEx Amortization | `ops_leader` | `30 12 * * 3` | 8 | 2 |
 | `workstation_compute_economics` | Autonomous Tech Workstations & AI Compute Economics | `infra_engineer` | `30 12 * * 2` | 7 | 2 |
+| `yard_robotics` | Autonomous Yard & Property Robotics | `homeowner_pro` | `30 10 * * 6` | 5 | 2 |
 <!-- END:vertical-inventory -->
 
 ## Recon verdicts (hand-maintained, drift-checked)
@@ -113,6 +116,9 @@ saturation lesson: MCPV2 scored 62 and three dev-infra candidates were rejected 
 | `consumer_asset_repair_replace_tco` | B — **new (2026-10-18)** | Giniloh.com's Major Purchases & Assets vertical (category 2, 14 dispatches but only 5 on this front). Consumer buyer, tool-shaped WTP: the owned surface is the Tech Repair vs Replace and espresso cost-per-use calculators, not a SaaS. Dated triggers are vendor launch cycles (battery/screen repairability, right-to-repair parts pricing). Scan for calculator demand only. |
 | `sales_order_service_level_otif` | A — **new (2026-10-18)** | Retailer OTIF chargebacks are a named P&L line with a real buyer (VP supply chain), and the 2026 metric is penalty economics, not the KPI dashboard suites already ship. Nearest product: fill-rate vs safety-stock curve + chargeback auditor. Rule-5 check first — a per-retailer threshold/penalty table is a maintained feed (Walmart SQEP, Target, Kroger change annually), so scope to the buyer's own contract terms. |
 | `property_loss_insurance_mitigation` | B — **new (2026-10-18)** | WellRoost's Home Cost Decisions vertical — the one live pillar with a single dispatch and no owning vertical. Consumer WTP, tool-shaped; a dated trigger exists (a claim, a non-renewal notice, renewal season). First move is one scan on a renewal-season trigger for deductible/spend payback demand, not a build. |
+| `yard_robotics` | B — **new (2026-10-24)** | WellRoost category 22 (`yard-robotics`). Consumer capex of $1.5k–$5k with a real decision shape: robot vs a landscaping/plowing contract. Revenue is affiliate/commerce, not SaaS, so recon here is demand validation, not a build brief. Dated triggers are launch cycles: robotic mowers Feb–Apr, snow robots and modular bases Sep–Nov. |
+| `outdoor_power_equipment` | B — **new (2026-10-24)** | WellRoost category 24 (`outdoor-power-equipment`). Battery-platform and snow-clearing TCO for the same homeowner; the monetizable surface is content plus retail links, no engine to build. Seasonal by nature — scan snow angles Sep–Nov and mower/pressure-washer angles Mar–Jun, or the vertical publishes against the wrong season. |
+| `home_diagnostics_tech` | B — **new (2026-10-24)** | WellRoost category 26 (`home-diagnostics-tools`). Handheld instruments at $50–$600 that prevent $500–$1,500 call-outs. Two adjacent owned surfaces are deliberately excluded from its angles: installed leak/flow sensing is `smart_home_telemetry`, shutoff-valve claim math is `property_loss_insurance_mitigation`. First move is instrument-comparison demand, not a new calculator. |
 <!-- END:vertical-verdicts -->
 
 ## Scanned / verified — software-side verticals
