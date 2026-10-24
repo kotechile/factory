@@ -1,7 +1,8 @@
 // src/products/launch-videos.test.ts
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { jpegSize } from "@/lib/launch-video/embed";
 import { products } from "./registry";
 import {
   LAUNCH_VIDEOS,
@@ -46,7 +47,11 @@ describe("LAUNCH_VIDEOS", () => {
       expect(video.posterPath).toMatch(/^\/launch-videos\/[a-z0-9-]+\.jpg$/);
       const file = join(process.cwd(), "public", video.posterPath.replace(/^\//, ""));
       expect(existsSync(file), `${video.slug}: missing poster ${video.posterPath}`).toBe(true);
-      expect(statSync(file).size, `${video.slug}: poster is a placeholder`).toBeGreaterThan(10_000);
+      // Dimensions, not bytes: a designed frame that is mostly one flat colour compresses to ~8 KB,
+      // which overlaps YouTube's ~2 KB 120×90 "no thumbnail" placeholder. The page renders 1280×720.
+      const poster = jpegSize(new Uint8Array(readFileSync(file)));
+      expect(poster, `${video.slug}: poster is not a readable JPEG`).not.toBeNull();
+      expect(poster, `${video.slug}: poster is ${poster?.width}×${poster?.height}`).toEqual({ width: 1280, height: 720 });
     }
   });
 });
