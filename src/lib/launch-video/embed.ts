@@ -209,3 +209,40 @@ export function isUsablePoster(width: number, height: number): boolean {
 export function isoDate(now: Date = new Date()): string {
   return now.toISOString().slice(0, 10);
 }
+
+/** The published id the registry carries for a slug, if any — for recording what a replace superseded. */
+export function embeddedIdFor(source: string, slug: string): string | undefined {
+  const block = new RegExp(`\\{\\s*\\n\\s*slug: "${slug}",[\\s\\S]*?\\n\\s*\\},`).exec(source);
+  if (!block) return undefined;
+  return /youtubeId: "([^"]+)"/.exec(block[0])?.[1];
+}
+
+/**
+ * Point an already-published slug at a different video.
+ *
+ * This is the one legitimate rewrite of an existing entry: the film was re-cut and re-uploaded, and the
+ * page must show the new one. It is deliberately opt-in (`--replace`) because the default must stay
+ * "never repoint a published page", and because a silent repoint would strand whatever the old id was
+ * with no record of the swap. Only the four fields that describe the upload change; the slug, poster
+ * path and any hand-written comment around the block are left exactly as they are.
+ */
+export function replaceEntry(source: string, entry: LaunchVideoEntry): string {
+  assertEmbeddable(entry);
+  if (!source.includes(REGISTRY_ARRAY_MARKER)) {
+    throw new Error(`the launch-video registry no longer declares ${JSON.stringify(REGISTRY_ARRAY_MARKER)}`);
+  }
+  if (!embeddedSlugs(source).includes(entry.slug)) {
+    throw new Error(`${entry.slug} is not embedded yet — use insertEntry, not replaceEntry`);
+  }
+  const quote = (value: string) => JSON.stringify(value);
+  const match = new RegExp(`\\{\\s*\\n(\\s*)slug: "${entry.slug}",[\\s\\S]*?\\n\\s*\\},`).exec(source);
+  if (!match) throw new Error(`could not find the ${entry.slug} entry to replace`);
+
+  const block = match[0]
+    .replace(/youtubeId: "[^"]*",/, `youtubeId: ${quote(entry.youtubeId)},`)
+    .replace(/title: "(?:[^"\\]|\\.)*",/, `title: ${quote(entry.title)},`)
+    .replace(/durationSeconds: \d+,/, `durationSeconds: ${entry.durationSeconds},`)
+    .replace(/publishedAt: "[^"]*",/, `publishedAt: ${quote(entry.publishedAt)},`);
+
+  return source.slice(0, match.index) + block + source.slice(match.index + match[0].length);
+}

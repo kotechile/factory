@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   accessibleName,
+  embeddedIdFor,
   embeddedSlugs,
   insertEntry,
   isUsablePoster,
@@ -11,6 +12,7 @@ import {
   parseIsoDuration,
   REGISTRY_ARRAY_MARKER,
   renderEntry,
+  replaceEntry,
   verifyVideoResource,
 } from "./embed";
 
@@ -192,5 +194,45 @@ describe("poster guards", () => {
 
   it("dates entries in the form the test pins", () => {
     expect(isoDate(new Date("2026-10-24T18:30:00Z"))).toBe("2026-10-24");
+  });
+});
+
+describe("replaceEntry", () => {
+  const next = {
+    slug: "spendproof",
+    youtubeId: "f9xr2ILpUEg",
+    title: "Introducing SpendProof: AI provider invoice reconciliation.",
+    durationSeconds: 22,
+    publishedAt: "2026-10-24",
+  } as const;
+
+  it("repoints only that entry, and leaves every other entry byte-identical", () => {
+    const source = readFileSync(REGISTRY, "utf8");
+    const out = replaceEntry(source, next);
+    expect(embeddedIdFor(out, "spendproof")).toBe("f9xr2ILpUEg");
+    expect(embeddedIdFor(out, "ledgerlink")).toBe(embeddedIdFor(source, "ledgerlink"));
+    // exactly the same number of entries, and the old id is gone
+    expect(embeddedSlugs(out)).toEqual(embeddedSlugs(source));
+    expect(out).not.toContain("qeow4cdaiv8");
+    // the other three fields moved too
+    expect(out).toContain("durationSeconds: 22,");
+    expect(out).toContain('publishedAt: "2026-10-24",');
+  });
+
+  it("keeps the slug and poster path untouched", () => {
+    const out = replaceEntry(readFileSync(REGISTRY, "utf8"), next);
+    expect(out).toContain('posterPath: "/launch-videos/spendproof.jpg",');
+  });
+
+  it("refuses a slug that is not embedded yet, and a malformed entry", () => {
+    const source = readFileSync(REGISTRY, "utf8");
+    expect(() => replaceEntry(source, { ...next, slug: "ratchetproof" })).toThrowError(/not embedded yet/);
+    expect(() => replaceEntry(source, { ...next, youtubeId: "short" })).toThrowError(/11-character/);
+  });
+
+  it("reads the published id back for the superseded record", () => {
+    const source = readFileSync(REGISTRY, "utf8");
+    expect(embeddedIdFor(source, "spendproof")).toMatch(/^[A-Za-z0-9_-]{11}$/);
+    expect(embeddedIdFor(source, "not-a-product")).toBeUndefined();
   });
 });

@@ -6,6 +6,7 @@
  *   node scripts/launch-video/embed.mjs --slug spendproof --dry-run
  *   node scripts/launch-video/embed.mjs --slug spendproof --push          # verify-build, then push
  *   node scripts/launch-video/embed.mjs --slug spendproof --poster-only   # re-cut the poster
+ *   node scripts/launch-video/embed.mjs --slug spendproof --replace --push # re-cut film, new upload
  *
  * This is the step that used to be manual: after `youtube-upload.mjs` returned an id, the product
  * page still rendered nothing until someone added an entry to `src/products/launch-videos.ts` and a
@@ -22,7 +23,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadEnvFile, requireEnv } from "../../src/lib/launch-video/env.ts";
 import {
@@ -30,10 +31,12 @@ import {
   embeddedSlugs,
   insertEntry,
   isoDate,
+  embeddedIdFor,
   isUsablePoster,
   POSTER_MIN_BYTES,
   REGISTRY_ARRAY_MARKER,
   renderEntry,
+  replaceEntry,
   verifyVideoResource,
   YOUTUBE_VIDEOS_URL,
 } from "../../src/lib/launch-video/embed.ts";
@@ -51,13 +54,14 @@ const has = (name) => argv.includes(name);
 
 const slug = flag("--slug");
 if (!slug) {
-  console.error("usage: node scripts/launch-video/embed.mjs --slug <slug> [--dry-run] [--push] [--no-verify] [--poster-only]");
+  console.error("usage: node scripts/launch-video/embed.mjs --slug <slug> [--dry-run] [--push] [--no-verify] [--poster-only] [--replace]");
   process.exit(2);
 }
 const dryRun = has("--dry-run");
 const push = has("--push");
 const verify = !has("--no-verify");
 const posterOnly = has("--poster-only");
+const replace = has("--replace");
 
 const slugDir = join(REPO, "content", "launch_videos", slug);
 const youtubeJsonPath = join(slugDir, "youtube.json");
@@ -65,6 +69,9 @@ const launchPath = join(slugDir, "launch.mp4");
 const posterRel = `public/launch-videos/${slug}.jpg`;
 const posterPath = join(REPO, posterRel);
 const registryPath = join(REPO, "src", "products", "launch-videos.ts");
+// The registry spec pins one published id (and its embed/watch URLs) literally, which is the point:
+// a re-published film must move the pin rather than pass against whatever the file happens to say.
+const registryTestPath = join(REPO, "src", "products", "launch-videos.test.ts");
 
 if (!existsSync(youtubeJsonPath)) {
   throw new Error(`missing ${youtubeJsonPath} — the upload step must run first (there is no id to embed)`);
@@ -167,7 +174,7 @@ if (alreadyEmbedded) {
 mkdirSync(join(REPO, "public", "launch-videos"), { recursive: true });
 let posterFrom = null;
 const posterIsGood = existsSync(posterPath) && statSync(posterPath).size > POSTER_MIN_BYTES;
-if (!posterIsGood || posterOnly) {
+if (!posterIsGood || posterOnly || replace) {
   const tmpThumb = join(slugDir, "poster-source.jpg");
   let usable = false;
   const thumbRes = await fetch(`https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`);
@@ -208,18 +215,24 @@ if (!posterIsGood || posterOnly) {
   console.log(`poster: ${posterRel} already present and usable`);
 }
 
-/** The slugs origin/main serves — [] when there is no remote ref yet. */
-function deployedSlugs() {
+/**
+ * The registry origin/main actually serves.
+ *
+ * Compare the deployed ID, not the slug: after a replace the slug is present on both sides while the
+ * video behind it differs, so a slug check reports "already deployed" for a page still showing the old
+ * film. That bug shipped one commit; the check is by id now.
+ */
+function deployedSource() {
   try {
-    return embeddedSlugs(run("git", ["show", "origin/main:src/products/launch-videos.ts"]));
+    return run("git", ["show", "origin/main:src/products/launch-videos.ts"]);
   } catch {
-    return [];
+    return readFileSync(registryPath, "utf8");
   }
 }
 
 /** Commit our two files and, when asked, verify + push. Only our files: the tree may carry other work. */
 async function publish() {
-  run("git", ["add", posterRel, "src/products/launch-videos.ts"]);
+  run("git", ["add", posterRel, "src/products/launch-videos.ts", "src/products/launch-videos.test.ts"]);
   const staged = spawnSync("git", ["diff", "--cached", "--name-only"], { cwd: REPO, encoding: "utf8" }).stdout.trim();
   if (!staged) {
     console.log("nothing staged — already committed");
@@ -246,17 +259,20 @@ async function publish() {
     }
   }
   run("git", ["push", "origin", "HEAD:main"]);
-  if (!deployedSlugs().includes(slug)) {
-    throw new Error(`pushed, but origin/main still does not carry ${slug} — check the push output`);
+  const pushed = embeddedIdFor(deployedSource(), slug);
+  if (pushed !== video.youtubeId) {
+    throw new Error(
+      `pushed, but origin/main carries ${pushed ?? "no id"} for ${slug} instead of ${video.youtubeId} — check the push output`,
+    );
   }
-  console.log(`pushed: origin/main now carries ${slug}`);
+  console.log(`pushed: origin/main now serves ${video.youtubeId} for ${slug}`);
 }
 
-if (alreadyEmbedded) {
+if (alreadyEmbedded && !replace) {
   // A previous run may have written and committed without pushing. Finish that instead of
   // reporting success while the live site still shows no video.
-  if (deployedSlugs().includes(slug)) {
-    console.log("nothing to write — the embed is complete and already deployed");
+  if (embeddedIdFor(deployedSource(), slug) === video.youtubeId) {
+    console.log("nothing to write — the page already serves this exact video");
     process.exit(0);
   }
   console.log(`${slug} is embedded locally but origin/main does not carry it — finishing the commit and push`);
@@ -276,7 +292,11 @@ const entry = {
   durationSeconds: video.durationSeconds,
   publishedAt: isoDate(),
 };
-const nextSource = insertEntry(source, entry);
+const previousId = embeddedIdFor(source, slug);
+if (replace && previousId && previousId === entry.youtubeId) {
+  throw new Error(`${slug} already points at ${entry.youtubeId} — nothing to replace`);
+}
+const nextSource = replace ? replaceEntry(source, entry) : insertEntry(source, entry);
 
 if (dryRun) {
   console.log("DRY RUN — would add to src/products/launch-videos.ts:");
@@ -289,23 +309,54 @@ if (dryRun) {
 const sourceBackup = `${registryPath}.bak-embed`;
 const posterExisted = existsSync(posterPath);
 const posterBackup = `${posterPath}.bak-embed`;
+const testBackup = `${registryTestPath}.bak-embed`;
 copyFileSync(registryPath, sourceBackup);
+copyFileSync(registryTestPath, testBackup);
 if (posterExisted) copyFileSync(posterPath, posterBackup);
 
+let testChanged = false;
 try {
   writeFileSync(`${registryPath}.tmp`, nextSource);
   renameSync(`${registryPath}.tmp`, registryPath);
+  if (replace && previousId) {
+    const pinned = readFileSync(registryTestPath, "utf8");
+    if (!pinned.includes(previousId)) {
+      throw new Error(
+        `--replace expects ${registryTestPath} to pin ${previousId}; it does not, so the id it pins ` +
+          `would no longer be the published one — fix the spec by hand before replacing`,
+      );
+    }
+    const moved = pinned.split(previousId).join(entry.youtubeId);
+    if (moved !== pinned) {
+      writeFileSync(registryTestPath, moved);
+      testChanged = true;
+    }
+  }
   run("npx", ["vitest", "run", "src/products/launch-videos.test.ts"]);
 } catch (error) {
   copyFileSync(sourceBackup, registryPath);
+  copyFileSync(testBackup, registryTestPath);
   if (posterExisted) copyFileSync(posterBackup, posterPath);
   unlinkSync(sourceBackup);
+  unlinkSync(testBackup);
   if (posterExisted) unlinkSync(posterBackup);
   throw new Error(`the launch-videos gate rejected the new entry, so nothing was changed: ${error.message}`);
 }
 unlinkSync(sourceBackup);
+unlinkSync(testBackup);
 if (posterExisted) unlinkSync(posterBackup);
+if (testChanged) console.log(`moved the published-id pin in ${relative(REPO, registryTestPath)} to ${entry.youtubeId}`);
 console.log(`embedded ${slug} — the products test passes with the new entry`);
+
+// Keep an audit trail of the swap: the registry only ever shows the current id, and the superseded
+// upload is what someone will ask about later.
+if (replace && previousId) {
+  writeFileSync(
+    join(slugDir, "superseded.json"),
+    JSON.stringify({ slug, replaced: previousId, with: entry.youtubeId, at: new Date().toISOString() }, null, 2),
+  );
+  console.log(`replaced ${previousId} with ${entry.youtubeId} (recorded in content/launch_videos/${slug}/superseded.json)`);
+}
 
 // 6. Commit, and push when asked.
 await publish();
