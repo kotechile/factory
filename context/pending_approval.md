@@ -4,6 +4,29 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-24 (**15:30 sweep, Day-54 — a fourth day with no product change; the first visitor-classed browsing session in a week arrived, and the meter that reported zeros for every product is fixed**).
+`context/approval_queue.json`: **13 rows — 2 `pending` (`ratchetproof-live`, new `growth-check-scope`), 1 `approved` (`canopyproof`, still at S1), 10 `resolved`**.
+1. **`ratchetproof-live` — unchanged, day 5, still the owner's call.** Public, uncounted and video-less while the status is `beta`:
+   `/ratchetproof` 200 and on `/showcase`, empty audit **400 `rp-intervals-empty`**, `/launch-videos/ratchetproof.jpg` **404**,
+   `detect.mjs` pending [] / ledgerRows 5. Reply `@Simon approve RatchetProof live` or `@Simon keep RatchetProof in beta`.
+2. **`growth-check-scope` — NEW row, recorded from prose.** Friday's Growth Watchdog queued "re-point the growth check" in its
+   eval note but never wrote a queue row (rule 7 drift, corrected here). `scripts/growth-check.mjs:54` still defaults
+   `PRODUCT=quarterline` — killed 2026-09-19 — so the weekly traffic gate scores a product that no longer exists. The same
+   script's silent truncation (one unpaginated, oldest-first `events` read, ~1,000-row PostgREST cap → `product_event_rows: 0`
+   against 1,012 real rows for spendproof) **was fixed this sweep** with explicit `.range()` paging and a printed
+   `events_read_capped` line. Reply `@Simon re-point the growth check`.
+3. **`canopyproof` — approved 2026-10-18, idle 6 days.** One commit (`01d02c3`, S1 EUDR engine + tests), no route, not
+   registered, not on `/showcase`. Nothing to approve — it is a dispatch gap, named here so it is not mistaken for progress.
+4. **Direction, day 3, unanswered:** distribution vs keep building (raised 2026-10-22, not a queue row). Six products,
+   54 days, one 8-event visitor session, $0 revenue. Reply `@Simon switch to distribution` or `@Simon keep building`.
+**Closed since the last sweep:** `copy-gate-deploy` (deploy chain repaired 2026-10-23; every push since has built, and the
+Build Watchdog's 10-23 run is green on the served commit — 416 vitest / 110 Playwright / 30/30 tiles).
+**Not an ask, fleet P2:** the growth check's revenue leg reads the sandbox slot locally (`STRIPE_MODE` absent from the repo
+`.env`; it labels the result `revenue_is_sandbox: true`, and the deployed app carries `STRIPE_MODE=live`);
+`0004_events_traffic_class.sql` is still an owner SQL-console step (non-blocking); `PAUSED_2026-10-15.md` is stale history;
+`/api/agent/calculate {}` answers 500 with a 400-class message (day 7). **Owner infra note:** Traefik's ACME renewal for
+`hermes.aichieve.net` fails daily; the current certificate is valid to 2026-12-02.
+
 _Last updated: 2026-10-23 (**15:30 sweep, Day-53 — the factory's deploy chain was broken for 20 hours by the new copy gate; fixed this sweep; one decision is still yours and one approved build is still idle**).
 `context/approval_queue.json`: **11 rows — 1 `pending`, 1 `approved` (`canopyproof`, still at S1), 9 `resolved`** (the new `copy-gate-deploy` row closes at `resolved`).
 1. **`ratchetproof-live` — unchanged, day 4, still the owner's call.** Public, uncounted and video-less while the status is `beta`:

@@ -85,19 +85,41 @@ if (supabaseUrl && serviceKey) {
   let error = null;
   let hasSessionColumn = false;
   let hasTrafficColumn = false;
+  // PostgREST caps an unpaginated select at ~1000 rows, so a single read returned only the OLDEST
+  // page of the whole store: every product first written after that page read as "0 rows", and the
+  // gate leg silently reported zero traffic. Page explicitly, and say so if the hard cap is hit.
+  const PAGE = 1000;
+  const MAX_ROWS = 200_000;
+  let rowsCapped = false;
   for (const c of candidates) {
-    const r = await supabase
-      .from("events")
-      .select(c.cols)
-      .order("created_at", { ascending: true });
-    if (!r.error) {
-      data = r.data;
+    const rows = [];
+    let failed = null;
+    for (let from = 0; from < MAX_ROWS; from += PAGE) {
+      const r = await supabase
+        .from("events")
+        .select(c.cols)
+        .order("created_at", { ascending: true })
+        .range(from, from + PAGE - 1);
+      if (r.error) {
+        failed = r.error;
+        break;
+      }
+      rows.push(...(r.data || []));
+      if (!r.data || r.data.length < PAGE) break;
+      if (from + PAGE >= MAX_ROWS) rowsCapped = true;
+    }
+    if (!failed) {
+      data = rows;
       hasSessionColumn = c.session;
       hasTrafficColumn = c.traffic;
       error = null;
       break;
     }
-    error = r.error;
+    error = failed;
+  }
+  if (rowsCapped) {
+    // Never silent: a truncated read is a partial answer, not a zero.
+    summary.events_read_capped = `stopped at ${MAX_ROWS} rows — totals below are a partial read`;
   }
 
   if (error) {
