@@ -7,6 +7,7 @@ import {
   embeddedIdFor,
   embeddedSlugs,
   insertEntry,
+  jpegSize,
   isUsablePoster,
   isoDate,
   parseIsoDuration,
@@ -234,5 +235,38 @@ describe("replaceEntry", () => {
     const source = readFileSync(REGISTRY, "utf8");
     expect(embeddedIdFor(source, "spendproof")).toMatch(/^[A-Za-z0-9_-]{11}$/);
     expect(embeddedIdFor(source, "not-a-product")).toBeUndefined();
+  });
+});
+
+describe("jpegSize", () => {
+  // Minimal SOI + SOF0 header; enough to prove the parser reads the frame size and refuses junk.
+  const jpeg = (w: number, h: number) => {
+    const bytes = [
+      0xff, 0xd8,                    // SOI
+      0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00,
+      0xff, 0xc0, 0x00, 0x11, 0x08, (h >> 8) & 0xff, h & 0xff, (w >> 8) & 0xff, w & 0xff,
+      0x03, 0x01, 0x11, 0x00, 0x02, 0x11, 0x01, 0x03, 0x11, 0x01,
+    ];
+    return new Uint8Array(bytes);
+  };
+
+  it("reads a real 1280×720 frame", () => {
+    expect(jpegSize(jpeg(1280, 720))).toEqual({ width: 1280, height: 720 });
+  });
+
+  it("reads the 120×90 thumbnail YouTube serves when it has none", () => {
+    expect(jpegSize(jpeg(120, 90))).toEqual({ width: 120, height: 90 });
+  });
+
+  it("returns null for bytes that are not a JPEG", () => {
+    expect(jpegSize(new Uint8Array([0x89, 0x50, 0x4e, 0x47]))).toBeNull();
+    expect(jpegSize(new Uint8Array(0))).toBeNull();
+  });
+
+  it("reads the real shipped posters at exactly the size the page renders", () => {
+    for (const slug of ["spendproof", "caseproof"]) {
+      const bytes = new Uint8Array(readFileSync(join(process.cwd(), "public", "launch-videos", `${slug}.jpg`)));
+      expect(jpegSize(bytes), `${slug} poster`).toEqual({ width: 1280, height: 720 });
+    }
   });
 });

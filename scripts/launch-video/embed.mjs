@@ -33,6 +33,7 @@ import {
   isoDate,
   embeddedIdFor,
   isUsablePoster,
+  jpegSize,
   POSTER_MIN_BYTES,
   REGISTRY_ARRAY_MARKER,
   renderEntry,
@@ -93,12 +94,11 @@ function run(command, args, opts = {}) {
   return result.stdout ?? "";
 }
 
+/** Poster dimensions read straight from the JPEG header — no decoder, no ffprobe round trip. */
 function imageSize(path) {
-  const out = run("ffprobe", [
-    "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", path,
-  ]).trim();
-  const [width, height] = out.split(",").map(Number);
-  return { width, height };
+  const size = jpegSize(new Uint8Array(readFileSync(path)));
+  if (!size) throw new Error(`${path} is not a readable JPEG — refusing to ship it as a poster`);
+  return size;
 }
 
 async function accessToken() {
@@ -173,7 +173,7 @@ if (alreadyEmbedded) {
 // 3. Poster: our own origin, 1280×720, the video's own opening frame.
 mkdirSync(join(REPO, "public", "launch-videos"), { recursive: true });
 let posterFrom = null;
-const posterIsGood = existsSync(posterPath) && statSync(posterPath).size > POSTER_MIN_BYTES;
+const posterIsGood = existsSync(posterPath) && statSync(posterPath).size > 1_000;
 if (!posterIsGood || posterOnly || replace) {
   const tmpThumb = join(slugDir, "poster-source.jpg");
   let usable = false;
@@ -206,7 +206,9 @@ if (!posterIsGood || posterOnly || replace) {
 
   const bytes = statSync(posterPath).size;
   const size = imageSize(posterPath);
-  if (bytes <= POSTER_MIN_BYTES) throw new Error(`poster came out ${bytes} bytes — a placeholder, not a poster`);
+  // Dimensions, not file size: a designed frame that is mostly one flat colour is legitimately ~8 KB,
+  // which overlaps the ~2 KB 120×90 placeholder. Anything under 1 KB is a truncated write.
+  if (bytes < 1_000) throw new Error(`poster came out ${bytes} bytes — a truncated write, not a poster`);
   if (size.width !== 1280 || size.height !== 720) {
     throw new Error(`poster is ${size.width}×${size.height}; the page renders 1280×720`);
   }
@@ -319,13 +321,9 @@ try {
   writeFileSync(`${registryPath}.tmp`, nextSource);
   renameSync(`${registryPath}.tmp`, registryPath);
   if (replace && previousId) {
+    // The spec pins exactly ONE product's id on purpose; a replace moves that pin when this slug is
+    // the pinned one, and is a no-op for every other slug. A stale pin anywhere still fails the gate.
     const pinned = readFileSync(registryTestPath, "utf8");
-    if (!pinned.includes(previousId)) {
-      throw new Error(
-        `--replace expects ${registryTestPath} to pin ${previousId}; it does not, so the id it pins ` +
-          `would no longer be the published one — fix the spec by hand before replacing`,
-      );
-    }
     const moved = pinned.split(previousId).join(entry.youtubeId);
     if (moved !== pinned) {
       writeFileSync(registryTestPath, moved);

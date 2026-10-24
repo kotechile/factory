@@ -246,3 +246,32 @@ export function replaceEntry(source: string, entry: LaunchVideoEntry): string {
 
   return source.slice(0, match.index) + block + source.slice(match.index + match[0].length);
 }
+
+/**
+ * Width/height from a JPEG's SOF marker, or null when the bytes are not a JPEG.
+ *
+ * The poster gate used to be a file-size floor, which is a proxy that misfires: a designed frame that
+ * is mostly one flat colour compresses to ~8 KB at 1280×720, while YouTube's 120×90 "no thumbnail"
+ * placeholder is ~2 KB — the sizes overlap, so neither number distinguishes them. Dimensions do, and
+ * they are what the page actually renders.
+ */
+export function jpegSize(bytes: Uint8Array): { width: number; height: number } | null {
+  if (bytes.length < 4 || bytes[0] !== 0xff || bytes[1] !== 0xd8) return null;
+  let offset = 2;
+  while (offset + 9 < bytes.length) {
+    if (bytes[offset] !== 0xff) return null;
+    const marker = bytes[offset + 1];
+    const length = (bytes[offset + 2] << 8) | bytes[offset + 3];
+    // SOF0..SOF3, SOF5..SOF7, SOF9..SOF11, SOF13..SOF15 carry the frame size
+    const isSof =
+      marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+    if (isSof) {
+      const height = (bytes[offset + 5] << 8) | bytes[offset + 6];
+      const width = (bytes[offset + 7] << 8) | bytes[offset + 8];
+      return width > 0 && height > 0 ? { width, height } : null;
+    }
+    if (length <= 0) return null;
+    offset += 2 + length;
+  }
+  return null;
+}

@@ -156,6 +156,17 @@ opening frame of `launch.mp4` (a 120×90 placeholder is never upscaled) — writ
 and runs `src/products/launch-videos.test.ts` as its gate. If the gate fails it restores both files
 and exits non-zero; nothing half-written reaches the tree.
 
+**The thumbnail is a chosen frame, not frame 0.** Frame 0 of a render is the first frame of an
+entrance — before the headline has landed — and produces a blank or half-built thumbnail. Pick a
+settled beat that states the claim (the before/after figure, the verdict, the diagram), then:
+`node scripts/launch-video/thumbnail.mjs --slug <slug> --at <seconds>` writes the 1280×720 poster and
+sets it on the video. `--check` prints the title, description and runtime YouTube actually holds —
+read that, not `youtube.json`, when reporting what is live.
+
+**The share copy is two parts.** Line 1 is the title (≤100 chars, and it must read as a title — a long
+first sentence gets cut); everything after it is the description body. A one-line `share-copy.txt`
+uploads a ~78-character description, which is what LedgerLink shipped before this rule.
+
 `--push` then runs `scripts/verify-build.sh` (factory rule 7) and pushes to `main` only if it passes,
 so Coolify deploys the entry. A failed verification leaves the commit **local** on purpose:
 `detect.mjs` reads `origin/main`, so the slug keeps reporting `EMBED_PENDING` instead of the site
