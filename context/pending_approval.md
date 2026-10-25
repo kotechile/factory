@@ -4,6 +4,34 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-25 (**15:30 sweep, Day-55 — all five launch videos were re-made at 4K and re-published, the old five deleted, the pages moved to the new films, and six superseded uploads from the re-render are still public**).
+`context/approval_queue.json`: **14 rows — 3 `pending` (`ratchetproof-live`, `growth-check-scope`, new `superseded-video-copies`), 1 `approved` (`canopyproof`, idle 7 days), 10 `resolved`**.
+1. **`ratchetproof-live` — unchanged, day 7, still the owner's call.** Public, uncounted and video-less while the status is `beta`:
+   `/ratchetproof` 200 and on `/showcase`, empty audit **400 `rp-intervals-empty`**, `/launch-videos/ratchetproof.jpg` **404**,
+   `detect.mjs` pending [] / ledgerRows 5. Reply `@Simon approve RatchetProof live` or `@Simon keep RatchetProof in beta`.
+2. **`superseded-video-copies` — NEW row.** Last night's 4K re-render ran in rounds and each round's intermediate copy is
+   still public: `f9xr2ILpUEg` (spendproof), `H2TwJrVF1-A` (caseproof), `a4x5rhkBlXA` (facturgate), `pVItC4gjXJc`
+   (parcelproof), `gPz-3Tuhps0` and `Ski_feMOWuc` (ledgerlink) — all oEmbed 200, so the channel carries 11 public product
+   films for 5 products. The five ids the pages embedded yesterday (`qeow4cdaiv8`, `JcP9RtWZZrg`, `I7NOZAQ-5Ig`,
+   `I38c05ZZZr8`, `MiNmsr1i9Lo`) are already **404** — the desk deleted those itself. Reply
+   `@Simon delete the superseded launch videos`; silence leaves six near-duplicates competing with the real films.
+3. **`growth-check-scope` — day 2.** `scripts/growth-check.mjs:54` still defaults `PRODUCT=quarterline` (killed 2026-09-19),
+   so the weekly traffic gate scores a product that no longer exists; the silent 1,000-row truncation was fixed 2026-10-24
+   with explicit `.range()` paging. Reply `@Simon re-point the growth check`.
+4. **`canopyproof` — approved 2026-10-18, idle 7 days.** One commit (`01d02c3`, S1 EUDR engine + tests), no route, not
+   registered, not on `/showcase`. Nothing to approve — it is a dispatch gap, named here so it is not mistaken for progress.
+5. **Direction, day 4, unanswered:** distribution vs keep building (raised 2026-10-22, not a queue row). Six products,
+   55 days, no provable outside visitor, $0 revenue — while the factory now owns five 4K product films nobody distributes.
+   Reply `@Simon switch to distribution` or `@Simon keep building`.
+**Closed since the last sweep:** nothing.
+**Not an ask, fleet P2:** the Supabase `launch_videos` ledger still holds the five deleted ids (the pages render
+`src/products/launch-videos.ts`, so nothing is broken — the record is wrong; a repoint is the fix); the internal-traffic
+marker does not cover the video desk's headless post-upload checks, so 43 visitor-classified rows in the last 24 h are ours;
+the growth check's revenue leg reads the sandbox slot locally (`STRIPE_MODE` absent from the repo `.env`, labelled
+`revenue_is_sandbox: true`); `0004_events_traffic_class.sql` is still an owner SQL-console step (non-blocking);
+`PAUSED_2026-10-15.md` is stale history; `/api/agent/calculate {}` answers 500 with a 400-class message (day 8).
+**Owner infra note:** Traefik's ACME renewal for `hermes.aichieve.net` fails daily; the certificate is valid to 2026-12-02.
+
 _Last updated: 2026-10-24 (**15:30 sweep, Day-54 — a fourth day with no product change; the first visitor-classed browsing session in a week arrived, and the meter that reported zeros for every product is fixed**).
 `context/approval_queue.json`: **13 rows — 2 `pending` (`ratchetproof-live`, new `growth-check-scope`), 1 `approved` (`canopyproof`, still at S1), 10 `resolved`**.
 1. **`ratchetproof-live` — unchanged, day 5, still the owner's call.** Public, uncounted and video-less while the status is `beta`:
