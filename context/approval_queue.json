@@ -3,18 +3,6 @@
  "source": "context/pending_approval.md",
  "items": [
   {
-   "id": "ratchetproof-live",
-   "app": "RatchetProof",
-   "kind": "decision",
-   "state": "pending",
-   "headline": "RatchetProof is built and public — promote it to live, or leave it in beta?",
-   "detail": "Built, gated and deployed 2026-10-19 (68db31a + 1a2c2c1), verified on the deploy image, and re-measured live on 2026-10-20: the page answers 200, computes the worked example, appears on /showcase, sits in /sitemap.xml (31 locs), and the agent descriptor is v2.2.0 with audit_demand_billing at $1.50/call. The open call is the beta-to-live promotion. It also gates the launch video: the video selector (src/lib/launch-video/plan.ts) picks only status 'live', so the detector reports zero pending and no video is produced while the status is beta (poster 404, ledger 5 rows).",
-   "impact": "Promoting makes the sixth product a full live product and starts its launch video; leaving it beta keeps it public but outside the video pipeline.",
-   "reply": "@Simon approve RatchetProof live  |  @Simon keep RatchetProof in beta",
-   "opened": "2026-10-20",
-   "updated": "2026-10-20"
-  },
-  {
    "id": "growth-check-scope",
    "app": "Growth check (weekly traffic gate)",
    "kind": "decision",
@@ -25,6 +13,18 @@
    "reply": "@Simon re-point the growth check",
    "opened": "2026-10-24",
    "updated": "2026-10-24"
+  },
+  {
+   "id": "canopyproof",
+   "app": "CanopyProof",
+   "kind": "build",
+   "state": "approved",
+   "headline": "Supplier geolocation pre-flight audit for the EU deforestation rules (EUDR)",
+   "detail": "A model reads the declared fields out of supplier packs; overlap, declared-vs-computed area and scope are checked by our own geometry. Plan in five slices, S1 engine through S5 gate + deploy.",
+   "impact": "Build in progress since 2026-10-18. EUDR application date is 30 December 2026.",
+   "reply": "",
+   "opened": "2026-10-12",
+   "updated": "2026-10-18"
   },
   {
    "id": "cms-legacy-posts",
@@ -38,18 +38,6 @@
    "opened": "2026-10-20",
    "updated": "2026-10-22",
    "closed": "2026-10-22"
-  },
-  {
-   "id": "canopyproof",
-   "app": "CanopyProof",
-   "kind": "build",
-   "state": "approved",
-   "headline": "Supplier geolocation pre-flight audit for the EU deforestation rules (EUDR)",
-   "detail": "A model reads the declared fields out of supplier packs; overlap, declared-vs-computed area and scope are checked by our own geometry. Plan in five slices, S1 engine through S5 gate + deploy.",
-   "impact": "Build in progress since 2026-10-18. EUDR application date is 30 December 2026.",
-   "reply": "",
-   "opened": "2026-10-12",
-   "updated": "2026-10-18"
   },
   {
    "id": "traffic-marker",
@@ -175,7 +163,20 @@
    "opened": "2026-10-25",
    "updated": "2026-10-25",
    "closed": "2026-10-25"
+  },
+  {
+   "id": "ratchetproof-live",
+   "app": "RatchetProof",
+   "kind": "decision",
+   "state": "resolved",
+   "headline": "RatchetProof is a full live product — promoted from beta on the owner's approval",
+   "detail": "Done 2026-10-25 (commit de9092e), on the owner's message \"Approve\" in the thread where this row had been parked since 2026-10-20 — it was the only product status still at the gate. registry.ts status beta -> live; the registry is the single source, so /showcase's badge, the derived crawler surfaces and the launch-video selector (src/lib/launch-video/plan.ts selects status === \"live\" only) all moved with it. Gate scripts/verify-build.sh \"Verification passed.\" — tsc clean, eslint 0 errors, tokens, verticals, recon cadence, vitest 479/479 (35 files), next build 52/52 pages, Playwright 110/110, visual-qa 30/30 tiles incl. ratchetproof 6/6 PASS. The single red on the way was the /showcase snapshot (116 px, 0.01): the diff image shows it confined to the RatchetProof card's status badge and the actual render reads LIVE with the live green horizon stripe, so the Linux baseline was RE-DERIVED after reading it (macOS baseline untouched). Deploy verified by IMAGE TAG, not the push: container af8yqbwrrnyyfgs9wcg0intj-20261025T155726, image de9092e9b580... == HEAD; live /showcase now reads 8 LIVE / 0 BETA / 1 RETIRED (was 7 / 1 / 1), /ratchetproof 200, sitemap.xml 31 locs carrying /ratchetproof. detect.mjs --json now returns ratchetproof in pending (it returned [] for the whole beta period), so the launch video is unblocked. Remains, owner's: the PRD's $12 one-off / $39-mo per-site web tier needs Stripe products (a credentialed step), and the first live tariff is the cost-measurement run that must confirm $1.50 clears 3x its measured cost.",
+   "impact": "Closed — the sixth product is a full live product (not a labelled beta), and its launch video can now be produced; nothing was left half-flipped.",
+   "reply": "",
+   "opened": "2026-10-20",
+   "updated": "2026-10-25T15:57Z",
+   "closed": "2026-10-25"
   }
  ],
- "updated": "2026-10-25T15:56Z"
+ "updated": "2026-10-25T15:57Z"
 }
