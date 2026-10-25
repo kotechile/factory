@@ -391,6 +391,24 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   with those numbers. Rule: when the same pixels pass and fail across runs, the verdict is variance — re-run after
   naming the class, never restyle the page.
 
+- **2026-10-25 — the IDE gutter sized the row, so a long file stretched the page by 115,000 px (owner-reported).**
+  The owner reported RatchetProof's launch video sitting "at the end of a very long list of numbers, several pages
+  long". Measured on the live page: `document.documentElement.scrollHeight` **116,580 px**, the `#audit` block
+  **113,165 px** of it, the launch-video section at **113,813 px** — about 196 screens. The culprit was the editor,
+  not the report: `IdeTextarea` painted one `<div>` per line in the line-number gutter, in normal flow, and the
+  `<textarea>` beside it (a stretch-aligned flex item) inherited that height — 5,765 lines ⇒ a 112,442 px field
+  whose `scrollHeight == clientHeight`, i.e. it never scrolled at all. Note this is the same measurement recorded as
+  "0 vertical clipping" and dismissed as variance in the 2026-10-19 entry above: a field that grows instead of
+  scrolling reports no clipping, so **`scrollHeight == clientHeight` on a code field is a suspicion, not a pass.**
+  Fix: the gutter is an out-of-flow scroller (`pointer-events-none absolute inset-y-0 left-0`, `aria-hidden`),
+  clipped to the row; the textarea keeps its `rows` with `overflow-auto` and a `70vh` ceiling; a `5,765 lines`
+  chip appears in the bar whenever `lineCount > rows` so a capped window cannot read as a truncated file.
+  Measured after: document 4,338 px, `#audit` 923 px, editor 200 px scrolling 112,442 px of content, video at
+  1,571 px.
+  **Rule: any counter/gutter rendered next to a control must not participate in the control's height — either paint
+  it out of flow or pin the row's height explicitly. A demo's page height must be bounded by the viewport, never by
+  the fixture's line count.**
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 
