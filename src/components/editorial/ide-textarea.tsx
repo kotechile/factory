@@ -36,7 +36,27 @@ export function IdeTextarea({
   className?: string;
 }) {
   const gutterRef = React.useRef<HTMLDivElement>(null);
+  const areaRef = React.useRef<HTMLTextAreaElement>(null);
   const lineCount = Math.max(value.split("\n").length, rows);
+  // The gutter paints only the window of numbers the field is showing, never one <div> per line of
+  // the file. An in-flow gutter sized the row (a 5,765-line export opened /ratchetproof at 116,580 px
+  // of document height), and even an out-of-flow one that laid out every row left text runs outside
+  // its box, which the text-geometry guard reads as a collision. So: measure the rendered line height
+  // once, then offset a `rows + 4`-line window by the field's own scrollTop.
+  const [lineHeight, setLineHeight] = React.useState(0);
+  const [scrollTop, setScrollTop] = React.useState(0);
+  React.useLayoutEffect(() => {
+    const node = areaRef.current;
+    if (!node || lineHeight) return;
+    const measured = Number.parseFloat(window.getComputedStyle(node).lineHeight);
+    if (Number.isFinite(measured) && measured > 0) setLineHeight(measured);
+  }, [lineHeight]);
+  const windowRows = rows + 4;
+  const firstLine = lineHeight ? Math.max(0, Math.floor(scrollTop / lineHeight) - 1) : 0;
+  const numbers = Array.from(
+    { length: lineHeight ? Math.min(windowRows, lineCount - firstLine) : Math.min(rows, lineCount) },
+    (_, index) => firstLine + index + 1,
+  );
   // Same badge treatment as IdeInset: at phone width the full "CLIENT-SIDE ONLY • ZERO EGRESS" box
   // overran the bar and painted over the file title (measured overlap −33.6 px at 375 px, 2026-10-19),
   // so below `sm` the bar carries the claim alone and the qualifier returns on wider screens.
@@ -84,24 +104,26 @@ export function IdeTextarea({
       </div>
 
       <div className="relative flex bg-[#F8FAFC]">
-        {/* The gutter keeps its 44 px column but its numbers are painted by an out-of-flow scroller.
-            Rendered in flow, one <div> per line made the row as tall as the file: a 5,765-line
-            interval export stretched this editor to 112,442 px and pushed the launch video to
-            ~196 screens down the page (measured on apps.aichieve.net/ratchetproof, 2026-10-25).
-            Out of flow, the textarea's `rows` sets the height and the file scrolls inside it. */}
+        {/* The gutter keeps its 44 px column but its numbers are painted by an out-of-flow window,
+            never one <div> per line of the file. Rendered in flow, a 5,765-line interval export
+            stretched this editor to 112,442 px and opened /ratchetproof at 116,580 px of document
+            height, with the launch video ~196 screens down (measured 2026-10-25). */}
         <div className="w-11 shrink-0 border-r border-border/60" aria-hidden="true" />
         <div
           ref={gutterRef}
           className="pointer-events-none absolute inset-y-0 left-0 w-11 select-none overflow-hidden py-3 text-right font-mono text-xs leading-relaxed text-[#5B6B80]"
           aria-hidden="true"
         >
-          {Array.from({ length: lineCount }, (_, index) => (
-            <div key={index} className="px-2">
-              {String(index + 1).padStart(2, "0")}
-            </div>
-          ))}
+          <div style={{ paddingTop: firstLine * lineHeight }}>
+            {numbers.map((number) => (
+              <div key={number} className="px-2">
+                {String(number).padStart(2, "0")}
+              </div>
+            ))}
+          </div>
         </div>
         <textarea
+          ref={areaRef}
           aria-label={ariaLabel}
           value={value}
           rows={rows}
@@ -113,9 +135,7 @@ export function IdeTextarea({
           spellCheck={false}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
-          onScroll={(event) => {
-            if (gutterRef.current) gutterRef.current.scrollTop = event.currentTarget.scrollTop;
-          }}
+          onScroll={(event) => setScrollTop(event.currentTarget.scrollTop)}
           className="relative flex-1 resize-y overflow-auto bg-transparent px-3 py-3 font-mono text-xs leading-relaxed text-foreground placeholder:text-muted/60 focus-visible:outline-none"
           // A dragged resize must not be able to claim the whole viewport either.
           style={{ maxHeight: "70vh" }}
