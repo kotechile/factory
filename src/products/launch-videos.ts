@@ -84,11 +84,11 @@ export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   },
   {
     slug: "caseproof",
-    youtubeId: "H2TwJrVF1-A",
+    youtubeId: "Zh13_ukGDiM",
     posterPath: "/launch-videos/caseproof.jpg",
-    title: "CaseProof re-runs a warehouse-automation vendor's own numbers before you sign: labour at the fully",
+    title: "Introducing CaseProof: re-run the vendor's own warehouse-automation numbers.",
     durationSeconds: 23,
-    publishedAt: "2026-10-24",
+    publishedAt: "2026-10-25",
   },
 ];
 
