@@ -4,6 +4,29 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-25 (**22:52 — the owner's parcel-format instruction is landed: ParcelProof reads a carrier export as it comes, and prices a line with no contract rate card**).
+`context/approval_queue.json`: **15 rows — 0 `pending`, 1 `approved` (`canopyproof`, idle 7 days), 14 `resolved`**.
+0. **`parcelproof-carrier-exports` — LANDED on the owner's instruction.** Verbatim: *"Yes implement these"*, in the session where he read the two defects:
+   the page asked for two CSVs it never explained, and the contract rate card — which gated every dollar figure — is the one input most shippers cannot export
+   as a CSV. Commit **`95c1e61`**. (a) **Headers are mapped, not assumed**: matching runs on the normalised form (case, spacing, punctuation, unit suffix)
+   against a synonym table, so a UPS Billing Center / FedEx billing / ShipStation export is read as it comes — `Tracking Number` → `tracking`,
+   `Billed Weight (lb)` → `billed_weight_lb`, `Net Amount` → `total_usd`. Two columns claiming one field is refused; an unresolvable field fails with
+   `pp-field-missing` naming the columns the file **does** have plus the accepted names; a positional export is refused with the fix. (b) **`observed-bracket`
+   pricing**: with no rate card, the price of a corrected weight is the charge the carrier itself billed for that same whole-pound weight in the same
+   carrier/service/zone lane on the same invoice — reported `observed-bracket`, never `verified`; no interpolation or extrapolation; a lane whose charges
+   disagree beyond 2% is dropped and an unobserved lane stays unpriced; the report carries a `pricing` note naming the basis that produced the money. A
+   contract card still wins, and the default basis is unchanged for existing agent/API calls (the new `pricing_basis` parameter is opt-in there; the page
+   switches it on when the rate-card box is empty). The page also states where the two files come from (billing-portal CSV, not the PDF) and labels every
+   rate by its source. Gate `scripts/verify-build.sh` **"Verification passed."** (vitest **489/489**, Playwright **111/111**, visual-qa **30/30** incl.
+   parcelproof **6/6**). Deploy verified by IMAGE TAG: container `af8yqbwrrnyyfgs9wcg0intj-20261025T224738`, image `95c1e61…` == HEAD. Live probes on
+   `/parcelproof`: the new *"Load priced without a rate card"* demo reports **Claimable now $1.50 / 2 lines audited**, both lines labelled `carrier's own
+   charge (observed)`, with the pricing note rendered under the summary; pasting Title-Case headers (`Tracking Number, Invoice Date, Billed Weight (lb),
+   Net Freight, Net Amount`) maps and audits, lists `Order Reference` as unmapped, and correctly reports the `$1.50` as **expired** because a manual edit
+   audits at today's date (2026-10-25) against a 2026-09-10 invoice.
+   **Still open, named rather than folded in:** **PDF invoices are not read** — the page says so in the guidance block. The extraction path already ships in
+   SpendProof (LlamaParse + declared fields; `LLAMAPARSE_API_KEY` and `GEMINI_API_KEY` are both in the app container), but a parcel invoice is a *table*, so
+   the next slot is a per-row declared-field extraction in which an unreadable row blocks that line's verdict instead of being guessed.
+
 _Last updated: 2026-10-25 (**16:00 — the owner approved `RatchetProof` live; the sixth product is a full live product, and its launch video is unlocked**).
 `context/approval_queue.json`: **14 rows — 0 `pending`, 1 `approved` (`canopyproof`, idle 7 days), 13 `resolved`**.
 0. **`ratchetproof-live` — CLOSED on the owner's approval.** Verbatim: *"Approve"*, in the thread where the row had been

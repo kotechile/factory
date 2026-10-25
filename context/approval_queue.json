@@ -177,7 +177,20 @@
    "opened": "2026-10-24",
    "updated": "2026-10-25",
    "closed": "2026-10-25"
-  }
+  },
+ {
+  "id": "parcelproof-carrier-exports",
+  "app": "ParcelProof (parcel invoice audit)",
+  "kind": "instruction",
+  "state": "resolved",
+  "headline": "ParcelProof reads the carrier's own export, and prices a line with no contract rate card",
+  "detail": "Done 2026-10-25 (commit 95c1e61), on the owner's instruction \"Yes implement these\" — the reply to the two defects raised in his session: the page asked for two CSVs it never explained, and the rate card (which gated every dollar figure) is the one input most shippers cannot export. Headers are now mapped on a normalised form (case, spacing, punctuation, unit suffix) against a synonym table, so a UPS Billing Center / FedEx billing / ShipStation export is read as it comes: Tracking Number -> tracking, Billed Weight (lb) -> billed_weight_lb, Net Amount -> total_usd. Two columns claiming one field is refused, and an unresolvable field fails naming the columns the file DOES have plus the accepted names. With no rate card, observed-bracket pricing uses the charge the carrier itself billed for that same whole-pound weight in the same carrier/service/zone lane on the same invoice — labelled observed-bracket, never verified, never interpolated; a lane whose charges disagree is dropped and an unobserved lane stays unpriced. A contract card still wins, and the default basis is unchanged for existing agent/API calls. The page now says where the files come from (billing-portal CSV, not the PDF), labels every rate by its source, and ships a demo scenario that shows the new pricing.",
+  "impact": "Closed — a visitor with a carrier export and no rate card now gets a dollar figure priced from the carrier's own charges, instead of an all-zero recovery summary.",
+  "reply": "",
+  "opened": "2026-10-25",
+  "updated": "2026-10-25",
+  "closed": "2026-10-25"
+ }
  ],
- "updated": "2026-10-25T18:06Z"
+ "updated": "2026-10-25T22:47Z"
 }
