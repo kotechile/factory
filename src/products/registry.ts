@@ -111,7 +111,7 @@ export const products: Product[] = [
     slug: "ratchetproof",
     name: "RatchetProof",
     tagline: "Commercial Electric Billed-Demand & Ratchet Audit",
-    status: "beta",
+    status: "live",
     description:
       "Reconstructs billed demand from a commercial account's own interval data and the filed tariff: every meter aligned onto one grid and summed per coincident interval, the peak searched only in the days and hours the tariff bills, then billed = max(month peak, ratchet % × the highest peak in an explicit lookback, contract minimum). Prices the carry-over of the interval that set the floor and the saving from shaving it, and reports where the bill disagrees with the tariff. The tariff and bills may be read by a model as DECLARED fields only — every field is labelled extracted/unreadable/unstated, an unreadable clause blocks that month, and no number in the report comes from a model.",
     route: "/ratchetproof",
