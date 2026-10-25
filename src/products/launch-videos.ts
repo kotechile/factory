@@ -52,11 +52,11 @@ export interface LaunchVideo {
 export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   {
     slug: "spendproof",
-    youtubeId: "f9xr2ILpUEg",
+    youtubeId: "fYCWUMVtb_M",
     posterPath: "/launch-videos/spendproof.jpg",
     title: "Introducing SpendProof: AI provider invoice ↔ tagged-usage reconciliation.",
     durationSeconds: 23,
-    publishedAt: "2026-10-24",
+    publishedAt: "2026-10-25",
   },
   {
     slug: "ledgerlink",
