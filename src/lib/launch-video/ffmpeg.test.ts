@@ -56,7 +56,8 @@ describe("buildMuxArgs", () => {
     expect(graph).toBe(NO_DUCK_FILTER);
     expect(graph).not.toContain("sidechaincompress");
     expect(graph).toContain("[0:a]volume=1.0[cues]");
-    expect(graph).toContain("[1:a]volume=1.9[vo]");
+    // the narration arrives 24 kHz mono; it is resampled explicitly rather than left to negotiation
+    expect(graph).toContain("[1:a]aresample=48000,aformat=channel_layouts=stereo,volume=1.9[vo]");
     expect(graph).toContain("[cues][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed]");
     expect(graph).toContain(LOUDNESS_FILTER);
     expect(args[args.indexOf("-map") + 1]).toBe("0:v:0");
@@ -206,7 +207,10 @@ describe("buildMuxArgs with a tail", () => {
     const graph = args[args.indexOf("-filter_complex") + 1];
 
     expect(graph).toContain(`[0:v]tpad=stop_mode=clone:stop_duration=${plan.padSeconds.toFixed(3)}`);
-    expect(graph).toContain("[mixed][tailseg]concat=n=2:v=0:a=1[joined]");
+    // delayed onto the same clock, never concatenated: a -ss demuxed segment carries its own PTS
+    expect(graph).toContain("adelay=21000:all=1[tailseg]");
+    expect(graph).toContain("[mixed][tailseg]amix=inputs=2:duration=longest");
+    expect(graph).not.toContain("concat");
     expect(graph).toContain(`afade=t=out:st=${plan.fadeStartSeconds!.toFixed(3)}:d=1.200`);
     expect(graph.endsWith("[aout]")).toBe(true);
     // the bed keeps playing, so its source is a third input seeked to the render's end

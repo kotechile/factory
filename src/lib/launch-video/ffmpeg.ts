@@ -61,7 +61,7 @@ export function duckMix(videoSeconds?: number): string {
       ? "[vokey]volume=1.0,apad[vaside]"
       : `[vokey]volume=1.0,apad=whole_dur=${secs(videoSeconds)}[vaside]`;
   return (
-    "[0:a]volume=1.0[music];[1:a]volume=1.9,asplit=2[vo][vokey];" +
+    "[0:a]volume=1.0[music];[1:a]aresample=48000,aformat=channel_layouts=stereo,volume=1.9,asplit=2[vo][vokey];" +
     `${key};` +
     "[music][vaside]sidechaincompress=threshold=0.05:ratio=3:attack=5:release=350[ducked];" +
     "[ducked][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed]"
@@ -75,7 +75,7 @@ export const DUCK_FILTER = `${duckMix()};[mixed]${LOUDNESS_FILTER}[aout]`;
  * videos take this path: there is no bed to sit under, so nothing has a reason to be compressed.
  */
 export const NO_DUCK_MIX =
-  "[0:a]volume=1.0[cues];[1:a]volume=1.9[vo];" +
+  "[0:a]volume=1.0[cues];[1:a]aresample=48000,aformat=channel_layouts=stereo,volume=1.9[vo];" +
   "[cues][vo]amix=inputs=2:duration=first:dropout_transition=0:weights=1 1[mixed]";
 
 export const NO_DUCK_FILTER = `${NO_DUCK_MIX};[mixed]${LOUDNESS_FILTER}[aout]`;
@@ -167,12 +167,16 @@ function tailAudioGraph(plan: TailPlan, hasBed: boolean): string[] {
 
   if (plan.padSeconds > 0) {
     if (hasBed) {
-      // 80 ms fade-in hides the seek seam between the render's bed and the continued source.
+      // The tail is DELAYED onto the timeline rather than concatenated. `concat` on a segment
+      // demuxed with -ss carries that segment's own timestamps, and the join produced a mix whose
+      // opening seconds played at the wrong rate on the uploaded copy. adelay puts the segment at
+      // an absolute offset on the same clock, so there is no join to get wrong.
+      const delayMs = Math.round((plan.totalSeconds - plan.padSeconds) * 1000);
       parts.push(
-        "[2:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo," +
-          "afade=t=in:st=0:d=0.08[tailseg]",
+        "[2:a]aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,asetpts=PTS-STARTPTS," +
+          `afade=t=in:st=0:d=0.08,adelay=${delayMs}:all=1[tailseg]`,
       );
-      parts.push(`[mixed][tailseg]concat=n=2:v=0:a=1[joined]`);
+      parts.push(`[mixed][tailseg]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0[joined]`);
     } else {
       parts.push(`[mixed]apad=pad_dur=${secs(plan.padSeconds)}[joined]`);
     }
