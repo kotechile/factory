@@ -114,7 +114,7 @@ export function IdeTextarea({
           className="pointer-events-none absolute inset-y-0 left-0 w-11 select-none overflow-hidden py-3 text-right font-mono text-xs leading-relaxed text-[#5B6B80]"
           aria-hidden="true"
         >
-          <div style={{ paddingTop: firstLine * lineHeight }}>
+          <div style={{ marginTop: firstLine * lineHeight - scrollTop }}>
             {numbers.map((number) => (
               <div key={number} className="px-2">
                 {String(number).padStart(2, "0")}
