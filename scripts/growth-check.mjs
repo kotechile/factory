@@ -1,9 +1,17 @@
 #!/usr/bin/env node
-// Growth Watchdog metrics — queries Supabase `events` (scoped to the quarterline product) +
-// Stripe revenue and prints a structured summary the watchdog agent evaluates against the
-// Day 7/14/30 kill/scale gates.
+// Growth Watchdog metrics — queries Supabase `events` (scoped to the LIVE products in
+// src/products/registry.ts) + Stripe revenue and prints a structured summary the watchdog agent
+// evaluates against the Day 7/14/30 kill/scale gates.
 //
-// Day-7 gate (quarterline): >= 50 UNIQUE sessions + >= 1 export. The unique-session metric is
+// SCOPE (fixed 2026-10-25, owner: "re-point the growth check"). This script used to default to
+// `quarterline`, which the owner killed on 2026-09-19 — so every weekly run scored visitors,
+// sessions and gates against a retired product and honestly reported zero. The scope is now
+// derived from the registry at run time: default = every product whose status is not `killed`,
+// aggregated (totals are the gate inputs) with a per-product breakdown alongside. Pass a slug to
+// narrow to one product (`node scripts/growth-check.mjs parcelproof`). A slug that names a retired
+// or unregistered product is an explicit error, never a silent zero.
+//
+// Day-7 gate: >= 50 UNIQUE sessions + >= 1 export. The unique-session metric is
 // derived from the `session_id` the client attaches to EVERY event payload
 // (src/lib/telemetry-client.ts; a `ql_session_id` cookie), promoted to the
 // `events.session_id` column by supabase/migrations/0002_events_session_id.sql. This script
@@ -51,22 +59,64 @@ const stripeKey =
   (stripeMode === "live" ? process.env.STRIPE_SECRET_KEY_LIVE : process.env.STRIPE_SECRET_KEY_TEST) ||
   process.env.STRIPE_SECRET_KEY;
 const stripeKeyPrefix = stripeMode === "live" ? "sk_live_" : "sk_test_";
-const PRODUCT = process.argv[2] || process.env.GROWTH_PRODUCT || "quarterline";
 const GATE_WINDOW_DAYS = Number(process.env.GATE_WINDOW_DAYS ?? 7);
 
+// ---------------------------------------------------------------------------------------------
+// Product scope, derived from the registry — never a hard-coded default slug. src/products/
+// registry.ts is TypeScript and this is a bare .mjs run from the repo root, so the entries are
+// read textually: each `slug:` is paired with the nearest following `status:`. A registry that
+// cannot be parsed is reported, not guessed around.
+// ---------------------------------------------------------------------------------------------
+const REGISTRY_PATH = "src/products/registry.ts";
+function readRegistry() {
+  if (!existsSync(REGISTRY_PATH)) return { error: `${REGISTRY_PATH} not found — run from the repo root` };
+  const src = readFileSync(REGISTRY_PATH, "utf8");
+  const entries = [];
+  const re = /slug:\s*"([a-z0-9_]+)"[\s\S]*?status:\s*"(live|beta|killed|dead|retired)"/g;
+  let m;
+  while ((m = re.exec(src))) entries.push({ slug: m[1], status: m[2] });
+  if (!entries.length) return { error: `no slug/status pairs parsed from ${REGISTRY_PATH}` };
+  return { entries };
+}
+const registry = readRegistry();
+const allSlugs = registry.error ? [] : registry.entries.map((e) => e.slug);
+const activeSlugs = registry.error ? [] : registry.entries.filter((e) => e.status !== "killed").map((e) => e.slug);
+const retiredSlugs = registry.error ? [] : registry.entries.filter((e) => e.status === "killed").map((e) => e.slug);
+
+const rawProduct = (process.argv[2] || process.env.GROWTH_PRODUCT || "all").trim();
+const wantsAll = rawProduct === "all" || rawProduct === "*";
+// scope === null means "every active product"; an array means exactly those slugs.
+const scope = wantsAll ? null : rawProduct.split(",").map((s) => s.trim()).filter(Boolean);
+const productLabel = wantsAll ? "all_live" : rawProduct;
+const scopeSlugs = scope === null ? activeSlugs : scope;
+
 const summary = {
-  product: PRODUCT,
+  product: productLabel,
+  products: scopeSlugs,
+  retired_products_excluded: registry.error ? [] : retiredSlugs,
   events_table_ok: false,
   events: {},
   unique_sessions: null,
   unique_sessions_last_7d: null,
   unique_sessions_window_days: GATE_WINDOW_DAYS,
-  unique_sessions_product: PRODUCT,
+  unique_sessions_product: productLabel,
   gross_revenue_usd: null,
   days_since_first_event: null,
   stripe_mode: stripeMode || "unset",
   revenue_is_sandbox: null,
 };
+
+if (registry.error) {
+  summary.registry_error = registry.error;
+} else if (scope !== null) {
+  // A named slug that is retired or unknown would otherwise read as zero traffic — the exact
+  // failure this fix exists to end. Name it and refuse to score.
+  const bad = scope.filter((s) => !allSlugs.includes(s));
+  const dead = scope.filter((s) => retiredSlugs.includes(s));
+  if (bad.length) summary.product_error = `unknown product slug(s): ${bad.join(", ")} — registry has ${allSlugs.join(", ")}`;
+  if (dead.length) summary.product_error = `retired product slug(s): ${dead.join(", ")} — killed products are not a growth gate; omit the argument to score every live product`;
+}
+
 
 if (supabaseUrl && serviceKey) {
   const supabase = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
@@ -127,21 +177,29 @@ if (supabaseUrl && serviceKey) {
   } else {
     summary.events_table_ok = true;
     summary.session_id_column = hasSessionColumn;
-    const counts = {};
-    const countsVisitor = {};
-    const countsInternal = {};
-    const sessionIdsAll = new Set();
-    const sessionIdsWindow = new Set();
-    const sessionIdsVisitor = new Set();
-    const sessionIdsVisitorWindow = new Set();
-    const sessionIdsVisitorSinceMarker = new Set();
-    const sessionIdsInternal = new Set();
-    const sessionIdsUnclassified = new Set();
-    let unclassifiedRows = 0;
+    // One accumulator per in-scope product, then a merged total. The gate fields below are the
+    // TOTAL across the live fleet (what the Day 7/14/30 gates should score); `per_product` carries
+    // the split so a single dead product can never hide inside a healthy average again.
+    const mkAcc = () => ({
+      rows: 0,
+      counts: {},
+      countsVisitor: {},
+      countsInternal: {},
+      unclassifiedRows: 0,
+      instrumentedRows: 0,
+      first: null,
+      sessAll: new Set(),
+      sessWindow: new Set(),
+      sessVisitor: new Set(),
+      sessVisitorWindow: new Set(),
+      sessVisitorSinceMarker: new Set(),
+      sessInternal: new Set(),
+      sessUnclassified: new Set(),
+    });
+    const perProduct = {};
+    for (const slug of scopeSlugs) perProduct[slug] = mkAcc();
+    const outOfScopeRows = {};
     const cutoff = new Date(Date.now() - GATE_WINDOW_DAYS * 86_400_000);
-    let first = null;
-    let instrumentedRows = 0;
-    let quarterlineRows = 0;
     // The marker's own class, from the column when migration 0004 is applied and from the mirrored
     // payload field otherwise. A row with neither is PRE-MARKER: `unclassified`, never guessed.
     const trafficOf = (e) => {
@@ -162,45 +220,94 @@ if (supabaseUrl && serviceKey) {
 
     for (const e of data || []) {
       const traffic = trafficOf(e);
-      if (e.product !== PRODUCT) continue; // scope gate metrics to the product under test
-      quarterlineRows += 1;
-      counts[e.event] = (counts[e.event] || 0) + 1;
-      if (!first || e.created_at < first) first = e.created_at;
-      if (traffic === "visitor") countsVisitor[e.event] = (countsVisitor[e.event] || 0) + 1;
-      if (traffic === "internal") countsInternal[e.event] = (countsInternal[e.event] || 0) + 1;
-      if (traffic === "unclassified") unclassifiedRows += 1;
+      const acc = perProduct[e.product];
+      if (!acc) {
+        // Out of scope on purpose (retired or unregistered slug) — counted, never silently dropped.
+        const key = e.product || "(no product)";
+        outOfScopeRows[key] = (outOfScopeRows[key] || 0) + 1;
+        continue;
+      }
+      acc.rows += 1;
+      acc.counts[e.event] = (acc.counts[e.event] || 0) + 1;
+      if (!acc.first || e.created_at < acc.first) acc.first = e.created_at;
+      if (traffic === "visitor") acc.countsVisitor[e.event] = (acc.countsVisitor[e.event] || 0) + 1;
+      if (traffic === "internal") acc.countsInternal[e.event] = (acc.countsInternal[e.event] || 0) + 1;
+      if (traffic === "unclassified") acc.unclassifiedRows += 1;
       const sid =
         e.session_id ||
         (e.payload && typeof e.payload.session_id === "string" && e.payload.session_id
           ? e.payload.session_id
           : null);
       if (sid) {
-        instrumentedRows += 1;
-        sessionIdsAll.add(sid);
-        if (new Date(e.created_at).getTime() >= cutoff.getTime()) sessionIdsWindow.add(sid);
+        acc.instrumentedRows += 1;
+        acc.sessAll.add(sid);
+        if (new Date(e.created_at).getTime() >= cutoff.getTime()) acc.sessWindow.add(sid);
         if (traffic === "visitor") {
-          sessionIdsVisitor.add(sid);
-          if (new Date(e.created_at).getTime() >= cutoff.getTime()) sessionIdsVisitorWindow.add(sid);
-          if (markerSince === null || e.created_at >= markerSince) sessionIdsVisitorSinceMarker.add(sid);
+          acc.sessVisitor.add(sid);
+          if (new Date(e.created_at).getTime() >= cutoff.getTime()) acc.sessVisitorWindow.add(sid);
+          if (markerSince === null || e.created_at >= markerSince) acc.sessVisitorSinceMarker.add(sid);
         }
-        if (traffic === "internal") sessionIdsInternal.add(sid);
-        if (traffic === "unclassified") sessionIdsUnclassified.add(sid);
+        if (traffic === "internal") acc.sessInternal.add(sid);
+        if (traffic === "unclassified") acc.sessUnclassified.add(sid);
       }
     }
-    summary.events = counts;
-    summary.events_visitor = countsVisitor;
-    summary.events_internal = countsInternal;
-    summary.unique_sessions = sessionIdsAll.size;
-    summary.unique_sessions_last_7d = sessionIdsWindow.size;
-    summary.unique_sessions_visitor = sessionIdsVisitor.size;
-    summary.unique_sessions_visitor_last_7d = sessionIdsVisitorWindow.size;
-    summary.unique_sessions_internal = sessionIdsInternal.size;
-    summary.unique_sessions_visitor_since_marker = sessionIdsVisitorSinceMarker.size;
-    summary.unique_sessions_unclassified = sessionIdsUnclassified.size;
-    summary.rows_unclassified = unclassifiedRows;
-    summary.product_event_rows = quarterlineRows;
-    summary.quarterline_event_rows = quarterlineRows; // legacy name kept for the watchdog prompts
-    summary.session_instrumented_rows = instrumentedRows;
+
+    const total = mkAcc();
+    for (const acc of Object.values(perProduct)) {
+      total.rows += acc.rows;
+      for (const [k, v] of Object.entries(acc.counts)) total.counts[k] = (total.counts[k] || 0) + v;
+      for (const [k, v] of Object.entries(acc.countsVisitor))
+        total.countsVisitor[k] = (total.countsVisitor[k] || 0) + v;
+      for (const [k, v] of Object.entries(acc.countsInternal))
+        total.countsInternal[k] = (total.countsInternal[k] || 0) + v;
+      total.unclassifiedRows += acc.unclassifiedRows;
+      total.instrumentedRows += acc.instrumentedRows;
+      if (acc.first && (!total.first || acc.first < total.first)) total.first = acc.first;
+      for (const key of [
+        "sessAll",
+        "sessWindow",
+        "sessVisitor",
+        "sessVisitorWindow",
+        "sessVisitorSinceMarker",
+        "sessInternal",
+        "sessUnclassified",
+      ]) {
+        for (const sid of acc[key]) total[key].add(sid);
+      }
+    }
+
+    summary.events = total.counts;
+    summary.events_visitor = total.countsVisitor;
+    summary.events_internal = total.countsInternal;
+    summary.unique_sessions = total.sessAll.size;
+    summary.unique_sessions_last_7d = total.sessWindow.size;
+    summary.unique_sessions_visitor = total.sessVisitor.size;
+    summary.unique_sessions_visitor_last_7d = total.sessVisitorWindow.size;
+    summary.unique_sessions_internal = total.sessInternal.size;
+    summary.unique_sessions_visitor_since_marker = total.sessVisitorSinceMarker.size;
+    summary.unique_sessions_unclassified = total.sessUnclassified.size;
+    summary.rows_unclassified = total.unclassifiedRows;
+    summary.product_event_rows = total.rows;
+    summary.quarterline_event_rows = total.rows; // legacy key kept for the watchdog prompts; now scoped rows
+    summary.session_instrumented_rows = total.instrumentedRows;
+    summary.per_product = Object.fromEntries(
+      Object.entries(perProduct).map(([slug, acc]) => [
+        slug,
+        {
+          event_rows: acc.rows,
+          events: acc.counts,
+          unique_sessions: acc.sessAll.size,
+          unique_sessions_last_7d: acc.sessWindow.size,
+          unique_sessions_visitor: acc.sessVisitor.size,
+          unique_sessions_internal: acc.sessInternal.size,
+          unique_sessions_visitor_since_marker: acc.sessVisitorSinceMarker.size,
+          days_since_first_event: acc.first
+            ? Math.max(0, Math.ceil((Date.now() - new Date(acc.first).getTime()) / 86_400_000))
+            : null,
+        },
+      ]),
+    );
+    summary.out_of_scope_event_rows = outOfScopeRows;
     summary.traffic_marker = {
       column: hasTrafficColumn,
       column_state: hasTrafficColumn
@@ -210,10 +317,10 @@ if (supabaseUrl && serviceKey) {
       gate_leg: "unique_sessions_visitor / unique_sessions_visitor_last_7d — internal traffic is EXCLUDED",
       pre_marker_rows_are_unclassified: true,
     };
-    if (first) {
+    if (total.first) {
       summary.days_since_first_event = Math.max(
         0,
-        Math.ceil((Date.now() - new Date(first).getTime()) / 86_400_000),
+        Math.ceil((Date.now() - new Date(total.first).getTime()) / 86_400_000),
       );
     }
   }

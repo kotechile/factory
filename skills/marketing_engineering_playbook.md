@@ -526,6 +526,11 @@ suites and probes from a real visitor). It was the last blocker on scoring any t
   `unique_sessions_unclassified`, `events_visitor` / `events_internal`, `rows_unclassified`, and
   `traffic_marker.marker_since` (derived from the earliest classified row — never a hand-written date).
   **The gate leg is the visitor figure**; "0 visitors" now means zero, not "zero we could prove".
+  **Its scope is the live inventory, derived from `src/products/registry.ts` on every run** — every entry
+  whose status is not `killed`, aggregated into the fleet totals with a `per_product` split beside them.
+  Never trust a hard-coded product default here: the script defaulted to a single slug once, the owner
+  retired it, and every weekly gate honestly reported zero on a product nobody could visit. A slug passed
+  on the command line is a drill-down; a retired or unknown one is an explicit error, never a zero.
 
 **Rules for the next instance.**
 

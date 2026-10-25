@@ -12,9 +12,16 @@ prescribed action — autonomous for non-destructive moves, Slack-confirmed for 
 
 ## Runbook
 1. Read `skills/marketing_engineering_playbook.md` (gates) + `context/company_goals.md`.
-2. Run `node scripts/growth-check.mjs` to get live metrics (visitors, exports, checkouts,
-   agent queries, revenue, days since launch).
-3. Evaluate the gates:
+2. Run `node scripts/growth-check.mjs` with NO product argument. Its scope is derived from
+   `src/products/registry.ts`: it aggregates every product whose status is not `killed` (the
+   retired ones are listed in `retired_products_excluded` and their rows in
+   `out_of_scope_event_rows`) and returns the fleet totals plus a `per_product` breakdown.
+   The single-product form (`node scripts/growth-check.mjs <slug>`) exists for a drill-down only;
+   naming a retired or unknown slug is an error by design, never a zero. Gate data:
+   `unique_sessions_visitor` / `unique_sessions_visitor_last_7d` (internal excluded) for traffic,
+   the `agent_query` count and `gross_revenue_usd` for monetisation — read the fleet totals for
+   fleet-level statements and `per_product[<slug>]` for a single product's Day 7/14/30 verdict.
+3. Evaluate the gates, per product:
    - **Day 7:** ≥50 unique visitors AND ≥1 paid/agent event → else trigger pSEO expansion
      (add more `/calc/*` presets to `src/lib/seo/presets.ts`, run `scripts/verify-build.sh`,
      commit + push).
