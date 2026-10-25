@@ -167,14 +167,15 @@
    "id": "superseded-video-copies",
    "app": "Launch videos",
    "kind": "delete",
-   "state": "pending",
-   "headline": "Six superseded launch-video copies from last night's 4K re-render are still public on the channel",
-   "detail": "The five product films were re-made at 4K overnight and re-published (spendproof fYCWUMVtb_M, caseproof Zh13_ukGDiM, facturgate jAiN_tmlj7Y, parcelproof UTmaWW8U4RA, ledgerlink euQuJJbNOs0, uploaded 2026-10-25 01:46-02:02Z, oEmbed 200, each embedded on its own page). The re-render ran in rounds and every round's intermediate upload is still live: f9xr2ILpUEg (spendproof), H2TwJrVF1-A (caseproof), a4x5rhkBlXA (facturgate), pVItC4gjXJc (parcelproof), gPz-3Tuhps0 and Ski_feMOWuc (ledgerlink, two). The five ids the pages embedded before last night (qeow4cdaiv8, JcP9RtWZZrg, I7NOZAQ-5Ig, I38c05ZZZr8, MiNmsr1i9Lo) now answer oEmbed 404 - the desk deleted those itself, so the six above are the only leftovers.",
-   "impact": "The channel carries 11 public product films for 5 products, with near-identical titles, so a viewer or a search result can land on a superseded cut. Deleting them is the same cleanup the owner ordered on 2026-10-19 (@Simon delete the duplicate launch videos), which removed four earlier copies.",
-   "reply": "@Simon delete the superseded launch videos",
+   "state": "resolved",
+   "headline": "Six superseded launch-video copies deleted from the channel",
+   "detail": "Done 2026-10-25 15:52Z on the owner's instruction \"@Simon delete the superseded launch videos\": the six intermediate uploads from the 4K re-render that no page embedded (spendproof f9xr2ILpUEg, caseproof H2TwJrVF1-A, facturgate a4x5rhkBlXA, parcelproof pVItC4gjXJc, ledgerlink gPz-3Tuhps0 and Ski_feMOWuc) were read back first (owner channel GiniLoh, public, PT23S each) and then deleted through the YouTube Data API - HTTP 204 each. Re-read after: 0 of the six resolve on videos.list and every one answers oEmbed 404. The five ids the pages render were read back public and untouched (fYCWUMVtb_M, Zh13_ukGDiM, jAiN_tmlj7Y, UTmaWW8U4RA, euQuJJbNOs0), each page still 200 and serving its own id, and the Supabase launch_videos ledger - which still held the five 404 ids - was repointed to the survivors (5/5 uploaded, 0 mismatches). Channel now carries 11 uploads: the 5 product films, 2 GPU TCO Analyzer test cuts from 2026-10-24 (not product launch videos, left alone), and 4 older personal videos.",
+   "impact": "Closed - one film per product online, no near-duplicate cuts in search, and every record points at a live upload.",
+   "reply": "",
    "opened": "2026-10-25",
-   "updated": "2026-10-25"
+   "updated": "2026-10-25",
+   "closed": "2026-10-25"
   }
  ],
- "updated": "2026-10-25T15:45Z"
+ "updated": "2026-10-25T15:56Z"
 }
