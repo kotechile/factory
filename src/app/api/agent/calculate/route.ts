@@ -109,6 +109,7 @@ interface ParcelproofAgentInput {
   rate_card?: unknown;
   as_of_date?: unknown;
   carrier?: unknown;
+  pricing_basis?: unknown;
   service?: unknown;
   ship_date?: unknown;
   length?: unknown;
@@ -257,6 +258,10 @@ function runParcelproofTool(
       ? body.as_of_date.trim()
       : new Date().toISOString().slice(0, 10);
   const carrier = typeof body.carrier === "string" && body.carrier.trim() ? (body.carrier.trim() as Carrier) : undefined;
+  const pricingBasis =
+    body.pricing_basis === "observed-bracket" || body.pricing_basis === "contract-rate-card"
+      ? body.pricing_basis
+      : undefined;
 
   const data = auditInvoiceCsv({
     shipmentRecordsCsv,
@@ -264,6 +269,7 @@ function runParcelproofTool(
     asOfDate,
     ...(rateCardCsv === undefined ? {} : { rateCardCsv }),
     ...(carrier === undefined ? {} : { carrier }),
+    ...(pricingBasis === undefined ? {} : { pricingBasis }),
   });
   return { data, costPerQueryUsd: PARCELAUDIT_PRICE_USD[toolName] ?? 0.25 };
 }

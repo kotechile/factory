@@ -61,6 +61,251 @@ export const RATE_CARD_HEADERS = [
   "rate_usd",
 ] as const;
 
+/**
+ * Header synonyms for the files a shipper actually has.
+ *
+ * A UPS Billing Center CSV, a FedEx billing export and a ShipStation/NetSuite/TMS manifest all name
+ * the same field differently ("Tracking Number" / "tracking_no"), and a column that differs only in
+ * case, spacing or a "(lb)" suffix is not a different field. Matching is therefore done on the
+ * NORMALISED header (`normaliseHeader`), and this table lists the plain-English names the audit has
+ * seen used for each canonical field. It is a synonym list, NOT a claim about any one vendor's
+ * schema: a column nothing here recognises stays unmapped and is reported to the reader (and a file
+ * whose columns cannot be resolved fails loudly, naming the columns it does have — rule 5).
+ *
+ * The carrier's own header row is what makes a file readable. A headerless positional export (the
+ * 270-column UPS Billing Data file, for example) has no column names at all, so it is refused with
+ * the instruction to download the headed summary or add the published header row.
+ */
+const HEADER_SYNONYMS: Record<string, readonly string[]> = {
+  // --- both files ---------------------------------------------------------------------------
+  tracking: [
+    "tracking",
+    "tracking_number",
+    "tracking_no",
+    "tracking_num",
+    "trackingnumber",
+    "tracking_id",
+    "package_tracking_number",
+    "shipment_tracking_number",
+    "tracking_number_1",
+    "tracker",
+  ],
+  carrier: [
+    "carrier",
+    "carrier_name",
+    "carrier_code",
+    "carrier_id",
+    "service_carrier",
+    "shipper_carrier",
+  ],
+  service: [
+    "service",
+    "service_type",
+    "service_code",
+    "service_level",
+    "service_name",
+    "service_description",
+    "product",
+    "product_code",
+    "product_name",
+    "package_type",
+    "mail_class",
+  ],
+  zone: ["zone", "zone_number", "zone_no", "zone_code", "rate_zone", "dest_zone", "destination_zone", "to_zone"],
+  // --- shipment records (what the shipper handed over) ---------------------------------------
+  order_id: [
+    "order_id",
+    "order_number",
+    "order_no",
+    "order",
+    "reference",
+    "reference_number",
+    "customer_reference",
+    "shipment_id",
+    "shipment_reference",
+  ],
+  ship_date: [
+    "ship_date",
+    "shipment_date",
+    "shipped_date",
+    "ship_dt",
+    "date_shipped",
+    "manifest_date",
+    "pickup_date",
+    "ship_date_utc",
+  ],
+  length: ["length", "length_in", "length_inches", "package_length", "dim_length", "l_in"],
+  width: ["width", "width_in", "width_inches", "package_width", "dim_width", "w_in"],
+  height: ["height", "height_in", "height_inches", "package_height", "dim_height", "h_in"],
+  actual_weight_lb: [
+    "actual_weight_lb",
+    "actual_weight_lbs",
+    "actual_weight",
+    "weight",
+    "weight_lb",
+    "weight_lbs",
+    "scale_weight",
+    "scale_weight_lb",
+    "gross_weight",
+    "package_weight",
+    "shipped_weight",
+  ],
+  declared_value_usd: ["declared_value_usd", "declared_value", "insured_value", "insured_value_usd", "declared_value_usd_amount"],
+  residential: ["residential", "is_residential", "residential_delivery", "resi", "residential_indicator"],
+  address_correction: [
+    "address_correction",
+    "address_correction_billed",
+    "address_correction_indicator",
+    "address_correction_flag",
+  ],
+  promised_date: [
+    "promised_date",
+    "committed_date",
+    "guaranteed_delivery_date",
+    "service_commitment_date",
+    "expected_delivery_date",
+    "scheduled_delivery_date",
+    "promise_date",
+  ],
+  delivered_at: [
+    "delivered_at",
+    "delivery_date",
+    "delivered_date",
+    "actual_delivery_date",
+    "delivery_timestamp",
+    "delivered_timestamp",
+    "delivered_on",
+  ],
+  // --- invoice lines (what the carrier billed) ------------------------------------------------
+  invoice_date: ["invoice_date", "invoice_dt", "bill_date", "billing_date", "invoice_day", "invoice_period_date"],
+  billed_weight_lb: [
+    "billed_weight_lb",
+    "billed_weight_lbs",
+    "billed_weight",
+    "billable_weight_lb",
+    "billable_weight",
+    "weight_billed",
+    "billed_package_weight",
+  ],
+  billed_length: ["billed_length", "billed_length_in", "measured_length", "measured_length_in"],
+  billed_width: ["billed_width", "billed_width_in", "measured_width", "measured_width_in"],
+  billed_height: ["billed_height", "billed_height_in", "measured_height", "measured_height_in"],
+  base_charge_usd: [
+    "base_charge_usd",
+    "base_charge",
+    "base_amount",
+    "base_rate",
+    "base_charge_amount",
+    "transportation_charge",
+    "transportation_charges",
+    "net_freight",
+    "freight_charge",
+    "freight_charges",
+  ],
+  surcharges: [
+    "surcharges",
+    "surcharge",
+    "accessorials",
+    "accessorial_charges",
+    "additional_charges",
+    "accessorial_detail",
+  ],
+  fuel_pct: ["fuel_pct", "fuel_percent", "fuel_surcharge_pct", "fuel_rate", "fuel_surcharge_percent"],
+  total_usd: [
+    "total_usd",
+    "total",
+    "total_charge",
+    "total_charges",
+    "net_amount",
+    "net_charge",
+    "net_charges",
+    "invoice_amount",
+    "billed_amount",
+    "amount_billed",
+    "charge_amount",
+    "grand_total",
+  ],
+  // --- contract rate card ---------------------------------------------------------------------
+  min_weight_lb: ["min_weight_lb", "min_weight", "minimum_weight", "weight_min", "from_lb", "start_lb", "weight_from"],
+  max_weight_lb: ["max_weight_lb", "max_weight", "maximum_weight", "weight_max", "to_lb", "end_lb", "weight_to"],
+  rate_usd: ["rate_usd", "rate", "price_usd", "price", "charge_usd", "amount_usd", "rate_amount", "net_rate"],
+};
+
+/**
+ * Case, spacing, punctuation and unit suffixes are presentation, not identity: "Tracking Number",
+ * "TRACKING_NO" and "tracking number (1)" are the same column. Everything is folded to lowercase
+ * snake case so the synonym table has one form to match.
+ */
+export function normaliseHeader(raw: string): string {
+  return raw
+    .replace(/^\uFEFF/, "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[%$#]/g, " ")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+/** Canonical field → the synonyms that may stand in for it. */
+function synonymsFor(canonical: string): readonly string[] {
+  return HEADER_SYNONYMS[canonical] ?? [];
+}
+
+interface HeaderMap {
+  /** Canonical name for each column, or the file's own name when nothing recognised it. */
+  header: string[];
+  /** The column name exactly as the file spelled it — used in every message the reader sees. */
+  original: string[];
+}
+
+/**
+ * Maps a file's header row onto the audit's canonical fields. Two columns resolving to the same
+ * field is refused rather than guessed: picking one silently would audit a column the shipper did
+ * not choose.
+ */
+function mapHeader(parsed: ParsedCsv, known: readonly string[], csvName: string): HeaderMap {
+  if (parsed.header.length === 0) {
+    throw new ParcelAuditFieldError(
+      "pp-field-missing",
+      `${csvName}.header`,
+      "the file has no header row, so no column could be mapped.",
+    );
+  }
+  const canonicalFor = new Map<string, string>();
+  known.forEach((canonical) => {
+    canonicalFor.set(normaliseHeader(canonical), canonical);
+    synonymsFor(canonical).forEach((synonym) => {
+      const key = normaliseHeader(synonym);
+      if (!canonicalFor.has(key)) canonicalFor.set(key, canonical);
+    });
+  });
+
+  const header: string[] = [];
+  const claimed = new Map<string, string>();
+  parsed.header.forEach((raw, index) => {
+    const key = normaliseHeader(raw);
+    const canonical = key ? canonicalFor.get(key) : undefined;
+    if (!canonical) {
+      header.push(raw);
+      return;
+    }
+    const already = claimed.get(canonical);
+    if (already !== undefined) {
+      throw new ParcelAuditFieldError(
+        "pp-field-invalid",
+        `${csvName}.${canonical}`,
+        `two columns map to "${canonical}": "${already}" and "${raw}". Keep one — the audit will not choose a column for you.`,
+      );
+    }
+    claimed.set(canonical, raw);
+    header.push(canonical);
+    void index;
+  });
+
+  return { header, original: parsed.header.slice() };
+}
+
 export interface ParsedCsv {
   header: string[];
   /** Data rows, blank lines dropped. */
@@ -132,7 +377,9 @@ export function parseCsvText(text: string): ParsedCsv {
   if (rows.length === 0) {
     return { header: [], rows: [] };
   }
-  const header = rows[0].map((cell) => cell.trim().toLowerCase());
+  // Header spelling is preserved (only trimmed): the reader sees the file's own column names in
+  // every message, and matching happens on the normalised form in `mapHeader`.
+  const header = rows[0].map((cell) => cell.trim());
   return { header, rows: rows.slice(1) };
 }
 
@@ -146,6 +393,7 @@ interface CsvTable {
 
 function requireColumns(
   parsed: ParsedCsv,
+  map: HeaderMap,
   required: readonly string[],
   requiredAny: readonly (readonly string[])[],
   csvName: string,
@@ -154,38 +402,44 @@ function requireColumns(
     throw new ParcelAuditFieldError(
       "pp-field-missing",
       `${csvName}.header`,
-      "the file has no header row, so no column could be mapped.",
+      "the file has no header row, so no column could be mapped. A positional export (no column names) cannot be audited: download the headed export, or add the carrier's published header row.",
     );
   }
+  const present = new Set(map.header);
+  const spelled = map.original.join(", ");
   for (const column of required) {
-    if (!parsed.header.includes(column)) {
+    if (!present.has(column)) {
       throw new ParcelAuditFieldError(
         "pp-field-missing",
         `${csvName}.${column}`,
-        `required column "${column}" is missing. Expected header: ${parsed.header.join(", ")}.`,
+        `required column "${column}" is missing. Your file's columns: ${spelled}. Accepted names for this field: ${Array.from(new Set([column, ...synonymsFor(column)])).join(", ")}.`,
       );
     }
   }
   for (const group of requiredAny) {
-    if (!group.some((column) => parsed.header.includes(column))) {
+    if (!group.some((column) => present.has(column))) {
       throw new ParcelAuditFieldError(
         "pp-field-missing",
         `${csvName}.${group.join("|")}`,
-        `at least one of ${group.map((c) => `"${c}"`).join(", ")} is required. Expected header: ${parsed.header.join(", ")}.`,
+        `at least one of ${group.map((c) => `"${c}"`).join(", ")} is required. Your file's columns: ${spelled}.`,
       );
     }
   }
 }
 
-function table(parsed: ParsedCsv, known: readonly string[]): CsvTable {
+function table(parsed: ParsedCsv, known: readonly string[], map: HeaderMap): CsvTable {
   const knownSet = new Set<string>(known);
-  const unmappedColumns = parsed.header.filter((column) => column && !knownSet.has(column));
+  const unmappedColumns: string[] = [];
+  map.header.forEach((column, index) => {
+    const original = map.original[index] ?? column;
+    if (original && !knownSet.has(column)) unmappedColumns.push(original);
+  });
   return {
-    header: parsed.header,
-    byColumn: parsed.header.length,
+    header: map.header,
+    byColumn: map.header.length,
     records: parsed.rows.map((cells, rowIndex) => {
       const row: Record<string, string> = {};
-      parsed.header.forEach((column, columnIndex) => {
+      map.header.forEach((column, columnIndex) => {
         if (!column) return;
         row[column] = (cells[columnIndex] ?? "").trim();
       });
@@ -285,8 +539,9 @@ export interface ShipmentRecordsIngest {
 
 export function parseShipmentRecordsCsv(text: string): ShipmentRecordsIngest {
   const parsed = parseCsvText(text);
-  requireColumns(parsed, ["tracking", "carrier", "service", "ship_date", "length", "width", "height", "actual_weight_lb", "zone"], [], "shipmentRecords");
-  const parsedTable = table(parsed, SHIPMENT_RECORDS_HEADERS);
+  const map = mapHeader(parsed, SHIPMENT_RECORDS_HEADERS, "shipmentRecords");
+  requireColumns(parsed, map, ["tracking", "carrier", "service", "ship_date", "length", "width", "height", "actual_weight_lb", "zone"], [], "shipmentRecords");
+  const parsedTable = table(parsed, SHIPMENT_RECORDS_HEADERS, map);
 
   const records = parsedTable.records.map(({ row, rowNumber }) => {
     const base = `shipmentRecords[row ${rowNumber}]`;
@@ -355,8 +610,9 @@ export interface InvoiceLinesIngest {
 
 export function parseInvoiceLinesCsv(text: string): InvoiceLinesIngest {
   const parsed = parseCsvText(text);
-  requireColumns(parsed, ["tracking", "invoice_date", "billed_weight_lb", "zone", "base_charge_usd", "total_usd"], [], "invoiceLines");
-  const parsedTable = table(parsed, INVOICE_LINES_HEADERS);
+  const map = mapHeader(parsed, INVOICE_LINES_HEADERS, "invoiceLines");
+  requireColumns(parsed, map, ["tracking", "invoice_date", "billed_weight_lb", "zone", "base_charge_usd", "total_usd"], [], "invoiceLines");
+  const parsedTable = table(parsed, INVOICE_LINES_HEADERS, map);
 
   const lines = parsedTable.records.map(({ row, rowNumber }) => {
     const base = `invoiceLines[row ${rowNumber}]`;
@@ -419,8 +675,9 @@ export interface RateCardIngest {
 
 export function parseRateCardCsv(text: string): RateCardIngest {
   const parsed = parseCsvText(text);
-  requireColumns(parsed, ["carrier", "service", "zone", "min_weight_lb", "rate_usd"], [], "rateCard");
-  const parsedTable = table(parsed, RATE_CARD_HEADERS);
+  const map = mapHeader(parsed, RATE_CARD_HEADERS, "rateCard");
+  requireColumns(parsed, map, ["carrier", "service", "zone", "min_weight_lb", "rate_usd"], [], "rateCard");
+  const parsedTable = table(parsed, RATE_CARD_HEADERS, map);
 
   const rows = parsedTable.records.map(({ row, rowNumber }) => {
     const base = `rateCard[row ${rowNumber}]`;

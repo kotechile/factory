@@ -676,7 +676,15 @@ const MESSY_LINES_CSV = [
   "9400111899223197420300,2026-09-10,usps,usps_ground_advantage,13,4,11.50,,11.50",
 ].join("\n");
 
-export type ScenarioKey = "clean" | "overcharge" | "deadline" | "roundup" | "threshold" | "unverified" | "messy";
+export type ScenarioKey =
+  | "clean"
+  | "overcharge"
+  | "deadline"
+  | "roundup"
+  | "threshold"
+  | "unverified"
+  | "observed"
+  | "messy";
 
 export interface AuditScenario {
   key: ScenarioKey;
@@ -744,9 +752,27 @@ export const AUDIT_SCENARIOS: AuditScenario[] = [
     key: "unverified",
     label: "Load without a rate card",
     description:
-      "An over-billed USPS line audited with no contract rate card: the weight proof holds, the money is reported unverifiable rather than guessed.",
+      "An over-billed USPS line audited with no contract rate card, and no other line on the invoice at the corrected weight: the weight proof holds, and the money stays unpriced rather than guessed.",
     shipmentRecordsCsv: OVERCHARGE_RECORDS_CSV.split("\n").slice(0, 2).join("\n"),
     invoiceLinesCsv: OVERCHARGE_LINES_CSV.split("\n").slice(0, 2).join("\n"),
+    rateCardCsv: "",
+    asOfDate: "2026-09-18",
+  },
+  {
+    key: "observed",
+    label: "Load priced without a rate card",
+    description:
+      "Two parcels in one lane with no contract rate card: the over-billed line is priced from the charge the carrier itself billed for the corrected weight on this same invoice — labelled an observation, never a contract-verified rate.",
+    shipmentRecordsCsv: [
+      "order_id,tracking,carrier,service,ship_date,length,width,height,actual_weight_lb,zone",
+      "SO-1,OBSERVE-A,ups,ups_ground,2026-09-10,10,10,10,12,4",
+      "SO-2,OBSERVE-B,ups,ups_ground,2026-09-10,10,10,10,12,4",
+    ].join("\n"),
+    invoiceLinesCsv: [
+      "tracking,invoice_date,carrier,service,billed_weight_lb,zone,base_charge_usd,total_usd",
+      "OBSERVE-A,2026-09-10,ups,ups_ground,13,4,15.00,15.00",
+      "OBSERVE-B,2026-09-10,ups,ups_ground,12,4,13.50,13.50",
+    ].join("\n"),
     rateCardCsv: "",
     asOfDate: "2026-09-18",
   },

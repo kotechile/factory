@@ -50,6 +50,18 @@ const SEVERITY_VARIANT: Record<Severity, "destructive" | "warning" | "accent"> =
   advisory: "accent",
 };
 
+/**
+ * Every pricing label names WHERE the price came from. "verified" is reserved for the visitor's own
+ * contract rate card; an observed charge is labelled as the carrier's own charge, and an unpriced
+ * line says why it is unpriced rather than showing a bare zero.
+ */
+const RATE_VERIFICATION_LABELS: Record<LineAudit["rateVerification"], string> = {
+  verified: "contract rate card",
+  "observed-bracket": "carrier's own charge (observed)",
+  "unverifiable-rate": "unpriced — no rate card",
+  unmapped: "unpriced — no rate for this weight",
+};
+
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -105,11 +117,17 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
 
   const runAudit = () => {
     try {
+      /**
+       * With no contract rate card the audit still prices a line, from the carrier's own charge for
+       * the corrected weight in the same lane on this invoice (`observed-bracket`). It is labelled as
+       * an observation on every line and in the report's pricing note — never as contract-verified.
+       */
       const result = auditInvoiceCsv({
         shipmentRecordsCsv: recordsText,
         invoiceLinesCsv: linesText,
         rateCardCsv: rateCardText,
         asOfDate,
+        ...(rateCardText.trim() ? {} : { pricingBasis: "observed-bracket" as const }),
       });
       setReport(result.report);
       setUnmapped(result.unmappedColumns);
@@ -209,7 +227,9 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
           </div>
 
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-muted">
-            Contract rate card (CSV) — optional, and the only way a line gets priced
+            Contract rate card (CSV) — optional. Your own rates are the most precise price; leave it
+            empty and the audit prices a line from the carrier&apos;s own charge for that weight in the
+            same lane.
             <IdeTextarea
               title="contract-rate-card.csv"
               ariaLabel="Contract rate card (CSV)"
@@ -243,6 +263,28 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
                 />
               </label>
             ))}
+          </div>
+
+          <div className="rounded border border-border bg-background p-3 text-xs text-muted">
+            <p className="font-medium text-foreground">Where these files come from</p>
+            <ul className="mt-1 list-disc space-y-1 pl-4">
+              <li>
+                <span className="text-foreground">Invoice lines</span> — in UPS Billing Center or FedEx
+                Billing Online, download the invoice&apos;s CSV export (UPS calls it UPS Billing Data).
+                A PDF copy of the invoice cannot be audited.
+              </li>
+              <li>
+                <span className="text-foreground">Shipment records</span> — export the shipments from
+                the system that printed the labels (ShipStation, ShipEngine, NetSuite, your TMS). The
+                dimensions and the actual weight are the fields that matter.
+              </li>
+              <li>
+                <span className="text-foreground">Column names do not have to match this page.</span>{" "}
+                Common carrier and platform headers (Tracking Number, Billed Weight, Net Amount, Ship
+                Date…) are mapped automatically, and every column the audit could not map is listed
+                under the summary — never silently ignored.
+              </li>
+            </ul>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -351,6 +393,9 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
                     <Badge variant="outline">{summary.recordsUnbilled} records not billed here</Badge>
                   ) : null}
                 </div>
+                {report.pricing.basis === "observed-bracket" ? (
+                  <p className="text-xs text-muted">{report.pricing.note}</p>
+                ) : null}
                 <div className="overflow-hidden rounded border border-border">
                   <table className="w-full border-collapse text-left text-sm">
                     <thead className="bg-background text-xs uppercase tracking-wide text-muted">
@@ -510,7 +555,7 @@ export default function ParcelProofCalculator({ initialScenario = DEFAULT_SCENAR
                           ],
                           ["Billed total", formatUsd(line.billedTotalCents)],
                           ["Recomputed total", formatUsd(line.recomputedTotalCents)],
-                          ["Rate", line.rateVerification],
+                          ["Rate", RATE_VERIFICATION_LABELS[line.rateVerification] ?? line.rateVerification],
                           ["Dispute deadline", line.disputeWindow?.deadline ?? "—"],
                         ].map(([label, value]) => (
                           <div key={String(label)}>

@@ -72,6 +72,10 @@ export function buildCoverage(
       `v1 recomputes billable weight (carrier × service × ship-date divisor, round-up, cubic-inch threshold), ` +
       `accessorial eligibility, service-commitment and dispute-window status, and prices every line from your own ` +
       `contract rate card when you supply one — across ${implementedRuleIds.length} rule ids. ` +
-      "A line whose amount cannot be priced is reported unverifiable and counted as unverifiable, never as a zero-dollar overcharge.",
+      "A line whose amount cannot be priced is reported unverifiable and counted as unverifiable, never as a zero-dollar overcharge. " +
+      "Without a contract card, `observed-bracket` pricing may be used: the price of a corrected weight is the charge the " +
+      "carrier itself billed for that same whole-pound weight in the same carrier/service/zone lane on the same invoice " +
+      "(reported `observed-bracket`, never `verified`). No rate is interpolated or extrapolated, and a lane with no " +
+      "homogeneous observation stays unpriced.",
   };
 }

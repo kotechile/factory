@@ -103,6 +103,12 @@ export function resolveContractRate(args: {
         "no contract rate card was supplied, so the recomputed weight cannot be priced — the line is reported unverifiable rather than assumed correct",
     };
   }
+  /**
+   * An observed-bracket card is built from whole-pound charges, so the lookup is on the weight the
+   * carrier bills base charges at. A contract card is matched exactly as supplied.
+   */
+  const observed = rateCard.kind === "observed-bracket";
+  const lookupWeight = observed ? Math.round(weightLb) : weightLb;
   const candidates = rateCard.rows
     .map((row, index) => ({ row, index }))
     .filter(
@@ -121,8 +127,8 @@ export function resolveContractRate(args: {
   }
   const bracket = candidates.find(
     (entry) =>
-      weightLb >= entry.row.minWeightLb &&
-      (entry.row.maxWeightLb === null || weightLb <= entry.row.maxWeightLb),
+      lookupWeight >= entry.row.minWeightLb &&
+      (entry.row.maxWeightLb === null || lookupWeight <= entry.row.maxWeightLb),
   );
   if (!bracket) {
     return {
@@ -131,15 +137,19 @@ export function resolveContractRate(args: {
       rowIndex: null,
       weightLb,
       zone,
-      note: `no ${carrier}/${service}/zone ${zone} rate row covers ${weightLb} lb`,
+      note: observed
+        ? `no other line on this invoice bills ${lookupWeight} lb in ${carrier}/${service}/zone ${zone}, so the corrected weight has no observed charge to price it — supply the contract rate card to price it`
+        : `no ${carrier}/${service}/zone ${zone} rate row covers ${weightLb} lb`,
     };
   }
   return {
-    status: "verified",
+    status: observed ? "observed-bracket" : "verified",
     rateCents: bracket.row.rateCents,
     rowIndex: bracket.index,
     weightLb,
     zone,
-    note: `contract rate for ${carrier}/${service}/zone ${zone} at ${weightLb} lb`,
+    note: observed
+      ? `the carrier's own charge for ${lookupWeight} lb in ${carrier}/${service}/zone ${zone} on this invoice`
+      : `contract rate for ${carrier}/${service}/zone ${zone} at ${weightLb} lb`,
   };
 }

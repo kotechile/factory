@@ -18,7 +18,7 @@ import { parseInvoiceLinesCsv, parseRateCardCsv, parseShipmentRecordsCsv } from 
 import { recomputeBillableWeight, type BillableWeightRequest } from "./dimWeight";
 import { auditCarrierInvoice } from "./ledger";
 import { buildCoverage, IMPLEMENTED_RULE_IDS, UNSUPPORTED_FAMILIES } from "./coverage";
-import type { AuditReport, Carrier, RateCard, WeightResolution } from "./types";
+import type { AuditReport, Carrier, PricingBasis, RateCard, WeightResolution } from "./types";
 
 export const ENGINE_METADATA = {
   id: "parcel_dim_surcharge_audit",
@@ -46,6 +46,12 @@ export interface CsvAuditRequest {
   rateCardCsv?: string;
   asOfDate: string;
   carrier?: Carrier;
+  /**
+   * `observed-bracket` prices a line the contract card does not cover from the carrier's own charge
+   * for that whole-pound weight in the same lane on the same invoice. Omitted ⇒ unchanged behaviour:
+   * no card, no price.
+   */
+  pricingBasis?: PricingBasis;
 }
 
 export interface CsvAuditResult {
@@ -76,6 +82,7 @@ export function auditInvoiceCsv(request: CsvAuditRequest): CsvAuditResult {
     asOfDate: request.asOfDate,
     ...(request.carrier === undefined ? {} : { carrier: request.carrier }),
     ...(rateCardIngest.rateCard === null ? {} : { rateCard: rateCardIngest.rateCard }),
+    ...(request.pricingBasis === undefined ? {} : { pricingBasis: request.pricingBasis }),
   });
 
   return {
@@ -106,12 +113,15 @@ export type { SurchargeContext, SurchargeKind } from "./surcharges";
 export { COMMITMENT_RULES, evaluateServiceCommitment, resolveCommitmentRule } from "./serviceCommitment";
 export { DISPUTE_WINDOW_DAYS, DISPUTE_WINDOW_SOURCE, EXPIRING_SOON_DAYS, disputeWindowFor } from "./disputeClock";
 export { assertRateCard, resolveContractRate } from "./rateCard";
+export { deriveObservedBracketCard, OBSERVED_TOLERANCE_FRACTION } from "./observedBracket";
+export type { ObservedBracketDiagnostics, ObservedBracketResult } from "./observedBracket";
 export { auditCarrierInvoice, buildDisputeCsv, DISPUTE_CSV_HEADER, formatLb, formatUsd, SURCHARGE_LABELS } from "./ledger";
 export {
   INVOICE_LINES_HEADERS,
   RATE_CARD_HEADERS,
   SHIPMENT_RECORDS_HEADERS,
   csvRow,
+  normaliseHeader,
   parseCsvText,
   parseInvoiceLinesCsv,
   parseRateCardCsv,

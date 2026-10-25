@@ -65,7 +65,18 @@ export type WindowStatus = "open" | "expiring" | "expired";
 export type BillingBasis = "actual" | "dimensional";
 
 /** Whether the line's money could be recomputed from the customer's own contract rate card. */
-export type RateVerification = "verified" | "unverifiable-rate" | "unmapped";
+export type RateVerification =
+  /** Priced by the customer's own contract rate card. */
+  | "verified"
+  /**
+   * Priced from the carrier's own charge for that weight in the same lane on the same invoice — an
+   * observed charge, used only when no contract card covers the line. Never an interpolated rate.
+   */
+  | "observed-bracket"
+  /** No rate card supplied (and no observation): the line's money is not claimed. */
+  | "unverifiable-rate"
+  /** A card was supplied but no row covers this lane/weight, or the observation was not usable. */
+  | "unmapped";
 
 export interface Dimensions {
   /** inches */
@@ -142,7 +153,21 @@ export interface RateCardRow {
 export interface RateCard {
   rows: RateCardRow[];
   source?: string;
+  /**
+   * Where the rates came from. `contract` (default) is the customer's own rate card — a verified
+   * price. `observed-bracket` is the card derived from the carrier's own charges on the invoice
+   * (`deriveObservedBracketCard`) and is reported as `observed-bracket`, never as `verified`.
+   */
+  kind?: "contract" | "observed-bracket";
 }
+
+/**
+ * How a line with no contract rate card may be priced.
+ * - `contract-rate-card` (default): no card ⇒ no price. Nothing else is assumed.
+ * - `observed-bracket`: price from the carrier's own charge for the same whole-pound weight in the
+ *   same carrier/service/zone lane on the same invoice. No observation ⇒ still unpriced.
+ */
+export type PricingBasis = "contract-rate-card" | "observed-bracket";
 
 export interface AuditInput {
   shipmentRecords: ShipmentRecord[];
@@ -153,6 +178,12 @@ export interface AuditInput {
   carrier?: Carrier;
   /** Optional contract rate card; without it no line's money is guessed. */
   rateCard?: RateCard;
+  /**
+   * How to price a line the contract rate card does not cover. Default `contract-rate-card`: no card,
+   * no price. `observed-bracket` additionally prices from the carrier's own charge for that weight in
+   * the same lane on the same invoice — still an observation, never an interpolation.
+   */
+  pricingBasis?: PricingBasis;
 }
 
 export interface AuditFinding {
@@ -308,6 +339,18 @@ export interface CoverageNote {
   note: string;
 }
 
+/** How the report's money was priced — stated on the report, not inferred by the reader. */
+export interface PricingNote {
+  basis: PricingBasis;
+  /** Lines priced from a charge the carrier itself billed (never counted as contract-verified). */
+  linesPricedByObservation: number;
+  /** Homogeneous lane+weight groups the observation card was built from. */
+  observations: number;
+  /** Groups dropped because their charges disagreed — those lanes stay unpriced. */
+  observationsDropped: number;
+  note: string;
+}
+
 export interface AuditReport {
   /** True only when nothing was flagged as recoverable, advisory or blocking. */
   clean: boolean;
@@ -318,6 +361,7 @@ export interface AuditReport {
   disputePacket: string;
   summary: ExposureSummary;
   coverage: CoverageNote;
+  pricing: PricingNote;
 }
 
 /**

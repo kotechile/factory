@@ -20,6 +20,7 @@ import { daysBetween, isoDatePart, parseIsoDate } from "./dates";
 import { diagnoseWeightMismatch, recomputeBillableWeight } from "./dimWeight";
 import { disputeWindowFor } from "./disputeClock";
 import { assertRateCard, resolveContractRate } from "./rateCard";
+import { deriveObservedBracketCard } from "./observedBracket";
 import { evaluateServiceCommitment } from "./serviceCommitment";
 import { assessSurcharge } from "./surcharges";
 import {
@@ -33,6 +34,8 @@ import {
   type ExposureSummary,
   type InvoiceLine,
   type LineAudit,
+  type PricingBasis,
+  type PricingNote,
   type RateVerification,
   type RuleRollup,
   type ServiceCode,
@@ -781,6 +784,25 @@ export function auditCarrierInvoice(input: AuditInput): AuditReport {
   }
   if (input.rateCard) assertRateCard(input.rateCard);
 
+  const pricingBasis: PricingBasis = input.pricingBasis ?? "contract-rate-card";
+  if (pricingBasis !== "contract-rate-card" && pricingBasis !== "observed-bracket") {
+    throw new ParcelAuditFieldError(
+      "pp-field-unsupported-value",
+      "input.pricingBasis",
+      `"${String(input.pricingBasis)}" is not a pricing basis the audit implements (contract-rate-card, observed-bracket).`,
+    );
+  }
+  /**
+   * With no contract card and the `observed-bracket` basis, the price of a corrected weight comes
+   * from the carrier's own charge for that weight in the same lane on this invoice. The derived card
+   * is handed to every line; a lane with no homogeneous observation stays `unmapped` (unpriced).
+   */
+  const observed =
+    input.rateCard || pricingBasis !== "observed-bracket"
+      ? null
+      : deriveObservedBracketCard(input.invoiceLines);
+  const effectiveInput: AuditInput = observed ? { ...input, rateCard: observed.card } : input;
+
   const recordIndexesByTracking = new Map<string, number[]>();
   input.shipmentRecords.forEach((record, index) => {
     const tracking = typeof record?.tracking === "string" ? record.tracking : "";
@@ -803,7 +825,7 @@ export function auditCarrierInvoice(input: AuditInput): AuditReport {
     const recordIndexes = recordIndexesByTracking.get(tracking) ?? [];
     const recordIndex = recordIndexes.length > 0 ? recordIndexes[0] : null;
     const result = auditLine({
-      input,
+      input: effectiveInput,
       asOfDate: input.asOfDate,
       line,
       lineIndex,
@@ -900,7 +922,12 @@ export function auditCarrierInvoice(input: AuditInput): AuditReport {
   const summary: ExposureSummary = {
     linesAudited: lines.filter((line) => line.audited).length,
     linesUnverifiable: lines.filter((line) => !line.audited).length,
-    linesUnpriced: lines.filter((line) => line.audited && line.rateVerification !== "verified").length,
+    linesUnpriced: lines.filter(
+      (line) =>
+        line.audited &&
+        line.rateVerification !== "verified" &&
+        line.rateVerification !== "observed-bracket",
+    ).length,
     recordsUnbilled: recordFindings.filter((finding) => finding.ruleId === "pp-record-unbilled").length,
     findings: findings.length,
     recoverableTotalCents: claimableCents,
@@ -913,6 +940,21 @@ export function auditCarrierInvoice(input: AuditInput): AuditReport {
     byCarrier: [...carrierMap.values()].sort((a, b) => (a.carrier < b.carrier ? -1 : 1)),
   };
 
+  const linesPricedByObservation = lines.filter(
+    (line) => line.rateVerification === "observed-bracket",
+  ).length;
+  const pricing: PricingNote = {
+    basis: pricingBasis,
+    linesPricedByObservation,
+    observations: observed?.diagnostics.observations ?? 0,
+    observationsDropped: observed?.diagnostics.dropped.length ?? 0,
+    note: observed
+      ? `no contract rate card was supplied, so ${linesPricedByObservation} line(s) are priced from a charge the carrier itself billed for the same whole-pound weight in the same carrier/service/zone lane on this invoice (${observed.diagnostics.observations} homogeneous lane/weight group(s) observed${observed.diagnostics.dropped.length > 0 ? `, ${observed.diagnostics.dropped.length} dropped because their charges disagreed` : ""}). No rate was interpolated, and a lane with no observation stays unpriced.`
+      : input.rateCard
+        ? "every priced line comes from the contract rate card supplied; a line the card cannot cover is reported unverifiable."
+        : "no contract rate card was supplied and observed-bracket pricing was not requested, so no line is priced — the weight proof still holds.",
+  };
+
   const report: AuditReport = {
     clean: findings.length === 0,
     asOfDate: input.asOfDate,
@@ -921,6 +963,7 @@ export function auditCarrierInvoice(input: AuditInput): AuditReport {
     disputePacket: "",
     summary,
     coverage: buildCoverage(),
+    pricing,
   };
   report.disputePacket = buildDisputeCsv(report);
   return report;

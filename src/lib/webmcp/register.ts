@@ -495,6 +495,12 @@ export interface AuditCarrierInvoiceParams {
   as_of_date?: string;
   /** Optional carrier filter (ups | fedex | usps); other lines are reported out-of-scope, not skipped. */
   carrier?: string;
+  /**
+   * Optional pricing basis when no rate card is supplied. `observed-bracket` prices a line from the
+   * charge the carrier itself billed for that whole-pound weight in the same carrier/service/zone lane
+   * on the same invoice — an observation, never an interpolated rate.
+   */
+  pricing_basis?: "contract-rate-card" | "observed-bracket";
 }
 
 export interface ComputeBillableWeightParams {
@@ -542,6 +548,12 @@ export const auditCarrierInvoiceTool: WebMCPToolDefinition<
         type: "string",
         description: "Optional carrier filter.",
         enum: ["ups", "fedex", "usps"],
+      },
+      pricing_basis: {
+        type: "string",
+        description:
+          "Only used when no rate card is supplied. Omit it and no line is priced. 'observed-bracket' prices each line from the charge the carrier itself billed for the same whole-pound weight in the same carrier/service/zone lane on the same invoice — an observation, never an interpolated rate; a lane with no homogeneous observation stays unpriced.",
+        enum: ["contract-rate-card", "observed-bracket"],
       },
     },
     required: ["shipment_records", "invoice_lines"],
