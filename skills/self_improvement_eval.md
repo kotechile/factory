@@ -248,3 +248,20 @@ no skill patch needed.
 built nothing for them, and the live container's `SOURCE_COMMIT` matched `origin/main` exactly. Before
 writing "the deploy is behind HEAD", compare `git rev-parse HEAD` with `origin/main` — a local-only
 commit explains the gap without any alarm.
+
+**2026-10-25 — gate GREEN on `a499447`.** `scripts/verify-build.sh` exit 0 in the shared worktree on the
+newest local commit (= `origin/main`, and equal to the live container's `SOURCE_COMMIT`,
+`af8yqbwrrnyyfgs9wcg0intj-20261025T160214`), run under the dead-Supabase pair so the Playwright suite wrote
+no production telemetry (every insert logged `[telemetry] insert failed … fetch failed`, 110/110 specs still
+ran): tsc clean · lint **0 errors / 9 warnings** (5 pre-existing + 2 in `scripts/launch-video/embed.mjs`
+`POSTER_MIN_BYTES` and `thumbnail.mjs` `spawnSync` from yesterday's video desk, + 2 from the 11 untracked
+`scripts/analyze-*`/`patch-*` probes another desk left in the tree — a clean checkout of this commit lints at
+7, still 0 errors) · design tokens clean · verticals 33 in sync · recon cadence ok (newest
+scan 2026-10-19, two verticals) · vitest **479/479** (35 files, up from 416/33) · `next build` 52/52 pages ·
+`copy:check` errors 0 / warnings 72 (new 0, all grandfathered) · Playwright 110/110. `visual-qa` self-skipped
+under the dead address as documented, then re-ran alone with the real `.env`: **30/30 tiles PASS across 5
+products**, exit 0. No failure class appeared; no skill patch needed. Recorded separately: RatchetProof went
+live (`de9092e`, 15:57Z) and is the only live product with no launch film — `detect.mjs` lists it `pending`,
+the 16:30 brag run reported `ok` without producing one, and a manual `hermes cron run "Post-Ship Brag"` from
+this cron session returned exit 0 with no effect (cron-run triggers are inert inside a cron session, same class
+as the `execute_code` refusal). Next scheduled brag run 17:00Z is the first real attempt.
