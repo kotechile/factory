@@ -167,6 +167,25 @@ read that, not `youtube.json`, when reporting what is live.
 first sentence gets cut); everything after it is the description body. A one-line `share-copy.txt`
 uploads a ~78-character description, which is what LedgerLink shipped before this rule.
 
+**`embed.mjs` never adds the page section — the page must already render it.** The registry entry is
+what the *component* reads; the product page is what puts the component on the site. Before `--push`,
+`src/app/<slug>/page.tsx` must contain the named import and the section, next to the calculator:
+
+```tsx
+import { ProductLaunchVideo } from "@/components/product-launch-video";
+
+// …after the <div id="audit">…</div> block:
+<ProductLaunchVideo slug="<slug>" />
+```
+
+Omit it and `embed.mjs` still writes the entry, but `tests/e2e/launch-video.spec.ts` iterates
+`LAUNCH_VIDEOS` and fails on the missing poster, `verify-build.sh` refuses, and the commit stays local —
+which reads as an embed bug when it is a missing page section. Two unit tests were also pinned to
+whichever product was launching next (`LAUNCH_VIDEOS[0]`, and a fixture whose slug was the next real
+slug); they now assert the same URL shapes against a named slug and a synthetic `fixtureproof` entry.
+Keep any new launch test order-independent for the same reason: a test that goes red when a launch
+*succeeds* is a test that will be misread as a build failure.
+
 `--push` then runs `scripts/verify-build.sh` (factory rule 7) and pushes to `main` only if it passes,
 so Coolify deploys the entry. A failed verification leaves the commit **local** on purpose:
 `detect.mjs` reads `origin/main`, so the slug keeps reporting `EMBED_PENDING` instead of the site
