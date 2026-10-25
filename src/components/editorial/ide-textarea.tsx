@@ -63,6 +63,11 @@ export function IdeTextarea({
           <span className="min-w-0 truncate font-semibold text-foreground">{title}</span>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {lineCount > rows ? (
+            <span className="hidden items-center rounded bg-black/[0.04] px-1.5 py-0.5 font-mono text-[10px] text-muted sm:inline-flex">
+              {lineCount} lines
+            </span>
+          ) : null}
           {meta ? (
             <span className="hidden items-center gap-1 rounded bg-black/[0.04] px-1.5 py-0.5 text-[10px] text-muted sm:inline-flex">
               {meta}
@@ -78,10 +83,16 @@ export function IdeTextarea({
         </div>
       </div>
 
-      <div className="flex bg-[#F8FAFC]">
+      <div className="relative flex bg-[#F8FAFC]">
+        {/* The gutter keeps its 44 px column but its numbers are painted by an out-of-flow scroller.
+            Rendered in flow, one <div> per line made the row as tall as the file: a 5,765-line
+            interval export stretched this editor to 112,442 px and pushed the launch video to
+            ~196 screens down the page (measured on apps.aichieve.net/ratchetproof, 2026-10-25).
+            Out of flow, the textarea's `rows` sets the height and the file scrolls inside it. */}
+        <div className="w-11 shrink-0 border-r border-border/60" aria-hidden="true" />
         <div
           ref={gutterRef}
-          className="w-11 shrink-0 select-none overflow-hidden border-r border-border/60 py-3 text-right font-mono text-xs leading-relaxed text-[#5B6B80]"
+          className="pointer-events-none absolute inset-y-0 left-0 w-11 select-none overflow-hidden py-3 text-right font-mono text-xs leading-relaxed text-[#5B6B80]"
           aria-hidden="true"
         >
           {Array.from({ length: lineCount }, (_, index) => (
@@ -105,7 +116,9 @@ export function IdeTextarea({
           onScroll={(event) => {
             if (gutterRef.current) gutterRef.current.scrollTop = event.currentTarget.scrollTop;
           }}
-          className="flex-1 resize-y bg-transparent px-3 py-3 font-mono text-xs leading-relaxed text-foreground placeholder:text-muted/60 focus-visible:outline-none"
+          className="relative flex-1 resize-y overflow-auto bg-transparent px-3 py-3 font-mono text-xs leading-relaxed text-foreground placeholder:text-muted/60 focus-visible:outline-none"
+          // A dragged resize must not be able to claim the whole viewport either.
+          style={{ maxHeight: "70vh" }}
         />
       </div>
     </div>
