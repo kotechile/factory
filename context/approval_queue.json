@@ -158,11 +158,11 @@
    "kind": "decision",
    "state": "resolved",
    "headline": "RatchetProof is a full live product — promoted from beta on the owner's approval",
-   "detail": "Done 2026-10-25 (commit de9092e), on the owner's message \"Approve\" in the thread where this row had been parked since 2026-10-20 — it was the only product status still at the gate. registry.ts status beta -> live; the registry is the single source, so /showcase's badge, the derived crawler surfaces and the launch-video selector (src/lib/launch-video/plan.ts selects status === \"live\" only) all moved with it. Gate scripts/verify-build.sh \"Verification passed.\" — tsc clean, eslint 0 errors, tokens, verticals, recon cadence, vitest 479/479 (35 files), next build 52/52 pages, Playwright 110/110, visual-qa 30/30 tiles incl. ratchetproof 6/6 PASS. The single red on the way was the /showcase snapshot (116 px, 0.01): the diff image shows it confined to the RatchetProof card's status badge and the actual render reads LIVE with the live green horizon stripe, so the Linux baseline was RE-DERIVED after reading it (macOS baseline untouched). Deploy verified by IMAGE TAG, not the push: container af8yqbwrrnyyfgs9wcg0intj-20261025T155726, image de9092e9b580... == HEAD; live /showcase now reads 8 LIVE / 0 BETA / 1 RETIRED (was 7 / 1 / 1), /ratchetproof 200, sitemap.xml 31 locs carrying /ratchetproof. detect.mjs --json now returns ratchetproof in pending (it returned [] for the whole beta period), so the launch video is unblocked. Remains, owner's: the PRD's $12 one-off / $39-mo per-site web tier needs Stripe products (a credentialed step), and the first live tariff is the cost-measurement run that must confirm $1.50 clears 3x its measured cost.",
+   "detail": "Done 2026-10-25 (commit de9092e), on the owner's message \"Approve\" in the thread where this row had been parked since 2026-10-20 — it was the only product status still at the gate. registry.ts status beta -> live; the registry is the single source, so /showcase's badge, the derived crawler surfaces and the launch-video selector (src/lib/launch-video/plan.ts selects status === \"live\" only) all moved with it. Gate scripts/verify-build.sh \"Verification passed.\" — tsc clean, eslint 0 errors, tokens, verticals, recon cadence, vitest 479/479 (35 files), next build 52/52 pages, Playwright 110/110, visual-qa 30/30 tiles incl. ratchetproof 6/6 PASS. The single red on the way was the /showcase snapshot (116 px, 0.01): the diff image shows it confined to the RatchetProof card's status badge and the actual render reads LIVE with the live green horizon stripe, so the Linux baseline was RE-DERIVED after reading it (macOS baseline untouched). Deploy verified by IMAGE TAG, not the push: container af8yqbwrrnyyfgs9wcg0intj-20261025T155726, image de9092e9b580... == HEAD; live /showcase now reads 8 LIVE / 0 BETA / 1 RETIRED (was 7 / 1 / 1), /ratchetproof 200, sitemap.xml 31 locs carrying /ratchetproof. detect.mjs --json now returns ratchetproof in pending (it returned [] for the whole beta period), so the launch video is unblocked. Remains, owner's: the PRD's $12 one-off / $39-mo per-site web tier needs Stripe products (a credentialed step), and the first live tariff is the cost-measurement run that must confirm $1.50 clears 3x its measured cost. The film the promotion unlocked landed the same afternoon: YouTube ncxRfAAiQ3A (public, \"RatchetProof: one hot interval sets your electric bill for months\", uploaded 2026-10-25T17:49:28Z), embedded on /ratchetproof with its own poster at /launch-videos/ratchetproof.jpg, ledger row `uploaded` (attempts 3/3) — measured on the deployed site, not the commit: poster 200, the page carries the id, oEmbed 200.",
    "impact": "Closed — the sixth product is a full live product (not a labelled beta), and its launch video can now be produced; nothing was left half-flipped.",
    "reply": "",
    "opened": "2026-10-20",
-   "updated": "2026-10-25T15:57Z",
+   "updated": "2026-10-25T18:06Z",
    "closed": "2026-10-25"
   },
   {
@@ -179,5 +179,5 @@
    "closed": "2026-10-25"
   }
  ],
- "updated": "2026-10-25T16:01Z"
+ "updated": "2026-10-25T18:06Z"
 }
