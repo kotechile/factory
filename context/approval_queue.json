@@ -3,18 +3,6 @@
  "source": "context/pending_approval.md",
  "items": [
   {
-   "id": "growth-check-scope",
-   "app": "Growth check (weekly traffic gate)",
-   "kind": "decision",
-   "state": "pending",
-   "headline": "The weekly growth check still measures QuarterLine, retired five weeks ago — re-point it at the live products?",
-   "detail": "Measured 2026-10-24: scripts/growth-check.mjs:54 defaults PRODUCT to 'quarterline' (registry status 'killed' since 2026-09-19), so the Friday Growth Watchdog scores a launch gate on a product that no longer exists in the catalogue. The same script had a second, silent defect this sweep — a single un-paginated PostgREST read returned only the OLDEST ~1,000 rows of the whole store, so it reported product_event_rows 0 for spendproof against 1,012 real rows, and unique_sessions_visitor 0 against 2. That truncation is fixed this sweep (explicit .range() paging, a printed events_read_capped when the 200k cap is hit, proven: spendproof 0 -> 1,012 rows / 640 sessions / 2 visitor sessions in 1.7 s). What is left is the scope decision: which products the gate measures and whether it should loop the live inventory. The Growth Watchdog itself queued this ask on 2026-10-23 without a queue row (drift, corrected here).",
-   "impact": "Re-pointing makes the weekly traffic gate measure the products that are actually live, so the visitor leg (unique_sessions_visitor) can be scored at all; silence keeps it reporting on a retired product while six products go unmeasured.",
-   "reply": "@Simon re-point the growth check",
-   "opened": "2026-10-24",
-   "updated": "2026-10-24"
-  },
-  {
    "id": "canopyproof",
    "app": "CanopyProof",
    "kind": "build",
@@ -176,7 +164,20 @@
    "opened": "2026-10-20",
    "updated": "2026-10-25T15:57Z",
    "closed": "2026-10-25"
+  },
+  {
+   "id": "growth-check-scope",
+   "app": "Growth check (weekly traffic gate)",
+   "kind": "decision",
+   "state": "resolved",
+   "headline": "The weekly growth check measures every live product now, not a product retired five weeks ago",
+   "detail": "Done 2026-10-25 (commit f462e6f), on the owner's message \"re-point the growth check\" — the reply string this row carried since 2026-10-24. scripts/growth-check.mjs no longer has a product default: the scope is parsed from src/products/registry.ts on every run (slug + status, in registry order), so it measures every entry whose status is not `killed` — ledgerlink, facturgate, parcelproof, caseproof, spendproof, ratchetproof — aggregates them into the fleet totals the gates read, and returns a per_product split beside them. A slug on the command line is a drill-down only; a retired or unknown slug now fails with an explicit product_error instead of reading zero, and rows outside the scope are counted in out_of_scope_event_rows (quarterline 228, factory 1,844, billing 326) so nothing is dropped silently. Measured after the change: 11,184 event rows / 7,091 sessions / 23 visitor-classed sessions / 8 agent queries / $190 sandbox (0 real) across the six products, where the old default reported 228 rows for a product nobody can visit. The runbook (.agents/growth_watchdog.md) and the playbook's marker section now state the registry-derived scope, and the Friday job needed no prompt change — it already ran the script with no argument. Gate scripts/verify-build.sh \"Verification passed.\" on the rebased tree: tsc clean, eslint 0 errors, tokens, verticals, recon cadence, vitest 479/479 (35 files), next build ok, Playwright 110/110, visual-qa 30/30 tiles.",
+   "impact": "Closed — the Friday traffic gate scores the products that are actually live, so the visitor leg can be judged at all; silence had it reporting on a retired product while six live ones went unmeasured.",
+   "reply": "",
+   "opened": "2026-10-24",
+   "updated": "2026-10-25",
+   "closed": "2026-10-25"
   }
  ],
- "updated": "2026-10-25T15:57Z"
+ "updated": "2026-10-25T16:01Z"
 }

@@ -5,7 +5,7 @@ AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does 
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
 _Last updated: 2026-10-25 (**16:00 — the owner approved `RatchetProof` live; the sixth product is a full live product, and its launch video is unlocked**).
-`context/approval_queue.json`: **14 rows — 1 `pending` (`growth-check-scope`), 1 `approved` (`canopyproof`, idle 7 days), 12 `resolved`**.
+`context/approval_queue.json`: **14 rows — 0 `pending`, 1 `approved` (`canopyproof`, idle 7 days), 13 `resolved`**.
 0. **`ratchetproof-live` — CLOSED on the owner's approval.** Verbatim: *"Approve"*, in the thread where the row had been
    parked since 2026-10-20; it was the only product status still at the gate, so it is read as that row. `src/products/registry.ts`
    status **`beta` → `live`**, commit **`de9092e`**; the registry is the single source, so the `/showcase` badge, the derived
@@ -19,15 +19,24 @@ _Last updated: 2026-10-25 (**16:00 — the owner approved `RatchetProof` live; t
    `/ratchetproof` **200**, `sitemap.xml` **31** locs carrying `/ratchetproof`. Still the owner's, unchanged: the PRD's
    $12 one-off / $39-mo per-site web tier needs Stripe products (a credentialed step), and the first live tariff is the
    cost-measurement run that must confirm **$1.50** clears 3× its measured cost.
-1. **`growth-check-scope` — day 3.** `scripts/growth-check.mjs:54` still defaults `PRODUCT=quarterline` (killed 2026-09-19),
-   so the weekly traffic gate scores a product that no longer exists; the silent 1,000-row truncation was fixed 2026-10-24
-   with explicit `.range()` paging. Reply `@Simon re-point the growth check`.
+1. **`growth-check-scope` — CLOSED on the owner's approval.** Verbatim: *"re-point the growth check"*, the reply string this
+   row had carried since 2026-10-24. Commit **`f462e6f`**: `scripts/growth-check.mjs` has no product default any more — the scope
+   is parsed from `src/products/registry.ts` at run time (slug + status, registry order) and covers every entry whose status is
+   not `killed` (ledgerlink, facturgate, parcelproof, caseproof, spendproof, ratchetproof), aggregated into the fleet totals the
+   gates read, with a `per_product` split beside them. A slug on the command line is a drill-down only; a retired or unknown one
+   now raises an explicit `product_error` instead of reading zero, and out-of-scope rows are counted in `out_of_scope_event_rows`
+   (quarterline 228, factory 1,844, billing 326) so nothing is dropped silently. Measured after the change: **11,184 rows / 7,091
+   sessions / 23 visitor-classed sessions / 8 agent queries / $190 sandbox (0 real)** across six products — where the retired
+   default reported 228 rows for a product nobody can visit. Runbook (`.agents/growth_watchdog.md`) and the playbook's marker
+   section now state the registry-derived scope; the Friday job needed no prompt change (it already ran the script with no
+   argument). Gate `scripts/verify-build.sh` **"Verification passed."** on the rebased tree (vitest **479/479**, Playwright
+   **110/110**, visual-qa **30/30**).
 2. **`canopyproof` — approved 2026-10-18, idle 7 days.** One commit (`01d02c3`, S1 EUDR engine + tests), no route, not
    registered, not on `/showcase`. Nothing to approve — it is a dispatch gap, named here so it is not mistaken for progress.
 3. **Direction, day 4, unanswered:** distribution vs keep building (raised 2026-10-22, not a queue row). Six products,
    55 days, no provable outside visitor, $0 revenue — while the factory now owns five 4K product films nobody distributes.
    Reply `@Simon switch to distribution` or `@Simon keep building`.
-**Closed since the last record:** `ratchetproof-live` (this block) and `superseded-video-copies` (the 15:55 block below).
+**Closed since the last record:** `ratchetproof-live` (this block), `growth-check-scope` (this block, `f462e6f`) and `superseded-video-copies` (the 15:55 block below).
 **Not an ask, fleet P2:** the internal-traffic marker does not cover the video desk's headless post-upload checks, so 43
 visitor-classified rows in the last 24 h are ours; the growth check's revenue leg reads the sandbox slot locally
 (`STRIPE_MODE` absent from the repo `.env`, labelled `revenue_is_sandbox: true`); `0004_events_traffic_class.sql` is still an
