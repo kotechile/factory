@@ -70,13 +70,18 @@ describe("launchVideoFor", () => {
 });
 
 describe("embed URLs", () => {
+  // Pin the shaped URL to a known slug rather than to LAUNCH_VIDEOS[0]: every launch inserts its
+  // entry at the top, so an index-based assertion fails on the next product, not on a real defect.
   it("uses the privacy-enhanced host, so no cookie is set before play", () => {
-    const video = LAUNCH_VIDEOS[0];
-    expect(launchVideoEmbedUrl(video)).toBe("https://www.youtube-nocookie.com/embed/fYCWUMVtb_M");
-    expect(launchVideoEmbedUrl(video)).not.toContain("youtube.com/embed");
+    const video = launchVideoFor("spendproof");
+    expect(video).toBeDefined();
+    expect(launchVideoEmbedUrl(video!)).toBe("https://www.youtube-nocookie.com/embed/fYCWUMVtb_M");
+    expect(launchVideoEmbedUrl(video!)).not.toContain("youtube.com/embed");
   });
 
   it("builds a short watch URL", () => {
-    expect(launchVideoWatchUrl(LAUNCH_VIDEOS[0])).toBe("https://youtu.be/fYCWUMVtb_M");
+    const video = launchVideoFor("spendproof");
+    expect(video).toBeDefined();
+    expect(launchVideoWatchUrl(video!)).toBe("https://youtu.be/fYCWUMVtb_M");
   });
 });

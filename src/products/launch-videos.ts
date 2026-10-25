@@ -51,6 +51,14 @@ export interface LaunchVideo {
 
 export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   {
+    slug: "ratchetproof",
+    youtubeId: "ncxRfAAiQ3A",
+    posterPath: "/launch-videos/ratchetproof.jpg",
+    title: "RatchetProof: one hot interval sets your electric bill for months",
+    durationSeconds: 24,
+    publishedAt: "2026-10-25",
+  },
+  {
     slug: "spendproof",
     youtubeId: "fYCWUMVtb_M",
     posterPath: "/launch-videos/spendproof.jpg",
