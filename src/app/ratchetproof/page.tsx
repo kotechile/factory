@@ -5,6 +5,7 @@ import { siteOrigin } from "@/lib/site-origin";
 import RatchetProofAudit from "@/components/ratchetproof-audit";
 import { AgentSurfaceGuide } from "@/components/editorial/agent-surface-guide";
 import { PrismSchematic } from "@/components/editorial/prism-schematic";
+import { ProductLaunchVideo } from "@/components/product-launch-video";
 import ProductPricing from "@/components/product-pricing";
 import {
   AmbientGrid,
@@ -125,6 +126,8 @@ export default function Page() {
           <div id="audit" className="scroll-mt-20">
             <RatchetProofAudit initialScenario="ratchet-75" />
           </div>
+
+          <ProductLaunchVideo slug="ratchetproof" />
 
           <div className="mx-auto w-full max-w-4xl space-y-10">
             <section className="space-y-3">

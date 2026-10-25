@@ -152,10 +152,13 @@ describe("renderEntry", () => {
 });
 
 describe("insertEntry", () => {
+  // A slug that is deliberately NOT in the registry: these tests exercise insertEntry against the
+  // real file, so pinning them to whichever product happens to be launching next makes every
+  // completed launch turn a passing test red.
   const entry = {
-    slug: "ratchetproof",
+    slug: "fixtureproof",
     youtubeId: "abcDEF12345",
-    title: "Introducing RatchetProof",
+    title: "Introducing FixtureProof",
     durationSeconds: 25,
     publishedAt: "2026-10-24",
   } as const;
@@ -166,11 +169,11 @@ describe("insertEntry", () => {
     const next = insertEntry(source, entry);
     const after = embeddedSlugs(next);
 
-    expect(after[0]).toBe("ratchetproof");
+    expect(after[0]).toBe("fixtureproof");
     expect(after.slice(1)).toEqual(before);
     expect(next.startsWith(source.slice(0, source.indexOf(REGISTRY_ARRAY_MARKER)))).toBe(true);
     // inserted as the array's first element, and the array still closes
-    expect(next).toContain(`${REGISTRY_ARRAY_MARKER}\n  {\n    slug: "ratchetproof",`);
+    expect(next).toContain(`${REGISTRY_ARRAY_MARKER}\n  {\n    slug: "fixtureproof",`);
     expect(next).toContain("];");
     expect(next.length).toBe(source.length + renderEntry(entry).length + 1);
   });
@@ -227,7 +230,7 @@ describe("replaceEntry", () => {
 
   it("refuses a slug that is not embedded yet, and a malformed entry", () => {
     const source = readFileSync(REGISTRY, "utf8");
-    expect(() => replaceEntry(source, { ...next, slug: "ratchetproof" })).toThrowError(/not embedded yet/);
+    expect(() => replaceEntry(source, { ...next, slug: "fixtureproof" })).toThrowError(/not embedded yet/);
     expect(() => replaceEntry(source, { ...next, youtubeId: "short" })).toThrowError(/11-character/);
   });
 
