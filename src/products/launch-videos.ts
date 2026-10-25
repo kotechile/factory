@@ -60,10 +60,10 @@ export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   },
   {
     slug: "ledgerlink",
-    youtubeId: "Ski_feMOWuc",
+    youtubeId: "euQuJJbNOs0",
     posterPath: "/launch-videos/ledgerlink.jpg",
     title: "Introducing LedgerLink: one Stripe payout → 344 GL journal lines, reconciled to the penny.",
-    durationSeconds: 23,
+    durationSeconds: 24,
     publishedAt: "2026-10-25",
   },
   {
