@@ -399,9 +399,67 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 | `home_ops_execution` | ICC codes, contractor-license boards, state AG/mechanic-lien rules | `mechanics lien waiver deadline by state 2026 contractor` | jurisdiction-by-jurisdiction determinism is fine; buyer is a homeowner |
 | `energy_interval_data` | ✅ pack (2026-10-19) — scanned, see pack | `Green Button interval data demand charge audit 2026 spreadsheet` | RatchetProof at owner gate; channel rule is the open risk |
 | `food_service_ops` | ✅ pack (2026-10-19) — scanned, **retired** | `restaurant invoice price variance food cost audit 2026 manual` | Incumbent (MarginEdge/MarketMan) owns the price-variance slice at the buyer's price |
-| `media_production_qc` | broadcaster/platform delivery specs (AS-11, IMF, Netflix/Amazon specs) | `delivery spec QC captions timestamps rejected 2026 post house` | deterministic and dated (spec versions) — genuinely new territory |
-| `trades_service_ops` | ServiceTitan/Housecall Pro changelogs, warranty rules, permit portals | `work order invoice warranty claim reconciliation 2026 trades` | check incumbent field-service suites |
+| `media_production_qc` | ✅ pack (2026-10-26) — scanned, **no build**, see pack | `delivery spec QC captions timestamps rejected 2026 post house` | free single-file checkers + paid delivery suites own the shape |
+| `trades_service_ops` | ✅ pack (2026-10-26) — scanned, ClaimProof at the gate, see pack | `work order invoice warranty claim reconciliation 2026 trades` | no editorial vertical for contractors — channel gap is the open risk |
 | `public_sector_grants` | grants.gov, state grant portals, uniform guidance | `grant reporting format rejection deadline 2026 manual reconcile` | procurement cycles; deterministic rules are published — verify incumbents |
+
+## media_production_qc — timed-text / delivery-spec QC (first scan 2026-10-26; **no build**)
+
+- **Buyer & budget:** post house, localization vendor or delivery producer shipping timed text to Netflix/Prime/
+  Roku/FAST. Real budget (the vendor absorbs redelivery cost), but the buyer is outside the factory's editorial
+  menu — no owned audience.
+- **Dated trigger surface:** platform timed-text spec versions (Netflix Timed Text Style Guide, Prime Video
+  Video Central, Roku branded specs) and the redelivery rate card. Netflix's Preferred Fulfillment Partner
+  conditions pay **$60 / $120 / $180** per 30-min / 60-min / feature timed-text redelivery and state that
+  compensation covers all rounds — so every rejection is a direct cost to the vendor.
+- **Measured pain:** **60% of subtitle/caption rejections are character/line-limit violations**, not
+  translation errors (Gotham Lab, 2026-08-28); reading rate (17–20 CPS), 42-character lines, 2-line events,
+  5/6 s minimum, 7 s maximum, two-frame gap, TTML/IMSC structural rules.
+- **Incumbent / free check — the reason it does not build:** *free* — Subtitle Edit (open source, reading-speed
+  colour coding, 300+ formats, saveable broadcast/streaming rule profiles), `captionspec.com`, SubtitleWise,
+  GoLocalise, Valmera, VoiceDeck, Induwara (each checks one file against CPS/CPL limits). *Paid* — EZTitles,
+  OOONA, CaptionHub (professional rule-based QC), Closed Caption Converter (conforms frame rates, reflows text
+  to target limits, validates against a configurable style guide, **has an API**), `ttconv` (open-source CLI).
+  The only unowned layer — a multi-destination delivery-set audit with a signed per-destination conformance
+  report — is exactly what the paid suites sell to these buyers.
+- **First scan (measured 2026-10-26):** best candidate (delivery-set conformance audit) scored **68**
+  (repeat 90 / friction 25 / WTP 85 / urgency 65) and died at the **free-incumbent rule** plus the owned paid
+  layer. Runner-up: re-timing / frame-rate drift conform (23.976 ↔ 25 ↔ 29.97) — already inside every subtitle
+  editor. **Re-open trigger:** a platform ships a new timed-text spec version the free checkers leave
+  unaddressed for 30+ days, or a buyer needs a signed per-delivery conformance report the free tools cannot
+  produce. Record: `context/recon_proposals/2026-10-26_claimproof.md` §6.
+
+## trades_service_ops — warranty claims & work-order money (first scan 2026-10-26; ClaimProof at the gate)
+
+- **Buyer & budget:** owner or service manager of a commercial refrigeration / HVAC shop (5–40 techs) filing
+  manufacturer warranty claims. Real budget: the leak is measured in **$8,000–$25,000 per truck per year** in
+  unfiled, mis-coded or denied claims.
+- **Dated trigger surface:** the **14-day filing mark** where denials cluster; the **60/90-day registration
+  window** (Goodman/Lennox/Trane/Daikin 60 days, Carrier/Rheem 90; missed registration drops parts cover from
+  10 years to 5 — NobleAdminNetwork read 7 OEMs' published terms on 2026-09-27); OEM payment-schedule and cap
+  revisions.
+- **Scoping fact (load-bearing):** most **residential** OEM warranties pay **parts only** — Trane: labour not
+  covered; Mitsubishi: "NO LABOR"; only Carrier and Lennox carry a labour option. So the audit is scoped to
+  labour-paying schedules: commercial refrigeration (True Manufacturing's published labour-claim form is the
+  fixture: per-repair hour allowances, multiple-repair rule "highest rate + 1 hour per additional component",
+  per-claim caps on reclaim/nitrogen/materials, travel rules), commercial HVAC, contractor extended-labour plans.
+- **Incumbent / free check:** *free* — the OEM claim **form** and its payment schedule (files a claim correctly;
+  it is not a reconciliation over paid claims). *Paid* — field-service suites track warranty work and serials
+  (QuoteIQ $29.99–$699/mo, ServiceTitan $245+/tech/mo, BuildOps, Jobber, Housecall Pro, CompanyCam $99–$167/mo);
+  WarrantyHub and ClaimLane are **administrator-side** claim platforms that run this arithmetic *against* the
+  contractor; Rocky Solutions is the human alternative ($900/mo per 20 claims → $2,900 per 100, **20%
+  contingency** on denied/out-of-window claims). **Unowned slice: the contractor-side arithmetic** — re-derive
+  the schedule against the payment, per claim, with the rule and page cited.
+- **Funnel risk:** **Filter 1** — the recovery *last mile* (arguing with an OEM rep) is human and must stay out
+  of scope; the product sells the finding and the resubmission packet. **Rule 5** — the schedule is a maintained
+  feed: vendor it per OEM with a version stamp and effective date, return `unstated` for any code outside the
+  vendored version, and report a stale schedule on the face of the report. **Channel rule is the weakest
+  link** — no editorial vertical for trade contractors (the nearest owned surfaces sell to the homeowner), so
+  distribution is search + the metered agent endpoint.
+- **First scan (measured 2026-10-26):** **ClaimProof** proposed, class **LLM/parse-backed**, **$1.50/call** vs
+  modelled **≈$0.22** (clears 3× with ~6.8× headroom; re-measure on the first live remittance). Score **79**
+  (repeat 80 / friction 75 / WTP 90 / urgency 70). Record:
+  `context/recon_proposals/2026-10-26_claimproof.md`.
 
 ## Adding a pack
 New verticals open by adding a pack here (same six lines) and a row in `context/vertical_coverage.md`.

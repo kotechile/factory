@@ -4,6 +4,30 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-26 (**14:40 — weekly market recon ran its two-slot sweep: two never-scanned verticals opened, one build candidate is at the gate, one is retired cheaply**).
+`context/approval_queue.json`: **16 rows — 1 `pending` (`claimproof`, new), 1 `approved` (`canopyproof`, idle 8 days), 14 `resolved`**.
+0. **`claimproof` — NEW, awaiting `@Simon approve ClaimProof`.** Recon 2026-10-26 (score **79**; repeat 80 / incumbent
+   friction 75 / WTP 90 / urgency 70). `VERTICAL_B` = `trades_service_ops`. Warranty-claim short-payment audit: an
+   LLM/parse extraction reads the OEM remittance + the filed claim into fields, and a deterministic engine re-derives
+   the **OEM's own published payment schedule** (allowed hours per repair code, the multiple-repair increment, travel
+   rule, per-claim caps on reclaim/nitrogen/materials) against what was actually paid — per line, with the schedule
+   version and page cited, `unstated` (blocking) for any code outside the vendored version. Class **LLM/parse-backed**,
+   **$1.50/call** vs modelled **≈$0.22** (clears 3× with ~6.8× headroom; re-measure on the first live remittance).
+   Free layer is the OEM claim **form** (files a claim; never audits a payment); the FSM suites track the work;
+   WarrantyHub/ClaimLane are administrator-side platforms that run this arithmetic *against* the contractor; Rocky
+   Solutions is the human alternative at $900–$2,900/mo plus 20% contingency. **Two things are named, not hidden:**
+   the recovery last mile (arguing with an OEM rep) is a human service and is **out of scope** — the product sells
+   the finding and the resubmission packet; and **there is no owned audience for trade contractors**, so distribution
+   would be search + the metered endpoint. MVP is scoped to **labour-paying** schedules only (most residential OEM
+   warranties pay parts only — Trane/Mitsubishi "NO LABOR"), starting with commercial refrigeration where the
+   published form is the fixture. Record: `context/recon_proposals/2026-10-26_claimproof.md`.
+1. **`VERTICAL_A` = `media_production_qc` — scanned 2026-10-26, no build, no ask.** Best candidate (delivery-set
+   conformance audit) scored **68** and died at the free-incumbent rule: free Subtitle Edit plus six free single-file
+   reading-speed checkers, and EZTitles/OOONA/CaptionHub/Closed Caption Converter already ship conform + validate +
+   API to these exact buyers. The money is real (Netflix pays $60/$120/$180 per timed-text redelivery and the vendor
+   absorbs it; 60% of rejections are character/line-limit violations) — the *tool surface* is owned. Re-open trigger
+   recorded on the ledger row. This vertical is now retired cheaply instead of being re-probed for weeks.
+
 _Last updated: 2026-10-25 (**22:52 — the owner's parcel-format instruction is landed: ParcelProof reads a carrier export as it comes, and prices a line with no contract rate card**).
 `context/approval_queue.json`: **15 rows — 0 `pending`, 1 `approved` (`canopyproof`, idle 7 days), 14 `resolved`**.
 0. **`parcelproof-carrier-exports` — LANDED on the owner's instruction.** Verbatim: *"Yes implement these"*, in the session where he read the two defects:
