@@ -279,3 +279,18 @@ media_production_qc) · vitest **489/489** (36 files) · `next build` 52/52 page
 **30/30 tiles PASS across 5 products** (facturgate, parcelproof, caseproof, spendproof, ratchetproof), exit 0.
 `8cec53e..3b49fb7` already live, so the served app matches this commit. No failure class appeared; no skill patch
 needed. Untracked probe scripts left uncommitted on purpose (another desk's in-flight work).
+
+**2026-10-27 (16:30Z) — gate GREEN on `4848a99`.** `scripts/verify-build.sh` exit 0 in the shared worktree on
+HEAD = `origin/main` = the live container's `SOURCE_COMMIT` (`af8yqbwrrnyyfgs9wcg0intj-20261027T153336`), run under
+the dead-Supabase pair so the Playwright suite wrote no production telemetry (every insert logged `[telemetry] insert
+failed … fetch failed`; 111/111 specs still ran): tsc clean · lint **0 errors / 9 warnings** (7 pre-existing + 2 in the
+untracked `scripts/analyze-*`/`patch-*` probes another desk left in the tree) · design tokens clean · verticals
+**33 in sync** · recon cadence ok · vitest **489/489** (36 files) · `next build` 52/52 pages · `copy:check` errors 0 /
+warnings 76 (new 5, the ParcelProof `observed-bracket` copy already reported on 10-26 — identical counts, so no new
+copy drift) · Playwright 111/111. `visual-qa` self-skipped under the dead address as documented, then re-ran alone with
+the real `.env`: **30/30 tiles PASS across 5 products** (facturgate, parcelproof, caseproof, spendproof, ratchetproof),
+exit 0. `3b49fb7..4848a99` touches **no `src/` file** (docs and the approval queue only), so the served app is
+functionally unchanged and the live container's image tag equals the checked commit. Live `/.well-known/mcp.json`
+`sha256 ae5ac25e…` still matches the 10-26 value (same v2.2.0 / 11 tools / same endpoint), product paths answer
+308→200, `/showcase` and the well-known surfaces 200. No failure class appeared; no skill patch needed. Untracked
+probe scripts left uncommitted on purpose (another desk's in-flight work).
