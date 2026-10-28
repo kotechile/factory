@@ -294,3 +294,21 @@ functionally unchanged and the live container's image tag equals the checked com
 `sha256 ae5ac25e…` still matches the 10-26 value (same v2.2.0 / 11 tools / same endpoint), product paths answer
 308→200, `/showcase` and the well-known surfaces 200. No failure class appeared; no skill patch needed. Untracked
 probe scripts left uncommitted on purpose (another desk's in-flight work).
+
+**2026-10-28 (16:30Z) — gate GREEN on `13b0698`.** `scripts/verify-build.sh` exit 0 in the shared worktree on
+HEAD = `origin/main` = the live container's `SOURCE_COMMIT` (`af8yqbwrrnyyfgs9wcg0intj-20261028T153545`), run under
+the dead-Supabase pair so the Playwright suite wrote no production telemetry (every insert logged
+`[telemetry] insert failed … fetch failed`; 111/111 specs still ran): tsc clean · lint **0 errors / 9 warnings**
+(7 pre-existing + 2 in the untracked `scripts/analyze-*`/`patch-*` probes another desk left in the tree) · design
+tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-10-26: trades_service_ops,
+media_production_qc) · vitest **489/489** (36 files) · `next build` 52/52 pages · `copy:check` errors 0 / warnings
+76 (new 5, the same ParcelProof `observed-bracket` copy as 10-26/10-27) plus the gitignored launch-copy scan errors
+0 / warnings 6 (new 6 — `content/launch_videos` share/narration copy over the 28/32-word limits after the video
+desk's re-render; `verdict: PASS`, warnings only, no reader-facing page) · Playwright 111/111. `visual-qa`
+self-skipped under the dead address as documented, then re-ran alone with the real config: **30/30 tiles PASS across
+5 products** (facturgate, parcelproof, caseproof, spendproof, ratchetproof), exit 0. `77c3aee..13b0698` touches no
+`src/` file and the container image tag equals the checked commit, so the served app is the one that passed. No
+failure class appeared; no skill patch needed. Standing state unchanged from the 15:35Z sweep: `hermes cron doctor`
+1 issue (Editorial Verify Gate — pressflow `aed1f3f6…` vs editorial HEAD `017a00f…`, the three unpushed editorial
+commits reported this morning), `events` 15,078 rows / `articles` 220, approval queue 1 pending (ClaimProof) +
+1 approved-unstarted (CanopyProof).
