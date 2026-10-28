@@ -4,6 +4,25 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-10-28 (**15:30 sweep** — nothing built, nothing proposed, and the queue is unchanged for a second day: one build decision pending, one approved product idle ten days, one strategy call a week old).
+`context/approval_queue.json`: **16 rows — 1 `pending` (`claimproof`, day 3), 1 `approved` (`canopyproof`, idle day 10), 14 `resolved`**.
+0. **`claimproof` — awaiting `@Simon approve ClaimProof` (day 3).** Recon 2026-10-26 (score **79**; repeat 80 / incumbent
+   friction 75 / WTP 90 / urgency 70), `VERTICAL_B` = `trades_service_ops`: warranty-claim short-payment audit for
+   HVAC/refrigeration shops. LLM/parse extraction reads the OEM remittance + the filed claim into fields, and a
+   deterministic engine re-derives the OEM's own published payment schedule against what was actually paid, per line,
+   with schedule version and page cited. **$1.50/call** vs modelled **≈$0.22** (6.8× headroom). Scope excludes the human
+   recovery chase; there is no owned trade audience, so distribution would be search + the metered endpoint. Record:
+   `context/recon_proposals/2026-10-26_claimproof.md`. Reply `@Simon approve ClaimProof` or `@Simon skip ClaimProof`.
+   Cost of silence: the only scored build candidate sits unstarted while the build line is empty for an eighth day.
+1. **`canopyproof` — approved 2026-10-18, idle day 10.** Still only `01d02c3` (the EUDR geolocation audit engine +
+   known-answer tests, 8 files, 01d02c3 dated 10-18 23:47–23:56): no route, no registry entry, nothing live. Either it
+   gets built this week or the approval is dropped and the row closed — a second week of idle approval is the same as a
+   no. Reply `@Simon build CanopyProof` or `@Simon drop CanopyProof`.
+2. **Direction — `distribution` vs `keep building`, raised 2026-10-22, day 7, not a queue row (a strategy call, not a build
+   gate).** Six live products, six launch films, 220 published articles, 58 days, **$0 revenue**, and zero traffic today —
+   the five single-product visits of 10-26/10-27 did not come back. Every asset distribution needs exists.
+   Reply `@Simon switch to distribution` or `@Simon keep building`.
+
 _Last updated: 2026-10-27 (**15:30 sweep** — no new proposal, nothing built; three decisions are waiting on the founder and one of them is six days old).
 `context/approval_queue.json`: **16 rows — 1 `pending` (`claimproof`, day 2), 1 `approved` (`canopyproof`, idle day 9), 14 `resolved`**.
 0. **`claimproof` — awaiting `@Simon approve ClaimProof` (day 2).** Recon 2026-10-26 (score **79**; repeat 80 / incumbent
