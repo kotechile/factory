@@ -409,6 +409,30 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   it out of flow or pin the row's height explicitly. A demo's page height must be bounded by the viewport, never by
   the fixture's line count.**
 
+- **2026-10-30 — `visual-qa` FAIL on `ratchetproof-qa-5`: "text in the 'bills' parameter card overflows and
+  is clipped at the right border" — the card was cut by the TILE, not by its own border.** All three attempts
+  returned it (fail-closed maximum, temperature 0 on an unchanged page: `src/app/ratchetproof` last changed in
+  `88c7292`, before the 10-28 and 10-29 runs that passed 30/30). The tile is a 1280×900 band and the band's
+  bottom edge slices the JSON-schema `bills` parameter card roughly in half, so the reviewer described the
+  image's own bottom cut as a right-border clip. Measured on the served page at 1280 px: all three parameter
+  cards are **260 px** wide with `scrollWidth == clientWidth == 258`; `querySelectorAll('*')` inside each card
+  returned **zero** rects outside the card's bounds; the page's `scrollWidth == clientWidth == 1265`; the long
+  token list wraps by design (`month,period_start,period_end,printed_billed_demand_kw` breaks mid-token) and
+  sits 13–17 px inside the border. `tests/e2e/text-geometry.spec.ts` was green on `/ratchetproof` in the same
+  gate run (111/111 e2e).
+  **Rules:** (a) a band capture that ends mid-card will keep producing "clipped" verdicts — read the flagged
+  tile yourself and measure the flagged container (`scrollWidth` vs `clientWidth`, every child rect against the
+  card's rect) before touching CSS; (b) never widen or restyle a card to satisfy a clipping verdict without a
+  rect that crosses its border; (c) `GATE_PROMPT` now names this geometry (image-edge cut, tight wrap inside a
+  bordered card) so the class cannot re-enter under a new wording.
+  **The same day's second run proved the deeper pattern: the false positive ROTATES.** After the prompt named the card-edge
+  class, `ratchetproof-qa-5` passed and two different tiles failed instead — `facturgate-qa-2` ("long URN text overlaps Copy
+  button in section 4 header"; measured: the URN line's right edge **828 px**, the Copy button's left edge **840 px**, 12 px
+  clear, no intersection) and `ratchetproof-qa-1` (the IDE-header class already excluded by name on 2026-10-17/19). Same pages,
+  same pixels, green deterministic geometry specs in both runs. **Rule (d): when a re-run clears the named tile and reds a
+  different one of an already-excluded class, the step is unreliable rather than the page being wrong — report it as a
+  gate-reliability finding to the owner and do not keep adding wordings.**
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 

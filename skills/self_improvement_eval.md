@@ -330,3 +330,29 @@ equals the checked commit, so the served app is the one that passed. Live surfac
 `/billing` 200 · `/.well-known/mcp.json` 200, `sha256 ae5ac25e…` unchanged (same v2.2.0 / 11 tools / same endpoint) ·
 `/sitemap.xml` 200. No failure class appeared; no skill patch needed. Untracked probe scripts left uncommitted on
 purpose (another desk's in-flight work).
+
+**2026-10-30 (16:30Z) — gate GREEN on `869e9a7`; the standalone vision step is now the only red, and it moved.**
+`scripts/verify-build.sh` exit 0 in the shared worktree on HEAD = `origin/main` = the live container's `SOURCE_COMMIT`
+(`af8yqbwrrnyyfgs9wcg0intj-20261030T153306`, up 55 min), run under the dead-Supabase pair so the Playwright suite wrote no
+production telemetry (every insert logged `[telemetry] insert failed … fetch failed`; 111/111 specs still ran): tsc clean ·
+lint **0 errors / 9 warnings** (7 pre-existing + 2 in the untracked `scripts/analyze-*`/`patch-*` probes another desk left in the
+tree) · design tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-10-26: trades_service_ops,
+media_production_qc) · vitest **489/489** (36 files) · `next build` 52/52 pages · `copy:check` errors 0 / warnings 76 (new 5, the
+same ParcelProof `observed-bracket` copy as 10-26…10-29) plus the launch-copy scan errors 0 / warnings 6 (new 6, gitignored
+`content/launch_videos` share/narration copy — warnings only) · Playwright 111/111. `visual-qa` self-skipped under the dead
+address as documented, so it was re-run alone twice against the real config:
+· **run 1 — 29/30, exit 1**, `ratchetproof-qa-5` FAIL ×3 attempts: "text in the 'bills' parameter card overflows and is clipped at
+  the right border". Measured on the served page at 1280: all three JSON-schema parameter cards **260 px** wide,
+  `scrollWidth == clientWidth == 258`, **zero** child rects outside the card, page `scrollWidth == clientWidth == 1265`;
+  the tile's own bottom edge cuts that card in half. False positive on unchanged pixels (`src/app/ratchetproof` last touched
+  `88c7292`; the 10-28 and 10-29 runs passed 30/30).
+· **run 2 (after naming that class in `GATE_PROMPT`) — 29/30, exit 1**, `ratchetproof-qa-5` PASS but `facturgate-qa-2`
+  ("long URN text overlaps Copy button in section 4 header") and `ratchetproof-qa-1` ("text overlapping in IDE header … zero
+  egress badge") FAIL. Measured: the emitted-artifact URN line ends at x **828** with the Copy button starting at **840** —
+  12 px clear, no intersection; the IDE-header class is the one already excluded by name (2026-10-17/19) and
+  `tests/e2e/text-geometry.spec.ts` was green on both pages in the same run (111/111). So the reviewer rotates its false
+  positive to a different tile each run on identical pages — a gate-reliability finding, not a UI defect.
+Patched `skills/ui_component_standards.md` (2026-10-30 entry: image-edge cut reads as clipping; measure `scrollWidth` vs
+`clientWidth` and child rects before restyling) and `scripts/visual-qa.mjs` (header comment + `GATE_PROMPT`: image-edge cut and
+tight wrap inside a bordered card are out of scope; a clipping verdict needs a visible glyph crossing a border).
+`factory_config` carries no `visual_qa_prompt` override, so the local prompt is the live one. No page was restyled.

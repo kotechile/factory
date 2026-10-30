@@ -86,6 +86,15 @@ loadEnvFile(".env");
 // intersecting rects. What the reviewer reads as "overlapping" is a right-aligned pill whose BOX spans
 // the wrapped second line of the sentence beside it, while the glyphs on that line end 569 px to its
 // left. The prompt below now names that geometry; no page was restyled for it.
+// A SEVENTH class was excluded on 2026-10-30: `ratchetproof-qa-5` failed all three attempts on
+// "text in the 'bills' parameter card overflows and is clipped at the right border". The flagged element
+// is the JSON-schema PARAMETER CARD, and the tile's own bottom edge cuts that card in half (the tile is a
+// 1280x900 band, the card starts ~700 px down), which is what the reviewer reads as clipping. Measured on
+// the served page at 1280 px: all three parameter cards are 260 px wide with scrollWidth == clientWidth ==
+// 258, `querySelectorAll('*')` inside each card returns ZERO rects outside the card bounds, and the page's
+// scrollWidth == clientWidth == 1265 — no horizontal overflow anywhere. The text wraps by design
+// (`month,period_start,period_end,printed_billed_demand_kw` breaks mid-token), which reads as tight but
+// sits 13-17 px inside the border. The prompt below now names that geometry. No page was restyled.
 const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof", "spendproof", "ratchetproof"];
 // `--suggest` reviews ONE surface; named explicitly (a tile of the flagship page) rather than indexed, so
 // removing a product can never silently retarget the suggestion pass at a different page.
@@ -133,6 +142,8 @@ Check for SIGNIFICANT issues only (minor polish does NOT fail):
 4. Typography: broken hierarchy (everything the same size; no visual distinction between title/header/body).
 
 Also out of scope: an intro sentence that WRAPS beside a right-aligned pill or action button in a card header (a "3 flags" pill at the end of the first line whose box reaches down across the second line of that sentence, or a "Download CSV" button beside a Findings heading). The pill/button is a separate flex item, the glyphs on the wrapped line end far to its left, and no rect intersects: that geometry is asserted programmatically (tests/e2e/text-geometry.spec.ts intersects every text run's client rects pairwise on every product page), so "text overlapping badge in Recovery summary" and "text overlapping button in Findings section" are verdicts this checklist does not ask for. Do flag text that visibly runs under or over another run.
+
+Also out of scope: a bordered card, panel or table whose own bottom edge is cut off by the bottom edge of the screenshot (the capture is a fixed-height band, so a card that starts near the bottom of the band ends mid-card by construction — text continuing past the IMAGE's bottom edge is not clipping), and text wrapping tightly inside a bordered card with only a few pixels of clearance. Only a glyph visibly crossing its own container's border counts as clipping or overflow; that geometry is measured clean on every product page (each JSON-schema parameter card: scrollWidth equals clientWidth, zero child rects outside the card, page scrollWidth equals clientWidth), so an "overflows and is clipped at the right border" verdict on a card whose text sits inside its border is noise. Never report a clipping or overflow verdict without a visible glyph crossing a border.
 
 Reply with EXACTLY ONE of these two lines, nothing else:
 PASS
