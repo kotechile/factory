@@ -386,7 +386,8 @@ scan skipped (gitignored `content/launch_videos` absent in a clean clone, printe
 `visual-qa` self-skipped under the dead address as documented, then re-ran alone against the real config (`npm run visual-qa`,
 `gemini-3.1-pro-preview`, 30 tiles over 5 REVIEWED_PRODUCTS at concurrency 4): **30/30 PASS, exit 0** — no rotated false positive
 on a day when no page changed, which is the second clean standalone run this week and confirms the 10-30 finding was reviewer
-noise rather than page drift. Deploy verified after the last push: image tag == `SOURCE_COMMIT` == `aadfa9c`, `COOLIFY_FQDN`
-`apps.aichieve.net`, `/showcase` 200, old host `apps.giniloh.com` still 503. Standing defects unchanged and not build-blocking:
+noise rather than page drift. Deploy verified after the last push: the record commit rebuilt the app, the new container's
+`SOURCE_COMMIT` is the pushed sha, `COOLIFY_FQDN` is `apps.aichieve.net`, `/showcase` and a product page are 200, and the old
+host `apps.giniloh.com` is still 503 (by design since 10-16). Standing defects unchanged and not build-blocking:
 `POST /api/agent/calculate {}` **500** (day 14, as of the 15:32Z sweep), `/.well-known/ai-plugin.json` + `/openapi.json` **404** (baseline, not
 regressions), migration `0004` (`events.traffic_class` column) still unapplied.
