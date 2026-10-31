@@ -372,3 +372,21 @@ hibernation is destructive → proposed to owner with recommendation to KEEP (ze
 page per hit, fresh session each, one `/billing` hit — measured by the 2026-10-30 daily sweep), so the meter's visitor leg
 is inflated and provable outside visitors remain **0**. `traffic_marker.column` still false (migration 0004 unapplied,
 non-blocking — class lives in `payload.traffic_class`). Logged this row.
+
+**2026-10-31 (16:30Z) — gate GREEN end to end on `aadfa9c`, vision step included for the first time in four runs.**
+`scripts/verify-build.sh` exit 0 on a clean detached worktree of HEAD = `origin/main` = the live container's `SOURCE_COMMIT`
+(`af8yqbwrrnyyfgs9wcg0intj-20261031T153256`, up 52 min), under the dead-Supabase pair so the Playwright suite wrote no
+production telemetry (`events` still **15,117** rows / 9,082 sessions after the run; every insert logged `[telemetry] insert
+failed … fetch failed` and 111/111 specs still ran). Clean worktree instead of the shared one because another desk has 11
+untracked `scripts/inspect-*` / `patch-*` probes in the tree (lint would have counted their warnings; here it is **0 errors /
+7 warnings**, all pre-existing). tsc clean · lint 0/7 · design tokens clean · verticals **33 in sync** · recon cadence ok
+(newest scan 2026-10-26: trades_service_ops, media_production_qc) · vitest **489/489** (36 files) · `next build` 52/52 pages ·
+`copy:check` errors 0 / warnings 76 (new 5, the same ParcelProof `observed-bracket` copy as 10-26…10-30) plus the launch-copy
+scan skipped (gitignored `content/launch_videos` absent in a clean clone, printed not silenced) · Playwright 111/111.
+`visual-qa` self-skipped under the dead address as documented, then re-ran alone against the real config (`npm run visual-qa`,
+`gemini-3.1-pro-preview`, 30 tiles over 5 REVIEWED_PRODUCTS at concurrency 4): **30/30 PASS, exit 0** — no rotated false positive
+on a day when no page changed, which is the second clean standalone run this week and confirms the 10-30 finding was reviewer
+noise rather than page drift. Deploy verified after the last push: image tag == `SOURCE_COMMIT` == `aadfa9c`, `COOLIFY_FQDN`
+`apps.aichieve.net`, `/showcase` 200, old host `apps.giniloh.com` still 503. Standing defects unchanged and not build-blocking:
+`POST /api/agent/calculate {}` **500** (day 14, as of the 15:32Z sweep), `/.well-known/ai-plugin.json` + `/openapi.json` **404** (baseline, not
+regressions), migration `0004` (`events.traffic_class` column) still unapplied.
