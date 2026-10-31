@@ -356,3 +356,19 @@ Patched `skills/ui_component_standards.md` (2026-10-30 entry: image-edge cut rea
 `clientWidth` and child rects before restyling) and `scripts/visual-qa.mjs` (header comment + `GATE_PROMPT`: image-edge cut and
 tight wrap inside a bordered card are out of scope; a clipping verdict needs a visible glyph crossing a border).
 `factory_config` carries no `visual_qa_prompt` override, so the local prompt is the live one. No page was restyled.
+
+**2026-10-30 — Growth Watchdog (Friday) run — first with the registry-derived scope (fix `f462e6f`, landed 10-25).**
+`growth-check.mjs` (all_live) over 6 live products: **12,519** product-event rows, **7,943** sessions, **59** visitor-classed
+sessions (**54** in last 7d), 2,477 internal, 5,410 pre-marker unclassified, `agent_query` **8** (all factory ship probes →
+organic 0). Revenue: repo `.env` sandbox **$190** (10 test charges); live Stripe `/v1/balance` `livemode:true` available
+**$0.00**, `/v1/charges` empty → **$0 real** (probed inside the app container this run, not assumed). Days since first
+event: ledgerlink 51, facturgate 44, parcelproof 42, caseproof 39, spendproof 21, ratchetproof 11. **Day-30 break-even MISS
+for 4 products** (ledgerlink, facturgate, parcelproof, caseproof — all past 30 days, $0 revenue); spendproof due ~11-08,
+ratchetproof ~11-18. Day-7 MISS for the two newest (ratchetproof day 11, spendproof day 21: 0 provable visitors, 0 organic
+agent events); Day-14 MISS for all ($0 real revenue, 8 agent queries). **No fallback fireable:** pSEO already shipped where
+it applies (the two newest are LLM/parse tools with no preset module); A/B copy blocked — no real visitors to split;
+hibernation is destructive → proposed to owner with recommendation to KEEP (zero real exposure, so a kill now is a kill on
+"never tried to sell", not a failed product). The 54 "visitors" in the last 7d are a scheduled robot (~22-min cadence, one
+page per hit, fresh session each, one `/billing` hit — measured by the 2026-10-30 daily sweep), so the meter's visitor leg
+is inflated and provable outside visitors remain **0**. `traffic_marker.column` still false (migration 0004 unapplied,
+non-blocking — class lives in `payload.traffic_class`). Logged this row.
