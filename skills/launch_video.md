@@ -23,11 +23,22 @@ The auth check comes first because a dead refresh token is a *credential* proble
 fix by hand (Google "Testing"-mode tokens expire after 7 days). Discovering it after the render burns
 an attempt for nothing. If it fails: record `failed` with its exact error and report — do not render.
 
+**Measured 2026-11-01 — the class fired for real.** `Launch Video Auth Check` (now scheduled **daily
+10:45Z**, not weekly) failed with `Google token refresh failed: invalid_grant: Token has been expired
+or revoked` (`src/lib/launch-video/youtube.ts:169`, via `scripts/launch-video/youtube-upload.mjs:43`):
+the stored `YOUTUBE_REFRESH_TOKEN` no longer mints an access token, so **no film can be uploaded until
+the founder re-authorizes**. The fix is his alone and is a browser step — `node scripts/youtube-auth.mjs
+--url` prints a Google consent URL, he approves it, `node scripts/youtube-auth.mjs --code <code>` writes
+a fresh token into `.env`. Queue it as an owner ask (`youtube-reauth`) the same day; check for pending
+films first (`detect.mjs --json` → `pending`, `embedPending`, `ledgerRows`) so the report says whether
+anything is actually blocked, and never report the published films as broken — they are untouched
+(oEmbed stays 200). If it recurs weekly, publish the Google OAuth consent screen to Production.
+
 ## 2. Read the product — not the repo
 The brag video must feel made for THIS product. Read, at minimum:
 - `src/products/registry.ts` → the entry for `<slug>` (tagline, description, category, webmcpTools)
 - `src/app/<slug>/page.tsx` and any files under `src/lib/calc/<slug>/`, `src/lib/seo/<slug>/`
-- the live product: `https://apps.giniloh.com/<slug>/`
+- the live product: `https://apps.aichieve.net/<slug>/` (the app host since 2026-10-16; `apps.giniloh.com` answers 503)
 Use the product's own words. "Streamline your workflow" is banned (brag skill's creative laws).
 
 ## 3. Render the launch video (the brag skill)
