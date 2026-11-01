@@ -393,3 +393,22 @@ noise rather than page drift. Deploy verified after the last push: the record co
 host `apps.giniloh.com` is still 503 (by design since 10-16). Standing defects unchanged and not build-blocking:
 `POST /api/agent/calculate {}` **500** (day 14, as of the 15:32Z sweep), `/.well-known/ai-plugin.json` + `/openapi.json` **404** (baseline, not
 regressions), migration `0004` (`events.traffic_class` column) still unapplied.
+
+**2026-11-01 (16:30Z) — gate GREEN end to end on `1df009b`, second consecutive clean run with the vision step included.**
+`scripts/verify-build.sh` exit 0 on a clean detached worktree of HEAD = `origin/main` = the live container's `SOURCE_COMMIT`
+(`af8yqbwrrnyyfgs9wcg0intj-20261101T153858`, up 54 min), under the dead-Supabase pair so the Playwright suite wrote no
+production telemetry (`events` still **15,117** rows / 9,082 sessions — the 08:00Z sweep's read; every insert logged
+`[telemetry] insert failed … fetch failed` and 111/111 specs still ran). Clean worktree again because the shared tree carries
+another desk's **11** untracked `scripts/inspect-*` / `patch-*` / `analyze-*` probes: lint there **0 errors / 7 warnings**, all
+pre-existing. tsc clean · lint 0/7 · design tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-10-26:
+trades_service_ops, media_production_qc) · vitest **489/489** (36 files) · `next build` 52/52 pages · `copy:check` errors 0 /
+warnings 76 (new 5, the same ParcelProof `observed-bracket` copy class as 10-26…10-31) with the launch-copy scan printing its
+skip (gitignored `content/launch_videos` absent in a clean clone) · Playwright **111/111**.
+`visual-qa` self-skipped under the dead address as documented, then re-ran alone against the real config (`npm run visual-qa`,
+`gemini-3.1-pro-preview`, 30 tiles over 5 REVIEWED_PRODUCTS, concurrency 4): **30/30 PASS, exit 0** — 6/6 per product, no rotated
+false positive on a day with no page change. Third consecutive clean standalone vision run, so the 10-30 rotating-tile finding
+stays closed as reviewer noise. No `src/` change since `95c1e61` (2026-10-20) — the build measured is byte-identical code to
+10-31's green run; today's only diff is docs. Deploy verified after the last push. Standing defects unchanged and not
+build-blocking: `POST /api/agent/calculate {}` **500** (day 15), `/.well-known/ai-plugin.json` + `/openapi.json` **404**
+(baseline), migration `0004` (`events.traffic_class` column) unapplied (day 15), and `YOUTUBE_REFRESH_TOKEN`
+`invalid_grant` (launch-film uploads blocked until the owner re-authorizes — queued `youtube-reauth`).
