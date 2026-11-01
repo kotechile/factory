@@ -4,6 +4,39 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-01 (**15:30 sweep** — nothing built for a twelfth day, nothing proposed, and the first hard capability break in a week: the YouTube credential that publishes launch films has expired, so no film can be uploaded until the founder re-authorises. Queue **17 rows — 2 `pending` (`claimproof` day 7, `youtube-reauth` new), 1 `approved` (`canopyproof`, idle day 14), 14 `resolved`**. No traffic at all in 31 hours: the ~22-minute automated check that produced every "visitor" hit of the last week stopped at 10-31 08:32Z, so provable outside visitors remain **0**; articles **252 → 260**; the WordPress check's second finding today (an article's header image / alt text) is a **false positive**, measured — the live page carries a resized copy of the staged image and the alt text byte-identical to the sidecar).
+`context/approval_queue.json`: **17 rows — 2 `pending` (`claimproof` day 7; `youtube-reauth`), 1 `approved` (`canopyproof`, idle day 14), 14 `resolved`**.
+0. **`youtube-reauth` — NEW, awaiting `@Simon reconnect youtube` (day 1).** `Launch Video Auth Check`
+   (daily 10:45Z) failed 2026-11-01: *Google token refresh failed: invalid_grant: Token has been expired or
+   revoked*. The stored refresh token in the repo `.env` no longer mints an access token, so the
+   launch-video pipeline cannot upload. Re-authorising is a **browser step only the founder can do**:
+   `node scripts/youtube-auth.mjs --url` prints a Google consent URL, he approves it, and
+   `node scripts/youtube-auth.mjs --code <code>` writes a fresh token. Nothing is pending a film today
+   (`detect.mjs --json` → `pending: []`, `embedPending: []`, `ledgerRows: 6`) and the six published films
+   are unaffected (oEmbed 200 ×6). Cost of silence: the **next** product ships without its film, the one
+   distribution asset that has worked. The script's own hint: if this recurs weekly, publish the Google
+   OAuth consent screen to Production.
+1. **`claimproof` — awaiting `@Simon approve ClaimProof` (day 7).** Recon 2026-10-26 (score **79**;
+   repeat 80 / incumbent friction 75 / WTP 90 / urgency 70), `VERTICAL_B` = `trades_service_ops`:
+   warranty-claim short-payment audit for HVAC/refrigeration shops. LLM/parse extraction reads the OEM
+   remittance + the filed claim into fields, and a deterministic engine re-derives the OEM's own published
+   payment schedule against what was actually paid, per line, with schedule version and page cited.
+   **$1.50/call** vs modelled **≈$0.22** (6.8× headroom). Scope excludes the human recovery chase; there
+   is no owned trade audience, so distribution would be search + the metered endpoint. Record:
+   `context/recon_proposals/2026-10-26_claimproof.md`. Reply `@Simon approve ClaimProof` or
+   `@Simon skip ClaimProof`. Cost of silence: the only scored build candidate sits unstarted while the
+   build line is empty for a twelfth day.
+2. **`canopyproof` — approved 2026-10-18, idle day 14.** Still only `01d02c3` (the EUDR geolocation audit
+   engine + known-answer tests, 8 files, dated 10-18 23:47–23:56): no route, no registry entry, nothing
+   live. Either it gets built this week or the approval is dropped and the row closed — a second full
+   idle week is the same as a no. Reply `@Simon build CanopyProof` or `@Simon drop CanopyProof`.
+3. **Direction — `distribution` vs `keep building`, raised 2026-10-22, day 11, not a queue row (a strategy
+   call, not a build gate).** Six live products, six launch films, 260 published articles, 62 days,
+   **$0 revenue**; nothing has touched the products in 31 h — not even the automated checker — so provable
+   outside visitors remain **0**; and the Friday growth check reports **Day-30 break-even MISS on four
+   products** with no fireable fallback. Every asset distribution needs exists.
+   Reply `@Simon switch to distribution` or `@Simon keep building`.
+
 _Last updated: 2026-10-31 (**15:30 sweep** — nothing built for an eleventh day, nothing proposed, queue unchanged: one build decision pending, one approved product idle thirteen days, one strategy call ten days old. New evidence for the strategy call: the Friday growth check scores the six live products and finds **four past their 30-day money checkpoint with $0 collected** (ledgerlink 51 d, facturgate 44, parcelproof 42, caseproof 39), no fireable fallback, and recommends KEEP rather than a hibernation the desk would have to take on its own).
 `context/approval_queue.json`: **16 rows — 1 `pending` (`claimproof`, day 6), 1 `approved` (`canopyproof`, idle day 13), 14 `resolved`**.
 0. **`claimproof` — awaiting `@Simon approve ClaimProof` (day 6).** Recon 2026-10-26 (score **79**; repeat 80 / incumbent
