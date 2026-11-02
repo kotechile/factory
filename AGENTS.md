@@ -57,6 +57,24 @@ DeepSeek serves exactly two ids — `deepseek-flash` and `deepseek-v4-pro`; the 
 `.agents/` record target model tiers (Claude 3.7/Opus, Sonnet/Flash, etc.) to pin once those
 providers' keys are added.
 
+**Gemini retired (owner cost directive, 2026-11-02).** No product or CI path may call Google
+`generativelanguage.googleapis.com`; the Google bill came from three places and all three now speak
+DeepSeek chat completions:
+
+- **Structured extraction** — `src/lib/calc/spendproof/extraction.ts` and
+  `src/lib/calc/ratchetproof/extraction.ts` run `deepseek-v4-pro` at temperature 0 with
+  `response_format: json_object`. Key: `SPENDPROOF_EXTRACTION_MODEL_KEY` /
+  `RATCHETPROOF_EXTRACTION_MODEL_KEY`, else `DEEPSEEK_API_KEY` (server-side deploy env only). The
+  response reader accepts `choices[0].message.content` and still parses the old Gemini envelope.
+- **Visual QA** — `scripts/visual-qa.mjs` (run by `scripts/verify-build.sh`) reviews screenshots on
+  `deepseek-flash`; key from `DEEPSEEK_API_KEY` or Supabase `factory_config.deepseek_api_key`, model
+  from `factory_config.visual_qa_model` (currently `deepseek-flash`). No key ⇒ the step SKIPS with a
+  warning, it never falls back to Gemini.
+- **`deepseek-v4-pro` is text-only.** Handed an image it returns empty content with no error, so
+  every vision path (render review, visual QA) is pinned to `deepseek-flash`. Reasoning tokens bill
+  inside `max_tokens`, so keep budgets generous (≥ 16k for a JSON record) rather than accept a
+  truncated answer.
+
 ## Product structure — subpaths under one deploy
 
 Every product ships to a subpath of the single Coolify app (`apps.giniloh.com`):
@@ -77,7 +95,7 @@ Every product ships to a subpath of the single Coolify app (`apps.giniloh.com`):
 4. **Register** the product in `src/products/registry.ts` (slug, name, status, description, route, webmcpTools, launchedAt, category).
 5. **WebMCP** — expose the tool via `navigator.modelContext.registerTool` (see `skills/webmcp_integration.md`).
 6. **Telemetry** — pass the product slug to `track(event, payload, "<slug>")`.
-7. **Gate** — `scripts/verify-build.sh` must pass (tsc → lint → tokens → vitest → build → Playwright → Gemini visual-QA).
+7. **Gate** — `scripts/verify-build.sh` must pass (tsc → lint → tokens → vitest → build → Playwright → DeepSeek visual-QA on `deepseek-flash`).
 8. **Push** — commit + push to `main`; Coolify auto-deploys; the product appears on the directory automatically.
 9. **Brag** — once the deploy is verified live, trigger the launch video so it lands with the
    product, not days later: `hermes cron run "Post-Ship Brag"`. The scheduled sweep
