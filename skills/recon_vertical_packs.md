@@ -401,7 +401,8 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 | `food_service_ops` | ✅ pack (2026-10-19) — scanned, **retired** | `restaurant invoice price variance food cost audit 2026 manual` | Incumbent (MarginEdge/MarketMan) owns the price-variance slice at the buyer's price |
 | `media_production_qc` | ✅ pack (2026-10-26) — scanned, **no build**, see pack | `delivery spec QC captions timestamps rejected 2026 post house` | free single-file checkers + paid delivery suites own the shape |
 | `trades_service_ops` | ✅ pack (2026-10-26) — scanned, ClaimProof at the gate, see pack | `work order invoice warranty claim reconciliation 2026 trades` | no editorial vertical for contractors — channel gap is the open risk |
-| `public_sector_grants` | grants.gov, state grant portals, uniform guidance | `grant reporting format rejection deadline 2026 manual reconcile` | procurement cycles; deterministic rules are published — verify incumbents |
+| `public_sector_grants` | ✅ pack (2026-11-02) — scanned, FFRProof at the gate, see pack | `grant reporting format rejection deadline 2026 manual reconcile` | free incumbents file, they do not audit — the freeze is on the *pre-flight arithmetic* |
+| `sales_order_service_level_otif` | ✅ pack (2026-11-02) — scanned, **no build**, see pack | `Walmart OTIF chargeback 2026 supplier dispute window audit` | the dispute-audit shape is already free (Warp) and per-claim cheap (iNymbus) |
 
 ## media_production_qc — timed-text / delivery-spec QC (first scan 2026-10-26; **no build**)
 
@@ -460,6 +461,55 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
   modelled **≈$0.22** (clears 3× with ~6.8× headroom; re-measure on the first live remittance). Score **79**
   (repeat 80 / friction 75 / WTP 90 / urgency 70). Record:
   `context/recon_proposals/2026-10-26_claimproof.md`.
+
+## public_sector_grants — federal award financial reporting (first scan 2026-11-02; FFRProof at the gate)
+
+- **Buyer & budget:** grants/finance manager at a small-to-mid federal award recipient (nonprofit, community health
+  center, school district, small municipality) holding 3–25 active awards with no grants-accounting platform. Budget
+  is real but tool-shaped: the alternative is a $2K–$40K/yr suite or an outsourced grant accountant.
+- **Dated trigger surface:** the **30-day filing clock** after each reporting period (SF-425; Q4 FY2026 due
+  2026-10-30, Q1 FY2027 due 2027-01-30); a delinquent report **blocks drawdowns** (OJP financial guide) and feeds a
+  **high-risk designation** under 2 CFR 200.208; the Uniform Guidance rewrite (proposed 2026-05-29) carries an
+  implementation date currently pointed at **2026-12-11** after the August continuing resolution — final rule
+  not yet issued, which is why the engine must read the award's terms, never a rule table it maintains.
+- **Measured pain:** the error taxonomy is practitioner-named, not vendor-shaped — drawdown amount reported as the
+  expenditure figure without reconciling (Cherry Bekaert), payment-system drawdowns not reconciled to the report
+  (Witts CPA, 2026-07-16), period reported instead of cumulative, dollars counted twice, match overstated
+  (business-software.com, 2026-10-19); a 2026 HHS-OIG review of one grantee found $696,017 unallowable and nearly
+  $5M unsupported with a $967,387 refund recommended (CharityTracker, 2026-09-07); 30 minutes per active grant per
+  month is the manual reconcile baseline (Instrumentl 2026).
+- **Incumbent / free check:** *free* — Grants.gov Workspace validates **application** forms pre-award only; the
+  payment system pre-populates lines 10a–10c; agencies publish instruction PDFs and free budget-vs-actual templates.
+  They file; none audits the recipient's own three documents against the form's arithmetic. *Paid* — grant suites
+  are platform-priced (entry $2K–$10K/yr, mid-market $10K–$40K, Sage Intacct $15K–$40K+), Euna Grants targets larger
+  orgs, Avila targets local governments; the human alternative is an outsourced grant accountant (rule 1).
+- **First scan (measured 2026-11-02):** **FFRProof** proposed, class **LLM/parse-backed**, **$1.50/call** vs modelled
+  **≈$0.17** (clears 3× with ~8.8× headroom; re-measure on the first live award package). Score **74** (repeat 75 /
+  friction 70 / WTP 70 / urgency 80). Channel rule is the weakest link — no editorial vertical for grant recipients.
+  Record: `context/recon_proposals/2026-11-02_ffrproof.md`.
+
+## sales_order_service_level_otif — retailer compliance chargebacks (first scan 2026-11-02; **no build**)
+
+- **Buyer & budget:** the owner or supply-chain lead of a CPG supplier shipping into Walmart/Target/Kroger — from a
+  $1M program up to enterprise. Budget exists: the chargebacks are already a P&L line.
+- **Dated trigger surface:** the **15–30-day dispute window** from posting (OTIF fines are AR invoices routed through
+  the compliance portal, not the AP dispute portal), the monthly/quarterly fine cycle, and annual threshold changes
+  (2026: 90% on-time prepaid, 98% collect-ready, 95% in-full, 3% of COGS per non-compliant case).
+- **Measured pain:** a $1M Walmart program at 92% OTIF carries **$18K–$24K/yr** in OTIF fines alone (ShipCalm 2026);
+  only **20–30%** of deductions are ever disputed and about **40%** of those are won (SPS Commerce 2026 via
+  Chargeflow) — so both the leak and the unclaimed recovery are measured.
+- **Incumbent / free check — the reason it does not build:** *free* — Warp's **Retailer Chargeback Audit** (in-window)
+  takes a deduction CSV/PDF, checks the fine against the stated percent, the reason code against MABD/arrival/quantity,
+  duplicates across rows and the deduction date against the window, sorts every row dispute/review/note, and copies
+  the dispute letter; the retailer's own scorecard is free inside the portal. *Paid* — iNymbus at **$0.40–$0.70/claim**
+  with a free audit front door; SupplyPike (SPS Commerce) sells prevention plus filing; HighRadius/Smyyth/RetailPath
+  at the enterprise end; ClearChain/Vendormint as flat-fee managed services.
+- **First scan (measured 2026-11-02):** the dispute-audit candidate died at the **free-incumbent rule** plus a
+  per-claim-cheap paid layer. Runner-up — forward-looking OTIF **exposure forecasting** from the open-PO book —
+  scored **71** and is not proposed: its input (appointment/MABD per PO) lives in the retailer's portal and the
+  scorecard already shows the running number. **Re-open trigger:** a machine-readable retailer compliance export, or
+  the free audit front door closing while per-claim pricing rises. Record:
+  `context/recon_proposals/2026-11-02_ffrproof.md` §6.
 
 ## Adding a pack
 New verticals open by adding a pack here (same six lines) and a row in `context/vertical_coverage.md`.

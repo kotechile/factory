@@ -3,6 +3,18 @@
  "source": "context/pending_approval.md",
  "items": [
   {
+   "id": "ffrproof",
+   "app": "FFRProof",
+   "kind": "build",
+   "state": "pending",
+   "headline": "Pre-flight audit for the federal financial report (SF-425) before it is filed",
+   "detail": "A model reads the award terms and the federal payment-system drawdown statement into fields; our own arithmetic cross-foots the report's four line identities, reconciles line 10a to the drawdown record, tests the required recipient match, and catches period-vs-cumulative and double-counted dollars. Every finding carries the form line and the source page. It never files or certifies for the recipient.",
+   "impact": "Recon 2026-11-02, first scan of public_sector_grants, score 74 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.17, so it clears the 3x margin rule with roughly 8.8x headroom. Weakest link named in the PRD: no owned audience for grant recipients. ClaimProof (2026-10-26) is still pending and CanopyProof (approved 2026-10-18) is still unbuilt, so this is a queue-ordering decision as well as a go/no-go.",
+   "reply": "@Simon approve FFRProof",
+   "opened": "2026-11-02",
+   "updated": "2026-11-02"
+  },
+  {
    "id": "claimproof",
    "app": "ClaimProof",
    "kind": "build",
@@ -216,5 +228,5 @@
    "updated": "2026-11-01"
   }
  ],
- "updated": "2026-11-01T15:40Z"
+ "updated": "2026-11-02T14:45Z"
 }

@@ -4,6 +4,28 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-02 (**weekly market recon — two verticals scanned** — the first scan of `public_sector_grants` produced one build candidate (FFRProof, score **74**) and the first scan of `sales_order_service_level_otif` retired the vertical with **no build** (the dispute-audit shape is already free). Queue **18 rows — 3 `pending` (`ffrproof` new, `claimproof` day 8, `youtube-reauth` day 2), 1 `approved` (`canopyproof`, idle day 15), 14 `resolved`**._
+`context/approval_queue.json`: **18 rows — 3 `pending` (`ffrproof` new; `claimproof` day 8; `youtube-reauth` day 2), 1 `approved` (`canopyproof`, idle day 15), 14 `resolved`**.
+
+0. **`ffrproof` — NEW, awaiting `@Simon approve FFRProof` (day 1).** Recon 2026-11-02 (score **74**;
+   repeat 75 / incumbent friction 70 / WTP 70 / urgency 80), `VERTICAL_A` = `public_sector_grants`: a
+   pre-flight audit for the federal financial report (SF-425) at a small award recipient. LLM/parse
+   extraction reads the award terms and the payment-system drawdown statement into fields, and a
+   deterministic engine cross-foots the form (10c = 10a − 10b; 10g = 10e + 10f; 10h = 10d − 10g;
+   10k = 10i − 10j), reconciles line 10a to the drawdown record, tests the required match, and catches
+   period-vs-cumulative and double-counted dollars — every finding with its form line and source page.
+   **$1.50/call** vs modelled **≈$0.17** (8.8× headroom). Never files or certifies for the recipient.
+   The other slot, `sales_order_service_level_otif`, produced **no build**: Warp's free chargeback audit
+   already sorts OTIF fines into disputable/not, and iNymbus charges $0.40–$0.70/claim with a free audit.
+   Record: `context/recon_proposals/2026-11-02_ffrproof.md`. Reply `@Simon approve FFRProof` or
+   `@Simon skip FFRProof`. Cost of silence: the build line stays empty (ClaimProof pending 8 days,
+   CanopyProof approved 15 days and unbuilt) while the next quarterly filing clock runs to 2027-01-30.
+1. **`claimproof` — still awaiting `@Simon approve ClaimProof` (day 8), unchanged.** See its row in
+   `context/approval_queue.json` and `context/recon_proposals/2026-10-26_claimproof.md`.
+2. **`canopyproof` — approved 2026-10-18, idle day 15, unchanged.** Engine committed, no route, nothing live.
+3. **`youtube-reauth` — awaiting `@Simon reconnect youtube` (day 2), unchanged.** No film can be uploaded
+   until the founder re-authorises the Google credential.
+
 _Last updated: 2026-11-01 (**15:30 sweep** — nothing built for a twelfth day, nothing proposed, and the first hard capability break in a week: the YouTube credential that publishes launch films has expired, so no film can be uploaded until the founder re-authorises. Queue **17 rows — 2 `pending` (`claimproof` day 7, `youtube-reauth` new), 1 `approved` (`canopyproof`, idle day 14), 14 `resolved`**. No traffic at all in 31 hours: the ~22-minute automated check that produced every "visitor" hit of the last week stopped at 10-31 08:32Z, so provable outside visitors remain **0**; articles **252 → 260**; the WordPress check's second finding today (an article's header image / alt text) is a **false positive**, measured — the live page carries a resized copy of the staged image and the alt text byte-identical to the sidecar).
 `context/approval_queue.json`: **17 rows — 2 `pending` (`claimproof` day 7; `youtube-reauth`), 1 `approved` (`canopyproof`, idle day 14), 14 `resolved`**.
 0. **`youtube-reauth` — NEW, awaiting `@Simon reconnect youtube` (day 1).** `Launch Video Auth Check`
