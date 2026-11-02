@@ -412,3 +412,25 @@ stays closed as reviewer noise. No `src/` change since `95c1e61` (2026-10-20) �
 build-blocking: `POST /api/agent/calculate {}` **500** (day 15), `/.well-known/ai-plugin.json` + `/openapi.json` **404**
 (baseline), migration `0004` (`events.traffic_class` column) unapplied (day 15), and `YOUTUBE_REFRESH_TOKEN`
 `invalid_grant` (launch-film uploads blocked until the owner re-authorizes — queued `youtube-reauth`).
+
+**2026-11-02 (16:35Z) — gate GREEN end to end on `1d71a69`, and the vision step's first clean run on the new provider.**
+`scripts/verify-build.sh` **exit 0** on a clean detached worktree of HEAD (`1d71a69`, the 15:35Z queue-reply fix) which is also the
+live container's `SOURCE_COMMIT` (`af8yqbwrrnyyfgs9wcg0intj-20261102T153805`, up 51 min at probe time). Dead-Supabase pair around
+the whole script so the Playwright run wrote no production telemetry — every insert logged `[telemetry] insert failed … fetch failed`
+and **111/111** specs still ran; `events` stayed at **15,254** rows. Clean worktree because the shared tree still carries another
+desk's 11 untracked `scripts/inspect-*` / `patch-*` / `analyze-*` probes (lint there would count their warnings). tsc clean · lint
+**0 errors / 7 warnings** (pre-existing) · design tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-11-02:
+`public_sector_grants`, `sales_order_service_level_otif` — the two verticals behind the FFRProof proposal `268dc4f`) · vitest
+**489/489** (36 files) · `next build` **52/52** pages · `copy:check` **0 new errors / 76 warnings (5 new)**, the same ParcelProof
+`observed-bracket` copy class as 10-26…11-01, with the launch-copy scan printing its skip (gitignored `content/launch_videos` absent
+in a clean clone, not silenced) · Playwright **111/111**.
+`visual-qa` again self-skipped under the dead address ("no DeepSeek key configured", exit 0 — the documented hole in rule 5), so it was
+re-run alone against the real config: **30/30 tiles PASS on `deepseek-flash`, exit 0**, 6/6 per product across 5 reviewed products.
+That is the **first clean vision run after the 2026-11-02 Gemini→DeepSeek migration**: the gate reads its key from Supabase
+`factory_config.deepseek_api_key`, so the reviewer works even though the app deploy still has no `DEEPSEEK_API_KEY`.
+**The migration's product-side half stays broken and is unchanged by this green build:** `POST /api/spendproof/extract` → **503
+`sp-extraction-unavailable`**, `POST /api/ratchetproof/audit` → **503 `rp-extraction-unavailable`** (the container carries
+`GEMINI_API_KEY` and no DeepSeek pair) — one owner env step, queued `extraction-key`. Standing defects unchanged: `POST
+/api/agent/calculate {}` **500** (day 16), `/.well-known/ai-plugin.json` + `/openapi.json` **404** (baseline), migration `0004`
+unapplied (day 16), `YOUTUBE_REFRESH_TOKEN` `invalid_grant` (`hermes cron doctor` still names `Launch Video Auth Check`; nothing
+pending, so no film is blocked mid-flight — queued `youtube-reauth`, day 2). Deploy verified after the record push.
