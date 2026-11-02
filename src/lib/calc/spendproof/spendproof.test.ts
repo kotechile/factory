@@ -154,7 +154,7 @@ describe("SpendProof — the PRD's five vectors", () => {
     // fabricated field, no degraded substitute. A TEXT run needs only the model key; a DOCUMENT run
     // is where the parse key is required, and that is where the loud door now stands.
     expect(() => resolveExtractionCredentials({})).toThrow(ExtractionUnavailableError);
-    const modelOnly = resolveExtractionCredentials({ GEMINI_API_KEY: "present-but-not-enough" });
+    const modelOnly = resolveExtractionCredentials({ DEEPSEEK_API_KEY: "present-but-not-enough" });
     expect(modelOnly.parseKey).toBeNull();
     try {
       requireParseKey(modelOnly);
@@ -460,23 +460,19 @@ const PARSE_UPLOAD_RECEIPT = { id: "job-7", status: "PENDING", error_code: null,
 const PARSED_MARKDOWN =
   "# Invoice\n\n| service | amount |\n| --- | --- |\n| Responses API | 180.00 |\n";
 const MODEL_ANSWER = {
-  candidates: [
+  choices: [
     {
-      content: {
-        parts: [
-          {
-            text: JSON.stringify({
-              provider: { value: "openai", provenance: "extracted" },
-              lines: [],
-            }),
-          },
-        ],
+      message: {
+        content: JSON.stringify({
+          provider: { value: "openai", provenance: "extracted" },
+          lines: [],
+        }),
       },
     },
   ],
 };
 
-const CREDENTIALS = { modelKey: "model", parseKey: "parse", model: "gemini-3.1-pro-preview" };
+const CREDENTIALS = { modelKey: "model", parseKey: "parse", model: "deepseek-v4-pro" };
 
 describe("SpendProof — extraction contract", () => {
   it("requires the model key, and leaves the parse key optional for a text run", () => {
@@ -486,12 +482,12 @@ describe("SpendProof — extraction contract", () => {
     ).toThrow(/SPENDPROOF_EXTRACTION_MODEL_KEY/);
     // A text run does not touch the parse service, so requiring the parse key would refuse work that
     // does not use it. The document path is where the loud door lives (requireParseKey below).
-    const textOnly = resolveExtractionCredentials({ GEMINI_API_KEY: "model" });
+    const textOnly = resolveExtractionCredentials({ DEEPSEEK_API_KEY: "model" });
     expect(textOnly.modelKey).toBe("model");
     expect(textOnly.parseKey).toBeNull();
     expect(() => requireParseKey(textOnly)).toThrow(/SPENDPROOF_PARSE_KEY/);
     const resolved = resolveExtractionCredentials({
-      GEMINI_API_KEY: "model",
+      DEEPSEEK_API_KEY: "model",
       LLAMAPARSE_API_KEY: "parse",
     });
     expect(resolved.modelKey).toBe("model");
@@ -513,7 +509,7 @@ describe("SpendProof — extraction contract", () => {
     const { transport, calls } = stubTransport(() => jsonResponse({}));
     const text = await parseDocumentToText({
       document: { text: "  OpenAI LLC invoice  ", name: "provider-invoice" },
-      credentials: { modelKey: "model", parseKey: null, model: "gemini-3.1-pro-preview" },
+      credentials: { modelKey: "model", parseKey: null, model: "deepseek-v4-pro" },
       transport,
     });
     expect(text).toBe("OpenAI LLC invoice");
@@ -568,7 +564,7 @@ describe("SpendProof — extraction contract", () => {
       transport,
     });
     const modelCall = calls[calls.length - 1];
-    const sent = JSON.parse(String(modelCall.body)).contents[0].parts[0].text as string;
+    const sent = JSON.parse(String(modelCall.body)).messages[0].content as string;
     expect(sent).toContain("Responses API");
     expect(sent).not.toContain("PENDING");
     expect(sent).not.toContain("job-7");
@@ -616,7 +612,7 @@ describe("SpendProof — extraction contract", () => {
     await expect(
       parseDocumentToText({
         document: { base64: Buffer.from("pdf").toString("base64"), name: "invoice.pdf" },
-        credentials: { modelKey: "model", parseKey: null, model: "gemini-3.1-pro-preview" },
+        credentials: { modelKey: "model", parseKey: null, model: "deepseek-v4-pro" },
         transport,
       }),
     ).rejects.toThrow(/SPENDPROOF_PARSE_KEY or LLAMAPARSE_API_KEY/);
@@ -670,7 +666,7 @@ describe("SpendProof — extraction contract", () => {
   it("reads a single object, a one-record array, and an object wrapped in prose", () => {
     const record = { provider: { value: "openai", provenance: "extracted" } };
     const envelope = (text: string) =>
-      JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] });
+      JSON.stringify({ choices: [{ message: { content: text } }] });
     expect(readStructuredJsonFromModelResponse(envelope(JSON.stringify(record)))).toEqual(record);
     expect(readStructuredJsonFromModelResponse(envelope(JSON.stringify([record])))).toEqual(record);
     expect(
@@ -683,7 +679,7 @@ describe("SpendProof — extraction contract", () => {
   it("refuses an array of records instead of merging them — the per-line answer this model actually gives", () => {
     const perLine = [1, 2, 3].map((n) => ({ service: { value: `line${n}`, provenance: "extracted" } }));
     const envelope = JSON.stringify({
-      candidates: [{ content: { parts: [{ text: JSON.stringify(perLine) }] } }],
+      choices: [{ message: { content: JSON.stringify(perLine) } }],
     });
     expect(() => readStructuredJsonFromModelResponse(envelope)).toThrow(
       /returned 3 records where ONE invoice record was required/,
@@ -692,7 +688,7 @@ describe("SpendProof — extraction contract", () => {
 
   it("refuses a non-record payload and a body that is not JSON at all", () => {
     const envelope = (text: string) =>
-      JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] });
+      JSON.stringify({ choices: [{ message: { content: text } }] });
     expect(() => readStructuredJsonFromModelResponse(envelope('"just a string"'))).toThrow(
       /not an invoice record/,
     );

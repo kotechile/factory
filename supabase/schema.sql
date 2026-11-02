@@ -17,13 +17,13 @@ alter table public.factory_config enable row level security;
 -- Seed (set real values via the Supabase dashboard or the SQL editor):
 --
 --   insert into public.factory_config (key, value) values
---     ('gemini_api_key',    '<your-gemini-api-key>'),
---     ('visual_qa_model',   'gemini-2.5-pro'),
+--     ('deepseek_api_key',  '<your-deepseek-api-key>'),
+--     ('visual_qa_model',   'deepseek-flash'),
 --     ('visual_qa_prompt',  '');  -- optional custom prompt; empty = default
 --
 -- Keys used by scripts/visual-qa.mjs:
---   gemini_api_key     — Gemini (Google AI Studio) API key for vision review
---   visual_qa_model    — Gemini model name (default gemini-2.5-pro)
+--   deepseek_api_key   — DeepSeek API key for the vision review (the Gemini key was retired 2026-11-02)
+--   visual_qa_model    — vision model name (default deepseek-flash; deepseek-v4-pro is text-only)
 --   visual_qa_prompt   — optional override for the default UI-review prompt
 
 -- Growth / kill-scale telemetry — written by src/lib/telemetry.ts (server-side).

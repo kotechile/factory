@@ -2,8 +2,11 @@
 // Visual QA — two modes (config read from Supabase factory_config at runtime):
 //   gate (default)      — PASS/FAIL review of each product screenshot against the
 //                         style guide. Fails the build on FAIL.
-//   suggest (--suggest) — asks Gemini for structured UI/UX improvement suggestions
+//   suggest (--suggest) — asks the vision model for structured UI/UX improvement suggestions
 //                         (JSON), appends them to context/design_backlog.md.
+//
+// The reviewer is DeepSeek `deepseek-flash` (vision-capable) since 2026-11-02; the Google Gemini
+// `generateContent` path was retired with the rest of the Gemini billing.
 //
 // Every shipped product surface is reviewed, one tile at a time: add the product to REVIEWED_PRODUCTS
 // below and its capture to tests/e2e/qa-screenshot.spec.ts when a product ships.
@@ -158,28 +161,45 @@ Return a JSON object in this exact shape:
 Suggest 3-5 improvements. Return ONLY the JSON object.`;
 
 /**
- * Sends one screenshot to Gemini and returns the raw verdict text.
+ * Sends one screenshot to the vision model and returns the raw verdict text.
  *
- * A single vision-model verdict is noisy: Gemini at temperature 0 has deterministically
+ * A single vision-model verdict is noisy: fixed at temperature 0 it has deterministically
  * false-flagged properly-padded badges ("zero horizontal padding") on an unchanged screenshot, and
  * read tight *wrapping* as *overlap*. A one-shot verdict must not hard-fail the build when every
  * deterministic check (tsc/lint/tokens/vitest/build/e2e) already passed, so a FAIL verdict is
  * retried with backoff — a genuine layout/contrast defect will be flagged again, a hallucinated one
  * usually will not. API/network errors still fail immediately.
  */
-async function reviewScreenshot({ url, geminiKey, prompt, generationConfig, imagePath, model }) {
+async function reviewScreenshot({
+  endpoint,
+  apiKey,
+  prompt,
+  imagePath,
+  model,
+  maxTokens,
+  jsonMode,
+  expectVerdict = true,
+}) {
   const image = readFileSync(imagePath);
   const body = (text) =>
     JSON.stringify({
-      contents: [
+      model,
+      messages: [
         {
-          parts: [
-            { text },
-            { inline_data: { mime_type: "image/png", data: image.toString("base64") } },
+          role: "user",
+          content: [
+            { type: "text", text },
+            {
+              type: "image_url",
+              image_url: { url: `data:image/png;base64,${image.toString("base64")}` },
+            },
           ],
         },
       ],
-      generationConfig,
+      temperature: 0,
+      max_tokens: maxTokens,
+      stream: false,
+      ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
     });
 
   // The last raw response's shape, kept for the diagnostic below: an unrecognized verdict used to be
@@ -187,18 +207,18 @@ async function reviewScreenshot({ url, geminiKey, prompt, generationConfig, imag
   let lastMeta = null;
 
   const call = async () => {
-    const res = await fetch(url, {
+    const res = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": geminiKey },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: body(prompt),
     });
     if (!res.ok) {
-      throw new Error(`Gemini API error ${res.status}: ${await res.text()}`);
+      throw new Error(`DeepSeek API error ${res.status}: ${await res.text()}`);
     }
     const data = await res.json();
-    const candidate = data.candidates?.[0];
-    lastMeta = { finishReason: candidate?.finishReason, usage: data.usageMetadata };
-    return (candidate?.content?.parts ?? []).map((p) => p.text).join("\n");
+    const choice = data.choices?.[0];
+    lastMeta = { finishReason: choice?.finish_reason, usage: data.usage };
+    return choice?.message?.content ?? "";
   };
 
   let verdict = await call();
@@ -207,7 +227,10 @@ async function reviewScreenshot({ url, geminiKey, prompt, generationConfig, imag
   // response, a stray preamble) is model noise, exactly like a hallucinated FAIL — it is not a finding,
   // and treating it as terminal makes the gate's result depend on which shape the model happened to
   // emit. Fail-closed is unchanged: three consecutive non-PASS verdicts still fail the step.
-  const needsRetry = (v) => /^FAIL/i.test(v.trim()) || !/^PASS/i.test(v.trim());
+  // Only the gate has a PASS/FAIL contract; suggest mode returns JSON, which is not a failed verdict
+  // and must not be paid for three times.
+  const needsRetry = (v) =>
+    expectVerdict && (/^FAIL/i.test(v.trim()) || !/^PASS/i.test(v.trim()));
   for (let attempt = 1; attempt < MAX_ATTEMPTS && needsRetry(verdict); attempt++) {
     const waitMs = 1000 * 2 ** (attempt - 2);
     console.log(
@@ -231,8 +254,8 @@ async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  let geminiKey = process.env.GEMINI_API_KEY; // env fallback for local dev
-  let model = process.env.VISUAL_QA_MODEL || "gemini-2.5-pro";
+  let apiKey = process.env.DEEPSEEK_API_KEY; // env fallback for local dev
+  let model = process.env.VISUAL_QA_MODEL || "deepseek-flash";
   let prompt = suggestMode ? SUGGEST_PROMPT : GATE_PROMPT;
 
   if (supabaseUrl && supabaseKey) {
@@ -241,7 +264,7 @@ async function main() {
       const { data, error } = await sb.from("factory_config").select("key, value");
       if (!error && data) {
         const cfg = Object.fromEntries(data.map((r) => [r.key, r.value]));
-        if (cfg.gemini_api_key) geminiKey = cfg.gemini_api_key;
+        if (cfg.deepseek_api_key) apiKey = cfg.deepseek_api_key;
         if (cfg.visual_qa_model) model = cfg.visual_qa_model;
         if (!suggestMode && cfg.visual_qa_prompt) prompt = cfg.visual_qa_prompt;
       } else if (error) {
@@ -252,9 +275,9 @@ async function main() {
     }
   }
 
-  if (!geminiKey) {
+  if (!apiKey) {
     console.warn(
-      "visual-qa: SKIPPED — no Gemini key configured. Add `gemini_api_key` to Supabase factory_config (or set GEMINI_API_KEY).",
+      "visual-qa: SKIPPED — no DeepSeek key configured. Add `deepseek_api_key` to Supabase factory_config (or set DEEPSEEK_API_KEY).",
     );
     return 0;
   }
@@ -286,14 +309,12 @@ async function main() {
     prompt += `\n\nStyle guide (${STYLEGUIDE}):\n${readFileSync(STYLEGUIDE, "utf8")}`;
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  // Output budget for the gate call. Thinking tokens count against it, and this model's review of a dense
-  // full-page screenshot spent 1965 thinking tokens on its own — i.e. the old 2048 budget left the verdict
-  // one token from truncation, which is how a truncated, verdict-less response got read as a FAIL. 4096 is
-  // ~2x the measured peak: enough headroom for the whole answer, still bounded (a larger budget only makes
-  // the gate slower).
-  const generationConfig = { temperature: 0, maxOutputTokens: suggestMode ? 4096 : 4096 };
-  if (suggestMode) generationConfig.responseMimeType = "application/json";
+  const endpoint = "https://api.deepseek.com/v1/chat/completions";
+  // Output budget for the gate call. DeepSeek bills reasoning inside `max_tokens`, and a dense
+  // full-page review spent ~2k reasoning tokens on its own — 4096 is ~2x the measured peak: enough
+  // headroom for the whole verdict, still bounded (a larger budget only makes the gate slower).
+  const maxTokens = 4096;
+  const jsonMode = suggestMode;
 
   if (!suggestMode) {
     const jobs = perProduct.flatMap((entry) =>
@@ -305,12 +326,13 @@ async function main() {
 
     const reviews = await mapLimit(jobs, TILE_CONCURRENCY, async ({ product, tile }) => {
       const verdict = await reviewScreenshot({
-        url,
-        geminiKey,
+        endpoint,
+        apiKey,
         prompt,
-        generationConfig,
         imagePath: tile,
         model,
+        maxTokens,
+        jsonMode,
       });
       return { product, tile, verdict: verdict.trim() };
     });
@@ -345,12 +367,14 @@ async function main() {
   }
 
   const review = await reviewScreenshot({
-    url,
-    geminiKey,
+    endpoint,
+    apiKey,
     prompt,
-    generationConfig,
     imagePath: SUGGEST_TARGET,
     model,
+    maxTokens,
+    jsonMode,
+    expectVerdict: false,
   });
 
   // --- Suggest mode: parse JSON, append to backlog ---

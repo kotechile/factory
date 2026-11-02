@@ -71,14 +71,13 @@ export interface ExtractedInvoiceRecord {
 
 /** The env vars that may carry the two credentials, in precedence order. */
 export const EXTRACTION_ENV = {
-  modelKey: ["SPENDPROOF_EXTRACTION_MODEL_KEY", "GEMINI_API_KEY"],
+  modelKey: ["SPENDPROOF_EXTRACTION_MODEL_KEY", "DEEPSEEK_API_KEY"],
   parseKey: ["SPENDPROOF_PARSE_KEY", "LLAMAPARSE_API_KEY"],
   model: ["SPENDPROOF_EXTRACTION_MODEL"],
 } as const;
 
 /** The model endpoint the structured extraction posts to (the provider is swappable via env). */
-export const EXTRACTION_MODEL_ENDPOINT =
-  "https://generativelanguage.googleapis.com/v1beta/models";
+export const EXTRACTION_MODEL_ENDPOINT = "https://api.deepseek.com/v1/chat/completions";
 
 export interface ExtractionCredentials {
   modelKey: string;
@@ -87,7 +86,7 @@ export interface ExtractionCredentials {
   model: string;
 }
 
-export const DEFAULT_EXTRACTION_MODEL = "gemini-3.1-pro-preview";
+export const DEFAULT_EXTRACTION_MODEL = "deepseek-v4-pro";
 
 /**
  * The loud failure when the deploy cannot extract.
@@ -739,13 +738,20 @@ export function readStructuredJsonFromModelResponse(rawBody: string): unknown {
   const candidates = (envelope as { candidates?: unknown }).candidates;
   const first = Array.isArray(candidates) ? (candidates[0] as Record<string, unknown>) : null;
   const parts = (first?.content as { parts?: unknown } | undefined)?.parts;
-  const text = Array.isArray(parts)
+  const legacy = Array.isArray(parts)
     ? parts
         .filter((part) => (part as { thought?: unknown }).thought !== true)
         .map((part) => (part as { text?: unknown }).text)
         .filter((value): value is string => typeof value === "string")
         .join("")
     : "";
+  // The live provider is DeepSeek (OpenAI-compatible): the answer is `choices[0].message.content`.
+  // The Gemini `candidates[0].content.parts[0].text` shape is still read so a fixture or a reply
+  // captured before the 2026-11-02 provider switch parses identically.
+  const choices = (envelope as { choices?: unknown }).choices;
+  const choice = Array.isArray(choices) ? (choices[0] as Record<string, unknown>) : null;
+  const content = (choice?.message as { content?: unknown } | undefined)?.content;
+  const text = typeof content === "string" && content.trim() ? content : legacy;
   if (!text.trim()) {
     throw new Error(
       "The extraction model returned no text for the invoice. Nothing was extracted and nothing was reconciled.",
@@ -805,19 +811,21 @@ export async function extractStructuredFields(input: {
   transport: ExtractionTransport;
 }): Promise<ExtractedInvoiceRecord> {
   const response = await input.transport({
-    url: `${EXTRACTION_MODEL_ENDPOINT}/${input.credentials.model}:generateContent`,
+    url: EXTRACTION_MODEL_ENDPOINT,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-goog-api-key": input.credentials.modelKey,
+      Authorization: `Bearer ${input.credentials.modelKey}`,
     },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: buildExtractionPrompt(input.documentText) }] }],
-      generationConfig: {
-        temperature: 0,
-        maxOutputTokens: 8192,
-        responseMimeType: "application/json",
-      },
+      model: input.credentials.model,
+      messages: [{ role: "user", content: buildExtractionPrompt(input.documentText) }],
+      temperature: 0,
+      // DeepSeek bills its reasoning tokens inside `max_tokens`, so the budget stays generous:
+      // a truncated answer is a loud failure, not a cheaper invoice read.
+      max_tokens: 16000,
+      response_format: { type: "json_object" },
+      stream: false,
     }),
   });
   if (!response.ok) {

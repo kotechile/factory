@@ -45,14 +45,13 @@ export const DECLARED_BILL_FIELDS = [
 ] as const;
 
 export const EXTRACTION_ENV = {
-  modelKey: ["RATCHETPROOF_EXTRACTION_MODEL_KEY", "GEMINI_API_KEY"],
+  modelKey: ["RATCHETPROOF_EXTRACTION_MODEL_KEY", "DEEPSEEK_API_KEY"],
   parseKey: ["RATCHETPROOF_PARSE_KEY", "LLAMAPARSE_API_KEY"],
   model: ["RATCHETPROOF_EXTRACTION_MODEL"],
 } as const;
 
-export const EXTRACTION_MODEL_ENDPOINT =
-  "https://generativelanguage.googleapis.com/v1beta/models";
-export const DEFAULT_EXTRACTION_MODEL = "gemini-3.1-pro-preview";
+export const EXTRACTION_MODEL_ENDPOINT = "https://api.deepseek.com/v1/chat/completions";
+export const DEFAULT_EXTRACTION_MODEL = "deepseek-v4-pro";
 
 export const PARSE_ENDPOINT_BASE = "https://api.cloud.llamaindex.ai/api/parsing";
 export const PARSE_UPLOAD_ENDPOINT = `${PARSE_ENDPOINT_BASE}/upload`;
@@ -445,7 +444,8 @@ function parseJsonEnvelope(text: string): unknown {
   }
 }
 
-/** Pulls the model's text out of a Gemini generateContent envelope. */
+/** Pulls the model's text out of the provider envelope (DeepSeek chat completions; the Gemini
+ * `candidates` shape is still accepted so a pre-switch fixture parses identically). */
 export function readStructuredJsonFromModelResponse(rawBody: string): unknown {
   let envelope: unknown;
   try {
@@ -458,13 +458,17 @@ export function readStructuredJsonFromModelResponse(rawBody: string): unknown {
   const candidates = (envelope as { candidates?: unknown }).candidates;
   const first = Array.isArray(candidates) ? (candidates[0] as Record<string, unknown>) : null;
   const parts = (first?.content as { parts?: unknown } | undefined)?.parts;
-  const text = Array.isArray(parts)
+  const legacy = Array.isArray(parts)
     ? parts
         .filter((part) => (part as { thought?: unknown }).thought !== true)
         .map((part) => (part as { text?: unknown }).text)
         .filter((value): value is string => typeof value === "string")
         .join("")
     : "";
+  const choices = (envelope as { choices?: unknown }).choices;
+  const choice = Array.isArray(choices) ? (choices[0] as Record<string, unknown>) : null;
+  const content = (choice?.message as { content?: unknown } | undefined)?.content;
+  const text = typeof content === "string" && content.trim() ? content : legacy;
   if (!text.trim()) {
     throw new Error(
       "The extraction model returned no text. Nothing was extracted and nothing was audited.",
@@ -479,19 +483,21 @@ async function callModel(input: {
   transport: ExtractionTransport;
 }): Promise<unknown> {
   const response = await input.transport({
-    url: `${EXTRACTION_MODEL_ENDPOINT}/${input.credentials.model}:generateContent`,
+    url: EXTRACTION_MODEL_ENDPOINT,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-goog-api-key": input.credentials.modelKey,
+      Authorization: `Bearer ${input.credentials.modelKey}`,
     },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: input.prompt }] }],
-      generationConfig: {
-        temperature: 0,
-        maxOutputTokens: 8192,
-        responseMimeType: "application/json",
-      },
+      model: input.credentials.model,
+      messages: [{ role: "user", content: input.prompt }],
+      temperature: 0,
+      // DeepSeek bills reasoning inside `max_tokens`: keep headroom so a truncated answer stays a
+      // loud failure rather than a cheaper read.
+      max_tokens: 16000,
+      response_format: { type: "json_object" },
+      stream: false,
     }),
   });
   if (!response.ok) {

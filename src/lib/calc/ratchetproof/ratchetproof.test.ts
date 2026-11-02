@@ -194,11 +194,11 @@ describe("RatchetProof — extraction is declared, and never derives a number", 
       RatchetProofExtractionUnavailableError,
     );
     try {
-      resolveExtractionCredentials({ GEMINI_API_KEY: "test-key" });
+      resolveExtractionCredentials({ DEEPSEEK_API_KEY: "test-key" });
     } catch (error) {
       expect(error).toBeInstanceOf(Error);
     }
-    const credentials = resolveExtractionCredentials({ GEMINI_API_KEY: "test-key" });
+    const credentials = resolveExtractionCredentials({ DEEPSEEK_API_KEY: "test-key" });
     expect(credentials.parseKey).toBeNull();
     expect(credentials.model).toBeTruthy();
   });
