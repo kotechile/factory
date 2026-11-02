@@ -4,6 +4,36 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-02 (**15:30 sweep**, Day-63 — the cost directive shipped and took two products down
+with it). **NEW BLOCKER, measured:** `POST /api/spendproof/extract` and `POST /api/ratchetproof/audit` both
+answer **503** — *"the deploy has no SPENDPROOF_EXTRACTION_MODEL_KEY or DEEPSEEK_API_KEY"* / *"…no
+RATCHETPROOF_EXTRACTION_MODEL_KEY or DEEPSEEK_API_KEY"*. Cause: `aaff6dc` (02:24Z) moved the extraction
+credential pair from `GEMINI_API_KEY` to `DEEPSEEK_API_KEY` (`src/lib/calc/spendproof/extraction.ts:74`,
+`src/lib/calc/ratchetproof/extraction.ts:48`) and the app container carries `GEMINI_API_KEY` but no
+DeepSeek key — so yesterday's **400** request-shape answer is today's **503** key answer. The value already
+sits in Supabase `factory_config.deepseek_api_key`; the fix is one Coolify env var, no code change. Also
+today: the weekly scan proposed **FFRProof** (74, `public_sector_grants`) and retired
+`sales_order_service_level_otif` with no build; one visitor-classed page view in 50 hours; articles
+260 → 266. Queue **19 rows — 4 `pending` (`extraction-key` NEW, `ffrproof` day 1, `claimproof` day 8,
+`youtube-reauth` day 2), 1 `approved` (`canopyproof`, idle day 15), 14 `resolved`**.
+`context/approval_queue.json`: **19 rows — 4 `pending` (`extraction-key` NEW; `ffrproof`; `claimproof`
+day 8; `youtube-reauth` day 2), 1 `approved` (`canopyproof`, idle day 15), 14 `resolved`**.
+
+0. **`extraction-key` — NEW, awaiting `@Simon add the deepseek key` (day 1).** SpendProof and RatchetProof
+   read documents through a model key resolved from the deploy env. The migration to DeepSeek changed which
+   key is read; the deploy has the old Google key and not the new one, so both products answer **503** on
+   their core action. Add `DEEPSEEK_API_KEY` to the Coolify app env (the value is already in Supabase
+   `factory_config.deepseek_api_key`) and redeploy. Cost of silence: two of six live products fail for every
+   visitor who uploads a document.
+1. **`ffrproof` — awaiting `@Simon approve FFRProof` (day 1).** Weekly scan 2026-11-02 (score **74**):
+   SF-425 pre-flight audit for small federal award recipients; `$1.50/call` vs modelled **≈$0.17**.
+   Reply `@Simon approve FFRProof` or `@Simon skip FFRProof`.
+2. **`claimproof` — awaiting `@Simon approve ClaimProof` (day 8), unchanged.**
+3. **`canopyproof` — approved 2026-10-18, idle day 15, unchanged.** Engine committed, no route, nothing live.
+   Reply `@Simon build CanopyProof` or `@Simon drop CanopyProof`.
+4. **`youtube-reauth` — awaiting `@Simon reconnect youtube` (day 2), unchanged.** No film can be uploaded
+   until the credential is re-minted; nothing is pending a film today.
+
 _Last updated: 2026-11-02 (**weekly market recon — two verticals scanned** — the first scan of `public_sector_grants` produced one build candidate (FFRProof, score **74**) and the first scan of `sales_order_service_level_otif` retired the vertical with **no build** (the dispute-audit shape is already free). Queue **18 rows — 3 `pending` (`ffrproof` new, `claimproof` day 8, `youtube-reauth` day 2), 1 `approved` (`canopyproof`, idle day 15), 14 `resolved`**._
 `context/approval_queue.json`: **18 rows — 3 `pending` (`ffrproof` new; `claimproof` day 8; `youtube-reauth` day 2), 1 `approved` (`canopyproof`, idle day 15), 14 `resolved`**.
 
