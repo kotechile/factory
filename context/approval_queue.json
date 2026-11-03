@@ -12,7 +12,7 @@
    "impact": "Recon 2026-11-02, first scan of public_sector_grants, score 74 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.17, so it clears the 3x margin rule with roughly 8.8x headroom. Weakest link named in the PRD: no owned audience for grant recipients. ClaimProof (2026-10-26) is still pending and CanopyProof (approved 2026-10-18) is still unbuilt, so this is a queue-ordering decision as well as a go/no-go.",
    "reply": "@Simon approve FFRProof",
    "opened": "2026-11-02",
-   "updated": "2026-11-02"
+   "updated": "2026-11-03"
   },
   {
    "id": "claimproof",
@@ -24,7 +24,7 @@
    "impact": "Recon 2026-10-26, score 79 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.22, so it clears the 3x margin rule. Weakest link named in the PRD: no owned audience for trade contractors. CanopyProof (approved 2026-10-18) is still unstarted, so this is a queue-ordering decision, not just a go/no-go.",
    "reply": "@Simon approve ClaimProof",
    "opened": "2026-10-26",
-   "updated": "2026-11-01"
+   "updated": "2026-11-03"
   },
   {
    "id": "canopyproof",
@@ -33,10 +33,10 @@
    "state": "approved",
    "headline": "Supplier geolocation pre-flight audit for the EU deforestation rules (EUDR)",
    "detail": "A model reads the declared fields out of supplier packs; overlap, declared-vs-computed area and scope are checked by our own geometry. Plan in five slices, S1 engine through S5 gate + deploy.",
-   "impact": "Build in progress since 2026-10-18. EUDR application date is 30 December 2026.",
+   "impact": "Build in progress since 2026-10-18 (idle day 16: engine committed, no route, not registered). EUDR application date is 30 December 2026.",
    "reply": "",
    "opened": "2026-10-12",
-   "updated": "2026-11-01"
+   "updated": "2026-11-03"
   },
   {
    "id": "extraction-key",
@@ -45,10 +45,11 @@
    "state": "pending",
    "headline": "The deploy has no DeepSeek key, so the two document-reading products answer 503",
    "detail": "The 2026-11-02 model migration (aaff6dc) changed the extraction credential pair from GEMINI_API_KEY to DEEPSEEK_API_KEY in src/lib/calc/spendproof/extraction.ts:74 and src/lib/calc/ratchetproof/extraction.ts:48. The app container carries GEMINI_API_KEY but neither DEEPSEEK_API_KEY nor SPENDPROOF_EXTRACTION_MODEL_KEY / RATCHETPROOF_EXTRACTION_MODEL_KEY, so both endpoints now answer 503 'the deploy has no ... key'. Yesterday the same probes answered 400 (sp-document-missing / rp-intervals-empty) because the Gemini key resolved first. The value already exists in Supabase factory_config.deepseek_api_key; no code change is needed.",
-   "impact": "Measured 2026-11-02 15:5xZ: POST /api/spendproof/extract -> 503 sp-extraction-unavailable, POST /api/ratchetproof/audit -> 503 rp-extraction-unavailable. Both products' core action (read a document, reconcile / audit it) is unusable until the deploy env carries the key.",
+   "impact": "Measured again 2026-11-03 15:3xZ (day 2): POST /api/spendproof/extract -> 503 sp-extraction-unavailable, POST /api/ratchetproof/audit -> 503 rp-extraction-unavailable. The container still carries GEMINI_API_KEY (39 ch) and no DEEPSEEK_API_KEY. The 11-02 build gate is GREEN on the migrated code (489 vitest / 111 Playwright / 52 pages / 30-30 vision tiles on deepseek-flash), so no code change is needed: one Coolify env var.",
    "reply": "@Simon add the model key  (Coolify app env: DEEPSEEK_API_KEY, value from factory_config.deepseek_api_key)",
    "opened": "2026-11-02",
-   "cost_of_silence": "Two of six live products fail on the only thing they do; every visitor who uploads an invoice gets an explicit error."
+   "cost_of_silence": "Two of six live products fail on the only thing they do; every visitor who uploads an invoice gets an explicit error.",
+   "updated": "2026-11-03"
   },
   {
    "id": "cms-legacy-posts",
@@ -237,8 +238,8 @@
    "impact": "Nothing is pending a film today (detect.mjs --json: pending [], embedPending [], ledgerRows 6), so no current launch is blocked and the six published films are unaffected (oEmbed 200 on all six ids). The cost of silence is on the NEXT product: it can ship, and its one proven distribution asset (a launch film embedded on the page) cannot be published. Its own script hint says a weekly recurrence means the Google OAuth consent screen is still in Testing and should be published to Production.",
    "reply": "@Simon reconnect youtube",
    "opened": "2026-11-01",
-   "updated": "2026-11-01"
+   "updated": "2026-11-03"
   }
  ],
- "updated": "2026-11-02T15:58Z"
+ "updated": "2026-11-03T15:40Z"
 }
