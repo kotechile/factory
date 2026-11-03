@@ -434,3 +434,29 @@ That is the **first clean vision run after the 2026-11-02 Gemini→DeepSeek migr
 /api/agent/calculate {}` **500** (day 16), `/.well-known/ai-plugin.json` + `/openapi.json` **404** (baseline), migration `0004`
 unapplied (day 16), `YOUTUBE_REFRESH_TOKEN` `invalid_grant` (`hermes cron doctor` still names `Launch Video Auth Check`; nothing
 pending, so no film is blocked mid-flight — queued `youtube-reauth`, day 2). Deploy verified after the record push.
+
+**2026-11-03 (16:35Z) — gate GREEN end to end on `905caef`; the only red on the board is still the missing key, not the build.**
+`scripts/verify-build.sh` **exit 0** ("Verification passed") on a clean detached worktree of HEAD = `origin/main` = `905caef`, which is
+also the live container's image tag (`af8yqbwrrnyyfgs9wcg0intj-20261103T153319`, up 59 min). HEAD is docs-only (`context/STATUS.md`,
+`context/approval_queue.json`, `context/daily_voice_journal/2026-11-03.md`, `context/pending_approval.md`) — **zero `src/` or `scripts/`
+diff since `1d71a69`**, so this is the same code that passed on 11-02, re-measured. Dead-Supabase pair around the whole script
+(`NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:9` + dummy keys) so Playwright wrote no production telemetry; every insert logged
+`[telemetry] insert failed … fetch failed` and **111/111** specs still ran. tsc clean · lint **0 errors / 7 warnings** (pre-existing) ·
+design tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-11-02: `public_sector_grants`,
+`sales_order_service_level_otif`) · vitest **489/489** (36 files) · `next build` **52/52** pages · `copy:check` **0 new errors / 76
+warnings (5 new)**, the same ParcelProof `observed-bracket` copy class, launch-copy scan printing its gitignored-absence skip ·
+Playwright **111/111** (1.0 m). `visual-qa` self-skipped under the dead address ("no DeepSeek key configured", exit 0), re-ran
+standalone: **30/30 tiles PASS on `deepseek-flash`, exit 0** (6/6 each on facturgate, parcelproof, caseproof, spendproof,
+ratchetproof; three attempt-1 "unrecognized verdict" retries cleared).
+**Harness lesson (new, not a repo defect):** the first attempt of the script died in `next build` with
+`TurbopackInternalError: Symlink [project]/node_modules is invalid, it points out of the filesystem root`. A worktree with
+`node_modules` **symlinked** to the main tree passes `tsc`/`eslint` (which is why the 2026-09-12 entry recommends a symlink) but
+Turbopack refuses to resolve a package through a link that leaves the project root. Use `cp -al <main>/node_modules ./node_modules`
+(hardlink copy, ~1 s, no extra disk) for any worktree that has to reach `next build`, or copy the tree out of `/tmp` first. Exit 1 on
+attempt 1 was therefore mine, not `main`'s — recorded here so the next watchdog does not re-learn it mid-run.
+**Deploy and live state unchanged from the 11-03 sweep:** pages `/showcase /spendproof /ratchetproof /quarterline
+/.well-known/mcp.json` **200**; `/openapi.json` **404** (baseline); `POST /api/spendproof/extract` **503
+`sp-extraction-unavailable`** and `POST /api/ratchetproof/audit` **503 `rp-extraction-unavailable`** (day 2 — the container still
+carries only `GEMINI_API_KEY`); `POST /api/agent/calculate {}` **500** (day 17); `apps.giniloh.com/showcase` **503** (known).
+Queue unchanged: `extraction-key`, `ffrproof`, `claimproof`, `youtube-reauth` pending. No product failure occurred, so no SOP patch
+was required this run; the only standing ask remains the owner's one-field key paste.
