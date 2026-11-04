@@ -4,6 +4,30 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-04 (**15:30 sweep**, Day-65 — nothing shipped, and one thing still broken in the same
+place). **Still red, day 3:** `POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and
+`POST /api/ratchetproof/audit` **503** `rp-extraction-unavailable`; container
+`af8yqbwrrnyyfgs9wcg0intj-20261103T164055` carries `GEMINI_API_KEY` (39 ch) and **no**
+`DEEPSEEK_API_KEY` / per-product override. The fix stays one Coolify env var from Supabase
+`factory_config.deepseek_api_key`, no code change — the 11-02 build gate is green on the migrated code.
+**`hermes cron doctor` 3 issues / 78 jobs** (was 1): the standing YouTube credential (`invalid_grant`,
+day 4) **plus two Tuesday-evening evergreen runs that died on a provider `HTTP 402: Insufficient
+Balance`** at 19:26Z / 19:30Z on 11-03 — the smart_home piece had already published (19:19Z), the
+workstation piece was **lost** (no 11-03 evergreen row); every run after 20:18Z, including six today,
+succeeded, so it was a minutes-long credit window, next attempt 11-10. **No product code in 24 h** —
+thirteenth day since `95c1e61` (10-20); HEAD == `origin/main` == `396c538`, deployed and `/showcase`
+200. **Traffic `events` 15,255 → 15,258** (+3) / sessions **9,171**: three single-page `page_view` rows
+classed `visitor` on fresh one-view sessions — ledgerlink 11-03T21:35Z, factory 11-04T07:23Z,
+facturgate 11-04T12:46Z (intervals 9.8 h / 5.4 h, **not** the ~22-minute scheduler); visitor-classed
+**122 → 125 events / 69 → 72 sessions**; `agent_query` **8** (last 10-03); **provable outside visitors
+0**. **Publishing:** articles **278 → 289** (+11 / 24 h, **6 today**), editorial HEAD `3343ff0` ==
+origin, pressflow `…-20261104T133954` serves **289 == 289**, `/healthz` 200, three fronts 200. **Videos**
+`detect` `pending: []` / `embedPending: []` / `ledgerRows: 6`, six oEmbed **200**, posters **6/6 200**.
+**Money:** checkout **200 `cs_live_a1PyQXg0…`**, Stripe live `livemode:true` $0.00, **revenue $0 real**
+— and `agent/calculate {}` **500** day 18, `events.traffic_class` absent (`42703`) → migration `0004`
+day 18. **Queue 19 rows — 4 `pending` (`extraction-key` day 3, `ffrproof` day 3, `claimproof` day 10,
+`youtube-reauth` day 4), 1 `approved` (`canopyproof` idle day 17), 14 `resolved`.**
+
 _Last updated: 2026-11-03 (**15:30 sweep**, Day-64 — quiet, and one gate better than yesterday). The first
 gated build on the DeepSeek code came back **GREEN** (`1d71a69`, 11-02 16:35Z: 489 vitest / 111
 Playwright / 52 pages / **30-30 vision tiles on `deepseek-flash`**), so the cost migration is sound in
