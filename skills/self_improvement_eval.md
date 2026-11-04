@@ -461,3 +461,24 @@ attempt 1 was therefore mine, not `main`'s — recorded here so the next watchdo
 carries only `GEMINI_API_KEY`); `POST /api/agent/calculate {}` **500** (day 17); `apps.giniloh.com/showcase` **503** (known).
 Queue unchanged: `extraction-key`, `ffrproof`, `claimproof`, `youtube-reauth` pending. No product failure occurred, so no SOP patch
 was required this run; the only standing ask remains the owner's one-field key paste.
+
+**2026-11-04 (16:35Z) — gate GREEN end to end on `956fbad`; nothing to fix in the tree, the two document products are on day 3 of the same missing-key 503.**
+`scripts/verify-build.sh` **exit 0** ("Verification passed") run in the main checkout at HEAD = `origin/main` = `956fbad` (tracked tree
+clean; only another desk's untracked `scripts/*.mjs` probes and `.scratch/` sit on disk, none staged). HEAD is docs-only (`context/STATUS.md`,
+`context/approval_queue.json`, `context/daily_voice_journal/2026-11-04.md`, `context/pending_approval.md`,
+`skills/self_improvement_eval.md`) — **zero `src/` or `scripts/` diff since `1d71a69`**, so the same code that went green on 11-02/11-03,
+re-measured. Dead-Supabase pair around the whole script (`NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:9` + dummy keys) so Playwright wrote no
+production telemetry; every insert logged `[telemetry] insert failed … fetch failed` and **111/111** specs still ran (1.2 m). tsc clean · lint
+**0 errors / 10 warnings** (7 on committed code, plus 3 unused-var warnings from another desk's untracked `scripts/*.mjs` probes — lint
+scans the workspace, not the commit) · design tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-11-02: `public_sector_grants`,
+`sales_order_service_level_otif`) · vitest **489/489** (36 files) · `next build` **52/52** pages (compiled 11.6 s) · `copy:check` **0 new
+errors / 76 warnings (5 new)** on `src` plus **6 warnings (6 new)** on the now-present `content/launch_videos` (the scan that prints a skip in
+a clean clone ran here because the runtime dir exists). `visual-qa` self-skipped under the dead address (no DeepSeek key in that env, exit 0 —
+the documented hole in rule 5) and was re-run standalone against the real config: **30/30 tiles PASS on `deepseek-flash`, exit 0**, 6/6 each on
+facturgate, parcelproof, caseproof, spendproof, ratchetproof (one attempt-1 "unrecognized verdict" retry cleared).
+**Deploy and live state are unchanged and still the only red:** container `af8yqbwrrnyyfgs9wcg0intj-20261104T153442` carries
+`SOURCE_COMMIT=956fbad…` (image tag == HEAD); `/showcase /spendproof /ratchetproof /parcelproof /ledgerlink /facturgate /caseproof` **200**;
+`POST /api/spendproof/extract {}` **503 `sp-extraction-unavailable`** and `POST /api/ratchetproof/audit {}` **503 `rp-extraction-unavailable`**
+(day 3 — the container still carries only `GEMINI_API_KEY`); `POST /api/agent/calculate {}` **500** (day 18); `/openapi.json` **404**
+(baseline); `/.well-known/mcp.json` **v2.2.0 / 11 tools**; `apps.giniloh.com/showcase` **503** (known host move). No build or runtime failure
+occurred, so no SOP patch was required this run; the only ask that reaches the owner remains the one-field key paste.
