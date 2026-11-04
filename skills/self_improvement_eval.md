@@ -476,8 +476,10 @@ errors / 76 warnings (5 new)** on `src` plus **6 warnings (6 new)** on the now-p
 a clean clone ran here because the runtime dir exists). `visual-qa` self-skipped under the dead address (no DeepSeek key in that env, exit 0 —
 the documented hole in rule 5) and was re-run standalone against the real config: **30/30 tiles PASS on `deepseek-flash`, exit 0**, 6/6 each on
 facturgate, parcelproof, caseproof, spendproof, ratchetproof (one attempt-1 "unrecognized verdict" retry cleared).
-**Deploy and live state are unchanged and still the only red:** container `af8yqbwrrnyyfgs9wcg0intj-20261104T153442` carries
-`SOURCE_COMMIT=956fbad…` (image tag == HEAD); `/showcase /spendproof /ratchetproof /parcelproof /ledgerlink /facturgate /caseproof` **200**;
+**Deploy and live state are unchanged and still the only red:** the gate ran while the live container
+`af8yqbwrrnyyfgs9wcg0intj-20261104T153442` carried `SOURCE_COMMIT=956fbad…` (image tag == HEAD); this entry's record push `afa6369`
+redeployed and was verified at 16:39:56Z as container `…-20261104T163902` with image tag `afa6369…`, `/showcase` **200**;
+`/showcase /spendproof /ratchetproof /parcelproof /ledgerlink /facturgate /caseproof` **200**;
 `POST /api/spendproof/extract {}` **503 `sp-extraction-unavailable`** and `POST /api/ratchetproof/audit {}` **503 `rp-extraction-unavailable`**
 (day 3 — the container still carries only `GEMINI_API_KEY`); `POST /api/agent/calculate {}` **500** (day 18); `/openapi.json` **404**
 (baseline); `/.well-known/mcp.json` **v2.2.0 / 11 tools**; `apps.giniloh.com/showcase` **503** (known host move). No build or runtime failure
