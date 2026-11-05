@@ -484,3 +484,29 @@ redeployed and was verified at 16:39:56Z as container `…-20261104T163902` with
 (day 3 — the container still carries only `GEMINI_API_KEY`); `POST /api/agent/calculate {}` **500** (day 18); `/openapi.json` **404**
 (baseline); `/.well-known/mcp.json` **v2.2.0 / 11 tools**; `apps.giniloh.com/showcase` **503** (known host move). No build or runtime failure
 occurred, so no SOP patch was required this run; the only ask that reaches the owner remains the one-field key paste.
+
+**2026-11-05 (16:35Z) — gate GREEN end to end on `6bbb481`; nothing new broke, and the two reds on the board are both owner-side and unchanged (missing model key day 4, expired YouTube token day 5).**
+`scripts/verify-build.sh` **exit 0** ("Verification passed") in the main checkout at HEAD = `origin/main` = `6bbb481` (tracked tree clean; only
+another desk's untracked `scripts/*.mjs` probes and `.scratch/` sit on disk, none staged). HEAD is docs-only (`context/STATUS.md`,
+`context/approval_queue.json`, the three `context/daily_voice_journal/2026-11-0{3,4,5}.md`, `context/pending_approval.md`,
+`skills/self_improvement_eval.md`) — **zero `src/` or `scripts/` diff since `1d71a69`**, so this is the same code that passed on 11-02..11-04,
+re-measured. Dead-Supabase pair around the whole script (`NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:9` + dummy keys) so Playwright wrote no
+production telemetry; every insert logged `[telemetry] insert failed … fetch failed` and **111/111** specs still ran (1.1 m). tsc clean · lint
+**0 errors / 10 warnings** (7 in committed code, 3 in another desk's untracked `.scratch/probe-events.mjs`, `scripts/analyze-verticals.mjs`,
+`scripts/patch-total-comp.mjs`) · design tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-11-02:
+`public_sector_grants`, `sales_order_service_level_otif`) · vitest **489/489** (36 files) · `next build` **52/52** pages (compiled 20.0 s) ·
+`copy:check` **0 new errors / 76 warnings (5 new)** on `src` plus **6 warnings (6 new)** on the present `content/launch_videos` (the
+gitignored-absence skip did not fire because the runtime dir exists). `visual-qa` self-skipped under the dead address (no DeepSeek key in that
+env, exit 0 — the documented hole in rule 5) and was re-run standalone against the real config: **30/30 tiles PASS on `deepseek-flash`, exit 0**,
+6/6 each on facturgate, parcelproof, caseproof, spendproof, ratchetproof, no retries reported.
+**Deploy already carries HEAD, so this run needed no rebuild:** container `af8yqbwrrnyyfgs9wcg0intj-20261105T153355` has image tag ==
+`SOURCE_COMMIT` == `6bbb481…`, `COOLIFY_FQDN=apps.aichieve.net`, up 58 min. Live probes: `/showcase /spendproof /ratchetproof /parcelproof
+/ledgerlink /facturgate /caseproof` **200**, `/` **307**, `/.well-known/mcp.json` **200 v2.2.0 / 11 tools** (endpoint
+`https://apps.aichieve.net/api/agent/calculate`), `/.well-known/ai-plugin.json` + `/openapi.json` **404** (baseline), `apps.giniloh.com/showcase`
+**503** (known host move). `POST /api/checkout {cpa_monthly, spendproof}` **200 `cs_live_`** (live money path intact).
+**The two open reds are unchanged and both owner-side:** `POST /api/spendproof/extract {}` **503 `sp-extraction-unavailable`** and
+`POST /api/ratchetproof/audit {}` **503 `rp-extraction-unavailable`** (day 4 — the container still carries only `GEMINI_API_KEY`; the DeepSeek
+value already sits in Supabase `factory_config.deepseek_api_key`), and `hermes cron doctor` still fails `Launch Video Auth Check` with
+`invalid_grant` (`YOUTUBE_REFRESH_TOKEN` expired, day 5; nothing pending a film, so no launch is blocked mid-flight) — queue rows `extraction-key`
+and `youtube-reauth`. `POST /api/agent/calculate {}` **500** (day 19, standing). No build or runtime failure occurred, so no SOP patch was
+required this run.
