@@ -4,6 +4,24 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-05 (**15:30 sweep**, Day-66 — nothing shipped, nothing new broke, and the meter
+logged nothing at all). **Still red, day 4:** `POST /api/spendproof/extract` **503**
+`sp-extraction-unavailable` and `POST /api/ratchetproof/audit` **503** `rp-extraction-unavailable`;
+container `af8yqbwrrnyyfgs9wcg0intj-20261104T164022` carries `GEMINI_API_KEY` and **no**
+`DEEPSEEK_API_KEY` / per-product override. The fix stays one Coolify env var from Supabase
+`factory_config.deepseek_api_key`, no code change — the 11-02 build gate is green on the migrated code.
+**`hermes cron doctor` 3 issues / 78 jobs** (unchanged): the standing YouTube credential
+(`invalid_grant`, failed again today 10:45Z, day 5) plus the two stale 11-03 evergreen `HTTP 402:
+Insufficient Balance` stamps (next attempt 11-10); no new failure today, every editorial run green.
+**No product code** — third day since `aaff6dc` (11-02), fourteenth since `95c1e61` (10-20);
+HEAD == `origin/main` == `7022de0`, deployed and `/showcase` 200. **Traffic: `events` 15,258 /
+sessions 9,171 — ZERO new rows in 26.8 h** (last row `facturgate page_view` 11-04T12:46Z, visitor);
+visitor-classed **125 events / 72 sessions** unchanged; `agent_query` **8** (last 10-03); **provable
+outside visitors 0**. **Publishing:** articles **289 → 301** (+12 / 24 h, **6 today**), editorial HEAD
+`cd5102e` == origin, pressflow `…-20261105T133426` serves **301 == 301**, `/healthz` 200, Verify Gate
+ok 14:05Z, WordPress Draft Sweep ok 14:20Z, three fronts 200. **Videos** `detect` `pending: []` /
+`embedPending: []` / `ledgerRows: 6`, six oEmbed **200**, posters **6/6 200**.
+
 _Last updated: 2026-11-04 (**15:30 sweep**, Day-65 — nothing shipped, and one thing still broken in the same
 place). **Still red, day 3:** `POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and
 `POST /api/ratchetproof/audit` **503** `rp-extraction-unavailable`; container
