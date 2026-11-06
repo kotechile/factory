@@ -508,5 +508,39 @@ env, exit 0 — the documented hole in rule 5) and was re-run standalone against
 `POST /api/ratchetproof/audit {}` **503 `rp-extraction-unavailable`** (day 4 — the container still carries only `GEMINI_API_KEY`; the DeepSeek
 value already sits in Supabase `factory_config.deepseek_api_key`), and `hermes cron doctor` still fails `Launch Video Auth Check` with
 `invalid_grant` (`YOUTUBE_REFRESH_TOKEN` expired, day 5; nothing pending a film, so no launch is blocked mid-flight) — queue rows `extraction-key`
-and `youtube-reauth`. `POST /api/agent/calculate {}` **500** (day 19, standing). No build or runtime failure occurred, so no SOP patch was
-required this run.
+and `youtube-reauth`. `POST /api/agent/calculate {}` **500** (day 19, standing).
+
+**2026-11-06 (16:40Z) — gate GREEN end to end on `d17dd80`; the day's damage was elsewhere: the model account hit "Insufficient Balance" four times and the daily sweep was one of the casualties.**
+`scripts/verify-build.sh` **exit 0** ("Verification passed") in the main checkout at HEAD = `origin/main` = `d17dd80` (tracked tree clean; only
+another desk's untracked `scripts/*.mjs` probes and `.scratch/` on disk, none staged). HEAD is docs-only (`skills/self_improvement_eval.md`) on
+top of `6bbb481`, so this is the same code that passed 11-02..11-05, re-measured. Dead-Supabase pair around the whole script so Playwright wrote
+no production telemetry (every insert logged `fetch failed`) and **111/111** specs still ran (1.0 m). tsc clean · lint **0 errors / 10 warnings**
+(7 in committed code; 3 in another desk's untracked `.scratch/probe-events.mjs`, `scripts/analyze-verticals.mjs`, `scripts/patch-total-comp.mjs`)
+· design tokens clean · verticals **33 in sync** · recon cadence ok (newest scan 2026-11-02: `public_sector_grants`,
+`sales_order_service_level_otif`) · vitest **489/489** (36 files) · `next build` **52/52** pages (compiled 12.8 s) · `copy:check` **0 new errors /
+76 warnings (5 new)** on `src` + **6 warnings (6 new)** on the present `content/launch_videos`. `visual-qa` self-skipped under the dead address
+(no DeepSeek key in that env, exit 0 — the documented hole in rule 5); re-run standalone against the real config: **30/30 tiles PASS on
+`deepseek-flash`, exit 0**, 6/6 each on facturgate, parcelproof, caseproof, spendproof, ratchetproof, no retries.
+**No rebuild needed:** container `af8yqbwrrnyyfgs9wcg0intj-20261105T163607` carries image tag == `SOURCE_COMMIT` == `d17dd80…`,
+`COOLIFY_FQDN=apps.aichieve.net`, up 24 h. Live: `/showcase /spendproof /ratchetproof /parcelproof /ledgerlink /facturgate /caseproof
+/sitemap.xml` **200**, `/` **307**, `/.well-known/mcp.json` **200 v2.2.0 / 11 tools** (sha `ae5ac25e…`, unchanged), `/openapi.json` **404**
+(baseline), `apps.giniloh.com/showcase` **503** (known host move). `POST /api/checkout {cpa_monthly, spendproof}` **200 `cs_live_`**.
+**Reds, in the order they cost us something today:**
+1. **Model-account credit (NEW, the day's real loss):** four scheduled runs died on `RuntimeError: HTTP 402: Insufficient Balance` —
+`Full Pipeline: last_mile_routing_fleet_carbon` 11:35Z, `Full Pipeline: concentrated_equity_portfolio_capital` 12:00Z,
+`Full Pipeline: consumer_asset_repair_replace_tco` 12:30Z, and **`Daily Proactive Sweep` 15:30Z**. The 15:30 traceback is from
+`_final_response_from_result` (the final summarising call), but no `context/daily_voice_journal/2026-11-06.md` exists and no factory commit
+landed, so the sweep produced **nothing durable** — no journal, no Slack post. `WordPress Draft Sweep` 14:19Z and `Post-Ship Brag` 16:30Z were
+`ok`, and this run's own model calls succeeded at 16:31Z, so the credit is **intermittent across at least five hours**, not a dead account.
+The two 11-06 articles (`resilient_home_assets` 10:30 slot, `career_velocity_equity_engineering` 11:00 slot) were published before the first 402
+and are on their reader fronts; the three later editorial runs have no artifact.
+2. **`Editorial Verify Gate` red (NEW, editorial repo):** `scripts/verify.sh` exit 1 at editorial HEAD `5f569a0`, four failures in
+`scripts/test_illustration_overlay.py` (subject-map ranking, type off the subject, near-empty frame inset, no-free-space reporting) — committed
+code from the recent overlay work, not caused by any article run (the 11-06 calendar rows name the same red). Not patchable from this repo; the
+editorial desk owns it.
+3. **Owner-side, unchanged:** `POST /api/spendproof/extract {}` **503 `sp-extraction-unavailable`** and `POST /api/ratchetproof/audit {}` **503
+`rp-extraction-unavailable`** (day 5 — container still carries only `GEMINI_API_KEY`; value already in Supabase `factory_config.deepseek_api_key`),
+`Launch Video Auth Check` **invalid_grant** (day 6; nothing pending a film), `POST /api/agent/calculate {}` **500** (day 20, standing).
+`hermes cron doctor` = **8 issues / 78 jobs** (4 live 402s, editorial gate, YouTube, 2 stale 11-03 402 stamps). No **build** failure occurred, so
+the only SOP patch this run is the 402 pitfall in `skills/factory-daily-sweep.md` (the "minutes-long window" framing is now wrong: one day, four
+failures, five hours apart, sweeping the daily sweep itself away).
