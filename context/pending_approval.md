@@ -4,6 +4,32 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-07 (**15:30 sweep**, Day-68 — the 11-06 report was never delivered: the model
+account ran dry and killed four scheduled runs, this daily sweep among them). **NEW top ask —
+`model-credit`:** `HTTP 402: Insufficient Balance` killed 11-06 11:35Z `last_mile_routing_fleet_carbon`,
+12:00Z `concentrated_equity_portfolio_capital`, 12:30Z `consumer_asset_repair_replace_tco` and the
+15:30Z `Daily Proactive Sweep` (which therefore wrote no journal, no commit and no post); the balance
+read 11-07 is **$6.60** (`is_available: true`), no 402 today. Reply `@Simon credit topped up`. **Still
+red, day 6:** `POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and
+`POST /api/ratchetproof/audit` **503** `rp-extraction-unavailable`; container
+`af8yqbwrrnyyfgs9wcg0intj-20261106T170811` carries `GEMINI_API_KEY` and **no** `DEEPSEEK_API_KEY` —
+one Coolify env var from Supabase `factory_config.deepseek_api_key`, no code change, queued
+`extraction-key` (reply `@Simon add the model key`). **YouTube day 7** (`invalid_grant`, seven in a
+row; nothing pending a film), queued `youtube-reauth`. **`hermes cron doctor` 8 issues / 78 jobs**,
+including a NEW `Editorial Verify Gate` exit 1 (four failing `test_illustration_overlay.py` tests,
+editorial repo code, no article affected — editorial desk owns it). **Traffic `events` 15,258 →
+15,261** / sessions **9,171 → 9,173** — three ParcelProof single-page `visitor` rows on 11-06
+(09:45:39, 19:44:06, 22:03:18Z), the same automated-check shape as 11-02/11-03; zero rows today;
+**provable outside visitors 0**; `agent_query` 8 (last 10-03). **Publishing:** articles **301 → 319**
+(+18 / 48 h, 5 today), editorial HEAD `4c9014b` == origin, pressflow serves **319 == 319**, fronts
+200. **No product code — fifth day since `aaff6dc` (11-02)**; HEAD == `origin/main` == `c1aa15a`,
+deployment 3791 finished 11-06 17:09Z, `/showcase` 200. **Videos** `pending: []` / `embedPending: []` /
+`ledgerRows: 6`, six oEmbed **200**, posters **6/6 200**. **Queue 20 rows — 5 `pending`
+(`model-credit` NEW, `extraction-key` d6, `ffrproof` d6, `claimproof` d13, `youtube-reauth` d7),
+1 `approved` (`canopyproof` idle d20, engine only, no route), 14 `resolved`.** **Also open, P2:**
+`agent/calculate {}` 500 (day 21); migration `0004` (day 21); editorial delivery-audit false-positive
+class; stale `PAUSED_2026-10-15.md`; Traefik ACME `hermes.aichieve.net` (cert to 2026-12-02).
+
 _Last updated: 2026-11-05 (**15:30 sweep**, Day-66 — nothing shipped, nothing new broke, and the meter
 logged nothing at all). **Still red, day 4:** `POST /api/spendproof/extract` **503**
 `sp-extraction-unavailable` and `POST /api/ratchetproof/audit` **503** `rp-extraction-unavailable`;
