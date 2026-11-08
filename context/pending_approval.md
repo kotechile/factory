@@ -4,6 +4,32 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-08 (**15:30 sweep**, Day-69). **Top ask — `model-credit` is now urgent: the
+model account fell from $6.60 (11-07 15:30Z) to 3.94 USD (11-08 15:30Z, `is_available: true`,
+topped_up 3.94), i.e. ≈$2.66 spent in 24 h and about 1.5 days of runway, zero on or about 11-10. No
+`HTTP 402` in the last 24 h.** Reply `@Simon credit topped up`, or switch on auto-recharge. **Still
+red, day 7:** `POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and
+`POST /api/ratchetproof/audit` **503** `rp-extraction-unavailable`; container
+`af8yqbwrrnyyfgs9wcg0intj-20261107T163820` (image `ca9b2ff`) carries `GEMINI_API_KEY` and **no**
+`DEEPSEEK_API_KEY` — one Coolify env var from Supabase `factory_config.deepseek_api_key` (35 ch), no
+code change, queued `extraction-key` (reply `@Simon add the model key`). **YouTube day 8**
+(`invalid_grant`; nothing pending a film), queued `youtube-reauth`. **`hermes cron doctor` 7 issues /
+78 jobs**: five stale 402 stamps (11-03 ×2, 11-06 ×3), `Editorial Verify Gate` exit 1 today 14:05Z
+(third day, four failing `test_illustration_overlay.py` tests, editorial repo, no article affected),
+YouTube. **Traffic `events` 15,261 → 15,262** / sessions **9,173 → 9,174** — one ParcelProof
+single-page `visitor` row 2026-11-07T16:09:25Z (`98b93abe`), the same automated-check shape as
+11-02/03/06; zero rows today; **provable outside visitors 0**; `agent_query` 8 (last 10-03).
+**Publishing:** articles **319 → 327** (+8 / 24 h, 3 today), editorial HEAD `244959e` == origin,
+pressflow serves **327 == 327**, fronts 200. **No product code — sixth day since `aaff6dc` (11-02)**;
+HEAD == `origin/main` == `ca9b2ff`, container image == `SOURCE_COMMIT`, `/showcase` 200, manifest
+v2.2.0 / 11 tools `ae5ac25e…`, sitemap 31. Build gate last **GREEN 11-07 16:40Z on `65f2354`**
+(489 / 111 / 52 / visual 30/30). **Videos** `pending: []` / `embedPending: []` / `ledgerRows: 6`, six
+oEmbed **200**, posters **6/6**. **Revenue $0 real.** **Queue 20 rows — 5 `pending` (`model-credit`
+d1, `extraction-key` d7, `ffrproof` d7, `claimproof` d14, `youtube-reauth` d8), 1 `approved`
+(`canopyproof` idle d21), 14 `resolved`**; stamp `2026-11-08T15:40Z`. **P2:** `agent/calculate {}`
+500 (day 22), migration `0004` (day 22), editorial delivery-audit false-positive class, stale
+`PAUSED_2026-10-15.md`, Traefik ACME `hermes.aichieve.net` (cert 2026-12-02).
+
 _Last updated: 2026-11-07 (**15:30 sweep**, Day-68 — the 11-06 report was never delivered: the model
 account ran dry and killed four scheduled runs, this daily sweep among them). **NEW top ask —
 `model-credit`:** `HTTP 402: Insufficient Balance` killed 11-06 11:35Z `last_mile_routing_fleet_carbon`,

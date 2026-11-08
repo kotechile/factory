@@ -7,8 +7,8 @@
       "app": "",
       "kind": "ops",
       "state": "pending",
-      "headline": "The model account ran out of credit twice in two days and is down to $6.60",
-      "detail": "The scheduled desk runs on one prepaid model account. On 2026-11-06 four runs died on 'HTTP 402: Insufficient Balance' between 11:35Z and 15:30Z, including the Daily Proactive Sweep, which therefore wrote no journal, no commit and no Slack post. Three article runs were lost the same day. The balance endpoint read 2026-11-07 15:3xZ: is_available true, total_balance 6.60 USD (topped_up 6.60, granted 0.00). No 402 occurred on 11-07. Fix is an owner payment step plus, if the provider offers it, auto-recharge, so a dry balance cannot silently delete scheduled work.",
+      "headline": "The model account is down to $3.94 — about a day and a half of runway — and it already silenced one daily report",
+      "detail": "The scheduled desk runs on one prepaid model account. On 2026-11-06 four runs died on 'HTTP 402: Insufficient Balance' between 11:35Z and 15:30Z, including the Daily Proactive Sweep, which therefore wrote no journal, no commit and no Slack post, and three article runs were lost the same day. The balance endpoint read 2026-11-07 15:30Z: 6.60 USD. It read 2026-11-08 15:30Z: 3.94 USD (topped_up 3.94, granted 0.00) — about $2.66 spent in 24 h, i.e. roughly 1.5 days of runway, zero around 2026-11-10. No 402 occurred in the last 24 h. Fix is an owner payment step plus, ideally, auto-recharge so the fleet cannot silently stop. Cost of nothing: the daily sweep, the build and growth watchdogs and every editorial run stop producing output, and no report reaches you.",
       "impact": "Measured 2026-11-07: the account holds $6.60, i.e. roughly one day of fleet at the 11-06 burn shape (four failures across five hours before the balance moved). Cost of doing nothing: the next dry spell silently deletes scheduled runs, including the daily report, with no error the founder sees.",
       "reply": "@Simon credit topped up",
       "opened": "2026-11-07",
@@ -56,7 +56,7 @@
       "kind": "ops",
       "state": "pending",
       "headline": "The deploy has no DeepSeek key, so the two document-reading products answer 503",
-      "detail": "The 2026-11-02 model migration (aaff6dc) changed the extraction credential pair from GEMINI_API_KEY to DEEPSEEK_API_KEY in src/lib/calc/spendproof/extraction.ts:74 and src/lib/calc/ratchetproof/extraction.ts:48. The app container carries GEMINI_API_KEY but neither DEEPSEEK_API_KEY nor SPENDPROOF_EXTRACTION_MODEL_KEY / RATCHETPROOF_EXTRACTION_MODEL_KEY, so both endpoints now answer 503 'the deploy has no ... key'. Yesterday the same probes answered 400 (sp-document-missing / rp-intervals-empty) because the Gemini key resolved first. The value already exists in Supabase factory_config.deepseek_api_key; no code change is needed.",
+      "detail": "The 2026-11-02 model migration (aaff6dc) changed the extraction credential pair from GEMINI_API_KEY to DEEPSEEK_API_KEY in src/lib/calc/spendproof/extraction.ts:74 and src/lib/calc/ratchetproof/extraction.ts:48. The app container carries GEMINI_API_KEY but neither DEEPSEEK_API_KEY nor SPENDPROOF_EXTRACTION_MODEL_KEY / RATCHETPROOF_EXTRACTION_MODEL_KEY, so both endpoints now answer 503 'the deploy has no ... key'. Yesterday the same probes answered 400 (sp-document-missing / rp-intervals-empty) because the Gemini key resolved first. The value already exists in Supabase factory_config.deepseek_api_key; no code change is needed. Day 7 measured 2026-11-08: both endpoints still 503, container af8yqbwrrnyyfgs9wcg0intj-20261107T163820 carries GEMINI_API_KEY and no DEEPSEEK_API_KEY.",
       "impact": "Measured again 2026-11-07 15:3xZ (day 6): both probes still 503, container c1aa15a still carries only GEMINI_API_KEY. Measured again 2026-11-03 15:3xZ (day 2): POST /api/spendproof/extract -> 503 sp-extraction-unavailable, POST /api/ratchetproof/audit -> 503 rp-extraction-unavailable. The container still carries GEMINI_API_KEY (39 ch) and no DEEPSEEK_API_KEY. The 11-02 build gate is GREEN on the migrated code (489 vitest / 111 Playwright / 52 pages / 30-30 vision tiles on deepseek-flash), so no code change is needed: one Coolify env var.",
       "reply": "@Simon add the model key  (Coolify app env: DEEPSEEK_API_KEY, value from factory_config.deepseek_api_key)",
       "opened": "2026-11-02",
@@ -253,5 +253,5 @@
       "updated": "2026-11-07"
     }
   ],
-  "updated": "2026-11-07T15:40Z"
+  "updated": "2026-11-08T15:40Z"
 }
