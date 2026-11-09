@@ -4,6 +4,17 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-09 (**weekly market recon — two verticals scanned, no build from either** — the
+second scan of `warehouse_automation_robotics_capex` and of `supplier_risk_reshoring_decision`, the two
+oldest scanned dates in the ledger. Both produced candidates that cleared the 60-point threshold and both
+died at the **free/owned-incumbent rule**: `RaaSBreakEven` **63** (a vendor calculator owns the front door
+and CaseProof already does the buyer-side re-run in that vertical) and `DutyProof` **70** (CustomsGenius
+bulk-recomputes duty across a whole ACE file in its paid app; Caspian audits every entry against 100+
+rules with a broker sign-off). **Nothing new to approve this week.** The blocking facts are unchanged and
+are on their own rows: `model-credit` is now **$1.66** (2026-11-09 14:30Z, from $3.94 on 11-08, ≈$2.28/day,
+hours of runway), `claimproof` day 15, `ffrproof` day 8, `canopyproof` approved and unbuilt since 10-18,
+`extraction-key` day 8, `youtube-reauth` day 9. Record: `context/recon_proposals/2026-11-09_dutyproof_no-build.md`._
+
 _Last updated: 2026-11-08 (**15:30 sweep**, Day-69). **Top ask — `model-credit` is now urgent: the
 model account fell from $6.60 (11-07 15:30Z) to 3.94 USD (11-08 15:30Z, `is_available: true`,
 topped_up 3.94), i.e. ≈$2.66 spent in 24 h and about 1.5 days of runway, zero on or about 11-10. No

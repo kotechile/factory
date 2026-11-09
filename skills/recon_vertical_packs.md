@@ -244,6 +244,18 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
 - **Funnel risk:** low on filters 1–4. Real risks: scope creep (accept pasted/CSV line items only — no
   PDF/OCR extraction) and rule 5 (an unstated vendor cost line must report `unstated` and block a pass
   verdict, never be defaulted). Verified 2026-09-21 — see `context/recon_proposals/2026-09-21_caseproof.md`.
+- **Second scan (measured 2026-11-09) — no new build, and the pack correction to carry forward:** the
+  fresh angle in-window is the **financing** decision, not payback. Published 2026 RaaS rates: AMRs
+  **$550–$2,500/robot/month**, goods-to-person **$1,600–$2,200**, heavy autonomous pickers
+  **$1,900–$3,200**, pay-per-pick **$0.06–$0.15** (OrderPilots); purchase **$25,000–$150,000/unit**
+  (PickTheRobot; Robotics Center) and lease payments **$600–$5,500/unit/month** (CHG-MERIDIAN). The
+  industry KPI is **cost per pick**: manual **$0.35–$0.55**, AMR-assisted **$0.15–$0.25**, robotic
+  **$0.08–$0.12** (Robotics Center 2026). A standalone lease-vs-buy-vs-RaaS model scored **63**
+  (repeat 65 / friction 20 / WTP 85 / urgency 85) and was dropped at the **free-incumbent rule** — the
+  RaaS vendors publish the same comparison and **CaseProof already performs the buyer-side re-run in
+  this vertical**, so a second product is duplicate arithmetic. Do not propose a financing calculator
+  here; if demand persists past **2026-12-31**, add a mode to CaseProof. Re-scan result recorded in
+  `context/recon_proposals/2026-11-09_dutyproof_no-build.md` §6.
 
 ## meio_working_capital_tco
 - **Trigger surface:** freight-rate indices (Freightos/BAI), carrier surcharge tables, CSCMP/Gartner
@@ -289,6 +301,26 @@ sources; `seed` entries are hypotheses to verify in the first scan (never cite a
   case (re-run a supplier's quoted landed cost against the buyer's own basis) on a dated escalation.
   Dated triggers confirmed: §301 exclusions to **2026-11-10**; Chinese-rate escalation **to 44% by
   Nov 2026**; 12.5% forced-labor duty since **2026-07-24**.
+- **Second scan (measured 2026-11-09) — the re-open was taken and failed again, for a new reason.**
+  The dated escalation arrived (all **178 §301 China exclusions** lapse **11:59 p.m. ET 2026-11-09**;
+  entries filed from 2026-11-10 lose 9903.88.69 / 9903.88.70 and pay 25% Lists 1–3 / 7.5% List 4A on
+  top of MFN, no phase-in — Coppersmith, Strix, TariffLens, Thomson Reuters, all in-window; no USTR
+  extension announced at scan time). **Do not build the forward model:** pricing tomorrow's entries
+  needs a live HTS/Chapter-99 rate feed, and 2026 alone changed that stack three times (IEEPA voided
+  2026-02-24, Section 122 surcharge Feb–Jul, 12.5% forced-labour duty from 2026-07-24), so a vendored
+  table is a fabricated number under rule 5. The **look-back** version — **DutyProof**, auditing duty
+  already paid on filed CBP 7501 entries (line arithmetic `duty == value × printed rate`, Chapter 99
+  stacking vs entry date, MPF bounds in force on the entry date, PSC 300-day / protest 180-day clock) —
+  scored **70** (repeat 80 / friction 25 / WTP 80 / urgency 100) and died at the **owned-incumbent
+  rule**: CustomsGenius bulk-recomputes duty "across a whole ACE file" in its paid app, Caspian audits
+  every entry against 100+ rules with a broker sign-off and has filed $40M+ in duty refunds in 15
+  months, Strix sells a PSC assessment, and HTS Hero has announced automatic auditing inside its paid
+  plan. Free tier is five tariff calculators. **Measured extraction cost (2026-11-09): ≈$0.0013 per
+  entry page** (427 prompt / 2,747 completion tokens on `deepseek-v4-pro`, 44 s) — the LLM band floor
+  is ~380× that, so the 3× rule cannot bind on extraction; budget ≥ 8k `max_tokens` or the reasoning
+  tokens consume the whole call and return null content. Re-open only if the cheap self-serve bulk
+  layer closes upward or an importer-facing liquidation feed appears.
+  Record: `context/recon_proposals/2026-11-09_dutyproof_no-build.md`.
 
 ## enterprise_ai_finops
 - **Trigger surface:** FinOps Foundation (State of FinOps), provider invoice/pricing exports (OpenAI,

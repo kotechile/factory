@@ -7,12 +7,12 @@
       "app": "",
       "kind": "ops",
       "state": "pending",
-      "headline": "The model account is down to $3.94 — about a day and a half of runway — and it already silenced one daily report",
+      "headline": "The model account is down to $1.66 — hours of runway, and it already silenced one daily report",
       "detail": "The scheduled desk runs on one prepaid model account. On 2026-11-06 four runs died on 'HTTP 402: Insufficient Balance' between 11:35Z and 15:30Z, including the Daily Proactive Sweep, which therefore wrote no journal, no commit and no Slack post, and three article runs were lost the same day. The balance endpoint read 2026-11-07 15:30Z: 6.60 USD. It read 2026-11-08 15:30Z: 3.94 USD (topped_up 3.94, granted 0.00) — about $2.66 spent in 24 h, i.e. roughly 1.5 days of runway, zero around 2026-11-10. No 402 occurred in the last 24 h. Fix is an owner payment step plus, ideally, auto-recharge so the fleet cannot silently stop. Cost of nothing: the daily sweep, the build and growth watchdogs and every editorial run stop producing output, and no report reaches you.",
-      "impact": "Measured 2026-11-07: the account holds $6.60, i.e. roughly one day of fleet at the 11-06 burn shape (four failures across five hours before the balance moved). Cost of doing nothing: the next dry spell silently deletes scheduled runs, including the daily report, with no error the founder sees.",
+      "impact": "Measured 2026-11-09 14:30Z: the account holds $1.66 (topped_up 1.66, granted 0.00) — down from $3.94 on 2026-11-08, i.e. ≈$2.28/day and hours of runway, zero today or tomorrow. Four runs already died on HTTP 402 on 2026-11-06, including the Daily Proactive Sweep, which therefore wrote no journal, no commit and no Slack post. Cost of doing nothing: the next dry spell silently deletes scheduled runs — the weekly recon you are reading is one of them.",
       "reply": "@Simon credit topped up",
       "opened": "2026-11-07",
-      "updated": "2026-11-07"
+      "updated": "2026-11-09"
     },
     {
       "id": "ffrproof",
