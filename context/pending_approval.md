@@ -4,6 +4,31 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-09 (**15:30 sweep**, Day-70). **Top ask — `model-credit` is now measured in hours, not days: the
+model account holds 1.59 USD (2026-11-09 15:30Z, `is_available: true`, topped_up 1.59), down from 3.94 on
+11-08 and 1.66 at today's 14:37Z recon — ≈$2.35 spent in 24 h, so roughly 16 hours of runway and zero on or
+about 2026-11-10 07:30Z, inside tomorrow's publishing block. No `HTTP 402` in the last 24 h.** Reply
+`@Simon credit topped up`, and switch on auto-recharge so this stops recurring. **Still red, day 8:**
+`POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and `POST /api/ratchetproof/audit` **503**
+`rp-extraction-unavailable`; container `af8yqbwrrnyyfgs9wcg0intj-20261109T143709` (image `dcadc4a`) carries
+`GEMINI_API_KEY` and **no** `DEEPSEEK_API_KEY` — one Coolify env var from Supabase
+`factory_config.deepseek_api_key` (35 ch), no code change, queued `extraction-key` (reply `@Simon add the model
+key`). **YouTube day 9** (`invalid_grant` today 10:45Z; nothing pending a film), queued `youtube-reauth`.
+**Weekly recon `dcadc4a` 14:37Z — two verticals, no build:** `DutyProof` 70 and `RaaSBreakEven` 63 both cleared
+60 and died at the free/owned-incumbent rule; nothing new to approve this week. **`hermes cron doctor` 7 issues /
+78 jobs**: five stale 402 stamps (11-03 ×2, 11-06 ×3), `Editorial Verify Gate` exit 1 today 14:05Z (fourth day,
+four failing `test_illustration_overlay.py` tests; the repo is also **2 commits ahead of its origin**, so
+pressflow serves **331** of **333**), YouTube. **Traffic `events` 15,262 → 15,265** / sessions **9,174 → 9,177** —
+three single-page `visitor` rows (parcelproof 12:19:34Z, facturgate 14:10:07Z, facturgate 15:05:18Z), all on
+brand-new single-view sessions, i.e. the automated-check shape; **provable outside visitors 0**; `agent_query` 8
+(last 10-03). **Publishing:** articles **327 → 333** (+6 today), three fronts 200. **No product code — seventh day
+since `aaff6dc` (11-02)**; HEAD == `origin/main` == `dcadc4a`, container image == `SOURCE_COMMIT`, `/showcase`
+200, manifest v2.2.0 / 11 tools `ae5ac25e…`, sitemap 31. Build gate last **GREEN 11-08 16:37Z on `029b09a`**
+(489 / 111 / 52 / visual 30/30). **Videos** `pending: []` / `embedPending: []` / `ledgerRows: 6`, six oEmbed
+**200**, posters **6/6**. **Revenue $0 real.** **Queue 20 rows — 5 `pending` (`model-credit` d2,
+`extraction-key` d8, `ffrproof` d8, `claimproof` d15, `youtube-reauth` d9), 1 `approved` (`canopyproof` idle
+d22), 14 `resolved`**; stamp `2026-11-09T15:40Z`.
+
 _Last updated: 2026-11-09 (**weekly market recon — two verticals scanned, no build from either** — the
 second scan of `warehouse_automation_robotics_capex` and of `supplier_risk_reshoring_decision`, the two
 oldest scanned dates in the ledger. Both produced candidates that cleared the 60-point threshold and both
