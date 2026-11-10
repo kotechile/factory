@@ -4,6 +4,27 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-10 (**15:30 sweep**, Day-71). **The model account ran dry exactly when the last report
+said it would — eight scheduled runs died on `HTTP 402: Insufficient Balance` between 2026-11-09T19:39Z and
+2026-11-10T13:01Z (both of 11-09's evening evergreens, then today's six weekly Full Pipelines at 10:32, 11:00,
+11:30, 12:00, 12:30 and 13:01Z) — so the desk published **ZERO articles today**, the first zero day of the run
+(`articles` 333 → 337, and all four new rows are from 11-09 evening). The account has since been refilled: it
+holds **9.95 USD** at 15:31Z (topped_up 9.95, granted 0.00), up from 1.59 yesterday — at ≈$2.35/day that is
+≈4 days, zero on or about **2026-11-14**. `model-credit` is **closed**; the open ask is now `auto-recharge`
+(reply `@Simon auto-recharge on`) because nothing yet prevents the next dry-out.** **Still red, day 9:**
+`POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and `POST /api/ratchetproof/audit` **503**
+`rp-extraction-unavailable`; container `af8yqbwrrnyyfgs9wcg0intj-20261109T163643` (image `19092a5`) carries
+`GEMINI_API_KEY` and **no** `DEEPSEEK_API_KEY` — one Coolify env var from Supabase
+`factory_config.deepseek_api_key`, no code change, queued `extraction-key` (reply `@Simon add the model key`).
+**YouTube day 10** (`invalid_grant` today 10:46Z; nothing pending a film), queued `youtube-reauth`.
+**`hermes cron doctor` 16 issues / 16 jobs**: 13 are 402 stamps (the 8 above + 5 stale 11-03/11-06),
+`Editorial Verify Gate` exit 1 14:05Z (fifth day, four failing `test_illustration_overlay.py` tests; the
+pressflow reader has caught up — 337 == 337 == 337, image `8eb2012` == HEAD), `WordPress Draft Sweep` exit 1
+14:21Z (six giniloh posts in the CMS not yet in its sitemap = rebuild lag, plus the known delivery-audit
+false-positive class), YouTube. Only one scheduled job ran `ok` today: Post-Ship Brag 15:30Z. Queue now
+**21 rows — 5 `pending` (`auto-recharge` NEW, `extraction-key` d9, `ffrproof` d9, `claimproof` d16,
+`youtube-reauth` d10), 1 `approved` (`canopyproof` idle d23), 15 `resolved`**; stamp `2026-11-10T15:40Z`.
+
 _Last updated: 2026-11-09 (**15:30 sweep**, Day-70). **Top ask — `model-credit` is now measured in hours, not days: the
 model account holds 1.59 USD (2026-11-09 15:30Z, `is_available: true`, topped_up 1.59), down from 3.94 on
 11-08 and 1.66 at today's 14:37Z recon — ≈$2.35 spent in 24 h, so roughly 16 hours of runway and zero on or

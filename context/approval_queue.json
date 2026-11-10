@@ -3,28 +3,29 @@
   "source": "context/pending_approval.md",
   "items": [
     {
-      "id": "model-credit",
+      "id": "auto-recharge",
       "app": "",
       "kind": "ops",
       "state": "pending",
-      "headline": "The model account is down to $1.59 — about 16 hours of runway, and it already silenced one daily report",
-      "detail": "The scheduled desk runs on one prepaid model account. On 2026-11-06 four runs died on 'HTTP 402: Insufficient Balance' between 11:35Z and 15:30Z, including the Daily Proactive Sweep, which therefore wrote no journal, no commit and no Slack post, and three article runs were lost the same day. The balance endpoint read 2026-11-07 15:30Z: 6.60 USD; 2026-11-08 15:30Z: 3.94 USD; 2026-11-09 15:30Z: 1.59 USD (topped_up 1.59, granted 0.00) — about $2.35 spent in 24 h, i.e. roughly 16 hours of runway, zero on or about 2026-11-10 07:30Z, inside the 06:00–08:35Z editorial block. No 402 occurred in the last 24 h. Fix is an owner payment step plus, ideally, auto-recharge so the fleet cannot silently stop. Cost of nothing: the daily sweep, the build and growth watchdogs and every editorial run stop producing output, and no report reaches you.",
-      "impact": "Measured 2026-11-09 15:30Z: the account holds $1.59 (topped_up 1.59, granted 0.00) — down from $3.94 on 2026-11-08 and $1.66 at the 14:37Z recon, i.e. ≈$2.35/day and about 16 hours of runway: zero tomorrow morning. Four runs already died on HTTP 402 on 2026-11-06, including the Daily Proactive Sweep, which therefore wrote no journal, no commit and no Slack post. Cost of doing nothing: the next dry spell silently deletes scheduled runs — tomorrow's article block and the 15:30 report are the first casualties.",
-      "reply": "@Simon credit topped up",
-      "opened": "2026-11-07",
-      "updated": "2026-11-09"
+      "headline": "Top-ups keep running out: switch on auto-recharge so the desk cannot go silent again",
+      "detail": "Measured 2026-11-10 15:31Z: the model account holds 9.95 USD (topped_up 9.95, granted 0.00), refilled after it hit zero. This dry-out cost eight scheduled runs on 'HTTP 402: Insufficient Balance' between 2026-11-09T19:39Z and 2026-11-10T13:01Z and produced the first zero-article publishing day of the run; the 2026-11-06 dry-out cost four runs including the daily report itself. Three dry-outs in five days: the pattern is a manual top-up that arrives after the damage. At the measured ≈$2.35/day burn the current 9.95 USD reaches zero on or about 2026-11-14. Fix is one payment setting in the provider account (auto-recharge with a low-balance threshold), not code.",
+      "impact": "Cost of doing nothing: the account empties again around 2026-11-14 and the same silent deletion repeats — every editorial run of the day, the build and growth watchdogs and this daily report stop producing output, with no alert to you.",
+      "reply": "@Simon auto-recharge on",
+      "opened": "2026-11-10",
+      "updated": "2026-11-10"
     },
     {
-      "id": "ffrproof",
-      "app": "FFRProof",
-      "kind": "build",
+      "id": "extraction-key",
+      "app": "SpendProof + RatchetProof",
+      "kind": "ops",
       "state": "pending",
-      "headline": "Pre-flight audit for the federal financial report (SF-425) before it is filed",
-      "detail": "A model reads the award terms and the federal payment-system drawdown statement into fields; our own arithmetic cross-foots the report's four line identities, reconciles line 10a to the drawdown record, tests the required recipient match, and catches period-vs-cumulative and double-counted dollars. Every finding carries the form line and the source page. It never files or certifies for the recipient.",
-      "impact": "Still pending 2026-11-07 (day 6). Recon 2026-11-02, first scan of public_sector_grants, score 74 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.17, so it clears the 3x margin rule with roughly 8.8x headroom. Weakest link named in the PRD: no owned audience for grant recipients. ClaimProof (2026-10-26) is still pending and CanopyProof (approved 2026-10-18) is still unbuilt, so this is a queue-ordering decision as well as a go/no-go.",
-      "reply": "@Simon approve FFRProof",
+      "headline": "The deploy has no DeepSeek key, so the two document-reading products answer 503",
+      "detail": "The 2026-11-02 model migration (aaff6dc) changed the extraction credential pair from GEMINI_API_KEY to DEEPSEEK_API_KEY in src/lib/calc/spendproof/extraction.ts:74 and src/lib/calc/ratchetproof/extraction.ts:48. The app container carries GEMINI_API_KEY but neither DEEPSEEK_API_KEY nor SPENDPROOF_EXTRACTION_MODEL_KEY / RATCHETPROOF_EXTRACTION_MODEL_KEY, so both endpoints now answer 503 'the deploy has no ... key'. Yesterday the same probes answered 400 (sp-document-missing / rp-intervals-empty) because the Gemini key resolved first. The value already exists in Supabase factory_config.deepseek_api_key; no code change is needed. Day 9 measured 2026-11-10: both endpoints still 503, container af8yqbwrrnyyfgs9wcg0intj-20261107T163820 carries GEMINI_API_KEY and no DEEPSEEK_API_KEY.",
+      "impact": "Measured again 2026-11-07 15:3xZ (day 6): both probes still 503, container c1aa15a still carries only GEMINI_API_KEY. Measured again 2026-11-03 15:3xZ (day 2): POST /api/spendproof/extract -> 503 sp-extraction-unavailable, POST /api/ratchetproof/audit -> 503 rp-extraction-unavailable. The container still carries GEMINI_API_KEY (39 ch) and no DEEPSEEK_API_KEY. The 11-02 build gate is GREEN on the migrated code (489 vitest / 111 Playwright / 52 pages / 30-30 vision tiles on deepseek-flash), so no code change is needed: one Coolify env var.",
+      "reply": "@Simon add the model key  (Coolify app env: DEEPSEEK_API_KEY, value from factory_config.deepseek_api_key)",
       "opened": "2026-11-02",
-      "updated": "2026-11-07"
+      "cost_of_silence": "Two of six live products fail on the only thing they do; every visitor who uploads an invoice gets an explicit error.",
+      "updated": "2026-11-10"
     },
     {
       "id": "claimproof",
@@ -36,7 +37,19 @@
       "impact": "Still pending 2026-11-07 (day 13). Recon 2026-10-26, score 79 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.22, so it clears the 3x margin rule. Weakest link named in the PRD: no owned audience for trade contractors. CanopyProof (approved 2026-10-18) is still unstarted, so this is a queue-ordering decision, not just a go/no-go.",
       "reply": "@Simon approve ClaimProof",
       "opened": "2026-10-26",
-      "updated": "2026-11-07"
+      "updated": "2026-11-10"
+    },
+    {
+      "id": "ffrproof",
+      "app": "FFRProof",
+      "kind": "build",
+      "state": "pending",
+      "headline": "Pre-flight audit for the federal financial report (SF-425) before it is filed",
+      "detail": "A model reads the award terms and the federal payment-system drawdown statement into fields; our own arithmetic cross-foots the report's four line identities, reconciles line 10a to the drawdown record, tests the required recipient match, and catches period-vs-cumulative and double-counted dollars. Every finding carries the form line and the source page. It never files or certifies for the recipient.",
+      "impact": "Still pending 2026-11-07 (day 6). Recon 2026-11-02, first scan of public_sector_grants, score 74 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.17, so it clears the 3x margin rule with roughly 8.8x headroom. Weakest link named in the PRD: no owned audience for grant recipients. ClaimProof (2026-10-26) is still pending and CanopyProof (approved 2026-10-18) is still unbuilt, so this is a queue-ordering decision as well as a go/no-go.",
+      "reply": "@Simon approve FFRProof",
+      "opened": "2026-11-02",
+      "updated": "2026-11-10"
     },
     {
       "id": "canopyproof",
@@ -48,20 +61,19 @@
       "impact": "Build in progress since 2026-10-18 (idle day 20: engine committed, no route, not registered). EUDR application date is 30 December 2026.",
       "reply": "",
       "opened": "2026-10-12",
-      "updated": "2026-11-07"
+      "updated": "2026-11-10"
     },
     {
-      "id": "extraction-key",
-      "app": "SpendProof + RatchetProof",
+      "id": "model-credit",
+      "app": "",
       "kind": "ops",
-      "state": "pending",
-      "headline": "The deploy has no DeepSeek key, so the two document-reading products answer 503",
-      "detail": "The 2026-11-02 model migration (aaff6dc) changed the extraction credential pair from GEMINI_API_KEY to DEEPSEEK_API_KEY in src/lib/calc/spendproof/extraction.ts:74 and src/lib/calc/ratchetproof/extraction.ts:48. The app container carries GEMINI_API_KEY but neither DEEPSEEK_API_KEY nor SPENDPROOF_EXTRACTION_MODEL_KEY / RATCHETPROOF_EXTRACTION_MODEL_KEY, so both endpoints now answer 503 'the deploy has no ... key'. Yesterday the same probes answered 400 (sp-document-missing / rp-intervals-empty) because the Gemini key resolved first. The value already exists in Supabase factory_config.deepseek_api_key; no code change is needed. Day 7 measured 2026-11-08: both endpoints still 503, container af8yqbwrrnyyfgs9wcg0intj-20261107T163820 carries GEMINI_API_KEY and no DEEPSEEK_API_KEY.",
-      "impact": "Measured again 2026-11-07 15:3xZ (day 6): both probes still 503, container c1aa15a still carries only GEMINI_API_KEY. Measured again 2026-11-03 15:3xZ (day 2): POST /api/spendproof/extract -> 503 sp-extraction-unavailable, POST /api/ratchetproof/audit -> 503 rp-extraction-unavailable. The container still carries GEMINI_API_KEY (39 ch) and no DEEPSEEK_API_KEY. The 11-02 build gate is GREEN on the migrated code (489 vitest / 111 Playwright / 52 pages / 30-30 vision tiles on deepseek-flash), so no code change is needed: one Coolify env var.",
-      "reply": "@Simon add the model key  (Coolify app env: DEEPSEEK_API_KEY, value from factory_config.deepseek_api_key)",
-      "opened": "2026-11-02",
-      "cost_of_silence": "Two of six live products fail on the only thing they do; every visitor who uploads an invoice gets an explicit error.",
-      "updated": "2026-11-07"
+      "state": "resolved",
+      "headline": "Resolved 2026-11-10: the account ran dry exactly as forecast, then was refilled (1.59 -> 9.95 USD)",
+      "detail": "The scheduled desk runs on one prepaid model account. On 2026-11-06 four runs died on 'HTTP 402: Insufficient Balance' between 11:35Z and 15:30Z, including the Daily Proactive Sweep, which therefore wrote no journal, no commit and no Slack post, and three article runs were lost the same day. The balance endpoint read 2026-11-07 15:30Z: 6.60 USD; 2026-11-08 15:30Z: 3.94 USD; 2026-11-09 15:30Z: 1.59 USD (topped_up 1.59, granted 0.00) — about $2.35 spent in 24 h, i.e. roughly 16 hours of runway, zero on or about 2026-11-10 07:30Z, inside the 06:00–08:35Z editorial block. No 402 occurred in the last 24 h. Fix is an owner payment step plus, ideally, auto-recharge so the fleet cannot silently stop. Cost of nothing: the daily sweep, the build and growth watchdogs and every editorial run stop producing output, and no report reaches you. MEASURED 2026-11-10: the forecast held — eight scheduled runs died on 'HTTP 402: Insufficient Balance' between 2026-11-09T19:39Z and 2026-11-10T13:01Z (meio_working_capital_tco, sales_order_service_level_otif, ai_observability_qa, nhil_infrastructure_ops, enterprise_tech_leadership, smart_home_telemetry, workstation_compute_economics, control_tower_exception_orchestration) and zero articles were published on 2026-11-10. The balance endpoint then read 9.95 USD (topped_up 9.95, granted 0.00) at 15:31Z, i.e. the account was refilled. Closed in favour of the open auto-recharge row.",
+      "impact": "Measured 2026-11-10 15:31Z: total_balance 9.95 USD, up from 1.59 at 2026-11-09 15:30Z. The dry-out cost 8 runs and one full publishing day (0 articles on 11-10, against 4 published on 11-09 evening). At the measured ≈$2.35/day the refilled balance reaches zero again on or about 2026-11-14.",
+      "reply": "@Simon credit topped up",
+      "opened": "2026-11-07",
+      "updated": "2026-11-10"
     },
     {
       "id": "cms-legacy-posts",
@@ -250,8 +262,8 @@
       "impact": "Failed again 2026-11-07 10:46Z (day 7, seven consecutive failures). Nothing is pending a film today (detect.mjs --json: pending [], embedPending [], ledgerRows 6), so no current launch is blocked and the six published films are unaffected (oEmbed 200 on all six ids). The cost of silence is on the NEXT product: it can ship, and its one proven distribution asset (a launch film embedded on the page) cannot be published. Its own script hint says a weekly recurrence means the Google OAuth consent screen is still in Testing and should be published to Production.",
       "reply": "@Simon reconnect youtube",
       "opened": "2026-11-01",
-      "updated": "2026-11-07"
+      "updated": "2026-11-10"
     }
   ],
-  "updated": "2026-11-09T15:40Z"
+  "updated": "2026-11-10T15:40Z"
 }
