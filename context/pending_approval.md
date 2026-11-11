@@ -4,6 +4,25 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-11 (**15:30 sweep**, Day-72). **Publishing came back — six articles today after the first
+blank day of the run — and the model account is already down to about two days: `GET
+api.deepseek.com/user/balance` reads **6.95 USD** at 15:32Z, down **3.00** from yesterday's 9.95 in 24 h, i.e.
+**≈2.3 days of runway, zero on or about 2026-11-13/14**. No `HTTP 402` today; the refill was manual, so
+`auto-recharge` remains the top ask (reply `@Simon auto-recharge on`).** **Still red, day 10:**
+`POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and `POST /api/ratchetproof/audit` **503**
+`rp-extraction-unavailable`; container `af8yqbwrrnyyfgs9wcg0intj-20261110T163557` (image `27325eb`) carries
+`GEMINI_API_KEY` and **no** `DEEPSEEK_API_KEY` — one Coolify env var from Supabase
+`factory_config.deepseek_api_key`, no code change, queued `extraction-key` (reply `@Simon add the model key`).
+**YouTube day 11** (`invalid_grant` today 10:45Z; nothing pending a film), queued `youtube-reauth`.
+**`hermes cron doctor` 14 issues / 14 jobs**: 11 are 402 stamps, **all dated 11-09/11-10 or earlier — zero
+today** (six weekly Full Pipelines killed 11-10 10:32–13:01Z, two 11-09 evergreens, three stale 11-06/11-03),
+plus `Editorial Verify Gate` exit 1 14:04Z (sixth day, four failing `test_illustration_overlay.py` tests),
+`WordPress Draft Sweep` exit 1 14:21Z (six giniloh posts in the CMS not yet in its sitemap = rebuild lag, plus
+the known delivery-audit alt false-positive class), and YouTube. Six scheduled runs today `ok` plus Post-Ship
+Brag 15:30Z. Queue **21 rows — 5 `pending` (`auto-recharge` d1, `extraction-key` d10, `ffrproof` d10,
+`claimproof` d17, `youtube-reauth` d11), 1 `approved` (`canopyproof` idle d24), 15 `resolved`**; stamp
+`2026-11-11T15:40Z`.
+
 _Last updated: 2026-11-10 (**15:30 sweep**, Day-71). **The model account ran dry exactly when the last report
 said it would — eight scheduled runs died on `HTTP 402: Insufficient Balance` between 2026-11-09T19:39Z and
 2026-11-10T13:01Z (both of 11-09's evening evergreens, then today's six weekly Full Pipelines at 10:32, 11:00,
