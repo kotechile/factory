@@ -4,6 +4,23 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-12 (**15:30 sweep**, Day-73). **The model account is one day from empty: `GET
+api.deepseek.com/user/balance` reads **3.80 USD** at 15:32Z, down **3.15** from yesterday's 6.95 in 24 h —
+**≈1.2 days of runway, zero on or about 2026-11-13 ~20:00Z**, which takes Friday's growth report and the
+morning editorial block with it. `auto-recharge` is still off (day 2): reply `@Simon auto-recharge on`.**
+No `HTTP 402` in 24 h and every scheduled editorial run today finished `ok`; `articles` **349 → 361**
+(**six today**, 10:56–13:15Z), pressflow serves **361 == 361**. **Still red, day 11:**
+`POST /api/spendproof/extract` **503** `sp-extraction-unavailable` and `POST /api/ratchetproof/audit` **503**
+`rp-extraction-unavailable`; container `af8yqbwrrnyyfgs9wcg0intj-20261111T163816` (image `439e977`) carries
+`GEMINI_API_KEY` and **no** `DEEPSEEK_API_KEY` — one Coolify env var from Supabase
+`factory_config.deepseek_api_key`, no code change (`@Simon add the model key`). **YouTube day 12**
+(`invalid_grant`; nothing pending a film). `hermes cron doctor` **13 issues / 13 jobs**: 10 stale 402 stamps
+(all ≤ 11-10), `Editorial Verify Gate` exit 1 (seventh day), YouTube; **`WordPress Draft Sweep` ok 14:20Z**
+(first green since 11-09). Traffic **+1 event** (`parcelproof` 09:28Z) — **provable outside visitors 0**;
+revenue **$0 real**. Queue **21 rows — 5 `pending` (`auto-recharge` d2, `extraction-key` d11, `ffrproof` d11,
+`claimproof` d18, `youtube-reauth` d12), 1 `approved` (`canopyproof`, idle a month), 15 `resolved`**; stamp
+`2026-11-12T15:40Z`.
+
 _Last updated: 2026-11-11 (**15:30 sweep**, Day-72). **Publishing came back — six articles today after the first
 blank day of the run — and the model account is already down to about two days: `GET
 api.deepseek.com/user/balance` reads **6.95 USD** at 15:32Z, down **3.00** from yesterday's 9.95 in 24 h, i.e.

@@ -8,11 +8,11 @@
       "kind": "ops",
       "state": "pending",
       "headline": "Top-ups keep running out: switch on auto-recharge so the desk cannot go silent again",
-      "detail": "Measured 2026-11-11 15:32Z: the model account holds 6.95 USD (topped_up 6.95, granted 0.00), down 3.00 USD from yesterday's 9.95 in 24 h — the refill is manual and nothing protects it. At the measured ≈$3.00/day burn that is ≈2.3 days of runway, zero on or about 2026-11-13/14. Precedent: three dry-outs in six days (11-06: four runs lost including this report; 11-09/11-10: eight runs lost and the first zero-article publishing day; each top-up arrived after the damage). Fix is one payment setting in the provider account (auto-recharge with a low-balance threshold), not code.",
-      "impact": "Cost of doing nothing: the account empties again around 2026-11-13/14 and the same silent deletion repeats — every editorial run of the day, the build and growth watchdogs and this daily report stop producing output, with no alert to you. Today is the last report before that window.",
+      "detail": "Measured 2026-11-12 15:32Z: the model account holds 3.80 USD (topped_up 3.80, granted 0.00), down 3.15 USD from yesterday's 6.95 in 24 h — a full publishing day at the measured rate. That is ~1.2 days of runway: zero on or about 2026-11-13 evening, which swallows Friday's Growth Watchdog (11-13 17:00Z) and the Friday morning editorial block. No top-up credit has appeared since 11-10, so auto-recharge is still OFF. Precedent: four dry-outs in seven days (11-06: four runs lost including this report; 11-09/11-10: eight runs lost and the first zero-article publishing day; each top-up arrived after the damage). Fix is one payment setting in the provider account (auto-recharge with a low-balance threshold), not code.",
+      "impact": "Without it the desk runs dry again tomorrow evening: the Friday growth report is blanked, the morning articles are lost, and the sweep itself can 402 before it writes anything.",
       "reply": "@Simon auto-recharge on",
       "opened": "2026-11-10",
-      "updated": "2026-11-11"
+      "updated": "2026-11-12T15:40Z"
     },
     {
       "id": "extraction-key",
@@ -265,5 +265,5 @@
       "updated": "2026-11-11"
     }
   ],
-  "updated": "2026-11-11T15:40Z"
+  "updated": "2026-11-12T15:40Z"
 }
