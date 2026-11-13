@@ -8,11 +8,11 @@
       "kind": "ops",
       "state": "pending",
       "headline": "Top-ups keep running out: switch on auto-recharge so the desk cannot go silent again",
-      "detail": "Measured 2026-11-12 15:32Z: the model account holds 3.80 USD (topped_up 3.80, granted 0.00), down 3.15 USD from yesterday's 6.95 in 24 h — a full publishing day at the measured rate. That is ~1.2 days of runway: zero on or about 2026-11-13 evening, which swallows Friday's Growth Watchdog (11-13 17:00Z) and the Friday morning editorial block. No top-up credit has appeared since 11-10, so auto-recharge is still OFF. Precedent: four dry-outs in seven days (11-06: four runs lost including this report; 11-09/11-10: eight runs lost and the first zero-article publishing day; each top-up arrived after the damage). Fix is one payment setting in the provider account (auto-recharge with a low-balance threshold), not code.",
-      "impact": "Without it the desk runs dry again tomorrow evening: the Friday growth report is blanked, the morning articles are lost, and the sweep itself can 402 before it writes anything.",
+      "detail": "Measured 2026-11-13 15:31Z: the model account holds 0.78 USD (topped_up 0.78, granted 0.00), down 3.02 USD from yesterday's 3.80 in 24 h — a normal full publishing day. That is ~6 hours of runway: zero on or about 2026-11-13 evening (~21:40Z). No top-up credit has appeared since the manual 9.95 refill on 11-10; the balance has fallen 9.95 -> 6.95 -> 3.80 -> 0.78 on four consecutive sweeps, which is proof auto-recharge was not switched on. What dies tonight: every run after ~21:40Z. What dies tomorrow (Saturday): five Full Pipelines (06:00, 06:30, 10:30, 11:00, 11:30Z) and five evergreens (17:30-19:30Z) = ten scheduled runs and the day's article output. This is the fifth dry-out window in nine days; each previous one was repaired by hand AFTER the damage (11-06: four runs died; 11-09/10: eight runs died and a whole publishing day was lost).",
+      "impact": "The desk goes silent tonight. Saturday publishes nothing unless the account is topped up before 06:00Z.",
       "reply": "@Simon auto-recharge on",
       "opened": "2026-11-10",
-      "updated": "2026-11-12T15:40Z"
+      "updated": "2026-11-13T15:45Z"
     },
     {
       "id": "extraction-key",
@@ -25,7 +25,7 @@
       "reply": "@Simon add the model key  (Coolify app env: DEEPSEEK_API_KEY, value from factory_config.deepseek_api_key)",
       "opened": "2026-11-02",
       "cost_of_silence": "Two of six live products fail on the only thing they do; every visitor who uploads an invoice gets an explicit error.",
-      "updated": "2026-11-11"
+      "updated": "2026-11-13T15:45Z"
     },
     {
       "id": "claimproof",
@@ -37,7 +37,7 @@
       "impact": "Still pending 2026-11-07 (day 13). Recon 2026-10-26, score 79 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.22, so it clears the 3x margin rule. Weakest link named in the PRD: no owned audience for trade contractors. CanopyProof (approved 2026-10-18) is still unstarted, so this is a queue-ordering decision, not just a go/no-go.",
       "reply": "@Simon approve ClaimProof",
       "opened": "2026-10-26",
-      "updated": "2026-11-11"
+      "updated": "2026-11-13T15:45Z"
     },
     {
       "id": "ffrproof",
@@ -49,7 +49,7 @@
       "impact": "Still pending 2026-11-07 (day 6). Recon 2026-11-02, first scan of public_sector_grants, score 74 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.17, so it clears the 3x margin rule with roughly 8.8x headroom. Weakest link named in the PRD: no owned audience for grant recipients. ClaimProof (2026-10-26) is still pending and CanopyProof (approved 2026-10-18) is still unbuilt, so this is a queue-ordering decision as well as a go/no-go.",
       "reply": "@Simon approve FFRProof",
       "opened": "2026-11-02",
-      "updated": "2026-11-11"
+      "updated": "2026-11-13T15:45Z"
     },
     {
       "id": "canopyproof",
@@ -262,8 +262,8 @@
       "impact": "Failed again 2026-11-07 10:46Z (day 7, seven consecutive failures). Nothing is pending a film today (detect.mjs --json: pending [], embedPending [], ledgerRows 6), so no current launch is blocked and the six published films are unaffected (oEmbed 200 on all six ids). The cost of silence is on the NEXT product: it can ship, and its one proven distribution asset (a launch film embedded on the page) cannot be published. Its own script hint says a weekly recurrence means the Google OAuth consent screen is still in Testing and should be published to Production.",
       "reply": "@Simon reconnect youtube",
       "opened": "2026-11-01",
-      "updated": "2026-11-11"
+      "updated": "2026-11-13T15:45Z"
     }
   ],
-  "updated": "2026-11-12T15:40Z"
+  "updated": "2026-11-13T15:45Z"
 }
