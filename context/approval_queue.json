@@ -8,11 +8,12 @@
       "kind": "ops",
       "state": "pending",
       "headline": "Top-ups keep running out: switch on auto-recharge so the desk cannot go silent again",
-      "detail": "Measured 2026-11-13 15:31Z: the model account holds 0.78 USD (topped_up 0.78, granted 0.00), down 3.02 USD from yesterday's 3.80 in 24 h — a normal full publishing day. That is ~6 hours of runway: zero on or about 2026-11-13 evening (~21:40Z). No top-up credit has appeared since the manual 9.95 refill on 11-10; the balance has fallen 9.95 -> 6.95 -> 3.80 -> 0.78 on four consecutive sweeps, which is proof auto-recharge was not switched on. What dies tonight: every run after ~21:40Z. What dies tomorrow (Saturday): five Full Pipelines (06:00, 06:30, 10:30, 11:00, 11:30Z) and five evergreens (17:30-19:30Z) = ten scheduled runs and the day's article output. This is the fifth dry-out window in nine days; each previous one was repaired by hand AFTER the damage (11-06: four runs died; 11-09/10: eight runs died and a whole publishing day was lost).",
-      "impact": "The desk goes silent tonight. Saturday publishes nothing unless the account is topped up before 06:00Z.",
+      "detail": "Measured 2026-11-17 15:31Z: the account holds 7.84 USD (topped_up 7.84, granted 0.00), refilled by hand again after the dry-out the 11-13 row forecast to the hour. The dry-out is no longer a forecast: between 2026-11-13 evening and 2026-11-16 evening, 36 scheduled runs died on HTTP 402 Insufficient Balance (11-13 x4, 11-14 x12, 11-15 x5, 11-16 x15). Measured cost: three blank publishing days (no article created on 11-14, 11-15 or 11-16; articles 372 -> 381 with six rows only from today), three daily sweep reports missing (journal jumps 11-13 -> 11-17, git HEAD unchanged cd707e6 for four days), three Build Watchdog runs missed, and the 11-16 Weekly Market Recon missed (next 11-23). At the desk's own ~3.00 USD/day burn, 7.84 USD is ~2.6 days of runway, zero on or about 2026-11-20 - the day the Growth Watchdog runs 17:00Z and the Friday editorial block runs 10:30-13:00Z.",
+      "impact": "Without auto-recharge every dry-out costs roughly three publishing days, the reports that would tell you it happened, and the build verification - until a manual top-up arrives. The next zero lands 2026-11-20.",
       "reply": "@Simon auto-recharge on",
       "opened": "2026-11-10",
-      "updated": "2026-11-13T15:45Z"
+      "updated": "2026-11-17T15:45Z",
+      "cost_of_silence": "2026-11-13 evening to 2026-11-16 evening: 36 failed runs, 3 blank publishing days, 3 missing daily reports, 3 missed build checks, 1 missed market recon."
     },
     {
       "id": "extraction-key",
@@ -20,12 +21,12 @@
       "kind": "ops",
       "state": "pending",
       "headline": "The deploy has no DeepSeek key, so the two document-reading products answer 503",
-      "detail": "The 2026-11-02 model migration (aaff6dc) changed the extraction credential pair from GEMINI_API_KEY to DEEPSEEK_API_KEY in src/lib/calc/spendproof/extraction.ts:74 and src/lib/calc/ratchetproof/extraction.ts:48. The app container carries GEMINI_API_KEY but neither DEEPSEEK_API_KEY nor SPENDPROOF_EXTRACTION_MODEL_KEY / RATCHETPROOF_EXTRACTION_MODEL_KEY, so both endpoints now answer 503 'the deploy has no ... key'. Yesterday the same probes answered 400 (sp-document-missing / rp-intervals-empty) because the Gemini key resolved first. The value already exists in Supabase factory_config.deepseek_api_key; no code change is needed. Day 10 measured 2026-11-11: both endpoints still 503 (sp-extraction-unavailable / rp-extraction-unavailable), container af8yqbwrrnyyfgs9wcg0intj-20261110T163557 (image 27325eb) carries GEMINI_API_KEY and no DEEPSEEK_API_KEY.",
+      "detail": "Measured 2026-11-17 15:35Z (day 16): POST /api/spendproof/extract -> 503 'the deploy has no SPENDPROOF_EXTRACTION_MODEL_KEY or DEEPSEEK_API_KEY'; POST /api/ratchetproof/audit -> 503 'no RATCHETPROOF_EXTRACTION_MODEL_KEY or DEEPSEEK_API_KEY'. Container af8yqbwrrnyyfgs9wcg0intj-20261113T170440 (image cd707e6) carries GEMINI_API_KEY only. Value present in Supabase factory_config.deepseek_api_key (35 ch). Fix: add DEEPSEEK_API_KEY to the Coolify app env, redeploy; verify POST {} answers 400 sp-document-missing / rp-intervals-empty. No code change. Do NOT add a Supabase fallback to the calc engines without an owner ok.",
       "impact": "Measured again 2026-11-07 15:3xZ (day 6): both probes still 503, container c1aa15a still carries only GEMINI_API_KEY. Measured again 2026-11-03 15:3xZ (day 2): POST /api/spendproof/extract -> 503 sp-extraction-unavailable, POST /api/ratchetproof/audit -> 503 rp-extraction-unavailable. The container still carries GEMINI_API_KEY (39 ch) and no DEEPSEEK_API_KEY. The 11-02 build gate is GREEN on the migrated code (489 vitest / 111 Playwright / 52 pages / 30-30 vision tiles on deepseek-flash), so no code change is needed: one Coolify env var.",
       "reply": "@Simon add the model key  (Coolify app env: DEEPSEEK_API_KEY, value from factory_config.deepseek_api_key)",
       "opened": "2026-11-02",
       "cost_of_silence": "Two of six live products fail on the only thing they do; every visitor who uploads an invoice gets an explicit error.",
-      "updated": "2026-11-13T15:45Z"
+      "updated": "2026-11-17T15:45Z"
     },
     {
       "id": "claimproof",
@@ -258,12 +259,12 @@
       "kind": "infra",
       "state": "pending",
       "headline": "The YouTube connection that publishes launch films has expired and cannot be re-authorised without you",
-      "detail": "Launch Video Auth Check (daily 10:45Z) failed 2026-11-01 with 'Google token refresh failed: invalid_grant: Token has been expired or revoked' (src/lib/launch-video/youtube.ts:169). The stored refresh token in the repo .env no longer mints an access token, so the launch-video pipeline cannot upload. Re-authorising is a browser step only the founder can do: node scripts/youtube-auth.mjs --url prints a Google consent URL, the founder approves it, and node scripts/youtube-auth.mjs --code <code> writes a fresh YOUTUBE_REFRESH_TOKEN. Reply to start it and the desk sends the one-time link.",
+      "detail": "Measured 2026-11-17 10:45Z (day 17): Launch Video Auth Check failed again - the stored YOUTUBE_REFRESH_TOKEN in /root/software-factory-core/.env is dead (invalid_grant expired or revoked). Re-mint: node scripts/youtube-auth.mjs --url then --code <code>, update YOUTUBE_REFRESH_TOKEN. Nothing is pending a film (detect.mjs: pending [], embedPending [], ledgerRows 6), so only the NEXT launch is blocked. If it recurs weekly, publish the Google OAuth consent screen to Production.",
       "impact": "Failed again 2026-11-07 10:46Z (day 7, seven consecutive failures). Nothing is pending a film today (detect.mjs --json: pending [], embedPending [], ledgerRows 6), so no current launch is blocked and the six published films are unaffected (oEmbed 200 on all six ids). The cost of silence is on the NEXT product: it can ship, and its one proven distribution asset (a launch film embedded on the page) cannot be published. Its own script hint says a weekly recurrence means the Google OAuth consent screen is still in Testing and should be published to Production.",
       "reply": "@Simon reconnect youtube",
       "opened": "2026-11-01",
-      "updated": "2026-11-13T15:45Z"
+      "updated": "2026-11-17T15:45Z"
     }
   ],
-  "updated": "2026-11-13T15:45Z"
+  "updated": "2026-11-17T15:45Z"
 }

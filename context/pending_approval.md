@@ -4,6 +4,27 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-17 (**15:30 sweep**, Day-78; covers four days because the 11-14/15/16 sweeps were
+killed by the model-account dry-out). **The credit risk became an outage: the account emptied at
+2026-11-13 ~21:40Z to the hour, and **36 scheduled runs died on `HTTP 402: Insufficient Balance`** (11-13
+×4 evening, 11-14 ×12, 11-15 ×5, 11-16 ×15) — **three blank publishing days** (no article 11-14/15/16),
+**three missing daily reports**, three missed `Build Watchdog` runs and a missed `Weekly Market Recon`.
+The account was refilled **by hand again** and now reads **7.84 USD** at 15:31Z — **≈2.6 days at ≈$3.00/day,
+zero on or about 2026-11-20**, the day of the `Growth Watchdog`. `auto-recharge` is **day 7** and is the one
+ask that matters: `@Simon auto-recharge on`.** Publishing resumed 10:41Z today: `articles` **372 → 381**
+(**six today**), pressflow `…-20261117T131931` image `4de9985` serves **381 == 381** == Supabase **381**,
+`/healthz` 200. **Still red, day 16:** `POST /api/spendproof/extract` **503** and
+`POST /api/ratchetproof/audit` **503** (the deploy has no DeepSeek key; container
+`af8yqbwrrnyyfgs9wcg0intj-20261113T170440` image `cd707e6` carries `GEMINI_API_KEY` only) — one Coolify env
+var from Supabase `factory_config.deepseek_api_key`, no code change (`@Simon add the model key`). **YouTube
+day 17** (`invalid_grant`; nothing pending a film, `pending: []` / `ledgerRows: 6`). `hermes cron doctor`
+**34 issues / 34 jobs** = 31 402 stamps + `Editorial Verify Gate` exit 1 (ninth day) + `WordPress Draft
+Sweep` exit 1 + YouTube. No build verification for three days; last GREEN 11-13 16:36Z on `cd707e6`
+(489/111/visual 30-30). Traffic **+2 events** (two fresh single views today, 26 min apart, automated-check
+shape) — **provable outside visitors 0**; revenue **$0 real**. Queue **21 rows — 5 `pending`
+(`auto-recharge` d7, `extraction-key` d16, `claimproof` d23, `ffrproof` d16, `youtube-reauth` d17), 1
+`approved` (`canopyproof`, idle d38), 15 `resolved`**; stamp `2026-11-17T15:45Z`.
+
 _Last updated: 2026-11-13 (**15:30 sweep**, Day-74). **The model account is six hours from empty: `GET
 api.deepseek.com/user/balance` reads **0.78 USD** at 15:31Z, down **3.02** from yesterday's 3.80 in 24 h —
 **≈6 h of runway, zero on or about 2026-11-13 ~21:40Z**. `auto-recharge` is still off (day 3): the balance
