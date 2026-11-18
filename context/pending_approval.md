@@ -16,6 +16,17 @@ the owner). CanopyProof (approved 2026-10-18, unstarted) is now third in line. B
 same credential: no `DEEPSEEK_API_KEY` on the deploy means `POST /api/ffrproof/audit` answers **503** until
 `extraction-key` is satisfied — the builds are not blocked by it, the products are.
 
+_Last updated: 2026-11-18 (**23:12Z owner decision — `claimproof` SHIPPED and CLOSED**).
+ClaimProof v1 is built, pushed (`4de6f83`) and verified live on apps.aichieve.net: `/claimproof` 200,
+`/showcase` lists ClaimProof (**beta** — the public launch call stays with the owner), `POST
+/api/claimproof/audit {}` answers the documented **400** `claimproof-document-missing`, the deterministic
+declared path computes the worked sample live (underpaid $120.00, the over-cap nitrogen fee named), and the
+document path answers **503** `claimproof-extraction-unavailable` because the deploy still carries no model
+key — the one open item, row `extraction-key` (`@Simon add the model key`). One vendored schedule (True
+Manufacturing `truemfg@2022-06`); engine allowanceFor/expectedPayment/variance on integer cents; WebMCP
+tool `audit_warranty_remittance` at $1.50/call. Gate green: 512 vitest, 118 Playwright, 37 visual-QA tiles
+(claimproof 5/5). Next build slot is **FFRProof** (approved 2026-11-18, queued); CanopyProof stays third.
+
 _Last updated: 2026-11-18 (**22:07Z owner decision — `claimproof` APPROVED, build dispatched**).
 Verbatim: `@Simon approve ClaimProof` — byte-identical to the reply string this row has carried since
 2026-10-26, so the gate is answered. One build slot at a time: the v1 build (vendored version-stamped

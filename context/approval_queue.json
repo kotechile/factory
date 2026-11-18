@@ -16,18 +16,6 @@
    "updated": "2026-11-17T15:45Z"
   },
   {
-   "id": "claimproof",
-   "app": "ClaimProof",
-   "kind": "build",
-   "state": "approved",
-   "headline": "Warranty-claim short-payment audit for HVAC/refrigeration shops",
-   "detail": "A model reads the fields out of the manufacturer's remittance and the filed claim; our own arithmetic re-derives the manufacturer's published payment schedule (allowed hours per repair code, multiple-repair increment, travel rule, per-claim caps) against what was actually paid, per line, with the schedule version and page cited. Sells the finding and a resubmission packet, never the human chase. OWNER APPROVAL 2026-11-18T22:07Z: verbatim '@Simon approve ClaimProof' — byte-identical to this row's reply string, so the gate is answered and the item is a go. Build dispatched as a one-shot Hermes cron job in workdir /root/software-factory-core (v1 to the PRD's scope guard: vendored, version-stamped labour-claim schedules; deterministic schedule arithmetic with no reported number from the model; extraction in front of it reusing the SpendProof declared-field path; registers as beta so the public launch call stays with the owner). One credential stays with the owner: the deploy still needs DEEPSEEK_API_KEY, so the live audit answers 503 claimproof-extraction-unavailable until the extraction-key ask is satisfied — the build is not blocked by it, the product is.",
-   "impact": "Build started 2026-11-18T22:07Z (was pending since 2026-10-26, 23 days). v1 ships as beta: a shop uploads a manufacturer remittance plus its filed claim, picks the vendored schedule version, and gets a per-line variance table (rule, page, dollars) with a resubmission packet. Live audit stays 503 until the deploy carries the model key (row extraction-key). CanopyProof (approved 2026-10-18) remains unstarted — one build slot at a time, so it is next in line, not concurrent.",
-   "reply": "@Simon approve ClaimProof",
-   "opened": "2026-10-26",
-   "updated": "2026-11-18T22:07Z"
-  },
-  {
    "id": "ffrproof",
    "app": "FFRProof",
    "kind": "build",
@@ -50,6 +38,18 @@
    "reply": "",
    "opened": "2026-10-12",
    "updated": "2026-11-10"
+  },
+  {
+   "id": "claimproof",
+   "app": "ClaimProof",
+   "kind": "build",
+   "state": "resolved",
+   "headline": "Warranty-claim short-payment audit for HVAC/refrigeration shops",
+   "detail": "Done 2026-11-18: v1 shipped to main (4de6f83) and verified live on apps.aichieve.net — /claimproof 200, /showcase lists ClaimProof, POST /api/claimproof/audit {} answers 400 claimproof-document-missing, the deterministic declared path answers 200 (underpaid $120.00 with the over-cap nitrogen fee named), and the document path answers 503 claimproof-extraction-unavailable because the deploy still carries no model key. Engine allowanceFor/expectedPayment/variance (integer cents) + the vendored True Manufacturing schedule (truemfg@2022-06, WA_FM_006 Rev. D + WA_RM_025 Rev. D) + declared-field extraction (deepseek-v4-pro, never Gemini) + WebMCP tool audit_warranty_remittance at $1.50/call. Gate green: 512 vitest, 118 Playwright, 37 visual-QA tiles PASS (claimproof 5/5).",
+   "impact": "Closed — a shop audits a warranty remittance against the vendored True schedule in-browser (free, no model) and via the metered agent tool; the one open item is the deploy model key (row extraction-key), which the live document path answers 503 until it lands.",
+   "reply": "",
+   "opened": "2026-10-26",
+   "updated": "2026-11-18T23:12Z"
   },
   {
    "id": "auto-recharge",
@@ -267,5 +267,5 @@
    "updated": "2026-11-17T15:45Z"
   }
  ],
- "updated": "2026-11-18T22:16Z"
+ "updated": "2026-11-18T23:12Z"
 }

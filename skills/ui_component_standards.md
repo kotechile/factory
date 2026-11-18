@@ -433,6 +433,20 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
   different one of an already-excluded class, the step is unreliable rather than the page being wrong — report it as a
   gate-reliability finding to the owner and do not keep adding wordings.**
 
+- **2026-11-18 — `text-geometry` (e2e): a new product page must render an editable IDE field in its
+  INITIAL state, or the deterministic guard fails with "no textarea found — the guard has nothing to
+  measure" (build).** ClaimProof's first pass put the declared-fields `IdeTextarea` behind a non-default
+  tab, so the page's initial (sample) state carried no `<textarea>` and `tests/e2e/text-geometry.spec.ts`
+  went red on `/claimproof` before any vision tile ran. That guard's `count > 0` assertion is the
+  vacuity check that keeps a page honest — it is not optional, and it measures the page AS LOADED, not
+  after the setup clicks. Rule: whichever input a new product makes primary, the DEFAULT tab must
+  include an editable IDE field (`IdeTextarea`), and the QA/e2e setup that reaches the audited state
+  must do so from that default state. The same commit that adds the product must also add it to
+  `REVIEWED_PRODUCTS` (scripts/visual-qa.mjs), the QA capture (tests/e2e/qa-screenshot.spec.ts),
+  `text-geometry` and `schematic-collision` — a product added to none of them is silently unaudited
+  (the 2026-10-19 rule), and a product whose textarea hides behind a tab fails the one guard that
+  measures the editor.
+
 ### Design tokens
 Single source of truth: `@theme` in `src/app/globals.css`. Agents use token classes (`bg-primary`, `text-muted`, `border-border`), never raw palette colors.
 
