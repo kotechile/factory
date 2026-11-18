@@ -4,6 +4,18 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-18 (**22:16Z owner decision — `ffrproof` APPROVED, queued behind the running build**).
+Verbatim: `@Simon approve FFRProof` — byte-identical to the reply string this row has carried since
+2026-11-02 (16 days parked). It is **approved but not concurrent**: the ClaimProof v1 build is running in
+this repo right now and the factory runs **one build slot at a time**, so FFRProof's one-shot job waits for
+that slot to close, fast-forwards `main`, and then builds v1 to its PRD's scope guard (four cross-foot
+identities, drawdown reconciliation by subaccount and cent, the 10i/10j match test, budget variance whose
+prior-approval threshold is **read from the award's own terms**, period-vs-cumulative differencing; award
+terms extracted per filing, never a maintained rule table; registers **beta** so the launch call stays with
+the owner). CanopyProof (approved 2026-10-18, unstarted) is now third in line. Both new products need the
+same credential: no `DEEPSEEK_API_KEY` on the deploy means `POST /api/ffrproof/audit` answers **503** until
+`extraction-key` is satisfied — the builds are not blocked by it, the products are.
+
 _Last updated: 2026-11-18 (**22:07Z owner decision — `claimproof` APPROVED, build dispatched**).
 Verbatim: `@Simon approve ClaimProof` — byte-identical to the reply string this row has carried since
 2026-10-26, so the gate is answered. One build slot at a time: the v1 build (vendored version-stamped
