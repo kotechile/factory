@@ -4,6 +4,17 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-18 (**22:07Z owner decision — `claimproof` APPROVED, build dispatched**).
+Verbatim: `@Simon approve ClaimProof` — byte-identical to the reply string this row has carried since
+2026-10-26, so the gate is answered. One build slot at a time: the v1 build (vendored version-stamped
+labour-claim schedules, deterministic schedule arithmetic with no reported number from a model, extraction
+in front of it reusing the SpendProof declared-field path, registered **beta** so the public launch call
+stays with the owner) now runs as a one-shot job in this repo and closes its own queue row on green with
+the commit hash and live evidence. CanopyProof (approved 2026-10-18, unstarted) is therefore next in line,
+not concurrent. **The one credential this product needs is the same one already open:** the deploy carries
+no `DEEPSEEK_API_KEY`, so `POST /api/claimproof/audit` will answer **503** until `extraction-key` is
+satisfied — the build is not blocked by it, the product is.
+
 _Last updated: 2026-11-18 (**22:00Z owner decision — `auto-recharge` CLOSED**). `@Simon auto-recharge on`
 was answered, and the honest finding is that **DeepSeek has no auto-recharge to switch on**: the API is
 prepaid only, its FAQ lists "How to Top Up" with no automatic option, the Open Platform ToS §6.1 puts the

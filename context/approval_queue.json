@@ -19,13 +19,13 @@
    "id": "claimproof",
    "app": "ClaimProof",
    "kind": "build",
-   "state": "pending",
+   "state": "approved",
    "headline": "Warranty-claim short-payment audit for HVAC/refrigeration shops",
-   "detail": "A model reads the fields out of the manufacturer's remittance and the filed claim; our own arithmetic re-derives the manufacturer's published payment schedule (allowed hours per repair code, multiple-repair increment, travel rule, per-claim caps) against what was actually paid, per line, with the schedule version and page cited. Sells the finding and a resubmission packet, never the human chase.",
-   "impact": "Still pending 2026-11-07 (day 13). Recon 2026-10-26, score 79 of 100. $1.50/call metered (LLM class band $0.50-3.00) against a modelled cost of about $0.22, so it clears the 3x margin rule. Weakest link named in the PRD: no owned audience for trade contractors. CanopyProof (approved 2026-10-18) is still unstarted, so this is a queue-ordering decision, not just a go/no-go.",
+   "detail": "A model reads the fields out of the manufacturer's remittance and the filed claim; our own arithmetic re-derives the manufacturer's published payment schedule (allowed hours per repair code, multiple-repair increment, travel rule, per-claim caps) against what was actually paid, per line, with the schedule version and page cited. Sells the finding and a resubmission packet, never the human chase. OWNER APPROVAL 2026-11-18T22:07Z: verbatim '@Simon approve ClaimProof' — byte-identical to this row's reply string, so the gate is answered and the item is a go. Build dispatched as a one-shot Hermes cron job in workdir /root/software-factory-core (v1 to the PRD's scope guard: vendored, version-stamped labour-claim schedules; deterministic schedule arithmetic with no reported number from the model; extraction in front of it reusing the SpendProof declared-field path; registers as beta so the public launch call stays with the owner). One credential stays with the owner: the deploy still needs DEEPSEEK_API_KEY, so the live audit answers 503 claimproof-extraction-unavailable until the extraction-key ask is satisfied — the build is not blocked by it, the product is.",
+   "impact": "Build started 2026-11-18T22:07Z (was pending since 2026-10-26, 23 days). v1 ships as beta: a shop uploads a manufacturer remittance plus its filed claim, picks the vendored schedule version, and gets a per-line variance table (rule, page, dollars) with a resubmission packet. Live audit stays 503 until the deploy carries the model key (row extraction-key). CanopyProof (approved 2026-10-18) remains unstarted — one build slot at a time, so it is next in line, not concurrent.",
    "reply": "@Simon approve ClaimProof",
    "opened": "2026-10-26",
-   "updated": "2026-11-13T15:45Z"
+   "updated": "2026-11-18T22:07Z"
   },
   {
    "id": "ffrproof",
@@ -267,5 +267,5 @@
    "updated": "2026-11-17T15:45Z"
   }
  ],
- "updated": "2026-11-18T22:05Z"
+ "updated": "2026-11-18T22:07Z"
 }
