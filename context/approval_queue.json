@@ -8,7 +8,7 @@
       "kind": "ops",
       "state": "pending",
       "headline": "Top-ups keep running out: switch on auto-recharge so the desk cannot go silent again",
-      "detail": "Measured 2026-11-17 15:31Z: the account holds 7.84 USD (topped_up 7.84, granted 0.00), refilled by hand again after the dry-out the 11-13 row forecast to the hour. The dry-out is no longer a forecast: between 2026-11-13 evening and 2026-11-16 evening, 36 scheduled runs died on HTTP 402 Insufficient Balance (11-13 x4, 11-14 x12, 11-15 x5, 11-16 x15). Measured cost: three blank publishing days (no article created on 11-14, 11-15 or 11-16; articles 372 -> 381 with six rows only from today), three daily sweep reports missing (journal jumps 11-13 -> 11-17, git HEAD unchanged cd707e6 for four days), three Build Watchdog runs missed, and the 11-16 Weekly Market Recon missed (next 11-23). At the desk's own ~3.00 USD/day burn, 7.84 USD is ~2.6 days of runway, zero on or about 2026-11-20 - the day the Growth Watchdog runs 17:00Z and the Friday editorial block runs 10:30-13:00Z.",
+      "detail": "Measured 2026-11-18 15:30Z: 5.89 USD (re-read identical at 15:33Z; topped_up 5.89, granted 0.00), down 1.95 from 7.84 at 2026-11-17 15:31Z. At the measured burn that is ~3.0 days of runway, zero between Friday 2026-11-20 evening and Saturday 2026-11-21 - which takes Saturday's ten evergreen runs and, at a full $3.00 day, the Friday Growth Watchdog (17:00Z). Still off, day 8. Measured 2026-11-17 15:31Z: the account holds 7.84 USD (topped_up 7.84, granted 0.00), refilled by hand again after the dry-out the 11-13 row forecast to the hour. The dry-out is no longer a forecast: between 2026-11-13 evening and 2026-11-16 evening, 36 scheduled runs died on HTTP 402 Insufficient Balance (11-13 x4, 11-14 x12, 11-15 x5, 11-16 x15). Measured cost: three blank publishing days (no article created on 11-14, 11-15 or 11-16; articles 372 -> 381 with six rows only from today), three daily sweep reports missing (journal jumps 11-13 -> 11-17, git HEAD unchanged cd707e6 for four days), three Build Watchdog runs missed, and the 11-16 Weekly Market Recon missed (next 11-23). At the desk's own ~3.00 USD/day burn, 7.84 USD is ~2.6 days of runway, zero on or about 2026-11-20 - the day the Growth Watchdog runs 17:00Z and the Friday editorial block runs 10:30-13:00Z.",
       "impact": "Without auto-recharge every dry-out costs roughly three publishing days, the reports that would tell you it happened, and the build verification - until a manual top-up arrives. The next zero lands 2026-11-20.",
       "reply": "@Simon auto-recharge on",
       "opened": "2026-11-10",
@@ -266,5 +266,5 @@
       "updated": "2026-11-17T15:45Z"
     }
   ],
-  "updated": "2026-11-17T15:45Z"
+  "updated": "2026-11-18T15:45Z"
 }
