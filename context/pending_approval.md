@@ -4,6 +4,18 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-18 (**22:00Z owner decision — `auto-recharge` CLOSED**). `@Simon auto-recharge on`
+was answered, and the honest finding is that **DeepSeek has no auto-recharge to switch on**: the API is
+prepaid only, its FAQ lists "How to Top Up" with no automatic option, the Open Platform ToS §6.1 puts the
+consequence of not recharging on the account holder, and top-ups are manual by card / PayPal / Alipay /
+WeChat. The billing page is also unreachable from this host (CloudFront 403) with no platform login stored,
+so nothing could be toggled there. The owner's intent is now code instead of prose: Hermes cron
+**`Model Balance Guard`** (`85c92bbc59af`, `17 */3 * * *` UTC, no-agent script
+`~/.hermes/scripts/model_balance_guard.py`) reads `GET /user/balance` every 3 h, keeps a measured burn
+history, and DMs the owner below **6.00 USD** (once per 12 h) and on **every** check below **2.00 USD**,
+with the top-up link. **Balance measured 5.01 USD at 22:00Z** (down from 5.89 at 15:30Z), ~1.7 days at
+3.00 USD/day — **one manual top-up is still owed before 2026-11-20 evening** (suggested 20 USD ≈ 6-7 days).
+
 _Last updated: 2026-11-18 (**15:30 sweep**, Day-79). **Publishing ran a normal day and the runway is down to two or three: the model account reads **5.89 USD** at 15:30Z (re-read identical), **down 1.95 from 7.84 in 24 h**, i.e. **≈3.0 days at the measured burn — zero between Friday 2026-11-20 evening and Saturday 2026-11-21**, which takes Saturday's ten evergreen runs and, if the burn is a full $3.00 day, the Friday `Growth Watchdog` (17:00Z) with it. `auto-recharge` is **day 8** and is still the one ask that matters: `@Simon auto-recharge on`.** Publishing: `articles` **381 → 391** (+10 — five evening rows 11-17 and **five today** 10:45–13:17Z), five Full Pipelines `ok`; pressflow `…-20261118T132306` (image `3d183891`) serves **391 == 391** == Supabase **391**, `/healthz` 200. **Still red, day 17:** `POST /api/spendproof/extract` **503** + `POST /api/ratchetproof/audit` **503** (deploy has no DeepSeek key; container `af8yqbwrrnyyfgs9wcg0intj-20261117T163836` image `1620ec2` carries `GEMINI_API_KEY` only) — one Coolify env var from Supabase `factory_config.deepseek_api_key`, no code change (`@Simon add the model key`). **YouTube day 18** (`invalid_grant`; nothing pending a film, `pending: []` / `ledgerRows: 6`). `hermes cron doctor` **32 issues / 32 jobs** = 29 residual 402 stamps + `Editorial Verify Gate` exit 1 (tenth day) + `WordPress Draft Sweep` exit 1 + YouTube. Build gate last GREEN 11-17 16:36Z on `feffeca` (489/111/visual 30-30). Traffic **zero rows today** (15,411 total, unchanged) — **provable outside visitors 0**; revenue **$0 real**. Queue **21 rows — 5 `pending` (`auto-recharge` d8, `extraction-key` d17, `claimproof` d24, `ffrproof` d17, `youtube-reauth` d18), 1 `approved` (`canopyproof`, idle d39), 15 `resolved`**; stamp `2026-11-18T15:45Z`.
 
 _Last updated: 2026-11-17 (**15:30 sweep**, Day-78; covers four days because the 11-14/15/16 sweeps were
