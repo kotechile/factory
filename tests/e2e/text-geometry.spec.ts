@@ -57,6 +57,13 @@ const PRODUCTS: {
       await page.getByText("AUDIT COMPLETE").waitFor();
     },
   },
+  {
+    path: "/claimproof",
+    setup: async (page) => {
+      await page.getByRole("button", { name: "Audit the claim" }).click();
+      await page.getByText("UNDERPAID").first().waitFor();
+    },
+  },
 ];
 
 for (const { path, setup } of PRODUCTS) {

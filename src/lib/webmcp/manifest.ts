@@ -131,13 +131,17 @@ export function buildMcpManifest(): McpManifest {
       "VAT-id checks (FacturGate), carrier invoice DIM-weight / surcharge auditing with " +
       "billable-weight computation (ParcelProof), buyer-side warehouse-automation case " +
       "auditing with multi-bid comparison and after-tax payback (CaseProof), and AI provider " +
-      "invoice -> tagged-usage reconciliation with a variance classification (SpendProof). " +
-      "Products retired in the registry are not listed.",
+      "invoice -> tagged-usage reconciliation with a variance classification (SpendProof), " +
+      "commercial-electric billed-demand and ratchet auditing (RatchetProof), and manufacturer " +
+      "warranty labour-claim short-payment auditing (ClaimProof). Products retired in the registry " +
+      "are not listed.",
     // 2.0.0: the flat rate_per_query_usd was replaced by per-tool rates — a consumer reading the
     // old field must re-read pricing, so this is a breaking change, not a silent one.
     // 2.1.0: SpendProof's reconcile_ai_invoice added (a new product's tool, so the published
     // tool list grows; additive, but the list IS the contract an agent reads).
-    version: "2.2.0",
+    // 2.2.0: RatchetProof's audit_demand_billing added.
+    // 2.3.0: ClaimProof's audit_warranty_remittance added.
+    version: "2.3.0",
     endpoint: `${siteOrigin()}/api/agent/calculate`,
     tool_selector: {
       header: "x-webmcp-tool",

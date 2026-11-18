@@ -105,6 +105,15 @@ export const PRODUCT_PRICING: Record<string, ProductPricing> = {
     // 3× and sit in the $0.50–$3.00 band — pricing.test.ts enforces both.
     agentRates: { audit_demand_billing: 1.5 },
   },
+  claimproof: {
+    freeTier:
+      "Audit one warranty claim against the vendored schedule and read the per-line finding set — free, in your browser",
+    exportUsd: ONE_OFF_EXPORT_USD,
+    exportLabel: "Finding set — the per-line variance table and the resubmission summary",
+    // LLM/parse-backed class: the rate must clear the PRD's modelled $0.22 per-call extraction cost
+    // 3× and sit in the $0.50–$3.00 band — pricing.test.ts enforces both.
+    agentRates: { audit_warranty_remittance: 1.5 },
+  },
   quarterline: {
     // Retired: kept so the legacy agent tools still price, and so tool lookups never dangle.
     freeTier: "Retired product — kept on the trail only",

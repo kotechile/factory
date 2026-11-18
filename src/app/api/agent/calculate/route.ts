@@ -61,6 +61,17 @@ import {
   type PeakHistoryEntry,
   type Tariff as RatchetProofTariff,
 } from "@/lib/calc/ratchetproof";
+import {
+  ClaimProofExtractionUnavailableError,
+  ClaimProofFieldError,
+  auditClaim as auditClaimProof,
+  extractClaim as extractClaimProof,
+  readClaimRecord as readClaimProofRecord,
+  resolveExtractionCredentials as resolveClaimProofCredentials,
+  scheduleBySlug as claimProofScheduleBySlug,
+  type ExtractionCredentials as ClaimProofCredentials,
+  type ExtractionTransport as ClaimProofTransport,
+} from "@/lib/calc/claimproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { siteOrigin } from "@/lib/site-origin";
 import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
@@ -129,6 +140,9 @@ const SPENDPROOF_PRICE_USD = agentRatesForProduct("spendproof");
 
 /** RatchetProof rates, from the pricing catalog. */
 const RATCHETPROOF_PRICE_USD = agentRatesForProduct("ratchetproof");
+
+/** ClaimProof rates, from the pricing catalog. */
+const CLAIMPROOF_PRICE_USD = agentRatesForProduct("claimproof");
 
 /**
  * The network boundary for the extraction layer, supplied by the route (the engine folder holds no
@@ -872,6 +886,190 @@ export async function POST(req: NextRequest) {
         tool: toolName,
         costUsd: costPerQueryUsd,
         product: "spendproof",
+      });
+
+      return NextResponse.json({
+        success: true,
+        data,
+        metering: {
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
+          costPerQueryUsd,
+        },
+        computedAt: new Date().toISOString(),
+      });
+    }
+
+    // --- ClaimProof: audit_warranty_remittance (an LLM/parse-backed extraction layer in front of the
+    // deterministic schedule engine). The claim and remittance are read as DECLARED fields only; a
+    // declared-fields JSON runs with no model key at all, and a document path on an unconfigured
+    // deploy is an explicit 503 naming the variable — before the cap gate and before any telemetry.
+    if (toolName in CLAIMPROOF_PRICE_USD) {
+      const body = (await req.json()) as {
+        schedule?: unknown;
+        claim?: unknown;
+        remittance?: unknown;
+      };
+      const scheduleSlug = typeof body.schedule === "string" ? body.schedule.trim() : "";
+      const claimText = typeof body.claim === "string" ? body.claim.trim() : "";
+      const remittanceText = typeof body.remittance === "string" ? body.remittance.trim() : "";
+      if (!scheduleSlug || !claimText || !remittanceText) {
+        return NextResponse.json(
+          {
+            error: "`schedule` (the vendored schedule slug), `claim` and `remittance` are all required. Nothing was audited.",
+            ruleId: "cp-field-invalid",
+            fieldPath: !scheduleSlug ? "schedule" : !claimText ? "claim" : "remittance",
+          },
+          { status: 400 },
+        );
+      }
+
+      let schedule;
+      try {
+        schedule = claimProofScheduleBySlug(scheduleSlug);
+      } catch (scheduleError) {
+        if (scheduleError instanceof ClaimProofFieldError) {
+          return NextResponse.json(
+            {
+              error: scheduleError.message,
+              ruleId: scheduleError.ruleId,
+              fieldPath: scheduleError.fieldPath,
+            },
+            { status: 400 },
+          );
+        }
+        throw scheduleError;
+      }
+
+      const parseJson = (text: string): unknown | null => {
+        const trimmed = text.trim();
+        if (!trimmed.startsWith("{")) return null;
+        try {
+          return JSON.parse(trimmed);
+        } catch {
+          return null;
+        }
+      };
+      const claimObj = parseJson(claimText);
+      const remittanceObj = parseJson(remittanceText);
+      const declaredPath = claimObj !== null && remittanceObj !== null;
+
+      let credentials: ClaimProofCredentials | null = null;
+      if (!declaredPath) {
+        try {
+          credentials = resolveClaimProofCredentials();
+        } catch (credentialError) {
+          if (credentialError instanceof ClaimProofExtractionUnavailableError) {
+            return NextResponse.json(
+              {
+                error: credentialError.message,
+                code: credentialError.code,
+                ruleId: credentialError.ruleId,
+                missing: credentialError.missing,
+              },
+              { status: 503 },
+            );
+          }
+          throw credentialError;
+        }
+      }
+
+      // Cap gate runs BEFORE the (possibly paid) extraction.
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
+      const costPerQueryUsd = CLAIMPROOF_PRICE_USD[toolName] ?? 1.5;
+      let data: unknown;
+      try {
+        if (declaredPath) {
+          const claimRecord = (claimObj ?? {}) as Record<string, unknown>;
+          const remittanceRecord = (remittanceObj ?? {}) as Record<string, unknown>;
+          const paymentBlock = (remittanceRecord.payment as Record<string, unknown> | undefined) ?? remittanceRecord;
+          const declared = { ...claimRecord, payment: paymentBlock };
+          const record = readClaimProofRecord(declared);
+          if (record.blocked) {
+            return NextResponse.json(
+              {
+                error: "The declared fields could not be read into a claim; the audit is withheld.",
+                ruleId: record.findings[0]?.ruleId ?? "cp-extraction-unstated",
+                findings: record.findings,
+              },
+              { status: 422 },
+            );
+          }
+          const report = auditClaimProof({ ...record.claim, oemSlug: scheduleSlug }, schedule, record.payment);
+          data = {
+            report,
+            labels: record.labels,
+            note: "Every figure was computed by the deterministic engine; declared fields were read, never derived.",
+          };
+        } else {
+          const transport: ClaimProofTransport = async (request) => {
+            const response = await fetch(request.url, {
+              method: request.method,
+              headers: request.headers,
+              body: request.body,
+            });
+            return { ok: response.ok, status: response.status, text: () => response.text() };
+          };
+          const extracted = await extractClaimProof({
+            documents: {
+              claim: { text: claimText, name: "filed-claim" },
+              remittance: { text: remittanceText, name: "remittance" },
+            },
+            schedule,
+            credentials: credentials as ClaimProofCredentials,
+            transport,
+          });
+          if (extracted.blocked) {
+            return NextResponse.json(
+              {
+                error: "The documents could not be read as declared fields; the audit is withheld.",
+                ruleId: extracted.findings[0]?.ruleId ?? "cp-extraction-unstated",
+                findings: extracted.findings,
+              },
+              { status: 422 },
+            );
+          }
+          const report = auditClaimProof({ ...extracted.claim, oemSlug: scheduleSlug }, schedule, extracted.payment);
+          data = {
+            report,
+            labels: extracted.labels,
+            note: "Every figure was computed by the deterministic engine; the reader filled declared fields only.",
+          };
+        }
+      } catch (toolError) {
+        if (toolError instanceof ClaimProofExtractionUnavailableError) {
+          return NextResponse.json(
+            {
+              error: toolError.message,
+              code: toolError.code,
+              ruleId: toolError.ruleId,
+              missing: toolError.missing,
+            },
+            { status: 503 },
+          );
+        }
+        if (toolError instanceof ClaimProofFieldError) {
+          return NextResponse.json(
+            { error: toolError.message, ruleId: toolError.ruleId, fieldPath: toolError.fieldPath },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json(
+          { error: toolError instanceof Error ? toolError.message : "ClaimProof request failed" },
+          { status: 400 },
+        );
+      }
+
+      await track("agent_query", { tool: toolName }, "claimproof", traffic);
+
+      const metering = await billSuccessfulCall(req, {
+        tool: toolName,
+        costUsd: costPerQueryUsd,
+        product: "claimproof",
       });
 
       return NextResponse.json({

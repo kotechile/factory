@@ -843,6 +843,70 @@ export const auditDemandBillingTool: WebMCPToolDefinition<AuditDemandBillingPara
   handler: (params) => runRatchetProofAgentCall<unknown>("audit_demand_billing", params),
 };
 
+async function runClaimProofAgentCall<TResult>(toolName: string, params: unknown): Promise<TResult> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent call failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: TResult;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent call failed: invalid response");
+  }
+  return json.data;
+}
+
+export interface AuditWarrantyRemittanceParams {
+  /** The vendored schedule to audit against, e.g. "truemfg@2022-06". */
+  schedule: string;
+  /** The filed claim: declared-fields JSON, or the claim document's text for the extraction path. */
+  claim: string;
+  /** The payment: declared-fields JSON, or the remittance / payment-advice document's text. */
+  remittance: string;
+}
+
+export const auditWarrantyRemittanceTool: WebMCPToolDefinition<
+  AuditWarrantyRemittanceParams,
+  unknown
+> = {
+  name: "audit_warranty_remittance",
+  description:
+    "Audits a manufacturer warranty labour claim against the vendored, version-stamped payment schedule: re-derives the allowed hours per repair code (with the multiple-repair increment and the travel rule) and the per-claim fee caps, then compares each line (labour, parts, fees, travel) against what the remittance actually paid, returning per-line variance with the schedule version and page cited, the blocked-line count, a stale-schedule flag and a resubmission summary. The claim and remittance are read as DECLARED fields only — a repair code outside the schedule table is reported unstated and blocks the line, and no number in the report comes from a model.",
+  parameters: {
+    type: "object",
+    properties: {
+      schedule: {
+        type: "string",
+        description:
+          "The vendored schedule slug to audit against (e.g. \"truemfg@2022-06\"). An unknown slug is an explicit 400, never a default.",
+      },
+      claim: {
+        type: "string",
+        description:
+          "The filed claim: declared-fields JSON ({ claimId: {value,provenance}, model, serial, serviceDate, laborRateCentsPerHour, repairs[], partsCents, travel, fees, ... } — money in integer cents, time in tenths of an hour) or the claim document's text for the extraction path.",
+      },
+      remittance: {
+        type: "string",
+        description:
+          "The payment: declared-fields JSON ({ payment: { laborCents, partsCents, travelCents, fees } }) or the remittance / payment-advice document's text. The paid amounts are the evidence under audit and are never derived.",
+      },
+    },
+    required: ["schedule", "claim", "remittance"],
+  },
+  handler: (params) => runClaimProofAgentCall<unknown>("audit_warranty_remittance", params),
+};
+
 /**
  * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
  *
@@ -868,6 +932,7 @@ export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   afterTaxPaybackTool,
   reconcileAiInvoiceTool,
   auditDemandBillingTool,
+  auditWarrantyRemittanceTool,
 ].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
@@ -887,6 +952,7 @@ export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(afterTaxPaybackTool);
   registerWebMCPTool(reconcileAiInvoiceTool);
   registerWebMCPTool(auditDemandBillingTool);
+  registerWebMCPTool(auditWarrantyRemittanceTool);
 }
 
 

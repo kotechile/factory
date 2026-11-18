@@ -45,6 +45,7 @@ export const PRODUCT_ACCENTS = {
   caseproof: { accent: "#0F766E", ink: "#115E59" },
   quarterline: { accent: "#64748B", ink: "#475569" },
   ratchetproof: { accent: "#65A30D", ink: "#3F6212" },
+  claimproof: { accent: "#E11D48", ink: "#9F1239" },
 } as const;
 
 export type AccentSlug = keyof typeof PRODUCT_ACCENTS;

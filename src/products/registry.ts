@@ -121,6 +121,20 @@ export const products: Product[] = [
     usesLlmPrimitive: true,
     visibility: "public",
   },
+  {
+    slug: "claimproof",
+    name: "ClaimProof",
+    tagline: "Warranty-Claim Short-Payment Audit for HVAC & Refrigeration Shops",
+    status: "beta",
+    description:
+      "Re-derives a manufacturer's published labour-payment schedule (allowed hours per repair code, the multiple-repair increment, the travel rule, per-claim fee caps) against what the remittance actually paid, per line, with the schedule version and the page cited. Sells the finding set and a resubmission packet, never the human chase. The claim and remittance are read by a model as DECLARED fields only — every field is labelled extracted/unreadable/unstated, a repair code outside the version-stamped schedule is reported unstated and blocks that line, and no number in the report comes from a model.",
+    route: "/claimproof",
+    webmcpTools: ["audit_warranty_remittance"],
+    launchedAt: "2026-11-18",
+    category: "Trades",
+    usesLlmPrimitive: true,
+    visibility: "public",
+  },
 ];
 
 /**
