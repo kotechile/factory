@@ -40,6 +40,14 @@ Expose every tool's deterministic core to in-browser AI agents via `navigator.mo
   Registered tool name, schema, and pricing all live there; a static copy under
   `public/.well-known/` silently drifts.
 
+**Manifest is SERVED, not synced (2026-11-19, FFRProof).** There is no `npm run mcp:sync` script and
+no published file to regenerate: `/.well-known/mcp.json` is served at request time by
+`src/app/.well-known/mcp.json/route.ts` from `buildMcpManifest()` (registry + `WEBMCP_TOOL_SUMMARIES`).
+Adding a tool is therefore: append the definition to `register.ts`, add the `webmcpTools` entry to
+`registry.ts`, bump the `version` in `src/lib/webmcp/manifest.ts` (the tool list is the contract), and let
+`manifest.test.ts` verify registry ↔ definitions ↔ served manifest. Do NOT run `npm run mcp:sync` — that
+script does not exist; the older bullets below that mention it predate the served-manifest change.
+
 ### Resolved edge-case (2026-09-10) — CLOSED 2026-09-17
 `public/.well-known/mcp.json` was written by hand in Phase 3 and never regenerated, so after the
 P0 tool-name fix (`05ac8ae`) it still advertised `calculate_self_employment_2026` — a name no

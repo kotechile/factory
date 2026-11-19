@@ -4,6 +4,20 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-19 (**00:26Z — `ffrproof` SHIPPED and CLOSED**).
+FFRProof v1 is built, pushed (`04a08f5`) and verified live on apps.aichieve.net: `/ffrproof` 200,
+`/showcase` lists FFRProof (**beta** — the public launch call stays with the owner), `POST
+/api/ffrproof/audit {}` answers the documented **400** `ffrproof-documents-missing`, the deterministic
+declared path computes the worked sample live (10a drift $0.04, match short $5,000, threshold unstated),
+and the document (extraction) path answers **200** — the deploy now carries `DEEPSEEK_API_KEY` and
+`LLAMAPARSE_API_KEY`, so the earlier "503 without a key" caveat is closed, not a defect (row
+`extraction-key` is therefore satisfied in reality; the next sweep should close it after re-probing
+SpendProof + RatchetProof). Engine on integer cents (four cross-foot identities, drawdown reconciliation
+by subaccount to the cent, match + final zero rules, budget variance with the threshold read from the
+award's own terms, period-vs-cumulative); WebMCP tool `audit_federal_financial_report` at $1.50/call.
+Gate green: 535 vitest, 125 Playwright, vision QA skipped (no key in the gate env). Next build slot:
+**CanopyProof** (approved 2026-10-18, unstarted).
+
 _Last updated: 2026-11-18 (**22:16Z owner decision — `ffrproof` APPROVED, queued behind the running build**).
 Verbatim: `@Simon approve FFRProof` — byte-identical to the reply string this row has carried since
 2026-11-02 (16 days parked). It is **approved but not concurrent**: the ClaimProof v1 build is running in

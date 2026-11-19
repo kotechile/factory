@@ -16,18 +16,6 @@
    "updated": "2026-11-17T15:45Z"
   },
   {
-   "id": "ffrproof",
-   "app": "FFRProof",
-   "kind": "build",
-   "state": "approved",
-   "headline": "Pre-flight audit for the federal financial report (SF-425) before it is filed",
-   "detail": "A model reads the award terms and the federal payment-system drawdown statement into fields; our own arithmetic cross-foots the report's four line identities, reconciles line 10a to the drawdown record, tests the required recipient match, and catches period-vs-cumulative and double-counted dollars. Every finding carries the form line and the source page. It never files or certifies for the recipient. OWNER APPROVAL 2026-11-18T22:16Z: verbatim '@Simon approve FFRProof' — byte-identical to this row's reply string, so the gate is answered (parked since 2026-11-02, 16 days). QUEUED, not started: one build slot at a time — the ClaimProof v1 build (job 317ee5f33155) is running in this repo now, so the FFRProof build is dispatched as a one-shot job that waits for that slot to close, then fast-forwards main and builds v1 to this PRD's scope guard (four cross-foot identities, drawdown reconciliation, match test, budget variance with the threshold read from the award's own terms, period-vs-cumulative; award terms extracted per filing, never a maintained rule table; registers as beta so the public launch call stays with the owner). Same credential caveat as ClaimProof: without DEEPSEEK_API_KEY on the deploy the audit answers 503 — the extraction-key ask covers both products.",
-   "impact": "Approved 2026-11-18T22:16Z, build queued behind ClaimProof (both need the one build slot; CanopyProof, approved 2026-10-18, stays third in line). When it lands, a grants manager uploads the award terms, the payment-system drawdown statement, a GL export and optionally last period's filing, and gets the SF-425 line-by-line pre-flight: which of the four identities cross-foot, where 10a drifts from the drawdown record by how many cents, the match position (10i − 10j), and any period-vs-cumulative double count — each finding with its form line and source page. It never files or certifies.",
-   "reply": "@Simon approve FFRProof",
-   "opened": "2026-11-02",
-   "updated": "2026-11-18T22:16Z"
-  },
-  {
    "id": "canopyproof",
    "app": "CanopyProof",
    "kind": "build",
@@ -50,6 +38,18 @@
    "reply": "",
    "opened": "2026-10-26",
    "updated": "2026-11-18T23:12Z"
+  },
+  {
+   "id": "ffrproof",
+   "app": "FFRProof",
+   "kind": "build",
+   "state": "resolved",
+   "headline": "Pre-flight audit for the federal financial report (SF-425) before it is filed",
+   "detail": "Done 2026-11-19: shipped FFRProof v1 (commit 04a08f5) as beta — the SF-425 pre-flight: cross-foot of the four line identities, drawdown reconciliation by subaccount to the cent, match + final-report zero rules, budget variance against the prior-approval threshold the award's own terms state (unstated when they do not), and the period-vs-cumulative double-count check. Declared fields only in front of the deterministic engine; the GL export is parsed from CSV, never a model. Gate green (535 unit / 125 e2e / tsc-lint-tokens-verticals-recon; vision QA skipped for no key in the gate env). Deploy verified live: image 04a08f5, /ffrproof 200, /showcase lists FFRProof, POST {} answers 400 ffrproof-documents-missing, and the deterministic declared path answers 200 with the correct finding set (10a drift 4 cents, match shortfall, unstated threshold). Measured 2026-11-19T00:2xZ: the deploy now carries DEEPSEEK_API_KEY + LLAMAPARSE_API_KEY, so the document (extraction) path also works live (200) — the earlier '503 without a key' caveat is closed, not a defect.",
+   "impact": "Closed — a grants manager uploads the award terms, the drawdown statement and the GL export (optionally last period's filing) and gets the line-by-line pre-flight with each finding's form line and source page; nothing is filed or certified. Beta, so the public launch call stays with the owner. No credential is open — the deploy already carries the model and parse keys.",
+   "reply": "",
+   "opened": "2026-11-02",
+   "updated": "2026-11-19T00:26Z"
   },
   {
    "id": "auto-recharge",
@@ -267,5 +267,5 @@
    "updated": "2026-11-17T15:45Z"
   }
  ],
- "updated": "2026-11-18T23:12Z"
+ "updated": "2026-11-19T00:26Z"
 }
