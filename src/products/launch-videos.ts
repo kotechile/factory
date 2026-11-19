@@ -51,6 +51,14 @@ export interface LaunchVideo {
 
 export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   {
+    slug: "ffrproof",
+    youtubeId: "_rPlmqrX6-k",
+    posterPath: "/launch-videos/ffrproof.jpg",
+    title: "FFRProof — the SF-425 pre-flight that catches the four cents",
+    durationSeconds: 24,
+    publishedAt: "2026-11-19",
+  },
+  {
     slug: "claimproof",
     youtubeId: "UT6c2qNHbcY",
     posterPath: "/launch-videos/claimproof.jpg",
