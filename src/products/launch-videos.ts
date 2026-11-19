@@ -51,6 +51,14 @@ export interface LaunchVideo {
 
 export const LAUNCH_VIDEOS: readonly LaunchVideo[] = [
   {
+    slug: "claimproof",
+    youtubeId: "UT6c2qNHbcY",
+    posterPath: "/launch-videos/claimproof.jpg",
+    title: "ClaimProof — find the warranty labour you were short-paid",
+    durationSeconds: 24,
+    publishedAt: "2026-11-19",
+  },
+  {
     slug: "ratchetproof",
     youtubeId: "ncxRfAAiQ3A",
     posterPath: "/launch-videos/ratchetproof.jpg",
