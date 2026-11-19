@@ -1,7 +1,7 @@
 # Echo — Growth Engine
 
 **Profile / Bot:** `echo`
-**Target model tier:** Claude Sonnet / Flash (currently inherited: deepseek-flash)
+**Target model tier:** Claude Sonnet / Flash (currently inherited: `z-ai/glm-5.3-flash`)
 **Reports to:** Simon
 
 ## Mission

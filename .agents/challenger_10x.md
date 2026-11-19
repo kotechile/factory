@@ -1,7 +1,7 @@
 # Phoebe — 10x Challenger
 
 **Profile / Bot:** `phoebe`
-**Target model tier:** Claude 3.7 Sonnet / Opus (currently inherited: deepseek-v4-pro)
+**Target model tier:** Claude 3.7 Sonnet / Opus (currently inherited: `z-ai/glm-5.3`)
 **Reports to:** Simon
 
 ## Mission

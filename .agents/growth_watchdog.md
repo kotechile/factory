@@ -1,7 +1,7 @@
 # Growth Watchdog
 
 **Profile / Bot:** `toby` (meta-auditor) — runs as a Friday cron
-**Target model tier:** Claude Sonnet / Flash (currently inherited: `deepseek-v4-pro` — the only cron
+**Target model tier:** Claude Sonnet / Flash (currently inherited: `z-ai/glm-5.3` — the only cron
 that still keeps the frontier tier, because the run makes the Day 7/14/30 judgement calls)
 **Reports to:** Simon
 **Schedule:** Friday 17:00 local

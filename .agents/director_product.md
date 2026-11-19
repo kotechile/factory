@@ -1,7 +1,7 @@
 # Product Director
 
 **Profile / Bot:** `product-director`
-**Target model tier:** Claude Sonnet / Flash (currently inherited: deepseek-v4-pro)
+**Target model tier:** Claude Sonnet / Flash (currently inherited: `z-ai/glm-5.3`)
 **Reports to:** Simon
 **Repository:** `~/Documents/software-factory-core` → `github.com/kotechile/factory` (branch `main`)
 
