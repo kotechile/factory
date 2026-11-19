@@ -72,6 +72,12 @@ import {
   type ExtractionCredentials as ClaimProofCredentials,
   type ExtractionTransport as ClaimProofTransport,
 } from "@/lib/calc/claimproof";
+import {
+  FFRProofFieldError,
+  auditFfr as auditFfrProof,
+  readCompositeInput as readFfrCompositeInput,
+  toAuditInput as toFfrAuditInput,
+} from "@/lib/calc/ffrproof";
 import { fetchPayoutBundleWithKey } from "@/lib/stripe/ledgerlink";
 import { siteOrigin } from "@/lib/site-origin";
 import { billSuccessfulCall, billingCapGuard } from "@/lib/billing/ledger";
@@ -143,6 +149,9 @@ const RATCHETPROOF_PRICE_USD = agentRatesForProduct("ratchetproof");
 
 /** ClaimProof rates, from the pricing catalog. */
 const CLAIMPROOF_PRICE_USD = agentRatesForProduct("claimproof");
+
+/** FFRProof rates, from the pricing catalog. */
+const FFRPROOF_PRICE_USD = agentRatesForProduct("ffrproof");
 
 /**
  * The network boundary for the extraction layer, supplied by the route (the engine folder holds no
@@ -1070,6 +1079,86 @@ export async function POST(req: NextRequest) {
         tool: toolName,
         costUsd: costPerQueryUsd,
         product: "claimproof",
+      });
+
+      return NextResponse.json({
+        success: true,
+        data,
+        metering: {
+          meteredUsageReported: metering.meteredUsageReported,
+          meterEventId: metering.meterEventId,
+          usageRecorded: metering.usageRecorded,
+          meteredCents: metering.meteredValueCents,
+          costPerQueryUsd,
+        },
+        computedAt: new Date().toISOString(),
+      });
+    }
+
+    // --- FFRProof: audit_federal_financial_report (an LLM/parse-backed extraction layer in front of
+    // the deterministic form-arithmetic engine). The agent tool accepts the declared composite only,
+    // so the deterministic path runs with no model key at all; the document (extraction) path is the
+    // direct POST /api/ffrproof/audit endpoint, which answers an explicit 503 without a key.
+    if (toolName in FFRPROOF_PRICE_USD) {
+      const body = (await req.json()) as { declared?: unknown };
+      const declaredText = typeof body.declared === "string" ? body.declared.trim() : "";
+      if (!declaredText) {
+        return NextResponse.json(
+          {
+            error: "`declared` (the composite JSON string) is required. Nothing was audited.",
+            ruleId: "ffr-field-invalid",
+            fieldPath: "declared",
+          },
+          { status: 400 },
+        );
+      }
+      let composite: unknown;
+      try {
+        composite = JSON.parse(declaredText);
+      } catch {
+        return NextResponse.json(
+          {
+            error: "`declared` is not valid JSON. Nothing was audited.",
+            ruleId: "ffr-field-invalid",
+            fieldPath: "declared",
+          },
+          { status: 400 },
+        );
+      }
+
+      // Cap gate runs BEFORE the audit (the declared path has no model cost, but the meter applies).
+      const capped = await billingCapGuard(req);
+      if (capped) return capped;
+
+      const costPerQueryUsd = FFRPROOF_PRICE_USD[toolName] ?? 1.5;
+      let data: unknown;
+      try {
+        const compositeInput = readFfrCompositeInput(composite);
+        const report = auditFfrProof(toFfrAuditInput(compositeInput));
+        data = {
+          report,
+          labels: compositeInput.labels,
+          note: "Every figure was computed by the deterministic engine; declared fields were read, never derived.",
+        };
+      } catch (toolError) {
+        if (toolError instanceof FFRProofFieldError) {
+          return NextResponse.json(
+            { error: toolError.message, ruleId: toolError.ruleId, fieldPath: toolError.fieldPath },
+            { status: 400 },
+          );
+        }
+        return NextResponse.json(
+          { error: toolError instanceof Error ? toolError.message : "FFRProof request failed" },
+          { status: 400 },
+        );
+      }
+
+      await track("agent_query", { tool: toolName }, "ffrproof", traffic);
+
+      const metering = await billSuccessfulCall(req, {
+        tool: toolName,
+        costUsd: costPerQueryUsd,
+        product: "ffrproof",
       });
 
       return NextResponse.json({

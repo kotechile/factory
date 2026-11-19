@@ -144,6 +144,25 @@ test("capture ClaimProof QA tiles", async ({ page }) => {
   expect(isMonospace).toBe(true);
 });
 
+// FFRProof is captured in its richest state: the worked sample pre-flighted, with the four cross-foot
+// identities, the $0.04 cash drift, the match shortfall and the unstated threshold on the page.
+test("capture FFRProof QA tiles", async ({ page }) => {
+  await page.goto("/ffrproof");
+  await page.getByRole("button", { name: "Run the pre-flight" }).click();
+  await expect(page.getByText("BLOCKED").first()).toBeVisible();
+  await captureTiles(page, "ffrproof");
+
+  // The audited money figure is monospace — asserted in code because a vision model cannot tell.
+  const money = page.getByText("$95,000.00").first();
+  const isMonospace = await money.evaluate((node) => {
+    for (let el = node as HTMLElement | null; el; el = el.parentElement) {
+      if (getComputedStyle(el).fontFamily.toLowerCase().includes("mono")) return true;
+    }
+    return false;
+  });
+  expect(isMonospace).toBe(true);
+});
+
 // The "currency inputs have adequate horizontal padding" check that used to live here is deleted, not
 // moved: the only surface it could observe was QuarterLine's currency field, which is out of service
 // with the product. Padding is enforced by the design-token step (`npm run check:tokens`) and the

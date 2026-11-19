@@ -46,6 +46,7 @@ export const PRODUCT_ACCENTS = {
   quarterline: { accent: "#64748B", ink: "#475569" },
   ratchetproof: { accent: "#65A30D", ink: "#3F6212" },
   claimproof: { accent: "#E11D48", ink: "#9F1239" },
+  ffrproof: { accent: "#D97706", ink: "#92400E" },
 } as const;
 
 export type AccentSlug = keyof typeof PRODUCT_ACCENTS;

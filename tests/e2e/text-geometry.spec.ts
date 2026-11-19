@@ -64,6 +64,13 @@ const PRODUCTS: {
       await page.getByText("UNDERPAID").first().waitFor();
     },
   },
+  {
+    path: "/ffrproof",
+    setup: async (page) => {
+      await page.getByRole("button", { name: "Run the pre-flight" }).click();
+      await page.getByText("BLOCKED").first().waitFor();
+    },
+  },
 ];
 
 for (const { path, setup } of PRODUCTS) {

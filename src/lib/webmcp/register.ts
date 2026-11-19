@@ -907,6 +907,61 @@ export const auditWarrantyRemittanceTool: WebMCPToolDefinition<
   handler: (params) => runClaimProofAgentCall<unknown>("audit_warranty_remittance", params),
 };
 
+async function runFfrProofAgentCall<TResult>(toolName: string, params: unknown): Promise<TResult> {
+  const response = await fetch("/api/agent/calculate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-webmcp-tool": toolName,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Agent call failed (${response.status}): ${text}`);
+  }
+  const json = (await response.json()) as {
+    success?: boolean;
+    data?: TResult;
+    error?: string;
+  };
+  if (!json?.success || !json?.data) {
+    throw new Error(json?.error || "Agent call failed: invalid response");
+  }
+  return json.data;
+}
+
+export interface AuditFederalFinancialReportParams {
+  /**
+   * The full composite as a JSON string: { report, awardTerms, drawdown, glCsv, budgetCsv,
+   * priorReport? } — money in integer cents, percentages in basis points. The GL export and
+   * approved budget are CSV text parsed deterministically; only the award terms and drawdown
+   * statement are read by the extraction layer on the document path.
+   */
+  declared: string;
+}
+
+export const auditFederalFinancialReportTool: WebMCPToolDefinition<
+  AuditFederalFinancialReportParams,
+  unknown
+> = {
+  name: "audit_federal_financial_report",
+  description:
+    "Runs the SF-425 Federal Financial Report pre-flight: cross-foots the four published line identities (10c = 10a − 10b, 10g = 10e + 10f, 10h = 10d − 10g, 10k = 10i − 10j), reconciles 10a/10b to the federal payment system's drawdown statement to the cent, tests the recipient match and the final-report zero rules, checks the budget variance against the prior-approval threshold the award's own terms state (unstated when they do not), and catches period-vs-cumulative and double-counted dollars — every finding with its form line and source page. The award terms and drawdown statement are read as DECLARED fields only — a field the terms do not state blocks the check that depends on it, and no number in the report comes from a model. Nothing is filed or certified for the recipient.",
+  parameters: {
+    type: "object",
+    properties: {
+      declared: {
+        type: "string",
+        description:
+          "The full composite as a JSON string: { report: { cashReceiptsCents, cashDisbursementsCents, cashOnHandCents, totalFederalAwardCents, federalExpendituresCents, unliquidatedObligationsCents, federalShareCents, unobligatedBalanceCents, requiredRecipientShareCents, recipientShareProvidedCents, remainingRecipientShareCents, periodEnd, isFinal }, awardTerms: { awardId, authorizedFederalAmountCents, periodOfPerformance:{start,end}, requiredMatchPercentBps, reportingFrequency, priorApprovalThresholdBps, agencyLineInstructions } (each field { value, provenance, page, quote }), drawdown: { totalReceiptsCents, totalDisbursementsCents, subaccounts[] }, glCsv: 'category,actual_usd…', budgetCsv: 'category,approved_usd…', priorReport?: <report> }. Money is integer cents; percentages are integer basis points.",
+      },
+    },
+    required: ["declared"],
+  },
+  handler: (params) => runFfrProofAgentCall<unknown>("audit_federal_financial_report", params),
+};
+
 /**
  * Canonical surface of the factory's WebMCP tools — name, description and JSON Schema.
  *
@@ -933,6 +988,7 @@ export const WEBMCP_TOOL_SUMMARIES: WebMCPToolSummary[] = [
   reconcileAiInvoiceTool,
   auditDemandBillingTool,
   auditWarrantyRemittanceTool,
+  auditFederalFinancialReportTool,
 ].map(({ name, description, parameters }) => ({ name, description, parameters }));
 
 /**
@@ -953,6 +1009,7 @@ export function registerDefaultWebMCPTools(): void {
   registerWebMCPTool(reconcileAiInvoiceTool);
   registerWebMCPTool(auditDemandBillingTool);
   registerWebMCPTool(auditWarrantyRemittanceTool);
+  registerWebMCPTool(auditFederalFinancialReportTool);
 }
 
 

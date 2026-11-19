@@ -135,6 +135,20 @@ export const products: Product[] = [
     usesLlmPrimitive: true,
     visibility: "public",
   },
+  {
+    slug: "ffrproof",
+    name: "FFRProof",
+    tagline: "SF-425 Federal Financial Report Pre-Flight Audit",
+    status: "beta",
+    description:
+      "Cross-foots the SF-425's four published line identities (10c = 10a − 10b, 10g = 10e + 10f, 10h = 10d − 10g, 10k = 10i − 10j), reconciles line 10a to the federal payment system's drawdown statement by subaccount and to the cent, tests the recipient match and the final-report zero rules (10f/10h must be zero on a final), checks the budget variance against the prior-approval threshold the award's own terms state (unstated when they do not), and catches period-vs-cumulative and double-counted dollars — every finding with its form line and source page. The award terms and drawdown statement are read by a model as DECLARED fields only — a field the terms do not state blocks the check that depends on it, and no number in the report comes from a model. It never files or certifies for the recipient.",
+    route: "/ffrproof",
+    webmcpTools: ["audit_federal_financial_report"],
+    launchedAt: "2026-11-18",
+    category: "Compliance",
+    usesLlmPrimitive: true,
+    visibility: "public",
+  },
 ];
 
 /**

@@ -98,7 +98,7 @@ loadEnvFile(".env");
 // scrollWidth == clientWidth == 1265 — no horizontal overflow anywhere. The text wraps by design
 // (`month,period_start,period_end,printed_billed_demand_kw` breaks mid-token), which reads as tight but
 // sits 13-17 px inside the border. The prompt below now names that geometry. No page was restyled.
-const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof", "spendproof", "ratchetproof", "claimproof"];
+const REVIEWED_PRODUCTS = ["facturgate", "parcelproof", "caseproof", "spendproof", "ratchetproof", "claimproof", "ffrproof"];
 // `--suggest` reviews ONE surface; named explicitly (a tile of the flagship page) rather than indexed, so
 // removing a product can never silently retarget the suggestion pass at a different page.
 const SUGGEST_TARGET = "test-results/facturgate-qa-1.png";

@@ -133,7 +133,7 @@ export function buildMcpManifest(): McpManifest {
       "auditing with multi-bid comparison and after-tax payback (CaseProof), and AI provider " +
       "invoice -> tagged-usage reconciliation with a variance classification (SpendProof), " +
       "commercial-electric billed-demand and ratchet auditing (RatchetProof), and manufacturer " +
-      "warranty labour-claim short-payment auditing (ClaimProof). Products retired in the registry " +
+      "warranty labour-claim short-payment auditing (ClaimProof), and SF-425 federal financial report pre-flight auditing (FFRProof). Products retired in the registry " +
       "are not listed.",
     // 2.0.0: the flat rate_per_query_usd was replaced by per-tool rates — a consumer reading the
     // old field must re-read pricing, so this is a breaking change, not a silent one.
@@ -141,7 +141,8 @@ export function buildMcpManifest(): McpManifest {
     // tool list grows; additive, but the list IS the contract an agent reads).
     // 2.2.0: RatchetProof's audit_demand_billing added.
     // 2.3.0: ClaimProof's audit_warranty_remittance added.
-    version: "2.3.0",
+    // 2.4.0: FFRProof's audit_federal_financial_report added.
+    version: "2.4.0",
     endpoint: `${siteOrigin()}/api/agent/calculate`,
     tool_selector: {
       header: "x-webmcp-tool",

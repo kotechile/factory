@@ -57,6 +57,13 @@ const PAGES = [
       await page.getByText("UNDERPAID").first().waitFor();
     },
   },
+  {
+    path: "/ffrproof",
+    setup: async (page: import("@playwright/test").Page) => {
+      await page.getByRole("button", { name: "Run the pre-flight" }).click();
+      await page.getByText("BLOCKED").first().waitFor();
+    },
+  },
 ];
 
 for (const { path, setup } of PAGES) {
@@ -143,7 +150,7 @@ for (const { path, setup } of PAGES) {
  * The hero artwork renders unconditionally, so this class needs no product setup — and it therefore also
  * covers /ledgerlink, which the connector list above omits.
  */
-const HERO_PATHS = ["/facturgate", "/parcelproof", "/caseproof", "/spendproof", "/ledgerlink", "/claimproof"];
+const HERO_PATHS = ["/facturgate", "/parcelproof", "/caseproof", "/spendproof", "/ledgerlink", "/claimproof", "/ffrproof"];
 
 for (const path of HERO_PATHS) {
   test(`no schematic caption crosses the border of its own box on ${path}`, async ({ page }) => {
