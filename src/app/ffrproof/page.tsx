@@ -3,6 +3,7 @@ import Link from "next/link";
 import { canonicalMetadata } from "@/lib/seo/canonical";
 import { siteOrigin } from "@/lib/site-origin";
 import FFRProofAudit from "@/components/ffrproof-audit";
+import { ProductLaunchVideo } from "@/components/product-launch-video";
 import { AgentSurfaceGuide } from "@/components/editorial/agent-surface-guide";
 import { PrismSchematic } from "@/components/editorial/prism-schematic";
 import ProductPricing from "@/components/product-pricing";
@@ -119,6 +120,8 @@ export default function Page() {
           <div id="audit" className="scroll-mt-20">
             <FFRProofAudit />
           </div>
+
+          <ProductLaunchVideo slug="ffrproof" />
 
           <div className="mx-auto w-full max-w-4xl space-y-10">
             <section className="space-y-3">
