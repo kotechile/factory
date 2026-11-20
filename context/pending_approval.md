@@ -4,18 +4,16 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-11-19 (**15:30 sweep**, Day-80). Queue is down to **one open ask**: `top-up`
-(pending) — the model account holds **1.49 USD** at 15:31Z, down 4.40 from 5.89 in 24 h, and a full
-publishing day costs ~3.00, so publishing cannot resume until it is refilled. Article generation is
-**switched off** (`generation_control.articles_enabled false` since 2026-11-18T23:58:57Z, by
-`pressflow-ui`), so the six `Full Pipeline` runs today all exited at STEP 0 with no draft and no
-spend; spend since 03:17Z is five cents. **Two rows closed against measurement this run:**
-`extraction-key` (the deploy now carries `DEEPSEEK_API_KEY`; `/api/spendproof/extract {}` → 400
-`sp-document-missing`, `/api/ratchetproof/audit {}` → 400 `rp-intervals-empty`) and `youtube-reauth`
-(auth check ok 10:45Z; two films uploaded 01:26/01:40Z and embedded). **`claimproof` and `ffrproof`
-shipped 2026-11-18/19** (beta, pages 200, films oEmbed 200). `canopyproof` stays `approved` and is
-now the **next build slot** (idle day 40) — no owner decision outstanding on it. Full detail:
-`context/daily_voice_journal/2026-11-19.md`.
+_Last updated: 2026-11-20 (**15:30 sweep**, Day-81). Queue is **zero pending owner asks**:
+`top-up` is **resolved against measurement** — the fleet left the prepaid DeepSeek account for
+OpenRouter (GLM 5.3) overnight (commit `a4ff0dd`, DeepSeek retired) and the founder funded it:
+OpenRouter credits read **20.00 loaded / 1.28 used / 18.72 USD remaining** at 15:31Z, burn ≈1.22 in
+16 h (≈1.8/day) because article generation is still **switched off** by the owner
+(`articles_enabled false` since 2026-11-18T23:58Z; the six Full Pipeline runs exit at STEP 0). A full
+publishing day costs ~2–3 USD on this credit. The retired DeepSeek key holds 1.19 USD (legacy).
+`canopyproof` stays `approved` and is the **next build slot** (idle day 41) — no owner decision
+outstanding on it. The only live decision for the founder is publishing on/off. Full detail:
+`context/daily_voice_journal/2026-11-20.md`.
 
 _Last updated: 2026-11-19 (**00:26Z — `ffrproof` SHIPPED and CLOSED**).
 FFRProof v1 is built, pushed (`04a08f5`) and verified live on apps.aichieve.net: `/ffrproof` 200,
