@@ -207,13 +207,28 @@ async function reviewScreenshot({
   let lastMeta = null;
 
   const call = async () => {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: body(prompt),
-    });
+    // Upstream 5xx/429 are transient (measured 2026-11-20: OpenRouter provider
+    // OpenInference returned 502 mid-run and killed the whole gate on tile 2 of 41,
+    // though the same provider answered the identical payload a minute later). Retry
+    // those with backoff; a 4xx (bad model id, bad key) still fails fast — it is not
+    // noise and retrying it would hide a config defect.
+    const MAX_HTTP_RETRIES = 3;
+    let res;
+    for (let attempt = 1; ; attempt++) {
+      res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: body(prompt),
+      });
+      if (res.ok || attempt >= MAX_HTTP_RETRIES || !(res.status === 429 || res.status >= 500)) break;
+      const waitMs = 1000 * 2 ** (attempt - 1);
+      console.log(
+        `visual-qa: ${imagePath} — HTTP ${res.status} on attempt ${attempt} (${model}) — retrying in ${waitMs}ms (backoff)…`,
+      );
+      await new Promise((r) => setTimeout(r, waitMs));
+    }
     if (!res.ok) {
-      throw new Error(`DeepSeek API error ${res.status}: ${await res.text()}`);
+      throw new Error(`Visual-QA API error ${res.status}: ${await res.text()}`);
     }
     const data = await res.json();
     const choice = data.choices?.[0];
@@ -254,7 +269,8 @@ async function main() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  let apiKey = process.env.DEEPSEEK_API_KEY; // env fallback for local dev
+  let deepseekKey = process.env.DEEPSEEK_API_KEY; // env fallback for local dev
+  let openrouterKey = process.env.OPENROUTER_API_KEY;
   let model = process.env.VISUAL_QA_MODEL || "deepseek-flash";
   let prompt = suggestMode ? SUGGEST_PROMPT : GATE_PROMPT;
 
@@ -264,7 +280,8 @@ async function main() {
       const { data, error } = await sb.from("factory_config").select("key, value");
       if (!error && data) {
         const cfg = Object.fromEntries(data.map((r) => [r.key, r.value]));
-        if (cfg.deepseek_api_key) apiKey = cfg.deepseek_api_key;
+        if (cfg.deepseek_api_key) deepseekKey = cfg.deepseek_api_key;
+        if (cfg.openrouter_api_key) openrouterKey = cfg.openrouter_api_key;
         if (cfg.visual_qa_model) model = cfg.visual_qa_model;
         if (!suggestMode && cfg.visual_qa_prompt) prompt = cfg.visual_qa_prompt;
       } else if (error) {
@@ -275,9 +292,22 @@ async function main() {
     }
   }
 
+  // Route by model name — no silent fallback (factory rule 5). DeepSeek ids go to the
+  // DeepSeek endpoint with the DeepSeek key; anything else (e.g. `z-ai/glm-5.3-flash`,
+  // the visual-QA reviewer since the 2026-11-19 GLM migration) goes to OpenRouter with
+  // the OpenRouter key. A model with no matching key is an explicit error, never a
+  // cross-provider guess (the 2026-11-20 build failure was exactly that: a GLM model id
+  // sent to the DeepSeek endpoint, which rejected it with a 400).
+  const isOpenRouter = !/^(deepseek[-_])/.test(model);
+  const apiKey = isOpenRouter ? openrouterKey : deepseekKey;
+  const endpoint = isOpenRouter
+    ? "https://openrouter.ai/api/v1/chat/completions"
+    : "https://api.deepseek.com/v1/chat/completions";
+  const providerName = isOpenRouter ? "OpenRouter" : "DeepSeek";
+
   if (!apiKey) {
     console.warn(
-      "visual-qa: SKIPPED — no DeepSeek key configured. Add `deepseek_api_key` to Supabase factory_config (or set DEEPSEEK_API_KEY).",
+      `visual-qa: SKIPPED — no ${providerName} key configured for model ${model}. Add the key to Supabase factory_config (or set the matching env var).`,
     );
     return 0;
   }
@@ -309,7 +339,6 @@ async function main() {
     prompt += `\n\nStyle guide (${STYLEGUIDE}):\n${readFileSync(STYLEGUIDE, "utf8")}`;
   }
 
-  const endpoint = "https://api.deepseek.com/v1/chat/completions";
   // Output budget for the gate call. DeepSeek bills reasoning inside `max_tokens`, and a dense
   // full-page review spent ~2k reasoning tokens on its own — 4096 is ~2x the measured peak: enough
   // headroom for the whole verdict, still bounded (a larger budget only makes the gate slower).
