@@ -4,7 +4,18 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-11-20 (**15:30 sweep**, Day-81). Queue is **zero pending owner asks**:
+_Last updated: 2026-11-21 (**15:30 sweep**, Day-82). **Publishing is back ON** — the owner set
+`articles_enabled true` at 2026-11-20T19:27Z; articles **397 → 402** (+5, four today). Credit
+**18.72 → 15.98 USD** (-2.74/24 h with publishing resumed mid-window), runway ≈ 5 days, guard
+warns below 6.00 — no top-up ask. The first post-migration Build Watchdog (11-20 16:30Z) went
+**RED** — the visual-QA reviewer was routed to the DeepSeek endpoint with a GLM model id (400),
+plus an unretried OpenRouter 502 — fixed same hour (`f9b5e54`, route by model id + 5xx/429 retry),
+re-proven **41/41 tiles PASS**, fix live (container == HEAD), `/showcase` 200. Friday Growth
+Watchdog 17:00Z: **RatchetProof Day-30 MISS** (day 32, $0 revenue); ClaimProof + FFRProof Day-7
+due ~11-25, tracking to MISS; visitor counts still the automated-check shape, provably outside 0.
+Events 16,013 → 16,309 (+296 = our own 11-20 test walk, zero since 20:04Z). doctor 23 residual
+402 stamps (was 32), zero new. Queue **zero pending owner asks**; `canopyproof` next build slot
+(idle day 42). Editorial repo in sync (`890de54` == pressflow image), published 401 == 401.
 `top-up` is **resolved against measurement** — the fleet left the prepaid DeepSeek account for
 OpenRouter (GLM 5.3) overnight (commit `a4ff0dd`, DeepSeek retired) and the founder funded it:
 OpenRouter credits read **20.00 loaded / 1.28 used / 18.72 USD remaining** at 15:31Z, burn ≈1.22 in
