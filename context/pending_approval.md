@@ -4,6 +4,8 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-22 (**15:30 sweep**, Day-83). **Zero pending owner asks.** Publishing on and normal (articles 402 → 408); credit 13.75 USD, runway ≈6 days, guard warns below 6.00 — no ask. `canopyproof` remains the only approved-and-unbuilt item (idle d43, next build slot). Day-7 gate ClaimProof + FFRProof ~11-25, tracking MISS (informational, no owner decision yet). Stamp `2026-11-22T15:35Z`.
+
 _Last updated: 2026-11-21 (**15:30 sweep**, Day-82). **Publishing is back ON** — the owner set
 `articles_enabled true` at 2026-11-20T19:27Z; articles **397 → 402** (+5, four today). Credit
 **18.72 → 15.98 USD** (-2.74/24 h with publishing resumed mid-window), runway ≈ 5 days, guard
