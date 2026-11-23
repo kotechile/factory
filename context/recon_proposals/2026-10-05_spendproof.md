@@ -67,3 +67,28 @@ Top candidate: **SourceProof** — a tariff-adjusted, scenario-weighted total-la
 
 - Route `src/app/spendproof/`; engine `src/lib/calc/spendproof/`; registry entry in `src/products/registry.ts` with **`usesLlmPrimitive: true`**; telemetry `track(..., "spendproof")`; WebMCP tool `reconcile_ai_invoice`. UI follows the Editorial Signature (`skills/ui_component_standards.md`).
 - Gate: `scripts/verify-build.sh` must pass before any push (tsc → lint → tokens → `verticals:check` → `recon:cadence` → vitest → build → Playwright → visual-QA). Nothing is built ahead of `@Simon approve`.
+
+---
+
+## Addendum — re-scan 2026-11-23 (30-day window 2026-10-24 → 2026-11-23)
+
+**Verdict: no new candidate ≥60; the PRD is strengthened and carries two amendments before it faces
+the owner again.** Full evidence: `2026-11-23_finops_energy_rescan.md`.
+
+- **Amendment 1 — dot/agent-billing variance class.** OpenAI "dots" start billing on Enterprise
+  invoices 2026-11-18 (admin default-on; dot billing itself free until 2027-01-13): a new always-on
+  agent SKU with no attribution dimension on the same invoice. Add a dot/agent line class
+  (flat-rate-by-work-type vs consumption) to the invoice schema.
+- **Amendment 2 — FOCUS 1.5 version stamp.** FOCUS v1.5 ratification December 2026 adds model
+  identity, cache status and requester attribution (PrincipalId/CredentialId). Version-stamp the
+  engine against FOCUS 1.5's published scope; pre-1.5 exports remain the design target.
+- Market structure moved our way: ChatGPT Enterprise on AWS Marketplace (billed by AWS, counts
+  toward EDP/PPA commitments, 2026-11-09) splits enterprise AI spend across three billing paths;
+  Gartner's first AI FinOps Quadrant (2026-10-28, 18 vendors) formalises the category; the
+  vendor crowd thickens at attribution/enforcement — SpendProof's unowned slice stays the
+  revenue-side invoice reconciliation. AWS's free Bedrock cost breakdown (Oct 2026) pressures the
+  dashboard layer only; never drift toward "an attribution dashboard". Anthropic's commit-boundary
+  discount caps (2026-09-28) add a "commit-boundary rate change" variance class, not phantom
+  variance.
+- Dropped: standalone EDP/commit drawdown tracker — repeat ~55, friction ~35, fails ≥60 and the
+  free-incumbent check.
