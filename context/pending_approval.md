@@ -4,6 +4,13 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-24 (**15:30 sweep**, Day-85). **Zero pending owner asks.** Publishing on
+and normal (articles 413 → 420); one workstation draft lost mid-run to a provider 429 (P2,
+editorial desk); credit 8.83 USD, runway ≈3.5 days, guard warning band (< 6.00) likely tomorrow —
+no ask yet. `canopyproof` remains the only approved-and-unbuilt item (idle d45, next build slot).
+Day-7 gate ClaimProof + FFRProof ~11-25, tracking MISS (informational, no owner decision yet).
+Stamp `2026-11-24T15:35Z`.
+
 _Last updated: 2026-11-23 (**15:30 sweep**, Day-84). **Zero pending owner asks.** Publishing on
 and normal (articles 408 → 413); credit 11.37 USD, runway ≈5 days, guard warns below 6.00 — no
 ask. `canopyproof` remains the only approved-and-unbuilt item (idle d44, next build slot).
