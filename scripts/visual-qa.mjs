@@ -339,10 +339,12 @@ async function main() {
     prompt += `\n\nStyle guide (${STYLEGUIDE}):\n${readFileSync(STYLEGUIDE, "utf8")}`;
   }
 
-  // Output budget for the gate call. DeepSeek bills reasoning inside `max_tokens`, and a dense
-  // full-page review spent ~2k reasoning tokens on its own — 4096 is ~2x the measured peak: enough
-  // headroom for the whole verdict, still bounded (a larger budget only makes the gate slower).
-  const maxTokens = 4096;
+  // Output budget for the gate call. Thinking/reasoning tokens count against `max_tokens`: DeepSeek's
+  // dense full-page review peaked ~2k, so 4096 was 2× headroom. GLM (z-ai/glm-5.3-flash) burns more —
+  // on 2026-11-25 a tile (`ffrproof-qa-1`) hit finishReason=length at exactly 4096 on all 3 attempts,
+  // never emitting a verdict line (scored FAIL while every deterministic step was green). 8192 keeps
+  // the same 2× headroom against the new measured peak; a larger budget only makes the gate slower.
+  const maxTokens = 8192;
   const jsonMode = suggestMode;
 
   if (!suggestMode) {

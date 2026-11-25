@@ -297,7 +297,11 @@ Standards are enforced by `scripts/verify-build.sh`, which must pass before any 
      runner scored as a FAIL on a page that measures clean. Fixed by budgeting 4096 (2× the measured
      peak), retrying an *unrecognized* verdict as well as a FAIL (fail-closed unchanged), and logging
      `finishReason` + usage whenever a verdict is malformed. Recognise the signature: a verdict that
-     starts mid-sentence, and `thoughtsTokenCount` ≈ the budget.
+     starts mid-sentence, and `thoughtsTokenCount` ≈ the budget. **Budget is per-provider, not
+     permanent:** the same truncation class returned on 2026-11-25 with `z-ai/glm-5.3-flash`
+     (`ffrproof-qa-1`, `finishReason=length` at exactly 4096 completion tokens, all 3 attempts,
+     no verdict line → scored FAIL with every deterministic step green). When the vision model
+     changes, re-measure the peak and re-set the budget — `scripts/visual-qa.mjs` now budgets 8192.
   2. **The input was one ~4×-downscaled full-page image per product** (1280×6495 for ParcelProof), which
      the reviewer cannot read — the source of repeated "text overlapping" hallucination. It now reviews
      **full-resolution viewport-height tiles** (≤6 per product, cut from the full-page render so no band
