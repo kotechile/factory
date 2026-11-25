@@ -4,6 +4,15 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
+_Last updated: 2026-11-25 (**15:30 sweep**, Day-86). **One pending owner ask.** Publishing on and
+strong (articles 420 → 430, +10; pressflow in sync since 13:27Z). **`model-credit` — the credit
+guard's warning band is live: 8.83 → 5.54 USD, -3.29/24 h, runway ≈1.7 days, zero lands Thursday
+11-27 morning. Reply `@Simon top up openrouter` (add credits to the OpenRouter account the fleet
+already runs on). Doing nothing = the editorial fleet and all agent pipelines stop Thursday, the
+first outage since the 11-20 refill; the guard only signals, it cannot pay.** `canopyproof` remains
+the only approved-and-unbuilt item (idle d46, next build slot). Day-7 gate ClaimProof + FFRProof
+measures at Growth Watchdog Fri 11-27 17:00Z, tracking MISS (informational). Stamp `2026-11-25T15:35Z`.
+
 _Last updated: 2026-11-24 (**15:30 sweep**, Day-85). **Zero pending owner asks.** Publishing on
 and normal (articles 413 → 420); one workstation draft lost mid-run to a provider 429 (P2,
 editorial desk); credit 8.83 USD, runway ≈3.5 days, guard warning band (< 6.00) likely tomorrow —
