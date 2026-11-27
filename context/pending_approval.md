@@ -4,13 +4,13 @@ Single source of truth for work blocked on the founder's `@Simon approve` (hard 
 AGENTS.md rule 7 / company_goals.md rule 5). Simon does not build code and does not dispatch
 build/ship actions ahead of the gate. Read this instead of re-deriving from journals/sweeps.
 
-_Last updated: 2026-11-26 (**15:30 sweep**, Day-87). **One pending owner ask, now urgent.**
-Publishing on and strong (articles 430 → 439, +9). **`model-credit` — balance 5.54 → 2.19 USD,
--3.35/24 h, runway ≈16 h: zero lands Friday 11-27 early morning, BEFORE the 10:30Z editorial runs
-and the 17:00Z Growth Watchdog the same day. Reply `@Simon top up openrouter` (add credits to the
-OpenRouter account the fleet already runs on). Doing nothing = tomorrow loses the whole publishing
-day plus both watchdogs; the guard only signals, it cannot pay.** `canopyproof` remains the only
-approved-and-unbuilt item (idle d47, next build slot). Day-7 gate ClaimProof + FFRProof measures at
+_Last updated: 2026-11-27 (**15:30 sweep**, Day-88). **One pending owner ask, overdue.**
+**`model-credit` — the top-up did not land: OpenRouter 2.19 → −0.13 USD, account now overdrawn.
+Two editorial slots died `HTTP 402` this morning; the 16:30Z Build Watchdog and the 17:00Z Growth
+Watchdog (Day-7 gate) will fail today without a top-up. Reply `@Simon top up openrouter`. Doing
+nothing = today's gates and the rest of the publishing day fail on credits; the guard only signals,
+it cannot pay.** `canopyproof` remains the only
+approved-and-unbuilt item (idle d48, next build slot). Day-7 gate ClaimProof + FFRProof measures at
 Growth Watchdog Fri 11-27 17:00Z, tracking MISS (informational). Stamp `2026-11-26T15:31Z`.
 
 _Last updated: 2026-11-25 (**15:30 sweep**, Day-86). **One pending owner ask.** Publishing on and
